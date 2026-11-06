@@ -1,6 +1,6 @@
 # 單獨值夜
 
-Vite + React 18 + TypeScript（strict）純前端遊戲。目前進度：**M0 專案骨架**（見 `implementation-plan.md` §16）。
+Vite + React 18 + TypeScript（strict）純前端遊戲。目前進度：**M1 Engine 核心**（M0 骨架已完成）（見 `implementation-plan.md` §16）。
 
 ## 指令
 
