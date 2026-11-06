@@ -3,9 +3,11 @@ import type {
   ChatLineView,
   ChatView,
   GameView,
+  GateCardView,
   MonitorView,
   OrderRowView,
   PatientView,
+  ReportView,
   VitalReadout,
 } from '@/view';
 
@@ -144,6 +146,50 @@ export function clock(over: Partial<GameView['clock']> = {}): GameView['clock'] 
     speeds: [0, 1, 2, 4],
     paused: false,
     pausedBy: null,
+    ...over,
+  };
+}
+
+export function gate(over: Partial<GateCardView> = {}): GateCardView {
+  return {
+    orderId: 'o2',
+    label: 'Augmentin 1.2 g IV',
+    phase: 'DECISION',
+    concerns: [
+      {
+        by: 'PHARMACY',
+        byName: '藥房',
+        category: 'ALLERGY',
+        text: '病人對 Penicillin 過敏，Augmentin 1.2 g IV 有交叉風險。',
+      },
+      {
+        by: 'NURSE',
+        byName: '何姑娘',
+        category: 'ALLERGY',
+        text: '醫生，病人對 Penicillin 過敏，真係要落？',
+      },
+    ],
+    insistCount: 0,
+    required: 2,
+    canInsist: true,
+    ...over,
+  };
+}
+
+export function report(over: Partial<ReportView> = {}): ReportView {
+  return {
+    id: 'rep:o3',
+    orderId: 'o3',
+    label: 'CBC',
+    timeLabel: '21:40',
+    kind: 'PANEL',
+    abnormal: true,
+    items: [
+      { label: 'WBC', valueText: '18.0 ×10⁹/L', refText: '4.0–10.0', flag: 'H' },
+      { label: 'Hb', valueText: '12.5 g/dL', refText: '12.0–16.0', flag: null },
+    ],
+    text: null,
+    reviewPending: true,
     ...over,
   };
 }

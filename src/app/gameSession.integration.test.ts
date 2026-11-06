@@ -52,7 +52,10 @@ const saves: SaveService = {
   load: vi.fn(() => Promise.resolve({ ok: false, error: 'MISSING', message: '' } as never)),
 };
 
-function open(model: string, options: { timeoutMs?: number; seed?: string } = {}) {
+function open(
+  model: string,
+  options: { timeoutMs?: number; seed?: string; difficulty?: 'EASY' | 'MEDIUM' | 'HARD' } = {},
+) {
   const timer = manualTimer();
   const session = createGameSession({
     config: getConfig(),
@@ -60,7 +63,7 @@ function open(model: string, options: { timeoutMs?: number; seed?: string } = {}
     params: {
       seed: options.seed ?? 'int-1',
       mode: 'NIGHT',
-      difficulty: 'MEDIUM',
+      difficulty: options.difficulty ?? 'MEDIUM',
       playerRank: 'MO',
     },
     gateway: createAiGateway(
@@ -294,5 +297,89 @@ describe('Action Log、order 取消、提及', () => {
     session.stop();
     await session.settled();
     expect(session.getSnapshot().orders).toHaveLength(0);
+  });
+});
+
+const requestKinds = () =>
+  mock.requests.flatMap((r) => {
+    const body = r.body as { messages?: { role: string; content: string }[] };
+    const user = body.messages?.find((m) => m.role === 'user');
+    if (!user) return [];
+    return [(JSON.parse(user.content) as { kind: string }).kind];
+  });
+
+describe('M3：把關（真 gateway ＋ mock AI）', () => {
+  it('Augmentin（penicillin 過敏）：藥房／護士提出關注 → gate 卡 → 堅持兩次 → 評級 → 放行 → 護士確認', async () => {
+    const { session } = open('mock-ok', { seed: 'int-gate' });
+    session.actions.submitChat('p1', 'augmentin 1.2 g iv');
+    await session.settled();
+    let view = session.getSnapshot();
+    expect(view.orders[0]?.status).toBe('GATED');
+    expect(view.gates[0]).toMatchObject({ phase: 'DECISION', required: 2, canInsist: true });
+    expect(view.chat?.lines.some((l) => l.kind === 'PHARMACY' && l.source === 'PHONE')).toBe(true);
+
+    session.actions.insistOrder(view.gates[0]?.orderId ?? '');
+    await session.settled();
+    view = session.getSnapshot();
+    expect(view.gates[0]?.phase).toBe('RECONFIRM');
+    expect(view.chat?.lines.filter((l) => l.kind === 'PHARMACY').length).toBeGreaterThanOrEqual(2);
+
+    session.actions.insistOrder(view.gates[0]?.orderId ?? '');
+    await session.settled();
+    view = session.getSnapshot();
+    expect(view.gates).toEqual([]);
+    expect(view.orders[0]?.status).toBe('RUNNING');
+    expect(requestKinds()).toContain('gate.danger');
+    expect(view.aiFailure).toBeNull();
+    const text = JSON.stringify(view.chat?.lines);
+    expect(text).not.toMatch(/\{\{|\}\}/);
+  });
+
+  it('藥房一律把關；HARD（新入職護士）唔會發 gate.nurse', async () => {
+    const { session } = open('mock-ok', { seed: 'int-gate-new', difficulty: 'HARD' });
+    session.actions.submitChat('p1', 'paracetamol 500 mg po');
+    await session.settled();
+    const kinds = requestKinds();
+    expect(kinds).toContain('gate.pharmacy');
+    expect(kinds).not.toContain('gate.nurse');
+    expect(session.getSnapshot().orders[0]?.status).toBe('RUNNING');
+  });
+
+  it('把關句子含裸數字（mock-gate-bad-line）→ guard 擋住：暫停＋重試橫幅，order 仍然等待，冇把關對白入 chat', async () => {
+    const { session } = open('mock-gate-bad-line', { seed: 'int-gate-bad' });
+    session.actions.submitChat('p1', 'augmentin 1.2 g iv');
+    await session.settled();
+    const view = session.getSnapshot();
+    expect(view.aiFailure?.reason).toBe('GUARD');
+    expect(view.clock.paused).toBe(true);
+    expect(view.orders[0]?.status).toBe('GATED');
+    expect(view.chat?.lines.some((l) => l.kind === 'PHARMACY')).toBe(false);
+  });
+
+  it('取消等把關嘅 order：暫停中亦可以取消', async () => {
+    const { session } = open('mock-ok', { seed: 'int-gate-cancel' });
+    session.actions.submitChat('p1', 'augmentin 1.2 g iv');
+    await session.settled();
+    session.actions.togglePause();
+    session.actions.cancelOrder(session.getSnapshot().orders[0]?.id ?? '');
+    const view = session.getSnapshot();
+    expect(view.orders[0]?.status).toBe('CANCELLED');
+    expect(view.gates).toEqual([]);
+  });
+
+  it('化驗：order 完成後按表內延遲出報告，護士口頭通知，報告數值唔來自 AI', async () => {
+    const { session, timer } = open('mock-ok', { seed: 'int-lab' });
+    session.actions.submitChat('p1', 'cbc');
+    await timer.run(70_000, session);
+    const view = session.getSnapshot();
+    expect(view.reports[0]?.kind).toBe('PANEL');
+    expect(view.orders[0]?.resultStatus).toBe('REPORTED');
+    const nurseText = (view.chat?.lines ?? [])
+      .filter((l) => l.kind === 'NURSE')
+      .map((l) => l.text)
+      .join('|');
+    expect(nurseText).toContain('報告出咗');
+    for (const item of view.reports[0]?.items ?? [])
+      expect(nurseText).not.toContain(item.valueText);
   });
 });

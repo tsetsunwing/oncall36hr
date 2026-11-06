@@ -109,16 +109,15 @@ describe('化驗／檢查結果（T7）', () => {
     state = advance(eng, state, 900 + 1).state;
     expect(orderOf(state, 'img.cxr')?.sampledState).toBe('DETERIORATING');
     state = feed(eng, state, [say('oxygen nrb')]).state;
+    const patient = state.patients.p1;
+    if (!patient) throw new Error('no patient');
     state = {
       ...state,
       patients: {
         ...state.patients,
-        p1: state.patients.p1 && {
-          ...state.patients.p1,
-          hidden: {
-            ...state.patients.p1.hidden,
-            fsm: { ...state.patients.p1.hidden.fsm, state: 'STABILISING' },
-          },
+        p1: {
+          ...patient,
+          hidden: { ...patient.hidden, fsm: { ...patient.hidden.fsm, state: 'STABILISING' } },
         },
       },
     };
@@ -187,14 +186,10 @@ describe('取消規則：KEEP_PARTIAL vs DISCARD', () => {
     expect(cancelled?.status).toBe('CANCELLED');
     expect(cancelled?.cancelledAt).toBe(state.clock.t);
     const after = patientAt(state, state.clock.t + 3000);
-    const total = Object.keys(running).reduce(
-      (sum, key) => sum + Math.abs(running[key as keyof typeof running] ?? 0),
-      0,
-    );
-    const kept = Object.keys(after).reduce(
-      (sum, key) => sum + Math.abs(after[key as keyof typeof after] ?? 0),
-      0,
-    );
+    const magnitude = (delta: Record<string, number>) =>
+      Object.values(delta).reduce((sum, value) => sum + Math.abs(value), 0);
+    const total = magnitude(running);
+    const kept = magnitude(after);
     expect(total).toBeGreaterThan(0);
     expect(kept).toBeGreaterThan(0);
     expect(kept).toBeLessThan(total);
@@ -217,7 +212,7 @@ describe('取消規則：KEEP_PARTIAL vs DISCARD', () => {
     ]);
     expect(orderOf(cancelled.state, 'drug.paracetamol')?.status).toBe('CANCELLED');
     const delta = patientAt(cancelled.state, cancelled.state.clock.t + 3000);
-    expect(Object.values(delta).every((v) => v === 0 || v === undefined)).toBe(true);
+    expect(Object.values(delta).every((v) => v === 0)).toBe(true);
   });
 
   it('暫停中取消進行中嘅 order 成功；已完成嘅唔得', () => {
