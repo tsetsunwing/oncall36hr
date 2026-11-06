@@ -132,12 +132,39 @@ export const configSchema = z
         reliability: levelRecord(probability),
         speedMultiplier: levelRecord(positive),
         rankImpression: z
-          .object({ start: z.number(), min: z.number(), max: z.number() })
+          .object({
+            start: z.number(),
+            min: z.number(),
+            max: z.number(),
+            /** 評價 ≥ warmMin 為 WARM；≤ coldMax 為 COLD；其餘 NEUTRAL（只喺 engine 內部換成態度標籤） */
+            warmMin: z.number(),
+            coldMax: z.number(),
+          })
           .strict()
-          .refine((v) => v.min <= v.start && v.start <= v.max, 'start 必須介乎 min 與 max 之間'),
+          .refine((v) => v.min <= v.start && v.start <= v.max, 'start 必須介乎 min 與 max 之間')
+          .refine((v) => v.coldMax < v.warmMin, 'coldMax 必須細過 warmMin'),
       })
       .strict(),
     ward: z.object({ bedCount: z.number().int().positive() }).strict(),
+    /** 電話量＝ baseCallsPerHour × 班次時數 × (1 ＋ T12 難度加幅)（spec §4） */
+    phone: z
+      .object({
+        baseCallsPerHour: positive,
+        firstCallAfterSec: z.number().int().min(0),
+        laterDelaySec: z.number().int().positive(),
+        maxDefers: z.number().int().min(0),
+        expireSec: z
+          .object({
+            ROUTINE: z.number().int().positive(),
+            URGENT: z.number().int().positive(),
+            EMERGENCY: z.number().int().positive(),
+          })
+          .strict(),
+        interruptPriorities: z.array(z.enum(['ROUTINE', 'URGENT', 'EMERGENCY'])),
+        sbarMaxChars: z.number().int().positive(),
+        transcriptLimit: z.number().int().positive(),
+      })
+      .strict(),
     ui: z
       .object({
         touchTargetMinPx: positive,

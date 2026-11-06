@@ -26,6 +26,355 @@
       "DETERIORATING": ["氣促", "發冷", "咳嗽有痰"],
       "SEPTIC_SHOCK": ["頭暈", "氣促", "乏力，說話困難"],
       "STABILISING": ["感覺好轉", "仍然有少許咳嗽"]
+    },
+    "complexity": "COMPLEX"
+  },
+  {
+    "id": "cell-01",
+    "fsmId": "cell-01",
+    "bed": 1,
+    "demographics": {
+      "name": "張婆婆",
+      "age": 79,
+      "sex": "F",
+      "code": "FULL"
+    },
+    "presentingComplaint": "右小腿紅腫疼痛",
+    "complexity": "SIMPLE",
+    "allergies": [],
+    "diagnosisIds": ["cellulitis"],
+    "diagnosisTerms": ["蜂窩組織炎", "cellulitis", "蜂窩織炎"],
+    "symptomsByState": {
+      "STABILISING": ["小腿仍然紅同痛"],
+      "DETERIORATING": ["小腿更痛", "發冷"]
+    }
+  },
+  {
+    "id": "cell-02",
+    "fsmId": "cell-01",
+    "bed": 2,
+    "demographics": {
+      "name": "何伯",
+      "age": 81,
+      "sex": "M",
+      "code": "FULL"
+    },
+    "presentingComplaint": "左前臂紅腫發熱",
+    "complexity": "SIMPLE",
+    "allergies": ["penicillin"],
+    "diagnosisIds": ["cellulitis"],
+    "diagnosisTerms": ["蜂窩組織炎", "cellulitis", "蜂窩織炎"],
+    "symptomsByState": {
+      "STABILISING": ["手臂有啲腫"],
+      "DETERIORATING": ["手臂越嚟越痛", "覺得熱"]
+    }
+  },
+  {
+    "id": "uti-01",
+    "fsmId": "uti-01",
+    "bed": 3,
+    "demographics": {
+      "name": "王婆婆",
+      "age": 82,
+      "sex": "F",
+      "code": "FULL"
+    },
+    "presentingComplaint": "小便痛、間中發燒",
+    "complexity": "SIMPLE",
+    "allergies": [],
+    "diagnosisIds": ["uti"],
+    "diagnosisTerms": ["尿道炎", "uti", "尿路感染", "urinary tract infection"],
+    "symptomsByState": {
+      "STABILISING": ["小便有少少痛"],
+      "DETERIORATING": ["發冷", "小便好痛"]
+    }
+  },
+  {
+    "id": "uti-02",
+    "fsmId": "uti-01",
+    "bed": 4,
+    "demographics": {
+      "name": "周先生",
+      "age": 55,
+      "sex": "M",
+      "code": "FULL"
+    },
+    "presentingComplaint": "小便頻密、下腹痛",
+    "complexity": "SIMPLE",
+    "allergies": [],
+    "diagnosisIds": ["uti"],
+    "diagnosisTerms": ["尿道炎", "uti", "尿路感染", "urinary tract infection"],
+    "symptomsByState": {
+      "STABILISING": ["下腹有啲痛"],
+      "DETERIORATING": ["發燒", "下腹好痛"]
+    }
+  },
+  {
+    "id": "copd-01",
+    "fsmId": "copd-01",
+    "bed": 5,
+    "demographics": {
+      "name": "林太",
+      "age": 70,
+      "sex": "F",
+      "code": "FULL"
+    },
+    "presentingComplaint": "長期咳嗽、間中氣喘",
+    "complexity": "SIMPLE",
+    "allergies": [],
+    "diagnosisIds": ["copd"],
+    "diagnosisTerms": ["copd", "慢性阻塞性肺病", "肺氣腫", "慢阻肺"],
+    "symptomsByState": {
+      "STABILISING": ["有少少氣喘"],
+      "DETERIORATING": ["氣喘加重", "咳得厲害"]
+    }
+  },
+  {
+    "id": "copd-02",
+    "fsmId": "copd-01",
+    "bed": 6,
+    "demographics": {
+      "name": "吳先生",
+      "age": 85,
+      "sex": "M",
+      "code": "FULL"
+    },
+    "presentingComplaint": "氣喘、痰多",
+    "complexity": "SIMPLE",
+    "allergies": [],
+    "diagnosisIds": ["copd"],
+    "diagnosisTerms": ["copd", "慢性阻塞性肺病", "肺氣腫", "慢阻肺"],
+    "symptomsByState": {
+      "STABILISING": ["痰比平時多"],
+      "DETERIORATING": ["喘得緊要", "講嘢要停"]
+    }
+  },
+  {
+    "id": "htn-01",
+    "fsmId": "htn-01",
+    "bed": 7,
+    "demographics": {
+      "name": "梁伯",
+      "age": 77,
+      "sex": "M",
+      "code": "FULL"
+    },
+    "presentingComplaint": "頭暈、血壓偏高",
+    "complexity": "SIMPLE",
+    "allergies": [],
+    "diagnosisIds": ["hypertension"],
+    "diagnosisTerms": ["高血壓", "hypertension", "htn"],
+    "symptomsByState": {
+      "STABILISING": ["有少少頭暈"],
+      "DETERIORATING": ["頭好暈", "頭痛"]
+    }
+  },
+  {
+    "id": "htn-02",
+    "fsmId": "htn-01",
+    "bed": 8,
+    "demographics": {
+      "name": "李婆婆",
+      "age": 74,
+      "sex": "F",
+      "code": "FULL"
+    },
+    "presentingComplaint": "頭痛、血壓偏高",
+    "complexity": "SIMPLE",
+    "allergies": [],
+    "diagnosisIds": ["hypertension"],
+    "diagnosisTerms": ["高血壓", "hypertension", "htn"],
+    "symptomsByState": {
+      "STABILISING": ["頭有啲痛"],
+      "DETERIORATING": ["頭痛得緊要", "眼矇矇"]
+    }
+  },
+  {
+    "id": "pna-sepsis-02",
+    "fsmId": "pna-sepsis-01",
+    "bed": 9,
+    "demographics": {
+      "name": "劉太",
+      "age": 76,
+      "sex": "F",
+      "code": "FULL"
+    },
+    "presentingComplaint": "發燒、咳嗽、氣促",
+    "complexity": "COMPLEX",
+    "allergies": [],
+    "diagnosisIds": ["pneumonia", "sepsis"],
+    "diagnosisTerms": [
+      "肺炎",
+      "pneumonia",
+      "sepsis",
+      "敗血",
+      "septic",
+      "感染性休克",
+      "chest infection",
+      "LRTI"
+    ],
+    "symptomsByState": {
+      "DETERIORATING": ["氣促", "發冷"],
+      "SEPTIC_SHOCK": ["頭暈", "乏力"],
+      "STABILISING": ["好返少少"]
+    }
+  },
+  {
+    "id": "hf-01",
+    "fsmId": "hf-01",
+    "bed": 10,
+    "demographics": {
+      "name": "馬伯",
+      "age": 80,
+      "sex": "M",
+      "code": "FULL"
+    },
+    "presentingComplaint": "氣促、雙腳腫",
+    "complexity": "COMPLEX",
+    "allergies": [],
+    "diagnosisIds": ["heart-failure"],
+    "diagnosisTerms": [
+      "心衰竭",
+      "heart failure",
+      "hf",
+      "肺水腫",
+      "pulmonary oedema",
+      "pulmonary edema",
+      "心臟衰竭"
+    ],
+    "symptomsByState": {
+      "STABILISING": ["腳仲有啲腫"],
+      "DETERIORATING": ["氣促", "瞓低就喘"],
+      "SEPTIC_SHOCK": ["喘到講唔到嘢", "好虛弱"]
+    }
+  },
+  {
+    "id": "hf-02",
+    "fsmId": "hf-01",
+    "bed": 11,
+    "demographics": {
+      "name": "鄭婆婆",
+      "age": 83,
+      "sex": "F",
+      "code": "FULL"
+    },
+    "presentingComplaint": "夜間氣促、咳嗽",
+    "complexity": "COMPLEX",
+    "allergies": [],
+    "diagnosisIds": ["heart-failure"],
+    "diagnosisTerms": [
+      "心衰竭",
+      "heart failure",
+      "hf",
+      "肺水腫",
+      "pulmonary oedema",
+      "pulmonary edema",
+      "心臟衰竭"
+    ],
+    "symptomsByState": {
+      "STABILISING": ["腳有啲腫"],
+      "DETERIORATING": ["喘", "要坐起身"],
+      "SEPTIC_SHOCK": ["好喘", "冒冷汗"]
+    }
+  },
+  {
+    "id": "ugib-01",
+    "fsmId": "ugib-01",
+    "bed": 12,
+    "demographics": {
+      "name": "蔡先生",
+      "age": 63,
+      "sex": "M",
+      "code": "FULL"
+    },
+    "presentingComplaint": "黑便、頭暈",
+    "complexity": "COMPLEX",
+    "allergies": [],
+    "diagnosisIds": ["gi-bleed"],
+    "diagnosisTerms": [
+      "上消化道出血",
+      "ugib",
+      "消化道出血",
+      "gi bleed",
+      "gastrointestinal bleed",
+      "胃潰瘍",
+      "peptic ulcer"
+    ],
+    "symptomsByState": {
+      "STABILISING": ["有啲頭暈"],
+      "DETERIORATING": ["頭暈", "心跳好快"],
+      "SEPTIC_SHOCK": ["眼前發黑", "好冇力"]
+    }
+  },
+  {
+    "id": "ugib-02",
+    "fsmId": "ugib-01",
+    "bed": 13,
+    "demographics": {
+      "name": "譚太",
+      "age": 69,
+      "sex": "F",
+      "code": "FULL"
+    },
+    "presentingComplaint": "嘔血、上腹痛",
+    "complexity": "COMPLEX",
+    "allergies": [],
+    "diagnosisIds": ["gi-bleed"],
+    "diagnosisTerms": [
+      "上消化道出血",
+      "ugib",
+      "消化道出血",
+      "gi bleed",
+      "gastrointestinal bleed",
+      "胃潰瘍",
+      "peptic ulcer"
+    ],
+    "symptomsByState": {
+      "STABILISING": ["上腹仲有啲痛"],
+      "DETERIORATING": ["頭暈", "嘔過一次"],
+      "SEPTIC_SHOCK": ["暈到企唔穩", "冒冷汗"]
+    }
+  },
+  {
+    "id": "pe-01",
+    "fsmId": "pe-01",
+    "bed": 14,
+    "demographics": {
+      "name": "高先生",
+      "age": 58,
+      "sex": "M",
+      "code": "FULL"
+    },
+    "presentingComplaint": "胸痛、氣促",
+    "complexity": "COMPLEX",
+    "allergies": [],
+    "diagnosisIds": ["pe"],
+    "diagnosisTerms": ["肺栓塞", "pulmonary embolism", "pe", "dvt", "深靜脈血栓"],
+    "symptomsByState": {
+      "STABILISING": ["有少少胸痛"],
+      "DETERIORATING": ["吸氣胸口痛", "氣促"],
+      "SEPTIC_SHOCK": ["喘到企唔穩", "眼前發黑"]
+    }
+  },
+  {
+    "id": "pe-02",
+    "fsmId": "pe-01",
+    "bed": 15,
+    "demographics": {
+      "name": "趙小姐",
+      "age": 47,
+      "sex": "F",
+      "code": "FULL"
+    },
+    "presentingComplaint": "單邊腳腫、氣促",
+    "complexity": "COMPLEX",
+    "allergies": [],
+    "diagnosisIds": ["pe"],
+    "diagnosisTerms": ["肺栓塞", "pulmonary embolism", "pe", "dvt", "深靜脈血栓"],
+    "symptomsByState": {
+      "STABILISING": ["腳有啲痛"],
+      "DETERIORATING": ["氣促", "心跳快"],
+      "SEPTIC_SHOCK": ["好喘", "頭暈"]
     }
   }
 ]

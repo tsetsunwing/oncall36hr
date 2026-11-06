@@ -18,9 +18,18 @@ describe('content loader', () => {
     'quick-words',
     'results',
     'consequences',
+    'difficulty-profiles',
+    'rank-complexity',
+    'subordinates',
+    'delegation-results',
+    'call-templates',
+    'rank-behaviour',
+    'consult-departments',
+    'scoring-rules',
+    'ward-layout',
   ] as const;
 
-  it('accepts the shipped bundle: M2/M3 tables are filled, every later table is still an empty array', () => {
+  it('accepts the shipped bundle: M2–M4 tables are filled, every later table is still an empty array', () => {
     const content = getContent();
     expect(Object.keys(content.tables)).toHaveLength(TABLE_NAMES.length);
     for (const name of TABLE_NAMES) {

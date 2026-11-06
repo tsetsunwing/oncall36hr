@@ -1,1 +1,108 @@
-[]
+[
+  {
+    "id": "CARDIOLOGY",
+    "label": "Cardiology",
+    "kind": "SPECIALTY",
+    "acceptMinClarity": 1,
+    "bedsideByUrgency": {
+      "ROUTINE": "PHONE",
+      "URGENT": "PHONE",
+      "EMERGENCY": "BEDSIDE"
+    },
+    "reactionSec": {
+      "PHONE": 60,
+      "BEDSIDE": 900
+    },
+    "incoming": true,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "SURGERY",
+    "label": "Surgery",
+    "kind": "SPECIALTY",
+    "acceptMinClarity": 2,
+    "bedsideByUrgency": {
+      "ROUTINE": "PHONE",
+      "URGENT": "BEDSIDE",
+      "EMERGENCY": "BEDSIDE"
+    },
+    "reactionSec": {
+      "PHONE": 60,
+      "BEDSIDE": 1200
+    },
+    "incoming": true,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "ICU",
+    "label": "ICU",
+    "kind": "ICU",
+    "acceptMinClarity": 2,
+    "bedsideByUrgency": {
+      "ROUTINE": "PHONE",
+      "URGENT": "BEDSIDE",
+      "EMERGENCY": "BEDSIDE"
+    },
+    "reactionSec": {
+      "PHONE": 60,
+      "BEDSIDE": 900
+    },
+    "icu": {
+      "mewsMin": 5,
+      "assessSec": 1200
+    },
+    "incoming": false,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "RADIOLOGY",
+    "label": "Radiology",
+    "kind": "SERVICE",
+    "acceptMinClarity": 1,
+    "bedsideByUrgency": {
+      "ROUTINE": "PHONE",
+      "URGENT": "PHONE",
+      "EMERGENCY": "PHONE"
+    },
+    "reactionSec": {
+      "PHONE": 60,
+      "BEDSIDE": 0
+    },
+    "incoming": false,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "PHARMACY",
+    "label": "Pharmacy",
+    "kind": "SERVICE",
+    "acceptMinClarity": 1,
+    "bedsideByUrgency": {
+      "ROUTINE": "PHONE",
+      "URGENT": "PHONE",
+      "EMERGENCY": "PHONE"
+    },
+    "reactionSec": {
+      "PHONE": 60,
+      "BEDSIDE": 0
+    },
+    "incoming": false,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "LAB",
+    "label": "Lab",
+    "kind": "SERVICE",
+    "acceptMinClarity": 1,
+    "bedsideByUrgency": {
+      "ROUTINE": "PHONE",
+      "URGENT": "PHONE",
+      "EMERGENCY": "PHONE"
+    },
+    "reactionSec": {
+      "PHONE": 60,
+      "BEDSIDE": 0
+    },
+    "incoming": false,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  }
+]

@@ -70,7 +70,33 @@ function migrateV2toV3(raw: RawState): RawState {
   };
 }
 
-export const migrations: MigrationRegistry = { 1: migrateV1toV2, 2: migrateV2toV3 };
+/** schema 3 → 4（M4）：加入 ward 狀態；舊存檔係單一病人，ward 停用 */
+function migrateV3toV4(raw: RawState): RawState {
+  return {
+    ...raw,
+    ward: {
+      enabled: false,
+      generated: false,
+      location: { bed: null, movingTo: null, arriveAt: null },
+      sub: null,
+      impressions: {},
+      calls: [],
+      contacts: {},
+      draft: null,
+      tasks: [],
+      ledger: [],
+      tags: {},
+      plannedCalls: 0,
+      counters: { call: 0, task: 0 },
+    },
+  };
+}
+
+export const migrations: MigrationRegistry = {
+  1: migrateV1toV2,
+  2: migrateV2toV3,
+  3: migrateV3toV4,
+};
 
 export type MigrateResult =
   | { ok: true; raw: RawState; fromSchema: number }

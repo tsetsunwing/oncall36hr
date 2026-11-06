@@ -1,1 +1,17 @@
-[]
+[
+  {
+    "id": "HO",
+    "complexityLevel": 1,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "MO",
+    "complexityLevel": 2,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "RES",
+    "complexityLevel": 3,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  }
+]

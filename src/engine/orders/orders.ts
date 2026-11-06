@@ -89,7 +89,7 @@ export function cancelOrderState(state: GameState, order: Order, reasonCode: str
   return updateOrderLog(cancelled, order.id, { reasonCode });
 }
 
-function completeOrder(state: GameState, order: Order, ctx: EngineContext): Reduction {
+export function completeOrder(state: GameState, order: Order, ctx: EngineContext): Reduction {
   const row = ctx.tables['order-catalog'].find((r) => r.id === order.catalogId);
   let next: GameState = {
     ...state,

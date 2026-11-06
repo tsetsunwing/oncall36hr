@@ -112,6 +112,7 @@ export function createPatientState(
   state: GameState,
   template: CaseTemplateRow,
   ctx: EngineContext,
+  opts: { id?: string; bed?: number; logStart?: boolean } = {},
 ): GameState {
   const fsm = ctx.tables['case-fsm'].find((f) => f.id === template.fsmId);
   if (!fsm) throw new Error(`case ${template.id} 缺少 FSM ${template.fsmId}`);
@@ -119,8 +120,8 @@ export function createPatientState(
   const t = state.clock.t;
   const base: VitalNumbers = { ...trajectory.target };
   const blank: Patient = {
-    id: 'p1',
-    bed: template.bed,
+    id: opts.id ?? 'p1',
+    bed: opts.bed ?? template.bed,
     demographics: { ...template.demographics },
     presentingComplaint: template.presentingComplaint,
     allergies: [...template.allergies],
@@ -158,7 +159,7 @@ export function createPatientState(
     },
   };
   return scheduleSample(
-    logEvent(next, { patientId: null, reasonCode: 'SHIFT_START' }),
+    opts.logStart === false ? next : logEvent(next, { patientId: null, reasonCode: 'SHIFT_START' }),
     blank.id,
     t + sampleIntervalSec(ctx, applied.alert),
   );
@@ -168,6 +169,7 @@ export const caseModule: EngineModule = {
   name: 'case',
 
   init(state: GameState, params: NewGameParams, ctx: EngineContext) {
+    if (params.ward) return state;
     const template = params.caseId
       ? ctx.tables['case-templates'].find((c) => c.id === params.caseId)
       : ctx.tables['case-templates'][0];

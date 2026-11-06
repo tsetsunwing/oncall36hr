@@ -51,7 +51,23 @@ export type NoticeKind =
   | 'RESUME_NOT_PAUSED_BY_FAILURE'
   | 'CHAT_EMPTY'
   | 'CHAT_TOO_LONG'
-  | 'PATIENT_UNKNOWN';
+  | 'PATIENT_UNKNOWN'
+  | 'NOT_AT_BED'
+  | 'PLAYER_MOVING'
+  | 'CALL_UNKNOWN'
+  | 'CALL_NOT_ACTIVE'
+  | 'CALL_RINGING'
+  | 'CALL_MISSED'
+  | 'CALL_TARGET_INVALID'
+  | 'SBAR_INVALID'
+  | 'CONSULT_ARRIVED'
+  | 'CONSULT_REFUSED'
+  | 'DELEGATE_NO_SUB'
+  | 'DELEGATE_BUSY'
+  | 'DELEGATE_INVALID'
+  | 'DELEGATE_STARTED'
+  | 'DELEGATE_DONE'
+  | 'DELEGATE_FAILED';
 
 export type Effect =
   | { type: 'AI_REQUEST'; reqId: string; kind: string; context: JsonValue }

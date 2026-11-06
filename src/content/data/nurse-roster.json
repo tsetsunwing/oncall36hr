@@ -12,5 +12,19 @@
     "shift": "DAY",
     "zone": "A",
     "tone": "友善、會多問一句"
+  },
+  {
+    "id": "N3",
+    "name": "梁姑娘",
+    "shift": "NIGHT",
+    "zone": "B",
+    "tone": "做事利落、直接"
+  },
+  {
+    "id": "N4",
+    "name": "陳姑娘",
+    "shift": "DAY",
+    "zone": "B",
+    "tone": "温和、細心"
   }
 ]

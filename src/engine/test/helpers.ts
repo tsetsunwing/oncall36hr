@@ -10,6 +10,7 @@ export const testConfig: EngineConfig = {
     speeds: [0, 1, 2, 4],
     defaultSpeed: 1,
     cprSlowFactor: 0.5,
+    speedAfterInterrupt: 1,
   },
   saves: { manualSlots: 5, autoSaveEveryGameMinutes: 30 },
   vitals: {
@@ -37,6 +38,24 @@ export const testConfig: EngineConfig = {
   staff: {
     nurseSeniorityByDifficulty: { EASY: 'SENIOR', MEDIUM: 'NORMAL', HARD: 'NEW' },
     speedMultiplier: { NOVICE: 1.5, NORMAL: 1, SENIOR: 0.8 },
+    reliability: { NOVICE: 0.7, NORMAL: 0.85, SENIOR: 0.95 },
+    rankImpression: { start: 50, min: 0, max: 100, warmMin: 65, coldMax: 35 },
+  },
+  shifts: {
+    day: { regularSeconds: 36000 },
+    night: { regularSeconds: 50400 },
+    onCall: { regularSeconds: 122400, segmentHours: [10, 14, 10] },
+  },
+  ward: { bedCount: 20 },
+  phone: {
+    baseCallsPerHour: 2,
+    firstCallAfterSec: 600,
+    laterDelaySec: 600,
+    maxDefers: 2,
+    expireSec: { ROUTINE: 3600, URGENT: 1500, EMERGENCY: 600 },
+    interruptPriorities: ['URGENT', 'EMERGENCY'],
+    sbarMaxChars: 200,
+    transcriptLimit: 40,
   },
 };
 

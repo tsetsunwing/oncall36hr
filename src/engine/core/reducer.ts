@@ -20,13 +20,17 @@ import { caseModule } from '../case/caseModule';
 import { gateModule } from '../gate/gate';
 import { ordersModule } from '../orders/orders';
 import { resultsModule } from '../results/results';
+import { subordinateOrderModule } from '../ward/delegation';
+import { wardModule } from '../ward/wardModule';
 import { requestAi } from './ai';
 
 export const defaultModules: readonly EngineModule[] = [
+  subordinateOrderModule,
   ordersModule,
   gateModule,
   resultsModule,
   caseModule,
+  wardModule,
   bedsideModule,
 ];
 

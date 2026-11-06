@@ -8,6 +8,11 @@ import type { EngineConfig } from '../core/config';
 import type { GameState } from '../core/state';
 
 export function availableExecutors(state: GameState): ExecutorKind[] {
+  if (state.ward.enabled) {
+    const sub = state.ward.sub;
+    const free = sub !== null && sub.busyUntil <= state.clock.t;
+    return free ? ['NURSE', 'SUBORDINATE', 'PLAYER'] : ['NURSE', 'PLAYER'];
+  }
   return state.playerRank === 'HO' ? ['NURSE', 'PLAYER'] : ['NURSE', 'SUBORDINATE', 'PLAYER'];
 }
 

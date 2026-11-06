@@ -109,6 +109,8 @@ export const caseTemplateSchema = z
       })
       .strict(),
     presentingComplaint: z.string().min(1),
+    /** 病人組生成用：簡單／複雜個案（T12 比例、T13 職級複雜度）；冇寫＝複雜 */
+    complexity: z.enum(['SIMPLE', 'COMPLEX']).default('COMPLEX'),
     allergies: z.array(id),
     diagnosisIds: z.array(id).min(1),
     /** 護士／病人對白唔可以講出嘅診斷詞（B6、numeric guard deny-list）；只留喺本機，唔送去 AI */

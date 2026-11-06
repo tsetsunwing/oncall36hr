@@ -1,1 +1,432 @@
-[]
+[
+  {
+    "id": "NURSE_SPO2",
+    "kind": "CALL",
+    "tag": "NURSE",
+    "weight": 3,
+    "priority": "URGENT",
+    "needs": "WORST_PATIENT",
+    "playerRanks": ["HO", "MO", "RES"],
+    "text": "醫生，{{patient.bed}} 床{{patient.name}}血氧得 {{vital.spo2}}%，要唔要加氧？",
+    "delegable": false,
+    "callerImpression": "NONE",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "responses": {
+      "GO_NOW": {
+        "events": ["CALL_GO_NOW"],
+        "setFlags": [],
+        "goToBed": true
+      },
+      "LATER": {
+        "events": ["CALL_LATER"],
+        "setFlags": [],
+        "goToBed": false
+      },
+      "CONTINUE": {
+        "events": ["CALL_CONTINUE"],
+        "setFlags": ["unattended_call"],
+        "goToBed": false
+      },
+      "MISSED": {
+        "events": ["CALL_MISSED"],
+        "setFlags": ["unattended_call"],
+        "goToBed": false
+      }
+    }
+  },
+  {
+    "id": "NURSE_MEWS",
+    "kind": "CALL",
+    "tag": "NURSE",
+    "weight": 3,
+    "priority": "URGENT",
+    "needs": "WORST_PATIENT",
+    "playerRanks": ["HO", "MO", "RES"],
+    "text": "{{patient.bed}} 床 MEWS 係 {{mews.score}}，想你過嚟睇下。",
+    "delegable": false,
+    "callerImpression": "NONE",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "responses": {
+      "GO_NOW": {
+        "events": ["CALL_GO_NOW"],
+        "setFlags": [],
+        "goToBed": true
+      },
+      "LATER": {
+        "events": ["CALL_LATER"],
+        "setFlags": [],
+        "goToBed": false
+      },
+      "CONTINUE": {
+        "events": ["CALL_CONTINUE"],
+        "setFlags": ["unattended_call"],
+        "goToBed": false
+      },
+      "MISSED": {
+        "events": ["CALL_MISSED"],
+        "setFlags": ["unattended_call"],
+        "goToBed": false
+      }
+    }
+  },
+  {
+    "id": "NURSE_ROUTINE",
+    "kind": "CALL",
+    "tag": "NURSE",
+    "weight": 4,
+    "priority": "ROUTINE",
+    "needs": "ANY_PATIENT",
+    "playerRanks": ["HO", "MO", "RES"],
+    "text": "{{patient.bed}} 床{{patient.name}}想問可唔可以安排止痛藥。",
+    "delegable": true,
+    "callerImpression": "NONE",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "responses": {
+      "GO_NOW": {
+        "events": ["CALL_GO_NOW"],
+        "setFlags": [],
+        "goToBed": true
+      },
+      "LATER": {
+        "events": ["CALL_LATER"],
+        "setFlags": [],
+        "goToBed": false
+      },
+      "CONTINUE": {
+        "events": ["CALL_CONTINUE"],
+        "setFlags": [],
+        "goToBed": false
+      },
+      "MISSED": {
+        "events": ["CALL_MISSED"],
+        "setFlags": [],
+        "goToBed": false
+      }
+    }
+  },
+  {
+    "id": "NURSE_DRUGCHART",
+    "kind": "CALL",
+    "tag": "NURSE",
+    "weight": 3,
+    "priority": "ROUTINE",
+    "needs": "ANY_PATIENT",
+    "playerRanks": ["HO", "MO", "RES"],
+    "text": "{{patient.bed}} 床有張 drug chart 想你覆核一下。",
+    "delegable": true,
+    "callerImpression": "NONE",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "responses": {
+      "GO_NOW": {
+        "events": ["CALL_GO_NOW"],
+        "setFlags": [],
+        "goToBed": true
+      },
+      "LATER": {
+        "events": ["CALL_LATER"],
+        "setFlags": [],
+        "goToBed": false
+      },
+      "CONTINUE": {
+        "events": ["CALL_CONTINUE"],
+        "setFlags": [],
+        "goToBed": false
+      },
+      "MISSED": {
+        "events": ["CALL_MISSED"],
+        "setFlags": [],
+        "goToBed": false
+      }
+    }
+  },
+  {
+    "id": "NURSE_ADMISSION",
+    "kind": "CALL",
+    "tag": "NURSE",
+    "weight": 2,
+    "priority": "URGENT",
+    "needs": "FREE_BED",
+    "playerRanks": ["HO", "MO", "RES"],
+    "text": "急症室送咗個新症上嚟 {{patient.bed}} 床，係{{patient.name}}，要即刻開始處理。",
+    "delegable": false,
+    "callerImpression": "NONE",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "responses": {
+      "GO_NOW": {
+        "events": ["CALL_GO_NOW"],
+        "setFlags": [],
+        "goToBed": true
+      },
+      "LATER": {
+        "events": ["CALL_LATER"],
+        "setFlags": [],
+        "goToBed": false
+      },
+      "CONTINUE": {
+        "events": ["CALL_CONTINUE"],
+        "setFlags": [],
+        "goToBed": false
+      },
+      "MISSED": {
+        "events": ["CALL_MISSED"],
+        "setFlags": ["unattended_call"],
+        "goToBed": false
+      }
+    },
+    "admission": true
+  },
+  {
+    "id": "LAB_CRITICAL",
+    "kind": "CALL",
+    "tag": "LAB",
+    "weight": 2,
+    "priority": "URGENT",
+    "needs": "ABNORMAL_REPORT",
+    "playerRanks": ["HO", "MO", "RES"],
+    "text": "我係化驗室，{{patient.bed}} 床{{report.label}}有危急值，請跟進。",
+    "delegable": false,
+    "callerImpression": "NONE",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "responses": {
+      "GO_NOW": {
+        "events": ["CALL_GO_NOW"],
+        "setFlags": [],
+        "goToBed": false
+      },
+      "LATER": {
+        "events": ["CALL_LATER"],
+        "setFlags": [],
+        "goToBed": false
+      },
+      "CONTINUE": {
+        "events": ["CALL_CONTINUE"],
+        "setFlags": [],
+        "goToBed": false
+      },
+      "MISSED": {
+        "events": ["CALL_MISSED"],
+        "setFlags": ["unattended_call"],
+        "goToBed": false
+      }
+    }
+  },
+  {
+    "id": "XRAY_REPORT",
+    "kind": "CALL",
+    "tag": "XRAY",
+    "weight": 1,
+    "priority": "ROUTINE",
+    "needs": "ANY_PATIENT",
+    "playerRanks": ["HO", "MO", "RES"],
+    "text": "X-ray 呢邊，{{patient.bed}} 床張片想同你講一聲。",
+    "delegable": true,
+    "callerImpression": "NONE",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "responses": {
+      "GO_NOW": {
+        "events": ["CALL_GO_NOW"],
+        "setFlags": [],
+        "goToBed": false
+      },
+      "LATER": {
+        "events": ["CALL_LATER"],
+        "setFlags": [],
+        "goToBed": false
+      },
+      "CONTINUE": {
+        "events": ["CALL_CONTINUE"],
+        "setFlags": [],
+        "goToBed": false
+      },
+      "MISSED": {
+        "events": ["CALL_MISSED"],
+        "setFlags": [],
+        "goToBed": false
+      }
+    }
+  },
+  {
+    "id": "PHARMACY_QUERY",
+    "kind": "CALL",
+    "tag": "PHARMACY",
+    "weight": 2,
+    "priority": "ROUTINE",
+    "needs": "ANY_PATIENT",
+    "playerRanks": ["HO", "MO", "RES"],
+    "text": "藥房呢邊，{{patient.bed}} 床張處方想同你核對下。",
+    "delegable": true,
+    "callerImpression": "NONE",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "responses": {
+      "GO_NOW": {
+        "events": ["CALL_GO_NOW"],
+        "setFlags": [],
+        "goToBed": false
+      },
+      "LATER": {
+        "events": ["CALL_LATER"],
+        "setFlags": [],
+        "goToBed": false
+      },
+      "CONTINUE": {
+        "events": ["CALL_CONTINUE"],
+        "setFlags": [],
+        "goToBed": false
+      },
+      "MISSED": {
+        "events": ["CALL_MISSED"],
+        "setFlags": [],
+        "goToBed": false
+      }
+    }
+  },
+  {
+    "id": "JUNIOR_PROC",
+    "kind": "CALL",
+    "tag": "JUNIOR",
+    "weight": 3,
+    "priority": "ROUTINE",
+    "needs": "ANY_PATIENT",
+    "playerRanks": ["MO", "RES"],
+    "text": "{{caller.name}}搵你，{{patient.bed}} 床抽血唔到，想你幫手。",
+    "delegable": false,
+    "callerImpression": "CALLER_RANK",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "responses": {
+      "GO_NOW": {
+        "events": ["CALL_GO_NOW_JUNIOR"],
+        "setFlags": ["junior.helped"],
+        "goToBed": true
+      },
+      "LATER": {
+        "events": ["CALL_LATER_JUNIOR"],
+        "setFlags": [],
+        "goToBed": false
+      },
+      "CONTINUE": {
+        "events": ["CALL_CONTINUE"],
+        "setFlags": [],
+        "goToBed": false
+      },
+      "MISSED": {
+        "events": ["CALL_MISSED_JUNIOR"],
+        "setFlags": [],
+        "goToBed": false
+      }
+    },
+    "sbar": {
+      "S": "{{patient.bed}} 床{{patient.name}}要抽血，我試咗幾次都抽唔到。",
+      "B": "病人仲未有最新驗血報告。",
+      "A": "可能血管難搵。",
+      "R": "想你過嚟幫手，或者教我點做。"
+    }
+  },
+  {
+    "id": "JUNIOR_REVIEW",
+    "kind": "CALL",
+    "tag": "JUNIOR",
+    "weight": 3,
+    "priority": "URGENT",
+    "needs": "WORST_PATIENT",
+    "playerRanks": ["MO", "RES"],
+    "text": "{{caller.name}}搵你，{{patient.bed}} 床病人 MEWS 係 {{mews.score}}，想你睇下。",
+    "delegable": false,
+    "callerImpression": "CALLER_RANK",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "responses": {
+      "GO_NOW": {
+        "events": ["CALL_GO_NOW_JUNIOR"],
+        "setFlags": ["junior.helped"],
+        "goToBed": true
+      },
+      "LATER": {
+        "events": ["CALL_LATER_JUNIOR"],
+        "setFlags": [],
+        "goToBed": false
+      },
+      "CONTINUE": {
+        "events": ["CALL_CONTINUE"],
+        "setFlags": [],
+        "goToBed": false
+      },
+      "MISSED": {
+        "events": ["CALL_MISSED_JUNIOR"],
+        "setFlags": ["unattended_call"],
+        "goToBed": false
+      }
+    },
+    "sbar": {
+      "S": "{{patient.bed}} 床{{patient.name}}情況轉差，MEWS 係 {{mews.score}}。",
+      "B": "我已經叫護士量咗 vital signs。",
+      "A": "我覺得病人唔太穩定。",
+      "R": "想你過嚟評估。"
+    }
+  },
+  {
+    "id": "DEPT_REVIEW",
+    "kind": "CALL",
+    "tag": "DEPT",
+    "weight": 2,
+    "priority": "ROUTINE",
+    "needs": "ANY_PATIENT",
+    "playerRanks": ["HO", "MO", "RES"],
+    "text": "{{dept.label}}醫生搵你，想上嚟會診 {{patient.bed}} 床。",
+    "delegable": false,
+    "callerImpression": "NONE",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "responses": {
+      "GO_NOW": {
+        "events": ["CALL_GO_NOW"],
+        "setFlags": ["dept.reviewed"],
+        "goToBed": true
+      },
+      "LATER": {
+        "events": ["CALL_LATER"],
+        "setFlags": [],
+        "goToBed": false
+      },
+      "CONTINUE": {
+        "events": ["CALL_CONTINUE"],
+        "setFlags": [],
+        "goToBed": false
+      },
+      "MISSED": {
+        "events": ["CALL_MISSED"],
+        "setFlags": [],
+        "goToBed": false
+      }
+    },
+    "deptPool": ["CARDIOLOGY", "SURGERY"]
+  },
+  {
+    "id": "SBAR_PREFILL",
+    "kind": "SBAR_PREFILL",
+    "S": "{{patient.bed}} 床{{patient.name}}，{{patient.age}}{{patient.sex}}，主訴：{{patient.complaint}}。心率 {{vital.hr}}、血壓 {{vital.sbp}}/{{vital.dbp}}、血氧 {{vital.spo2}}%、呼吸 {{vital.rr}}、體溫 {{vital.temp}}。",
+    "B": "過敏：{{patient.allergies}}。已下達的處置：{{patient.orders}}。",
+    "A": "MEWS {{mews.score}}。異常項目：{{patient.abnormal}}。",
+    "R": "{{target.request}}",
+    "RByTarget": {
+      "RANK": "請到床邊評估，並指示下一步處理。",
+      "DEPT": "請協助評估這位病人，並建議處理方向。"
+    },
+    "abnormalLabels": {
+      "hr": "心率",
+      "sbp": "血壓",
+      "spo2": "血氧",
+      "rr": "呼吸",
+      "temp": "體溫"
+    },
+    "directionLabels": {
+      "LOW": "偏低",
+      "HIGH": "偏高"
+    },
+    "sexLabels": {
+      "M": "男",
+      "F": "女"
+    },
+    "noAbnormal": "暫時沒有明顯異常項目",
+    "noAllergy": "沒有已知過敏",
+    "noOrders": "暫時沒有",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  }
+]

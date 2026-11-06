@@ -1,1 +1,41 @@
-[]
+[
+  {
+    "id": "EASY",
+    "occupancy": {
+      "min": 6,
+      "max": 8
+    },
+    "complexityLevel": 1,
+    "complexRatio": 0.2,
+    "phoneVolumeUplift": 0,
+    "nightEventMultiplier": 1,
+    "nurseSeniority": "SENIOR",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "MEDIUM",
+    "occupancy": {
+      "min": 8,
+      "max": 11
+    },
+    "complexityLevel": 2,
+    "complexRatio": 0.4,
+    "phoneVolumeUplift": 0.1,
+    "nightEventMultiplier": 1.5,
+    "nurseSeniority": "NORMAL",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "HARD",
+    "occupancy": {
+      "min": 10,
+      "max": 13
+    },
+    "complexityLevel": 3,
+    "complexRatio": 0.6,
+    "phoneVolumeUplift": 0.2,
+    "nightEventMultiplier": 2,
+    "nurseSeniority": "NEW",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  }
+]

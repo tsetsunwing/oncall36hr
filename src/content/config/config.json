@@ -77,9 +77,19 @@
     "nurseSeniorityByDifficulty": { "EASY": "SENIOR", "MEDIUM": "NORMAL", "HARD": "NEW" },
     "reliability": { "NOVICE": 0.7, "NORMAL": 0.85, "SENIOR": 0.95 },
     "speedMultiplier": { "NOVICE": 1.5, "NORMAL": 1.0, "SENIOR": 0.8 },
-    "rankImpression": { "start": 50, "min": 0, "max": 100 }
+    "rankImpression": { "start": 50, "min": 0, "max": 100, "warmMin": 65, "coldMax": 35 }
   },
   "ward": { "bedCount": 20 },
+  "phone": {
+    "baseCallsPerHour": 2,
+    "firstCallAfterSec": 600,
+    "laterDelaySec": 600,
+    "maxDefers": 2,
+    "expireSec": { "ROUTINE": 3600, "URGENT": 1500, "EMERGENCY": 600 },
+    "interruptPriorities": ["URGENT", "EMERGENCY"],
+    "sbarMaxChars": 200,
+    "transcriptLimit": 40
+  },
   "ui": {
     "touchTargetMinPx": 44,
     "maxFlashesPerSecond": 0,

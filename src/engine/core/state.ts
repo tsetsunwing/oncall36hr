@@ -11,9 +11,10 @@ import { patientSchema } from '../case/patient';
 import { chatThreadSchema } from '../chat/chatTypes';
 import { actionLogEntrySchema } from '../log/actionLog';
 import { orderSchema } from '../orders/orderTypes';
+import { emptyWard, wardStateSchema } from '../ward/wardTypes';
 import type { EngineConfig } from './config';
 
-export const CURRENT_SCHEMA = 3;
+export const CURRENT_SCHEMA = 4;
 
 export const MODES = ['DAY', 'NIGHT', 'ONCALL'] as const;
 export const DIFFICULTIES = ['EASY', 'MEDIUM', 'HARD'] as const;
@@ -78,6 +79,7 @@ export const gameStateSchema = z
       .strict(),
     scheduler: eventQueueSchema,
     pendingAi: z.array(pendingAiSchema),
+    ward: wardStateSchema,
   })
   .strict();
 
@@ -94,6 +96,8 @@ export interface NewGameParams {
   nurseConfirmHighRisk?: boolean;
   /** 指定 case 模板 id；唔填就用 content 第一個 case（M2 只有一個） */
   caseId?: string;
+  /** M4：生成 20 床病房、電話同下屬；唔填＝舊式單一病人（p1，7 號床） */
+  ward?: boolean;
 }
 
 export function createInitialState(params: NewGameParams, config: EngineConfig): GameState {
@@ -126,5 +130,6 @@ export function createInitialState(params: NewGameParams, config: EngineConfig):
     counters: { order: 0, req: 0, line: 0, log: 0 },
     scheduler,
     pendingAi: [],
+    ward: emptyWard(),
   };
 }

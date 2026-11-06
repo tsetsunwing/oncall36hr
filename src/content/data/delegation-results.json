@@ -1,1 +1,161 @@
-[]
+[
+  {
+    "id": "PROCEDURE",
+    "task": "PROCEDURE",
+    "delayExtraMultiplier": 1,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "byLevel": {
+      "NOVICE": {
+        "failureModes": ["DELAYED", "INCOMPLETE", "WRONG"]
+      },
+      "NORMAL": {
+        "failureModes": ["DELAYED", "INCOMPLETE"]
+      },
+      "SENIOR": {
+        "failureModes": ["DELAYED"]
+      }
+    },
+    "items": [
+      {
+        "id": "proc.ngtube",
+        "label": "NG tube",
+        "catalogId": "proc.ngtube",
+        "needsPatient": true
+      },
+      {
+        "id": "proc.foley",
+        "label": "Foley",
+        "catalogId": "proc.foley",
+        "needsPatient": true
+      },
+      {
+        "id": "lab.cbc",
+        "label": "抽血 CBC",
+        "catalogId": "lab.cbc",
+        "needsPatient": true
+      },
+      {
+        "id": "lab.abg",
+        "label": "ABG",
+        "catalogId": "lab.abg",
+        "needsPatient": true
+      }
+    ]
+  },
+  {
+    "id": "ORDER_NOTE",
+    "task": "ORDER_NOTE",
+    "delayExtraMultiplier": 1,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "byLevel": {
+      "NOVICE": {
+        "failureModes": ["DELAYED", "INCOMPLETE", "WRONG"]
+      },
+      "NORMAL": {
+        "failureModes": ["DELAYED", "INCOMPLETE"]
+      },
+      "SENIOR": {
+        "failureModes": ["DELAYED"]
+      }
+    },
+    "items": [
+      {
+        "id": "ecg.12lead",
+        "label": "12-lead ECG",
+        "catalogId": "ecg.12lead",
+        "needsPatient": true
+      },
+      {
+        "id": "img.cxr",
+        "label": "CXR",
+        "catalogId": "img.cxr",
+        "needsPatient": true
+      },
+      {
+        "id": "note.progress",
+        "label": "寫進度記錄",
+        "baseDurationSec": 600,
+        "needsPatient": true
+      }
+    ]
+  },
+  {
+    "id": "ADMISSION",
+    "task": "ADMISSION",
+    "delayExtraMultiplier": 1,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "byLevel": {
+      "NOVICE": {
+        "failureModes": ["DELAYED", "INCOMPLETE", "WRONG"]
+      },
+      "NORMAL": {
+        "failureModes": ["DELAYED", "INCOMPLETE"]
+      },
+      "SENIOR": {
+        "failureModes": ["DELAYED"]
+      }
+    },
+    "items": [
+      {
+        "id": "admission.workup",
+        "label": "新症入院處理",
+        "baseDurationSec": 1200,
+        "needsPatient": true,
+        "needsTag": "ED_ADMISSION",
+        "setsFlag": "admission.workup",
+        "clearsTag": "ED_ADMISSION"
+      }
+    ]
+  },
+  {
+    "id": "SIMPLE_CALL",
+    "task": "SIMPLE_CALL",
+    "delayExtraMultiplier": 1,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "byLevel": {
+      "NOVICE": {
+        "failureModes": ["DELAYED", "INCOMPLETE", "WRONG"]
+      },
+      "NORMAL": {
+        "failureModes": ["DELAYED", "INCOMPLETE"]
+      },
+      "SENIOR": {
+        "failureModes": ["DELAYED"]
+      }
+    },
+    "items": [
+      {
+        "id": "call.handle",
+        "label": "處理這個來電",
+        "baseDurationSec": 300,
+        "needsPatient": false
+      }
+    ]
+  },
+  {
+    "id": "ROUND_PREP",
+    "task": "ROUND_PREP",
+    "delayExtraMultiplier": 1,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "byLevel": {
+      "NOVICE": {
+        "failureModes": ["DELAYED", "INCOMPLETE", "WRONG"]
+      },
+      "NORMAL": {
+        "failureModes": ["DELAYED", "INCOMPLETE"]
+      },
+      "SENIOR": {
+        "failureModes": ["DELAYED"]
+      }
+    },
+    "items": [
+      {
+        "id": "round.prep",
+        "label": "巡房準備",
+        "baseDurationSec": 900,
+        "needsPatient": true,
+        "setsFlag": "round.prepared"
+      }
+    ]
+  }
+]

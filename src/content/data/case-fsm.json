@@ -43,5 +43,326 @@
         "p": 1
       }
     ]
+  },
+  {
+    "id": "cell-01",
+    "initial": "STABILISING",
+    "salvageable": true,
+    "states": {
+      "STABILISING": {
+        "trajectory": "cell.stable"
+      },
+      "DETERIORATING": {
+        "trajectory": "cell.det"
+      }
+    },
+    "transitions": [
+      {
+        "from": "STABILISING",
+        "to": "DETERIORATING",
+        "when": {
+          "timeInStateSec": 18000,
+          "missingAny": ["abx.iv"]
+        },
+        "p": 0.3
+      },
+      {
+        "from": "DETERIORATING",
+        "to": "STABILISING",
+        "when": {
+          "timeInStateSec": 900,
+          "flagsAll": ["abx.iv"]
+        },
+        "p": 1
+      }
+    ]
+  },
+  {
+    "id": "uti-01",
+    "initial": "STABILISING",
+    "salvageable": true,
+    "states": {
+      "STABILISING": {
+        "trajectory": "uti.stable"
+      },
+      "DETERIORATING": {
+        "trajectory": "uti.det"
+      }
+    },
+    "transitions": [
+      {
+        "from": "STABILISING",
+        "to": "DETERIORATING",
+        "when": {
+          "timeInStateSec": 18000,
+          "missingAny": ["abx.iv"]
+        },
+        "p": 0.3
+      },
+      {
+        "from": "DETERIORATING",
+        "to": "STABILISING",
+        "when": {
+          "timeInStateSec": 900,
+          "flagsAll": ["abx.iv"]
+        },
+        "p": 1
+      }
+    ]
+  },
+  {
+    "id": "copd-01",
+    "initial": "STABILISING",
+    "salvageable": true,
+    "states": {
+      "STABILISING": {
+        "trajectory": "copd.stable"
+      },
+      "DETERIORATING": {
+        "trajectory": "copd.det"
+      }
+    },
+    "transitions": [
+      {
+        "from": "STABILISING",
+        "to": "DETERIORATING",
+        "when": {
+          "timeInStateSec": 18000,
+          "missingAny": ["oxygen.on"]
+        },
+        "p": 0.3
+      },
+      {
+        "from": "DETERIORATING",
+        "to": "STABILISING",
+        "when": {
+          "timeInStateSec": 900,
+          "flagsAll": ["oxygen.on"]
+        },
+        "p": 1
+      }
+    ]
+  },
+  {
+    "id": "htn-01",
+    "initial": "STABILISING",
+    "salvageable": true,
+    "states": {
+      "STABILISING": {
+        "trajectory": "htn.stable"
+      },
+      "DETERIORATING": {
+        "trajectory": "htn.det"
+      }
+    },
+    "transitions": [
+      {
+        "from": "STABILISING",
+        "to": "DETERIORATING",
+        "when": {
+          "timeInStateSec": 18000,
+          "missingAny": ["monitoring.vitals"]
+        },
+        "p": 0.3
+      },
+      {
+        "from": "DETERIORATING",
+        "to": "STABILISING",
+        "when": {
+          "timeInStateSec": 900,
+          "flagsAll": ["monitoring.vitals"]
+        },
+        "p": 1
+      }
+    ]
+  },
+  {
+    "id": "hf-01",
+    "initial": "STABILISING",
+    "salvageable": true,
+    "states": {
+      "STABILISING": {
+        "trajectory": "hf.stable"
+      },
+      "DETERIORATING": {
+        "trajectory": "hf.det"
+      },
+      "SEPTIC_SHOCK": {
+        "trajectory": "hf.shock"
+      }
+    },
+    "transitions": [
+      {
+        "from": "STABILISING",
+        "to": "DETERIORATING",
+        "when": {
+          "timeInStateSec": 600,
+          "flagsAll": ["unattended_call"]
+        },
+        "p": 1
+      },
+      {
+        "from": "STABILISING",
+        "to": "DETERIORATING",
+        "when": {
+          "timeInStateSec": 5400,
+          "missingAny": ["oxygen.on"]
+        },
+        "p": 0.7
+      },
+      {
+        "from": "DETERIORATING",
+        "to": "STABILISING",
+        "when": {
+          "timeInStateSec": 900,
+          "flagsAll": ["oxygen.on"]
+        },
+        "p": 1
+      },
+      {
+        "from": "DETERIORATING",
+        "to": "SEPTIC_SHOCK",
+        "when": {
+          "timeInStateSec": 7200,
+          "missingAny": ["oxygen.on"]
+        },
+        "p": 0.6
+      },
+      {
+        "from": "SEPTIC_SHOCK",
+        "to": "STABILISING",
+        "when": {
+          "timeInStateSec": 1200,
+          "flagsAll": ["oxygen.on"]
+        },
+        "p": 1
+      }
+    ]
+  },
+  {
+    "id": "ugib-01",
+    "initial": "STABILISING",
+    "salvageable": true,
+    "states": {
+      "STABILISING": {
+        "trajectory": "ugib.stable"
+      },
+      "DETERIORATING": {
+        "trajectory": "ugib.det"
+      },
+      "SEPTIC_SHOCK": {
+        "trajectory": "ugib.shock"
+      }
+    },
+    "transitions": [
+      {
+        "from": "STABILISING",
+        "to": "DETERIORATING",
+        "when": {
+          "timeInStateSec": 600,
+          "flagsAll": ["unattended_call"]
+        },
+        "p": 1
+      },
+      {
+        "from": "STABILISING",
+        "to": "DETERIORATING",
+        "when": {
+          "timeInStateSec": 5400,
+          "missingAny": ["fluid.bolus"]
+        },
+        "p": 0.7
+      },
+      {
+        "from": "DETERIORATING",
+        "to": "STABILISING",
+        "when": {
+          "timeInStateSec": 900,
+          "flagsAll": ["fluid.bolus"]
+        },
+        "p": 1
+      },
+      {
+        "from": "DETERIORATING",
+        "to": "SEPTIC_SHOCK",
+        "when": {
+          "timeInStateSec": 7200,
+          "missingAny": ["fluid.bolus"]
+        },
+        "p": 0.6
+      },
+      {
+        "from": "SEPTIC_SHOCK",
+        "to": "STABILISING",
+        "when": {
+          "timeInStateSec": 1200,
+          "flagsAll": ["fluid.bolus"]
+        },
+        "p": 1
+      }
+    ]
+  },
+  {
+    "id": "pe-01",
+    "initial": "STABILISING",
+    "salvageable": true,
+    "states": {
+      "STABILISING": {
+        "trajectory": "pe.stable"
+      },
+      "DETERIORATING": {
+        "trajectory": "pe.det"
+      },
+      "SEPTIC_SHOCK": {
+        "trajectory": "pe.shock"
+      }
+    },
+    "transitions": [
+      {
+        "from": "STABILISING",
+        "to": "DETERIORATING",
+        "when": {
+          "timeInStateSec": 600,
+          "flagsAll": ["unattended_call"]
+        },
+        "p": 1
+      },
+      {
+        "from": "STABILISING",
+        "to": "DETERIORATING",
+        "when": {
+          "timeInStateSec": 5400,
+          "missingAny": ["oxygen.on"]
+        },
+        "p": 0.7
+      },
+      {
+        "from": "DETERIORATING",
+        "to": "STABILISING",
+        "when": {
+          "timeInStateSec": 900,
+          "flagsAll": ["oxygen.on"]
+        },
+        "p": 1
+      },
+      {
+        "from": "DETERIORATING",
+        "to": "SEPTIC_SHOCK",
+        "when": {
+          "timeInStateSec": 7200,
+          "missingAny": ["oxygen.on"]
+        },
+        "p": 0.6
+      },
+      {
+        "from": "SEPTIC_SHOCK",
+        "to": "STABILISING",
+        "when": {
+          "timeInStateSec": 1200,
+          "flagsAll": ["oxygen.on"]
+        },
+        "p": 1
+      }
+    ]
   }
 ]

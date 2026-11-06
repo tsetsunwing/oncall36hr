@@ -1,1 +1,199 @@
-[]
+[
+  {
+    "id": "bed-1",
+    "kind": "BED",
+    "bed": 1,
+    "zone": "A",
+    "row": 0,
+    "col": 0
+  },
+  {
+    "id": "bed-2",
+    "kind": "BED",
+    "bed": 2,
+    "zone": "A",
+    "row": 0,
+    "col": 1
+  },
+  {
+    "id": "bed-3",
+    "kind": "BED",
+    "bed": 3,
+    "zone": "A",
+    "row": 0,
+    "col": 2
+  },
+  {
+    "id": "bed-4",
+    "kind": "BED",
+    "bed": 4,
+    "zone": "A",
+    "row": 0,
+    "col": 3
+  },
+  {
+    "id": "bed-5",
+    "kind": "BED",
+    "bed": 5,
+    "zone": "A",
+    "row": 0,
+    "col": 4
+  },
+  {
+    "id": "bed-6",
+    "kind": "BED",
+    "bed": 6,
+    "zone": "A",
+    "row": 1,
+    "col": 0
+  },
+  {
+    "id": "bed-7",
+    "kind": "BED",
+    "bed": 7,
+    "zone": "A",
+    "row": 1,
+    "col": 1
+  },
+  {
+    "id": "bed-8",
+    "kind": "BED",
+    "bed": 8,
+    "zone": "A",
+    "row": 1,
+    "col": 2
+  },
+  {
+    "id": "bed-9",
+    "kind": "BED",
+    "bed": 9,
+    "zone": "A",
+    "row": 1,
+    "col": 3
+  },
+  {
+    "id": "bed-10",
+    "kind": "BED",
+    "bed": 10,
+    "zone": "A",
+    "row": 1,
+    "col": 4
+  },
+  {
+    "id": "bed-11",
+    "kind": "BED",
+    "bed": 11,
+    "zone": "B",
+    "row": 2,
+    "col": 0
+  },
+  {
+    "id": "bed-12",
+    "kind": "BED",
+    "bed": 12,
+    "zone": "B",
+    "row": 2,
+    "col": 1
+  },
+  {
+    "id": "bed-13",
+    "kind": "BED",
+    "bed": 13,
+    "zone": "B",
+    "row": 2,
+    "col": 2
+  },
+  {
+    "id": "bed-14",
+    "kind": "BED",
+    "bed": 14,
+    "zone": "B",
+    "row": 2,
+    "col": 3
+  },
+  {
+    "id": "bed-15",
+    "kind": "BED",
+    "bed": 15,
+    "zone": "B",
+    "row": 2,
+    "col": 4
+  },
+  {
+    "id": "bed-16",
+    "kind": "BED",
+    "bed": 16,
+    "zone": "B",
+    "row": 3,
+    "col": 0
+  },
+  {
+    "id": "bed-17",
+    "kind": "BED",
+    "bed": 17,
+    "zone": "B",
+    "row": 3,
+    "col": 1
+  },
+  {
+    "id": "bed-18",
+    "kind": "BED",
+    "bed": 18,
+    "zone": "B",
+    "row": 3,
+    "col": 2
+  },
+  {
+    "id": "bed-19",
+    "kind": "BED",
+    "bed": 19,
+    "zone": "B",
+    "row": 3,
+    "col": 3
+  },
+  {
+    "id": "bed-20",
+    "kind": "BED",
+    "bed": 20,
+    "zone": "B",
+    "row": 3,
+    "col": 4
+  },
+  {
+    "id": "lm-station",
+    "kind": "LANDMARK",
+    "landmark": "STATION"
+  },
+  {
+    "id": "lm-phone",
+    "kind": "LANDMARK",
+    "landmark": "PHONE"
+  },
+  {
+    "id": "lm-pantry",
+    "kind": "LANDMARK",
+    "landmark": "PANTRY"
+  },
+  {
+    "id": "lm-rest",
+    "kind": "LANDMARK",
+    "landmark": "REST"
+  },
+  {
+    "id": "lm-wc",
+    "kind": "LANDMARK",
+    "landmark": "WC"
+  },
+  {
+    "id": "lm-clock",
+    "kind": "LANDMARK",
+    "landmark": "CLOCK"
+  },
+  {
+    "id": "walk",
+    "kind": "WALK",
+    "sameZoneSec": 0,
+    "crossZoneSec": 120,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  }
+]

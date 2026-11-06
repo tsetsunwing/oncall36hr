@@ -13,6 +13,7 @@ import type { GameState } from '../core/state';
 import { handleOrderParseResult, ORDER_PARSE_KIND } from '../orders/orderParse';
 import { placeAndAck } from '../orders/placement';
 import { matchQuickPhrase } from '../orders/quickPhrase';
+import { nurseForBed } from '../ward/nurses';
 
 const reject = (
   state: GameState,
@@ -24,15 +25,9 @@ const reject = (
 
 export const MENTION_KEYS = { NURSE: ['RN', '護士'], PATIENT: ['病人'] } as const;
 
-function rosterNurse(state: GameState, ctx: EngineContext) {
-  const shift = state.mode === 'NIGHT' ? 'NIGHT' : 'DAY';
-  const roster = ctx.tables['nurse-roster'];
-  return roster.find((n) => n.shift === shift) ?? roster[0];
-}
-
-function buildPresent(state: GameState, patient: Patient, ctx: EngineContext): Present[] {
+export function buildPresent(state: GameState, patient: Patient, ctx: EngineContext): Present[] {
   const present: Present[] = [];
-  const nurse = rosterNurse(state, ctx);
+  const nurse = nurseForBed(state, ctx, patient.bed);
   if (nurse) {
     present.push({
       id: `nurse:${nurse.id}`,
@@ -55,7 +50,8 @@ function buildPresent(state: GameState, patient: Patient, ctx: EngineContext): P
 export const bedsideModule: EngineModule = {
   name: 'bedside',
 
-  init(state, _params, ctx) {
+  init(state, params, ctx) {
+    if (params.ward) return state;
     let next = state;
     for (const patient of Object.values(state.patients)) {
       const present = buildPresent(next, patient, ctx);

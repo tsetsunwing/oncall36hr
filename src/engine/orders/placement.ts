@@ -17,6 +17,11 @@ import { ackBeatsFor } from './ack';
 import { chooseExecutor, executorDurationSec, executorRef } from './executors';
 import type { Order } from './orderTypes';
 import { registerOrder } from './orders';
+import {
+  recordSubordinateOrder,
+  rollSubordinate,
+  taskKindOfCatalog,
+} from '../ward/delegation';
 
 export const ORDER_AWAITING_GATE_CODE = 'AWAITING_GATE';
 
@@ -63,7 +68,20 @@ export function placeCatalogOrder(state: GameState, input: PlaceInput, ctx: Engi
   const now = state.clock.t;
   const nurse = nurseOf(state.chats[input.patientId]?.present);
   const kind = chooseExecutor(state, input.row, input.preferredExecutor);
-  const duration = executorDurationSec(kind, input.row.fixedDurationSec, ctx.config);
+  let duration = executorDurationSec(kind, input.row.fixedDurationSec, ctx.config);
+  let working = state;
+  let subMode: 'OK' | 'DELAYED' | 'INCOMPLETE' | 'WRONG' | null = null;
+  if (kind === 'SUBORDINATE' && state.ward.enabled) {
+    const rolled = rollSubordinate(
+      state,
+      ctx,
+      input.row.fixedDurationSec,
+      taskKindOfCatalog(input.row),
+    );
+    working = rolled.state;
+    duration = rolled.durationSec;
+    subMode = rolled.mode;
+  }
   const roles = gateRolesFor(state, input.row, ctx);
   const id = `o${String(state.counters.order + 1)}`;
   const executor = executorRef(kind, nurse?.id ?? null);
@@ -86,7 +104,9 @@ export function placeCatalogOrder(state: GameState, input: PlaceInput, ctx: Engi
     gate: null,
   };
 
-  let next = appendLog(registerOrder(state, base), {
+  let next = registerOrder(working, base);
+  if (subMode) next = recordSubordinateOrder(next, base, input.row, subMode);
+  next = appendLog(next, {
     patientId: input.patientId,
     kind: 'ORDER',
     orderId: id,

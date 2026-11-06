@@ -1,1 +1,116 @@
-[]
+[
+  {
+    "id": "CALL_GO_NOW",
+    "subscore": "TIMELINESS",
+    "delta": 1,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "CALL_LATER",
+    "subscore": "TIMELINESS",
+    "delta": -1,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "CALL_CONTINUE",
+    "subscore": "TIMELINESS",
+    "delta": -1,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "CALL_MISSED",
+    "subscore": "TIMELINESS",
+    "delta": -3,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "CALL_MISSED_JUNIOR",
+    "subscore": "COMMUNICATION",
+    "delta": -2,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "impression": {
+      "target": "CALLER",
+      "delta": -4
+    }
+  },
+  {
+    "id": "CALL_GO_NOW_JUNIOR",
+    "subscore": "COMMUNICATION",
+    "delta": 1,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "impression": {
+      "target": "CALLER",
+      "delta": 2
+    }
+  },
+  {
+    "id": "CALL_LATER_JUNIOR",
+    "subscore": "COMMUNICATION",
+    "delta": -1,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "impression": {
+      "target": "CALLER",
+      "delta": -2
+    }
+  },
+  {
+    "id": "CALL_DELEGATED_OK",
+    "subscore": "TIMELINESS",
+    "delta": 0,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "ESCALATION_STEP_OK",
+    "subscore": "COMMUNICATION",
+    "delta": 1,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "ESCALATION_SKIPPED_LEVEL",
+    "subscore": "COMMUNICATION",
+    "delta": -4,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "impression": {
+      "target": "SKIPPED",
+      "delta": -8
+    }
+  },
+  {
+    "id": "SBAR_GOOD",
+    "subscore": "COMMUNICATION",
+    "delta": 2,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "impression": {
+      "target": "CALLEE",
+      "delta": 3
+    }
+  },
+  {
+    "id": "SBAR_POOR",
+    "subscore": "COMMUNICATION",
+    "delta": -2,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "impression": {
+      "target": "CALLEE",
+      "delta": -3
+    }
+  },
+  {
+    "id": "CONSULT_GOOD",
+    "subscore": "COMMUNICATION",
+    "delta": 2,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "CONSULT_POOR",
+    "subscore": "COMMUNICATION",
+    "delta": -2,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "DELEGATION_FAILED",
+    "subscore": "TIMELINESS",
+    "delta": -1,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  }
+]

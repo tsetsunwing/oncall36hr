@@ -1,1 +1,44 @@
-[]
+[
+  {
+    "id": "SUB-HO-1",
+    "rank": "HO",
+    "name": "黃醫生",
+    "level": "NOVICE",
+    "tone": "說話斯文"
+  },
+  {
+    "id": "SUB-HO-2",
+    "rank": "HO",
+    "name": "林醫生",
+    "level": "NORMAL",
+    "tone": "語速較快"
+  },
+  {
+    "id": "SUB-HO-3",
+    "rank": "HO",
+    "name": "張醫生",
+    "level": "SENIOR",
+    "tone": "聲線低沉"
+  },
+  {
+    "id": "SUB-MO-1",
+    "rank": "MO",
+    "name": "陳醫生",
+    "level": "NOVICE",
+    "tone": "說話斯文"
+  },
+  {
+    "id": "SUB-MO-2",
+    "rank": "MO",
+    "name": "李醫生",
+    "level": "NORMAL",
+    "tone": "語速較快"
+  },
+  {
+    "id": "SUB-MO-3",
+    "rank": "MO",
+    "name": "蘇醫生",
+    "level": "SENIOR",
+    "tone": "聲線低沉"
+  }
+]

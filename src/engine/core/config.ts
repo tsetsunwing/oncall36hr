@@ -8,6 +8,7 @@ export interface EngineConfig {
     speeds: readonly number[];
     defaultSpeed: number;
     cprSlowFactor: number;
+    speedAfterInterrupt: number;
   };
   saves: {
     manualSlots: number;
@@ -39,5 +40,29 @@ export interface EngineConfig {
       Record<'EASY' | 'MEDIUM' | 'HARD', 'SENIOR' | 'NORMAL' | 'NEW'>
     >;
     speedMultiplier: Readonly<Record<'NOVICE' | 'NORMAL' | 'SENIOR', number>>;
+    reliability: Readonly<Record<'NOVICE' | 'NORMAL' | 'SENIOR', number>>;
+    rankImpression: {
+      start: number;
+      min: number;
+      max: number;
+      warmMin: number;
+      coldMax: number;
+    };
+  };
+  shifts: {
+    day: { regularSeconds: number };
+    night: { regularSeconds: number };
+    onCall: { regularSeconds: number; segmentHours: readonly number[] };
+  };
+  ward: { bedCount: number };
+  phone: {
+    baseCallsPerHour: number;
+    firstCallAfterSec: number;
+    laterDelaySec: number;
+    maxDefers: number;
+    expireSec: Readonly<Record<'ROUTINE' | 'URGENT' | 'EMERGENCY', number>>;
+    interruptPriorities: readonly ('ROUTINE' | 'URGENT' | 'EMERGENCY')[];
+    sbarMaxChars: number;
+    transcriptLimit: number;
   };
 }

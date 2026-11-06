@@ -85,5 +85,498 @@
     },
     "rhythm": "SINUS_RHYTHM",
     "consciousness": "A"
+  },
+  {
+    "id": "cell.stable",
+    "target": {
+      "hr": 84,
+      "sbp": 128,
+      "dbp": 76,
+      "spo2": 97,
+      "rr": 16,
+      "temp": 37.6
+    },
+    "slopePerMin": {
+      "hr": 1.5,
+      "sbp": 1.5,
+      "dbp": 1,
+      "spo2": 0.3,
+      "rr": 0.5,
+      "temp": 0.03
+    },
+    "noise": {
+      "hr": 2,
+      "sbp": 3,
+      "dbp": 2,
+      "spo2": 1,
+      "rr": 1,
+      "temp": 0.1
+    },
+    "rhythm": "SINUS_RHYTHM",
+    "consciousness": "A"
+  },
+  {
+    "id": "cell.det",
+    "target": {
+      "hr": 104,
+      "sbp": 112,
+      "dbp": 68,
+      "spo2": 95,
+      "rr": 20,
+      "temp": 38.5
+    },
+    "slopePerMin": {
+      "hr": 3,
+      "sbp": 2,
+      "dbp": 1.5,
+      "spo2": 0.5,
+      "rr": 1,
+      "temp": 0.05
+    },
+    "noise": {
+      "hr": 2,
+      "sbp": 3,
+      "dbp": 2,
+      "spo2": 1,
+      "rr": 1,
+      "temp": 0.1
+    },
+    "rhythm": "SINUS_TACHYCARDIA",
+    "consciousness": "A"
+  },
+  {
+    "id": "uti.stable",
+    "target": {
+      "hr": 88,
+      "sbp": 122,
+      "dbp": 72,
+      "spo2": 97,
+      "rr": 16,
+      "temp": 37.8
+    },
+    "slopePerMin": {
+      "hr": 1.5,
+      "sbp": 1.5,
+      "dbp": 1,
+      "spo2": 0.3,
+      "rr": 0.5,
+      "temp": 0.03
+    },
+    "noise": {
+      "hr": 2,
+      "sbp": 3,
+      "dbp": 2,
+      "spo2": 1,
+      "rr": 1,
+      "temp": 0.1
+    },
+    "rhythm": "SINUS_RHYTHM",
+    "consciousness": "A"
+  },
+  {
+    "id": "uti.det",
+    "target": {
+      "hr": 106,
+      "sbp": 106,
+      "dbp": 62,
+      "spo2": 95,
+      "rr": 21,
+      "temp": 38.6
+    },
+    "slopePerMin": {
+      "hr": 3,
+      "sbp": 2,
+      "dbp": 1.5,
+      "spo2": 0.5,
+      "rr": 1,
+      "temp": 0.05
+    },
+    "noise": {
+      "hr": 2,
+      "sbp": 3,
+      "dbp": 2,
+      "spo2": 1,
+      "rr": 1,
+      "temp": 0.1
+    },
+    "rhythm": "SINUS_TACHYCARDIA",
+    "consciousness": "A"
+  },
+  {
+    "id": "copd.stable",
+    "target": {
+      "hr": 90,
+      "sbp": 132,
+      "dbp": 80,
+      "spo2": 93,
+      "rr": 20,
+      "temp": 36.9
+    },
+    "slopePerMin": {
+      "hr": 1.5,
+      "sbp": 1.5,
+      "dbp": 1,
+      "spo2": 0.3,
+      "rr": 0.5,
+      "temp": 0.03
+    },
+    "noise": {
+      "hr": 2,
+      "sbp": 3,
+      "dbp": 2,
+      "spo2": 1,
+      "rr": 1,
+      "temp": 0.1
+    },
+    "rhythm": "SINUS_RHYTHM",
+    "consciousness": "A"
+  },
+  {
+    "id": "copd.det",
+    "target": {
+      "hr": 108,
+      "sbp": 124,
+      "dbp": 74,
+      "spo2": 89,
+      "rr": 26,
+      "temp": 37.4
+    },
+    "slopePerMin": {
+      "hr": 3,
+      "sbp": 2,
+      "dbp": 1.5,
+      "spo2": 0.5,
+      "rr": 1,
+      "temp": 0.05
+    },
+    "noise": {
+      "hr": 2,
+      "sbp": 3,
+      "dbp": 2,
+      "spo2": 1,
+      "rr": 1,
+      "temp": 0.1
+    },
+    "rhythm": "SINUS_TACHYCARDIA",
+    "consciousness": "A"
+  },
+  {
+    "id": "htn.stable",
+    "target": {
+      "hr": 76,
+      "sbp": 148,
+      "dbp": 88,
+      "spo2": 98,
+      "rr": 15,
+      "temp": 36.8
+    },
+    "slopePerMin": {
+      "hr": 1.5,
+      "sbp": 1.5,
+      "dbp": 1,
+      "spo2": 0.3,
+      "rr": 0.5,
+      "temp": 0.03
+    },
+    "noise": {
+      "hr": 2,
+      "sbp": 3,
+      "dbp": 2,
+      "spo2": 1,
+      "rr": 1,
+      "temp": 0.1
+    },
+    "rhythm": "SINUS_RHYTHM",
+    "consciousness": "A"
+  },
+  {
+    "id": "htn.det",
+    "target": {
+      "hr": 96,
+      "sbp": 168,
+      "dbp": 98,
+      "spo2": 96,
+      "rr": 18,
+      "temp": 36.9
+    },
+    "slopePerMin": {
+      "hr": 3,
+      "sbp": 2,
+      "dbp": 1.5,
+      "spo2": 0.5,
+      "rr": 1,
+      "temp": 0.05
+    },
+    "noise": {
+      "hr": 2,
+      "sbp": 3,
+      "dbp": 2,
+      "spo2": 1,
+      "rr": 1,
+      "temp": 0.1
+    },
+    "rhythm": "SINUS_RHYTHM",
+    "consciousness": "A"
+  },
+  {
+    "id": "hf.stable",
+    "target": {
+      "hr": 92,
+      "sbp": 118,
+      "dbp": 72,
+      "spo2": 95,
+      "rr": 18,
+      "temp": 36.8
+    },
+    "slopePerMin": {
+      "hr": 1.5,
+      "sbp": 1.5,
+      "dbp": 1,
+      "spo2": 0.3,
+      "rr": 0.5,
+      "temp": 0.03
+    },
+    "noise": {
+      "hr": 2,
+      "sbp": 3,
+      "dbp": 2,
+      "spo2": 1,
+      "rr": 1,
+      "temp": 0.1
+    },
+    "rhythm": "SINUS_RHYTHM",
+    "consciousness": "A"
+  },
+  {
+    "id": "hf.det",
+    "target": {
+      "hr": 112,
+      "sbp": 104,
+      "dbp": 64,
+      "spo2": 90,
+      "rr": 26,
+      "temp": 36.9
+    },
+    "slopePerMin": {
+      "hr": 3,
+      "sbp": 2,
+      "dbp": 1.5,
+      "spo2": 0.5,
+      "rr": 1,
+      "temp": 0.05
+    },
+    "noise": {
+      "hr": 2,
+      "sbp": 3,
+      "dbp": 2,
+      "spo2": 1,
+      "rr": 1,
+      "temp": 0.1
+    },
+    "rhythm": "SINUS_TACHYCARDIA",
+    "consciousness": "A"
+  },
+  {
+    "id": "hf.shock",
+    "target": {
+      "hr": 126,
+      "sbp": 86,
+      "dbp": 50,
+      "spo2": 84,
+      "rr": 30,
+      "temp": 36.8
+    },
+    "slopePerMin": {
+      "hr": 4,
+      "sbp": 3,
+      "dbp": 2,
+      "spo2": 0.8,
+      "rr": 1.5,
+      "temp": 0.05
+    },
+    "noise": {
+      "hr": 2,
+      "sbp": 3,
+      "dbp": 2,
+      "spo2": 1,
+      "rr": 1,
+      "temp": 0.1
+    },
+    "rhythm": "SINUS_TACHYCARDIA",
+    "consciousness": "V"
+  },
+  {
+    "id": "ugib.stable",
+    "target": {
+      "hr": 96,
+      "sbp": 112,
+      "dbp": 68,
+      "spo2": 96,
+      "rr": 18,
+      "temp": 36.7
+    },
+    "slopePerMin": {
+      "hr": 1.5,
+      "sbp": 1.5,
+      "dbp": 1,
+      "spo2": 0.3,
+      "rr": 0.5,
+      "temp": 0.03
+    },
+    "noise": {
+      "hr": 2,
+      "sbp": 3,
+      "dbp": 2,
+      "spo2": 1,
+      "rr": 1,
+      "temp": 0.1
+    },
+    "rhythm": "SINUS_RHYTHM",
+    "consciousness": "A"
+  },
+  {
+    "id": "ugib.det",
+    "target": {
+      "hr": 114,
+      "sbp": 98,
+      "dbp": 58,
+      "spo2": 95,
+      "rr": 22,
+      "temp": 36.6
+    },
+    "slopePerMin": {
+      "hr": 3,
+      "sbp": 2,
+      "dbp": 1.5,
+      "spo2": 0.5,
+      "rr": 1,
+      "temp": 0.05
+    },
+    "noise": {
+      "hr": 2,
+      "sbp": 3,
+      "dbp": 2,
+      "spo2": 1,
+      "rr": 1,
+      "temp": 0.1
+    },
+    "rhythm": "SINUS_TACHYCARDIA",
+    "consciousness": "A"
+  },
+  {
+    "id": "ugib.shock",
+    "target": {
+      "hr": 132,
+      "sbp": 82,
+      "dbp": 46,
+      "spo2": 93,
+      "rr": 28,
+      "temp": 36.4
+    },
+    "slopePerMin": {
+      "hr": 4,
+      "sbp": 3,
+      "dbp": 2,
+      "spo2": 0.8,
+      "rr": 1.5,
+      "temp": 0.05
+    },
+    "noise": {
+      "hr": 2,
+      "sbp": 3,
+      "dbp": 2,
+      "spo2": 1,
+      "rr": 1,
+      "temp": 0.1
+    },
+    "rhythm": "SINUS_TACHYCARDIA",
+    "consciousness": "V"
+  },
+  {
+    "id": "pe.stable",
+    "target": {
+      "hr": 94,
+      "sbp": 120,
+      "dbp": 74,
+      "spo2": 95,
+      "rr": 20,
+      "temp": 36.9
+    },
+    "slopePerMin": {
+      "hr": 1.5,
+      "sbp": 1.5,
+      "dbp": 1,
+      "spo2": 0.3,
+      "rr": 0.5,
+      "temp": 0.03
+    },
+    "noise": {
+      "hr": 2,
+      "sbp": 3,
+      "dbp": 2,
+      "spo2": 1,
+      "rr": 1,
+      "temp": 0.1
+    },
+    "rhythm": "SINUS_RHYTHM",
+    "consciousness": "A"
+  },
+  {
+    "id": "pe.det",
+    "target": {
+      "hr": 112,
+      "sbp": 106,
+      "dbp": 66,
+      "spo2": 90,
+      "rr": 26,
+      "temp": 37.0
+    },
+    "slopePerMin": {
+      "hr": 3,
+      "sbp": 2,
+      "dbp": 1.5,
+      "spo2": 0.5,
+      "rr": 1,
+      "temp": 0.05
+    },
+    "noise": {
+      "hr": 2,
+      "sbp": 3,
+      "dbp": 2,
+      "spo2": 1,
+      "rr": 1,
+      "temp": 0.1
+    },
+    "rhythm": "SINUS_TACHYCARDIA",
+    "consciousness": "A"
+  },
+  {
+    "id": "pe.shock",
+    "target": {
+      "hr": 130,
+      "sbp": 84,
+      "dbp": 50,
+      "spo2": 85,
+      "rr": 30,
+      "temp": 36.9
+    },
+    "slopePerMin": {
+      "hr": 4,
+      "sbp": 3,
+      "dbp": 2,
+      "spo2": 0.8,
+      "rr": 1.5,
+      "temp": 0.05
+    },
+    "noise": {
+      "hr": 2,
+      "sbp": 3,
+      "dbp": 2,
+      "spo2": 1,
+      "rr": 1,
+      "temp": 0.1
+    },
+    "rhythm": "SINUS_TACHYCARDIA",
+    "consciousness": "V"
   }
 ]

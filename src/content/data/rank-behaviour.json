@@ -1,1 +1,98 @@
-[]
+[
+  {
+    "id": "MO",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "bands": {
+      "WARM": {
+        "reactionSec": 120,
+        "adviceMinClarity": 1,
+        "bedsideMinClarity": 1,
+        "questionDepth": 1
+      },
+      "NEUTRAL": {
+        "reactionSec": 240,
+        "adviceMinClarity": 1,
+        "bedsideMinClarity": 2,
+        "questionDepth": 1
+      },
+      "COLD": {
+        "reactionSec": 480,
+        "adviceMinClarity": 2,
+        "bedsideMinClarity": 3,
+        "questionDepth": 2
+      }
+    }
+  },
+  {
+    "id": "RES",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "bands": {
+      "WARM": {
+        "reactionSec": 180,
+        "adviceMinClarity": 1,
+        "bedsideMinClarity": 1,
+        "questionDepth": 1
+      },
+      "NEUTRAL": {
+        "reactionSec": 360,
+        "adviceMinClarity": 1,
+        "bedsideMinClarity": 2,
+        "questionDepth": 2
+      },
+      "COLD": {
+        "reactionSec": 600,
+        "adviceMinClarity": 2,
+        "bedsideMinClarity": 3,
+        "questionDepth": 2
+      }
+    }
+  },
+  {
+    "id": "AC",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "bands": {
+      "WARM": {
+        "reactionSec": 240,
+        "adviceMinClarity": 1,
+        "bedsideMinClarity": 2,
+        "questionDepth": 2
+      },
+      "NEUTRAL": {
+        "reactionSec": 480,
+        "adviceMinClarity": 2,
+        "bedsideMinClarity": 2,
+        "questionDepth": 2
+      },
+      "COLD": {
+        "reactionSec": 900,
+        "adviceMinClarity": 2,
+        "bedsideMinClarity": 3,
+        "questionDepth": 3
+      }
+    }
+  },
+  {
+    "id": "COS",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "bands": {
+      "WARM": {
+        "reactionSec": 300,
+        "adviceMinClarity": 1,
+        "bedsideMinClarity": 2,
+        "questionDepth": 2
+      },
+      "NEUTRAL": {
+        "reactionSec": 600,
+        "adviceMinClarity": 2,
+        "bedsideMinClarity": 3,
+        "questionDepth": 3
+      },
+      "COLD": {
+        "reactionSec": 1200,
+        "adviceMinClarity": 3,
+        "bedsideMinClarity": 3,
+        "questionDepth": 3
+      }
+    }
+  }
+]

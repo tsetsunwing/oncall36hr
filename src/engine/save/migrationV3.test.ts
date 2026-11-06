@@ -37,8 +37,8 @@ function downgradeToV2(state: GameState): string {
 }
 
 describe('save migration v2 → v3', () => {
-  it('CURRENT_SCHEMA 係 3', () => {
-    expect(CURRENT_SCHEMA).toBe(3);
+  it('CURRENT_SCHEMA 起碼係 3（M3 引入）', () => {
+    expect(CURRENT_SCHEMA).toBeGreaterThanOrEqual(3);
   });
 
   it('M2 存檔（有進行中同已完成嘅 order）載入後補預設值，order 當作已放行', () => {
@@ -48,7 +48,7 @@ describe('save migration v2 → v3', () => {
     expect(loaded.ok).toBe(true);
     if (!loaded.ok) return;
     expect(loaded.migratedFrom).toBe(2);
-    expect(loaded.state.schema).toBe(3);
+    expect(loaded.state.schema).toBe(CURRENT_SCHEMA);
     expect(loaded.state.options).toEqual({ nurseConfirmHighRisk: true });
     const orders = Object.values(loaded.state.orders);
     expect(orders.length).toBeGreaterThanOrEqual(2);

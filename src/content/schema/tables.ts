@@ -12,10 +12,21 @@ import {
   trajectorySchema,
 } from './m2Tables';
 import { consequenceSchema, resultSchema } from './m3Tables';
+import {
+  callOrSbarSchema,
+  consultDepartmentSchema,
+  delegationResultSchema,
+  difficultyProfileSchema,
+  rankBehaviourSchema,
+  rankComplexitySchema,
+  scoringRuleSchema,
+  subordinateSchema,
+  wardLayoutSchema,
+} from './m4Tables';
 
 /**
  * implementation-plan §5：T1–T29 為陣列型內容表（T30 config 另有 schema）。
- * M2 收緊咗 T1、T2、T3、T4、T5、T6、T8、T10、T14、T26；M3 收緊 T4／T5／T6 並加 T7、T11；其餘表只驗證「存在、為陣列、每筆有唯一字串 id」，
+ * M2 收緊咗 T1、T2、T3、T4、T5、T6、T8、T10、T14、T26；M3 收緊 T4／T5／T6 並加 T7、T11；M4 收緊 T12、T13、T15、T16、T17、T18、T22（子集）、T24、T28；其餘表只驗證「存在、為陣列、每筆有唯一字串 id」，
  * 於對應 milestone 逐張收緊。
  */
 export const TABLE_NAMES = [
@@ -69,23 +80,23 @@ export const tableSchemas = {
   'acls-transitions': looseRecords,
   mews: z.array(mewsSchema),
   consequences: z.array(consequenceSchema),
-  'difficulty-profiles': looseRecords,
-  'rank-complexity': looseRecords,
+  'difficulty-profiles': z.array(difficultyProfileSchema),
+  'rank-complexity': z.array(rankComplexitySchema),
   'nurse-roster': z.array(nurseRosterEntrySchema),
-  subordinates: looseRecords,
-  'delegation-results': looseRecords,
-  'call-templates': looseRecords,
-  'rank-behaviour': looseRecords,
+  subordinates: z.array(subordinateSchema),
+  'delegation-results': z.array(delegationResultSchema),
+  'call-templates': z.array(callOrSbarSchema),
+  'rank-behaviour': z.array(rankBehaviourSchema),
   'event-schedule-templates': looseRecords,
   'energy-config': looseRecords,
   'self-care-actions': looseRecords,
-  'scoring-rules': looseRecords,
+  'scoring-rules': z.array(scoringRuleSchema),
   'death-process': looseRecords,
-  'consult-departments': looseRecords,
+  'consult-departments': z.array(consultDepartmentSchema),
   'rounds-topics': looseRecords,
   'quick-words': z.array(quickWordSchema),
   'family-scenarios': looseRecords,
-  'ward-layout': looseRecords,
+  'ward-layout': z.array(wardLayoutSchema),
   endings: looseRecords,
 } satisfies Record<TableName, z.ZodType<readonly ContentRecord[]>>;
 

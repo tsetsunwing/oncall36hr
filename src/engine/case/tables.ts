@@ -38,6 +38,7 @@ export interface CaseTemplateRow {
   id: string;
   fsmId: string;
   bed: number;
+  complexity: 'SIMPLE' | 'COMPLEX';
   demographics: { name: string; age: number; sex: 'M' | 'F'; code: 'FULL' | 'DNR' };
   presentingComplaint: string;
   allergies: readonly string[];
@@ -215,6 +216,144 @@ export interface ConsequenceRow {
   levels: Readonly<Record<DangerLevel, ConsequenceLevel>>;
 }
 
+export type RankId = 'HO' | 'MO' | 'RES' | 'AC' | 'COS';
+export type Priority = 'ROUTINE' | 'URGENT' | 'EMERGENCY';
+export type SubscoreId =
+  | 'CLINICAL_OUTCOME'
+  | 'TIMELINESS'
+  | 'SAFETY'
+  | 'COMMUNICATION'
+  | 'PRIORITISATION'
+  | 'SELF_CARE';
+export type SubordinateLevel = 'NOVICE' | 'NORMAL' | 'SENIOR';
+export type DelegationTask = 'PROCEDURE' | 'ORDER_NOTE' | 'ADMISSION' | 'SIMPLE_CALL' | 'ROUND_PREP';
+export type FailureMode = 'DELAYED' | 'INCOMPLETE' | 'WRONG';
+export type CallTag = 'NURSE' | 'JUNIOR' | 'LAB' | 'XRAY' | 'PHARMACY' | 'DEPT';
+export type CallNeeds = 'NONE' | 'ANY_PATIENT' | 'WORST_PATIENT' | 'ABNORMAL_REPORT' | 'FREE_BED';
+
+export interface DifficultyProfileRow {
+  id: 'EASY' | 'MEDIUM' | 'HARD';
+  occupancy: { min: number; max: number };
+  complexityLevel: number;
+  complexRatio: number;
+  phoneVolumeUplift: number;
+  nightEventMultiplier: number;
+  nurseSeniority: 'SENIOR' | 'NORMAL' | 'NEW';
+}
+
+export interface RankComplexityRow {
+  id: 'HO' | 'MO' | 'RES';
+  complexityLevel: number;
+}
+
+export interface SubordinateRow {
+  id: string;
+  rank: 'HO' | 'MO';
+  name: string;
+  level: SubordinateLevel;
+  tone: string;
+}
+
+export interface DelegationItemRow {
+  id: string;
+  label: string;
+  catalogId?: string | undefined;
+  baseDurationSec?: number | undefined;
+  needsPatient: boolean;
+  needsTag?: string | undefined;
+  setsFlag?: string | undefined;
+  clearsTag?: string | undefined;
+}
+
+export interface DelegationResultRow {
+  id: DelegationTask;
+  task: DelegationTask;
+  items: readonly DelegationItemRow[];
+  byLevel: Readonly<Record<SubordinateLevel, { failureModes: readonly FailureMode[] }>>;
+  delayExtraMultiplier: number;
+}
+
+export interface CallResponseEffect {
+  events: readonly string[];
+  setFlags: readonly string[];
+  goToBed: boolean;
+}
+
+export interface CallTemplateRow {
+  id: string;
+  kind: 'CALL';
+  tag: CallTag;
+  weight: number;
+  priority: Priority;
+  needs: CallNeeds;
+  playerRanks: readonly ('HO' | 'MO' | 'RES')[];
+  text: string;
+  sbar?: { S: string; B: string; A: string; R: string } | undefined;
+  delegable: boolean;
+  admission?: boolean | undefined;
+  deptPool?: readonly string[] | undefined;
+  responses: Readonly<Record<'GO_NOW' | 'LATER' | 'CONTINUE' | 'MISSED', CallResponseEffect>>;
+  callerImpression: 'NONE' | 'CALLER_RANK';
+}
+
+export interface SbarPrefillRow {
+  id: string;
+  kind: 'SBAR_PREFILL';
+  S: string;
+  B: string;
+  A: string;
+  R: string;
+  RByTarget: { RANK: string; DEPT: string };
+  abnormalLabels: Readonly<Record<string, string>>;
+  directionLabels: { LOW: string; HIGH: string };
+  sexLabels: { M: string; F: string };
+  noAbnormal: string;
+  noAllergy: string;
+  noOrders: string;
+}
+
+export type CallTemplateTableRow = CallTemplateRow | SbarPrefillRow;
+
+export type ImpressionBand = 'WARM' | 'NEUTRAL' | 'COLD';
+
+export interface RankBehaviourRow {
+  id: 'MO' | 'RES' | 'AC' | 'COS';
+  bands: Readonly<
+    Record<
+      ImpressionBand,
+      {
+        reactionSec: number;
+        adviceMinClarity: number;
+        bedsideMinClarity: number;
+        questionDepth: number;
+      }
+    >
+  >;
+}
+
+export interface ConsultDepartmentRow {
+  id: string;
+  label: string;
+  kind: 'SPECIALTY' | 'ICU' | 'SERVICE';
+  acceptMinClarity: number;
+  bedsideByUrgency: Readonly<Record<Priority, 'PHONE' | 'BEDSIDE'>>;
+  reactionSec: { PHONE: number; BEDSIDE: number };
+  icu?: { mewsMin: number; assessSec: number } | undefined;
+  incoming: boolean;
+}
+
+export interface ScoringRuleRow {
+  id: string;
+  subscore: SubscoreId;
+  delta: number;
+  impression?: { target: 'SKIPPED' | 'CALLEE' | 'CALLER'; delta: number } | undefined;
+}
+
+export type WardLayoutRow =
+  | { id: string; kind: 'BED'; bed: number; zone: string; row: number; col: number }
+  | { id: string; kind: 'LANDMARK'; landmark: string }
+  | { id: string; kind: 'WALK'; sameZoneSec: number; crossZoneSec: number };
+
 export interface EngineTables {
   'case-templates': readonly CaseTemplateRow[];
   'case-fsm': readonly CaseFsmRow[];
@@ -228,6 +367,15 @@ export interface EngineTables {
   'quick-words': readonly QuickWordRow[];
   results: readonly ResultRow[];
   consequences: readonly ConsequenceRow[];
+  'difficulty-profiles': readonly DifficultyProfileRow[];
+  'rank-complexity': readonly RankComplexityRow[];
+  subordinates: readonly SubordinateRow[];
+  'delegation-results': readonly DelegationResultRow[];
+  'call-templates': readonly CallTemplateTableRow[];
+  'rank-behaviour': readonly RankBehaviourRow[];
+  'consult-departments': readonly ConsultDepartmentRow[];
+  'scoring-rules': readonly ScoringRuleRow[];
+  'ward-layout': readonly WardLayoutRow[];
 }
 
 export const EMPTY_TABLES: EngineTables = {
@@ -243,4 +391,13 @@ export const EMPTY_TABLES: EngineTables = {
   'quick-words': [],
   results: [],
   consequences: [],
+  'difficulty-profiles': [],
+  'rank-complexity': [],
+  subordinates: [],
+  'delegation-results': [],
+  'call-templates': [],
+  'rank-behaviour': [],
+  'consult-departments': [],
+  'scoring-rules': [],
+  'ward-layout': [],
 };
