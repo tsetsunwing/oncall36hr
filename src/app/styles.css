@@ -1,0 +1,236 @@
+:root {
+  --bg: #f4f6f8;
+  --surface: #ffffff;
+  --text: #1b2733;
+  --muted: #4a5a69;
+  --border: #b8c4cf;
+  --accent: #0b5cad;
+  --accent-text: #ffffff;
+  --ok-bg: #e3f4e8;
+  --ok-text: #14532d;
+  --error-bg: #fde8e8;
+  --error-text: #7f1d1d;
+  --info-bg: #e6eefa;
+  --info-text: #0c3a6b;
+  --blocked-bg: #fff4d6;
+  --blocked-text: #5c3d00;
+  font-family:
+    system-ui,
+    -apple-system,
+    'Noto Sans TC',
+    'PingFang TC',
+    'Microsoft JhengHei',
+    sans-serif;
+  line-height: 1.6;
+  color: var(--text);
+  background: var(--bg);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+.app-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  padding: 0.5rem 1rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.app-title {
+  font-weight: 700;
+  font-size: 1.125rem;
+}
+
+.app-header nav {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.app-header a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 0.75rem;
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.app-header a[aria-current='page'] {
+  font-weight: 700;
+  text-decoration: none;
+  border-bottom: 3px solid var(--accent);
+}
+
+main {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.page h1 {
+  margin-top: 0.5rem;
+}
+
+fieldset {
+  margin: 1rem 0;
+  padding: 0.75rem 1rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+legend {
+  padding: 0 0.5rem;
+  font-weight: 700;
+}
+
+.field {
+  margin-bottom: 1rem;
+}
+
+.field label:not(.checkbox) {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+input[type='text'],
+input[type='url'],
+input[type='password'] {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.5rem 0.75rem;
+  font: inherit;
+  color: var(--text);
+  background: #fff;
+  border: 1px solid var(--muted);
+  border-radius: 6px;
+}
+
+input[aria-invalid='true'] {
+  border: 2px solid var(--error-text);
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 44px;
+}
+
+.checkbox input {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.hint {
+  margin: 0.25rem 0 0;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.field-error {
+  margin: 0.25rem 0 0;
+  color: var(--error-text);
+  font-weight: 600;
+}
+
+button,
+.button-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.5rem 1rem;
+  font: inherit;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--muted);
+  border-radius: 6px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+button.primary {
+  color: var(--accent-text);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+button:disabled {
+  color: #3f4b57;
+  background: #dfe5ea;
+  border-color: #8794a0;
+  cursor: not-allowed;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+  outline: 3px solid #f59e0b;
+  outline-offset: 2px;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.notice {
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  border: 1px solid transparent;
+}
+
+.notice-ok {
+  background: var(--ok-bg);
+  color: var(--ok-text);
+  border-color: var(--ok-text);
+}
+
+.notice-error {
+  background: var(--error-bg);
+  color: var(--error-text);
+  border-color: var(--error-text);
+}
+
+.notice-info {
+  background: var(--info-bg);
+  color: var(--info-text);
+  border-color: var(--info-text);
+}
+
+.notice-blocked {
+  background: var(--blocked-bg);
+  color: var(--blocked-text);
+  border-color: var(--blocked-text);
+}
+
+.notice-blocked h2 {
+  margin-top: 0;
+  font-size: 1.125rem;
+}
+
+.notice-blocked .button-link {
+  color: var(--blocked-text);
+  background: #fff;
+  border-color: var(--blocked-text);
+}
+
+blockquote {
+  margin: 1rem 0;
+  padding: 0.5rem 1rem;
+  border-left: 4px solid var(--accent);
+  background: var(--surface);
+}
