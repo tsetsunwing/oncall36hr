@@ -61,6 +61,7 @@ export function createGameSession(options: GameSessionOptions): GameSession {
   const listeners = new Set<() => void>();
   const inflight = new Set<Promise<void>>();
   let failureReason: AiFailureReason | null = null;
+  let notice: GameView['notice'] = null;
   let stopped = false;
   let timerId: number | null = null;
   let lastTickAt = 0;
@@ -69,6 +70,7 @@ export function createGameSession(options: GameSessionOptions): GameSession {
     tables: options.tables,
     config: options.config,
     aiFailureReason: failureReason,
+    notice,
   });
 
   const runtime: GameRuntime = createGameRuntime({
@@ -76,6 +78,10 @@ export function createGameSession(options: GameSessionOptions): GameSession {
     saves: options.saves,
     initialState: options.initialState ?? engine.init(options.params),
     onEffect(effect) {
+      if (effect.type === 'NOTICE') {
+        notice = { kind: effect.kind, tone: effect.tone };
+        return;
+      }
       if (effect.type !== 'AI_REQUEST') return;
       const task = options.gateway
         .run({ reqId: effect.reqId, kind: effect.kind, context: effect.context })
@@ -83,10 +89,10 @@ export function createGameSession(options: GameSessionOptions): GameSession {
           if (stopped) return;
           if (outcome.ok) {
             failureReason = null;
-            runtime.dispatch({ type: 'AI_RESULT', reqId: effect.reqId, payload: outcome.payload });
+            dispatch({ type: 'AI_RESULT', reqId: effect.reqId, payload: outcome.payload });
           } else {
             failureReason = outcome.reason;
-            runtime.dispatch({ type: 'AI_FAILURE', reqId: effect.reqId, reason: outcome.reason });
+            dispatch({ type: 'AI_FAILURE', reqId: effect.reqId, reason: outcome.reason });
           }
         })
         .finally(() => {
@@ -105,6 +111,7 @@ export function createGameSession(options: GameSessionOptions): GameSession {
   }
 
   function dispatch(event: EngineEvent): void {
+    if (event.type === 'PLAYER_INTENT') notice = null;
     runtime.dispatch(event);
     publish();
   }

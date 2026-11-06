@@ -212,7 +212,7 @@ export const caseModule: EngineModule = {
         const beat: Beat = {
           type: 'ALERT_DETERIORATION',
           speaker: 'NURSE',
-          tokens: [...MEWS_TOKENS],
+          tokens: [...ALERT_TOKENS],
           abnormal: abnormalOf(applied.patient, ctx.tables),
         };
         const queued = queueDialogue(
@@ -241,7 +241,7 @@ export const caseModule: EngineModule = {
   },
 };
 
-const MEWS_TOKENS = [
+const ALERT_TOKENS = [
   'mews.score',
   'vital.hr',
   'vital.sbp',

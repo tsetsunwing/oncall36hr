@@ -480,8 +480,18 @@ main.wide {
 
 .monitor-body {
   display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: 0.5rem;
+}
+
+@media (min-width: 1500px) {
+  .monitor-body {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  }
+
+  .tiles {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 .waves {
@@ -523,7 +533,7 @@ main.wide {
 
 .tiles {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1px;
   background: #223247;
   border: 1px solid #223247;
@@ -611,17 +621,22 @@ main.wide {
 }
 
 .chat-log {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
   height: 22rem;
   margin: 0.5rem 0;
   padding: 0.25rem;
   overflow-y: auto;
-  list-style: none;
   border: 1px solid var(--border);
   border-radius: 6px;
   background: #fafcfd;
+}
+
+.chat-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 .chat-line {
@@ -862,14 +877,6 @@ main.wide {
     height: 3.5rem;
   }
 
-  .monitor-body {
-    grid-template-columns: 1fr;
-  }
-
-  .tiles {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
   .tile-value {
     font-size: 1.5rem;
   }
@@ -900,4 +907,12 @@ main.wide {
     transition: none !important;
     animation: none !important;
   }
+}
+
+.chat-notice {
+  min-height: 1.5em;
+  margin: 0 0 0.35rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--blocked-text);
 }

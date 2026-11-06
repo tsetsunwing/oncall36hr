@@ -132,6 +132,8 @@ export interface GameView {
   quickChips: QuickChipView[];
   pendingAiCount: number;
   aiFailure: { reqId: string; reason: string | null } | null;
+  /** 最近一次被 engine 拒絕嘅玩家動作（暫停中落 order 等）；下一個動作時清除 */
+  notice: { kind: string; tone: 'info' | 'warn' | 'error' } | null;
 }
 
 /** UI 通過呢個介面嘅動作同 engine 溝通（UI 唔直接 import engine） */

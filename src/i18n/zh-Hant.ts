@@ -134,6 +134,16 @@ export const ui = {
       toSettings: '前往設定',
     },
     noPatient: '目前沒有病人。',
+    notice: {
+      ORDER_BLOCKED_PAUSED: '遊戲暫停中，無法下達指示。請先按「繼續」。',
+      CHAT_EMPTY: '請先輸入內容。',
+      CHAT_TOO_LONG: '內容太長，請縮短後再傳送。',
+      PATIENT_UNKNOWN: '找不到這位病人。',
+      ORDER_NOT_CANCELLABLE: '這個 order 已經無法取消。',
+      ORDER_UNKNOWN: '找不到這個 order。',
+      ORDER_INVALID: '這個 order 無效。',
+      fallback: '這個動作目前無法執行。',
+    } as Record<string, string>,
   },
   settings: {
     heading: '設定',

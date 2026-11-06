@@ -84,9 +84,9 @@ export function WaveformCanvas(props: WaveformCanvasProps) {
       }
     };
 
+    const stepSec = live.current.sweepSeconds / WIDTH;
+    advance(WIDTH, stepSec);
     if (reduced) {
-      const stepSec = live.current.sweepSeconds / WIDTH;
-      advance(WIDTH, stepSec);
       render();
       return;
     }

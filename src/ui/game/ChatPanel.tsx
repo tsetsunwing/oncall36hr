@@ -14,6 +14,7 @@ const MENTION_AT_END = /[@＠]([^\s@＠]*)$/u;
 
 export interface ChatPanelProps {
   chat: ChatView;
+  notice: { kind: string; tone: 'info' | 'warn' | 'error' } | null;
   chips: QuickChipView[];
   actions: GameActions;
 }
@@ -46,13 +47,13 @@ function Line({ line }: { line: ChatLineView }) {
   );
 }
 
-export function ChatPanel({ chat, chips, actions }: ChatPanelProps) {
+export function ChatPanel({ chat, chips, notice, actions }: ChatPanelProps) {
   const c = ui.game.chat;
   const [text, setText] = useState('');
   const [active, setActive] = useState(0);
   const [dismissed, setDismissed] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const logRef = useRef<HTMLOListElement>(null);
+  const logRef = useRef<HTMLDivElement>(null);
   const listId = useId();
 
   const mention = MENTION_AT_END.exec(text);
@@ -126,24 +127,26 @@ export function ChatPanel({ chat, chips, actions }: ChatPanelProps) {
 
       {/* 可捲動區域需要鍵盤可聚焦（axe: scrollable-region-focusable） */}
       {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex */}
-      <ol ref={logRef} className="chat-log" role="log" aria-label={c.logLabel} tabIndex={0}>
-        {chat.lines.length === 0 ? <li className="chat-empty">{c.empty}</li> : null}
-        {chat.lines.map((line, index) => (
-          <li key={line.id} className="chat-item">
-            {chat.lastLeftDividerIndex === index ? (
-              <div className="chat-divider" role="separator">
-                {c.lastLeft}
-              </div>
-            ) : null}
-            <Line line={line} />
-          </li>
-        ))}
-        {typing.map((p) => (
-          <li key={`typing-${p.id}`} className="chat-typing" data-testid="typing">
-            {c.typing(p.name)}
-          </li>
-        ))}
-      </ol>
+      <div ref={logRef} className="chat-log" role="log" aria-label={c.logLabel} tabIndex={0}>
+        <ol className="chat-list">
+          {chat.lines.length === 0 ? <li className="chat-empty">{c.empty}</li> : null}
+          {chat.lines.map((line, index) => (
+            <li key={line.id} className="chat-item">
+              {chat.lastLeftDividerIndex === index ? (
+                <div className="chat-divider" role="separator">
+                  {c.lastLeft}
+                </div>
+              ) : null}
+              <Line line={line} />
+            </li>
+          ))}
+          {typing.map((p) => (
+            <li key={`typing-${p.id}`} className="chat-typing" data-testid="typing">
+              {c.typing(p.name)}
+            </li>
+          ))}
+        </ol>
+      </div>
 
       <div className="chips" role="group" aria-label={c.quickGroup}>
         {chips.map((chip) => (
@@ -159,6 +162,10 @@ export function ChatPanel({ chat, chips, actions }: ChatPanelProps) {
           </button>
         ))}
       </div>
+
+      <p className="chat-notice" role="status" data-testid="chat-notice">
+        {notice ? (ui.game.notice[notice.kind] ?? ui.game.notice.fallback) : ''}
+      </p>
 
       <form className="chat-form" onSubmit={onSubmit}>
         <div className="chat-input-wrap">

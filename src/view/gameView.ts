@@ -39,6 +39,7 @@ export interface ViewEnv {
     ui: { monitor: { sweepSeconds: number; targetFps: number } };
   };
   aiFailureReason?: string | null;
+  notice?: GameView['notice'];
 }
 
 function alertLevel(score: number, mews: EngineTables['mews'][number] | undefined): AlarmLevel {
@@ -272,5 +273,6 @@ export function selectGameView(state: GameState, env: ViewEnv): GameView {
     quickChips: selectQuickChips(env.tables),
     pendingAiCount: state.pendingAi.length,
     aiFailure: failedReq ? { reqId: failedReq, reason: env.aiFailureReason ?? null } : null,
+    notice: env.notice ?? null,
   };
 }

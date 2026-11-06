@@ -150,6 +150,26 @@ function orderParse(prompt: Record<string, unknown>, mode: ContractMode): string
   return envelope('order.parse', data);
 }
 
+const TOKEN_LABELS: Record<string, string> = {
+  'vital.hr': '心率',
+  'vital.sbp': '收縮壓',
+  'vital.dbp': '舒張壓',
+  'vital.map': '平均壓',
+  'vital.spo2': '血氧',
+  'vital.rr': '呼吸',
+  'vital.temp': '體溫',
+  'mews.score': 'MEWS',
+  'rhythm.label': '節律',
+  'patient.bed': '床',
+};
+
+function phrase(tokens: string[]): string {
+  return tokens
+    .filter((t) => t !== 'patient.bed')
+    .map((t) => `${TOKEN_LABELS[t] ?? ''}{{${t}}}`)
+    .join('、');
+}
+
 function patientLine(beat: Beat): string {
   const symptom = beat.symptoms?.[0];
   return symptom ? `醫生，我${symptom}……` : '醫生，我唔太舒服。';
@@ -163,7 +183,7 @@ function dialogue(prompt: Record<string, unknown>, mode: ContractMode): string {
   const lines: { speaker: string; text: string }[] = [];
 
   for (const beat of beats) {
-    const tokens = (beat.tokens ?? []).map((t) => `{{${t}}}`);
+    const spoken = phrase(beat.tokens ?? []);
     const who = beat.speaker === 'NURSE' ? nurse : patient;
     if (!who) continue;
     let text: string;
@@ -175,13 +195,13 @@ function dialogue(prompt: Record<string, unknown>, mode: ContractMode): string {
         text = `明白，{{${beat.labelToken ?? ''}}} 已經取消。`;
         break;
       case 'REPORT_RESULT':
-        text = `{{${beat.labelToken ?? ''}}} 做好喇：${tokens.join('、')}。`;
+        text = `{{${beat.labelToken ?? ''}}} 做好喇：${spoken}。`;
         break;
       case 'REPORT_STATUS':
-        text = `而家情況：${tokens.join('、')}。`;
+        text = `而家情況：${spoken}。`;
         break;
       case 'ALERT_DETERIORATION':
-        text = `醫生，病人情況轉差，${tokens.join('、')}，麻煩你過嚟睇下。`;
+        text = `醫生，病人情況轉差，${spoken}，麻煩你過嚟睇下。`;
         break;
       case 'PATIENT_SPEAKS':
         text = patientLine(beat);

@@ -28,7 +28,12 @@ export function GamePage({ view, actions }: GamePageProps) {
             <MonitorPanel patient={view.patient} monitor={view.monitor} />
           </div>
           <div className="game-chat">
-            <ChatPanel chat={view.chat} chips={view.quickChips} actions={actions} />
+            <ChatPanel
+              chat={view.chat}
+              chips={view.quickChips}
+              notice={view.notice}
+              actions={actions}
+            />
           </div>
           <LogPanel
             orders={view.orders}
