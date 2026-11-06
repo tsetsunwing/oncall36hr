@@ -46,8 +46,32 @@ export const configSchema = z
       })
       .strict(),
     vitals: z
-      .object({ sampleIntervalSeconds: positive, criticalSampleIntervalSeconds: positive })
+      .object({
+        sampleIntervalSeconds: positive,
+        criticalSampleIntervalSeconds: positive,
+        historyLimit: z.number().int().positive(),
+        limits: z
+          .object({
+            hr: z.tuple([z.number(), z.number()]),
+            sbp: z.tuple([z.number(), z.number()]),
+            dbp: z.tuple([z.number(), z.number()]),
+            spo2: z.tuple([z.number(), z.number()]),
+            rr: z.tuple([z.number(), z.number()]),
+            temp: z.tuple([z.number(), z.number()]),
+          })
+          .strict(),
+      })
       .strict(),
+    chat: z
+      .object({
+        maxLinesPerTurn: z.number().int().positive(),
+        maxLineChars: z.number().int().positive(),
+        recentLinesForContext: z.number().int().min(0),
+        playerTextMaxChars: z.number().int().positive(),
+        alertCooldownSeconds: z.number().int().min(0),
+      })
+      .strict(),
+    orders: z.object({ maxActionsPerParse: z.number().int().positive() }).strict(),
     acls: z
       .object({ cycleSeconds: positive, minCyclesBeforeStop: z.number().int().min(0) })
       .strict(),
@@ -90,7 +114,13 @@ export const configSchema = z
       .strict(),
     ward: z.object({ bedCount: z.number().int().positive() }).strict(),
     ui: z
-      .object({ touchTargetMinPx: positive, maxFlashesPerSecond: z.number().int().min(0).max(3) })
+      .object({
+        touchTargetMinPx: positive,
+        maxFlashesPerSecond: z.number().int().min(0).max(3),
+        monitor: z
+          .object({ sweepSeconds: positive, targetFps: z.number().int().min(1).max(60) })
+          .strict(),
+      })
       .strict(),
   })
   .strict()

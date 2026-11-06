@@ -13,4 +13,20 @@ export interface EngineConfig {
     manualSlots: number;
     autoSaveEveryGameMinutes: number;
   };
+  vitals: {
+    sampleIntervalSeconds: number;
+    criticalSampleIntervalSeconds: number;
+    historyLimit: number;
+    limits: Readonly<
+      Record<'hr' | 'sbp' | 'dbp' | 'spo2' | 'rr' | 'temp', readonly [number, number]>
+    >;
+  };
+  chat: {
+    maxLinesPerTurn: number;
+    maxLineChars: number;
+    recentLinesForContext: number;
+    playerTextMaxChars: number;
+    alertCooldownSeconds: number;
+  };
+  orders: { maxActionsPerParse: number };
 }

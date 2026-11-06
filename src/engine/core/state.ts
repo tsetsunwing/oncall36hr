@@ -7,10 +7,13 @@ import { z } from 'zod';
 import { eventQueueSchema, type EventQueue } from './eventQueue';
 import { createEventQueue, enqueue } from './eventQueue';
 import { createRngState, rngStateSchema } from './rng';
+import { patientSchema } from '../case/patient';
+import { chatThreadSchema } from '../chat/chatTypes';
+import { actionLogEntrySchema } from '../log/actionLog';
 import { orderSchema } from '../orders/orderTypes';
 import type { EngineConfig } from './config';
 
-export const CURRENT_SCHEMA = 1;
+export const CURRENT_SCHEMA = 2;
 
 export const MODES = ['DAY', 'NIGHT', 'ONCALL'] as const;
 export const DIFFICULTIES = ['EASY', 'MEDIUM', 'HARD'] as const;
@@ -60,7 +63,17 @@ export const gameStateSchema = z
     clock: clockSchema,
     paused: pausedSchema.nullable(),
     orders: z.record(z.string(), orderSchema),
-    counters: z.object({ order: z.number().int().min(0), req: z.number().int().min(0) }).strict(),
+    patients: z.record(z.string(), patientSchema),
+    chats: z.record(z.string(), chatThreadSchema),
+    actionLog: z.array(actionLogEntrySchema),
+    counters: z
+      .object({
+        order: z.number().int().min(0),
+        req: z.number().int().min(0),
+        line: z.number().int().min(0),
+        log: z.number().int().min(0),
+      })
+      .strict(),
     scheduler: eventQueueSchema,
     pendingAi: z.array(pendingAiSchema),
   })
@@ -75,6 +88,8 @@ export interface NewGameParams {
   mode: Mode;
   difficulty: Difficulty;
   playerRank: PlayerRank;
+  /** 指定 case 模板 id；唔填就用 content 第一個 case（M2 只有一個） */
+  caseId?: string;
 }
 
 export function createInitialState(params: NewGameParams, config: EngineConfig): GameState {
@@ -100,7 +115,10 @@ export function createInitialState(params: NewGameParams, config: EngineConfig):
     },
     paused: null,
     orders: {},
-    counters: { order: 0, req: 0 },
+    patients: {},
+    chats: {},
+    actionLog: [],
+    counters: { order: 0, req: 0, line: 0, log: 0 },
     scheduler,
     pendingAi: [],
   };

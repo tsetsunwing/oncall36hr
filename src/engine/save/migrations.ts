@@ -6,7 +6,31 @@ export type RawState = Record<string, unknown>;
 export type Migration = (raw: RawState) => RawState;
 export type MigrationRegistry = Readonly<Record<number, Migration>>;
 
-export const migrations: MigrationRegistry = {};
+/** schema 1 → 2（M2）：加入病人、對話、Action Log；order 加來源／參數／執行者 */
+function migrateV1toV2(raw: RawState): RawState {
+  const orders = (raw.orders ?? {}) as Record<string, Record<string, unknown>>;
+  const counters = (raw.counters ?? {}) as Record<string, unknown>;
+  return {
+    ...raw,
+    orders: Object.fromEntries(
+      Object.entries(orders).map(([id, order]) => [
+        id,
+        {
+          ...order,
+          source: 'MANUAL',
+          params: { drugFormularyId: null, dose: null, route: null },
+          executor: null,
+        },
+      ]),
+    ),
+    patients: {},
+    chats: {},
+    actionLog: [],
+    counters: { ...counters, line: 0, log: 0 },
+  };
+}
+
+export const migrations: MigrationRegistry = { 1: migrateV1toV2 };
 
 export type MigrateResult =
   | { ok: true; raw: RawState; fromSchema: number }

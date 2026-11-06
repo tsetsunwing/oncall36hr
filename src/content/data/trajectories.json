@@ -1,1 +1,89 @@
-[]
+[
+  {
+    "id": "pna.deteriorating",
+    "target": {
+      "hr": 112,
+      "sbp": 104,
+      "dbp": 62,
+      "spo2": 93,
+      "rr": 24,
+      "temp": 38.4
+    },
+    "slopePerMin": {
+      "hr": 3,
+      "sbp": 2,
+      "dbp": 1.5,
+      "spo2": 0.5,
+      "rr": 1,
+      "temp": 0.05
+    },
+    "noise": {
+      "hr": 2,
+      "sbp": 3,
+      "dbp": 2,
+      "spo2": 1,
+      "rr": 1,
+      "temp": 0.1
+    },
+    "rhythm": "SINUS_RHYTHM",
+    "consciousness": "A"
+  },
+  {
+    "id": "pna.shock",
+    "target": {
+      "hr": 128,
+      "sbp": 82,
+      "dbp": 48,
+      "spo2": 88,
+      "rr": 28,
+      "temp": 38.9
+    },
+    "slopePerMin": {
+      "hr": 4,
+      "sbp": 3,
+      "dbp": 2,
+      "spo2": 0.8,
+      "rr": 1.5,
+      "temp": 0.05
+    },
+    "noise": {
+      "hr": 2,
+      "sbp": 3,
+      "dbp": 2,
+      "spo2": 1,
+      "rr": 1,
+      "temp": 0.1
+    },
+    "rhythm": "SINUS_RHYTHM",
+    "consciousness": "V"
+  },
+  {
+    "id": "pna.stabilising",
+    "target": {
+      "hr": 92,
+      "sbp": 118,
+      "dbp": 72,
+      "spo2": 96,
+      "rr": 18,
+      "temp": 37.6
+    },
+    "slopePerMin": {
+      "hr": 1.5,
+      "sbp": 1.5,
+      "dbp": 1,
+      "spo2": 0.3,
+      "rr": 0.5,
+      "temp": 0.03
+    },
+    "noise": {
+      "hr": 2,
+      "sbp": 3,
+      "dbp": 2,
+      "spo2": 1,
+      "rr": 1,
+      "temp": 0.1
+    },
+    "rhythm": "SINUS_RHYTHM",
+    "consciousness": "A"
+  }
+]

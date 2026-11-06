@@ -1,10 +1,12 @@
+import type { EngineTables } from '../case/tables';
 import type { EngineConfig } from './config';
 import type { JsonValue, ScheduledEvent } from './eventQueue';
 import type { PlayerIntent, Reduction } from './events';
-import type { GameState } from './state';
+import type { GameState, NewGameParams, PendingAiRequest } from './state';
 
 export interface EngineContext {
   config: EngineConfig;
+  tables: EngineTables;
 }
 
 /**
@@ -14,6 +16,8 @@ export interface EngineContext {
  */
 export interface EngineModule {
   name: string;
+  /** 開局時按順序呼叫，令 module 於初始 state 加入自己嘅資料 */
+  init?: (state: GameState, params: NewGameParams, ctx: EngineContext) => GameState;
   handleIntent?: (
     state: GameState,
     intent: PlayerIntent,
@@ -29,5 +33,7 @@ export interface EngineModule {
     reqId: string,
     payload: JsonValue,
     ctx: EngineContext,
+    /** 呢個 reqId 發出時登記嘅 pending 請求（reducer 已由 state.pendingAi 移除；未知 reqId 為 undefined） */
+    pending: PendingAiRequest | undefined,
   ) => Reduction | undefined;
 }

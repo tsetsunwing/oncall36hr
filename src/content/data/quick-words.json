@@ -1,1 +1,52 @@
-[]
+[
+  {
+    "id": "qw.vitals",
+    "aliases": ["check vitals", "check vital signs", "vital signs", "vitals", "vs", "check vs"],
+    "catalogId": "obs.vitals",
+    "chipLabel": "Check vitals"
+  },
+  {
+    "id": "qw.pulse",
+    "aliases": ["check pulse", "pulse check"],
+    "catalogId": "obs.pulse",
+    "chipLabel": "Check pulse"
+  },
+  {
+    "id": "qw.nrb",
+    "aliases": ["oxygen nrb", "o2 nrb", "nrb", "nrb mask", "o2 15l", "oxygen 15l"],
+    "catalogId": "oxygen.nrb",
+    "chipLabel": "Oxygen NRB"
+  },
+  {
+    "id": "qw.nasal",
+    "aliases": ["oxygen nasal", "o2 nasal", "o2 np", "nasal prong", "o2 2l", "oxygen 2l"],
+    "catalogId": "oxygen.nasal"
+  },
+  {
+    "id": "qw.ns500",
+    "aliases": [
+      "ns 500",
+      "ns 500ml",
+      "ns 500 ml",
+      "normal saline 500 ml",
+      "fluid bolus",
+      "ivf bolus"
+    ],
+    "catalogId": "fluid.ns500",
+    "chipLabel": "NS 500 mL"
+  },
+  {
+    "id": "qw.ceftriaxone",
+    "aliases": ["ceftriaxone 1 g iv", "ceftriaxone 1g iv"],
+    "catalogId": "drug.ceftriaxone",
+    "chipLabel": "Ceftriaxone 1 g IV",
+    "params": {
+      "drugFormularyId": "ceftriaxone",
+      "dose": {
+        "value": 1,
+        "unit": "g"
+      },
+      "route": "IV"
+    }
+  }
+]

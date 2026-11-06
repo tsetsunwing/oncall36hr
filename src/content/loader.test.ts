@@ -5,10 +5,29 @@ import { TABLE_NAMES } from './schema/tables';
 const clone = <T>(value: T): T => structuredClone(value);
 
 describe('content loader', () => {
-  it('accepts the shipped (empty) content bundle', () => {
+  const M2_TABLES = [
+    'case-templates',
+    'case-fsm',
+    'trajectories',
+    'order-catalog',
+    'formulary',
+    'order-effects',
+    'rhythms',
+    'mews',
+    'nurse-roster',
+    'quick-words',
+  ] as const;
+
+  it('accepts the shipped bundle: M2 tables are filled, every later table is still an empty array', () => {
     const content = getContent();
     expect(Object.keys(content.tables)).toHaveLength(TABLE_NAMES.length);
-    for (const name of TABLE_NAMES) expect(content.tables[name]).toEqual([]);
+    for (const name of TABLE_NAMES) {
+      if ((M2_TABLES as readonly string[]).includes(name)) {
+        expect(content.tables[name].length, name).toBeGreaterThan(0);
+      } else {
+        expect(content.tables[name], name).toEqual([]);
+      }
+    }
   });
 
   it('accepts a bundle where every table is an explicit empty array', () => {
@@ -40,13 +59,13 @@ describe('content loader', () => {
 
   it('rejects records without an id', () => {
     const raw = clone(rawContent);
-    raw.tables['quick-words'] = [{ label: 'no id' }];
+    raw.tables.results = [{ label: 'no id' }];
     expect(validateContent(raw).ok).toBe(false);
   });
 
   it('rejects duplicate ids within a table', () => {
     const raw = clone(rawContent);
-    raw.tables['quick-words'] = [{ id: 'a' }, { id: 'a' }];
+    raw.tables.results = [{ id: 'a' }, { id: 'a' }];
     const result = validateContent(raw);
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.issues[0]?.message).toContain('id 重複');
@@ -54,7 +73,7 @@ describe('content loader', () => {
 
   it('accepts valid records', () => {
     const raw = clone(rawContent);
-    raw.tables['quick-words'] = [{ id: 'cpr', action: 'CPR_START' }];
+    raw.tables.results = [{ id: 'cbc', anything: 'goes until the table is tightened' }];
     const result = validateContent(raw);
     expect(result.ok).toBe(true);
   });

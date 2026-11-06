@@ -4,8 +4,9 @@
  */
 import { gameSecondsPerRealMs } from './clock';
 import type { EngineConfig } from './config';
-import { enqueue, peek, pop, type JsonValue, type ScheduledEvent } from './eventQueue';
+import { enqueue, peek, pop, type ScheduledEvent } from './eventQueue';
 import type { Effect, EngineEvent, PlayerIntent, Reduction } from './events';
+import { EMPTY_TABLES, type EngineTables } from '../case/tables';
 import type { EngineContext, EngineModule } from './module';
 import {
   AUTOSAVE_EVENT_KIND,
@@ -14,21 +15,29 @@ import {
   type GameState,
   type NewGameParams,
 } from './state';
+import { bedsideModule } from '../bedside/bedside';
+import { caseModule } from '../case/caseModule';
 import { ordersModule } from '../orders/orders';
+import { requestAi } from './ai';
 
-export const defaultModules: readonly EngineModule[] = [ordersModule];
+export const defaultModules: readonly EngineModule[] = [ordersModule, caseModule, bedsideModule];
+
+export { requestAi };
 
 /** 單一 TICK 內最多處理嘅排程事件數，防止事件自我重排造成死循環 */
 const MAX_EVENTS_PER_TICK = 100_000;
 
 export interface Engine {
   readonly config: EngineConfig;
+  readonly tables: EngineTables;
   init(params: NewGameParams): GameState;
   reduce(state: GameState, event: EngineEvent): Reduction;
 }
 
 export interface EngineOptions {
   modules?: readonly EngineModule[];
+  /** 內容表（T1–T30 嘅 engine 子集）；唔提供就係空表，case／order 模組冇嘢可做 */
+  tables?: EngineTables;
 }
 
 const none = (state: GameState): Reduction => ({ state, effects: [] });
@@ -43,23 +52,6 @@ function notice(
 
 function pause(state: GameState, by: 'player' | 'ai-failure' | 'forced', reqId: string | null) {
   return { ...state, paused: { by, reqId } };
-}
-
-/** 令 module 可以發 AI 請求：分配 reqId、記入 pendingAi（存檔會帶住，重試用同一 reqId） */
-export function requestAi(
-  state: GameState,
-  kind: string,
-  context: JsonValue,
-): { state: GameState; effect: Effect } {
-  const reqId = `r${String(state.counters.req + 1)}`;
-  return {
-    state: {
-      ...state,
-      counters: { ...state.counters, req: state.counters.req + 1 },
-      pendingAi: [...state.pendingAi, { reqId, kind, context }],
-    },
-    effect: { type: 'AI_REQUEST', reqId, kind, context },
-  };
 }
 
 /** 載入存檔後預設暫停，由玩家手動繼續（§12.1）；AI 失敗暫停則保留 */
@@ -80,7 +72,8 @@ function dedupeSaves(effects: Effect[]): Effect[] {
 
 export function createEngine(config: EngineConfig, options: EngineOptions = {}): Engine {
   const modules = options.modules ?? defaultModules;
-  const ctx: EngineContext = { config };
+  const tables = options.tables ?? EMPTY_TABLES;
+  const ctx: EngineContext = { config, tables };
 
   function applyIntentToModules(state: GameState, intent: PlayerIntent): Reduction | undefined {
     for (const module of modules) {
@@ -206,11 +199,18 @@ export function createEngine(config: EngineConfig, options: EngineOptions = {}):
         break;
 
       case 'AI_RESULT': {
+        const pending = state.pendingAi.find((p) => p.reqId === event.reqId);
         const pendingAi = state.pendingAi.filter((p) => p.reqId !== event.reqId);
         const cleared = { ...state, pendingAi };
         result = none(cleared);
         for (const module of modules) {
-          const moduleResult = module.handleAiResult?.(cleared, event.reqId, event.payload, ctx);
+          const moduleResult = module.handleAiResult?.(
+            cleared,
+            event.reqId,
+            event.payload,
+            ctx,
+            pending,
+          );
           if (moduleResult) {
             result = moduleResult;
             break;
@@ -254,7 +254,12 @@ export function createEngine(config: EngineConfig, options: EngineOptions = {}):
 
   return {
     config,
-    init: (params) => createInitialState(params, config),
+    tables,
+    init: (params) =>
+      modules.reduce(
+        (state, module) => module.init?.(state, params, ctx) ?? state,
+        createInitialState(params, config),
+      ),
     reduce,
   };
 }

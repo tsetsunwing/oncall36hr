@@ -1,1 +1,47 @@
-[]
+[
+  {
+    "id": "pna-sepsis-01",
+    "initial": "DETERIORATING",
+    "salvageable": true,
+    "states": {
+      "DETERIORATING": {
+        "trajectory": "pna.deteriorating"
+      },
+      "SEPTIC_SHOCK": {
+        "trajectory": "pna.shock"
+      },
+      "STABILISING": {
+        "trajectory": "pna.stabilising"
+      }
+    },
+    "transitions": [
+      {
+        "from": "DETERIORATING",
+        "to": "STABILISING",
+        "when": {
+          "timeInStateSec": 900,
+          "flagsAll": ["abx.iv", "oxygen.on"]
+        },
+        "p": 1
+      },
+      {
+        "from": "DETERIORATING",
+        "to": "SEPTIC_SHOCK",
+        "when": {
+          "timeInStateSec": 7200,
+          "missingAny": ["abx.iv", "fluid.bolus"]
+        },
+        "p": 0.7
+      },
+      {
+        "from": "SEPTIC_SHOCK",
+        "to": "STABILISING",
+        "when": {
+          "timeInStateSec": 1200,
+          "flagsAll": ["abx.iv", "fluid.bolus"]
+        },
+        "p": 1
+      }
+    ]
+  }
+]

@@ -1,1 +1,18 @@
-[]
+[
+  {
+    "id": "ceftriaxone",
+    "label": "Ceftriaxone",
+    "aliases": ["ceftriaxone", "rocephin"],
+    "catalogId": "drug.ceftriaxone",
+    "units": ["g", "mg"],
+    "routes": ["IV"]
+  },
+  {
+    "id": "paracetamol",
+    "label": "Paracetamol",
+    "aliases": ["paracetamol", "panadol"],
+    "catalogId": "drug.paracetamol",
+    "units": ["g", "mg"],
+    "routes": ["PO", "IV"]
+  }
+]

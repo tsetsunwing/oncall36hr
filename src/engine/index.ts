@@ -67,9 +67,44 @@ export {
   type Mode,
   type NewGameParams,
   type PendingAiRequest,
+  type PausedState,
   type PlayerRank,
 } from './core/state';
 export { ordersModule } from './orders/orders';
+export { bedsideModule } from './bedside/bedside';
+export { caseModule } from './case/caseModule';
+export { composeOrderLabel } from './orders/label';
+export { matchQuickPhrase, normalizePhrase } from './orders/quickPhrase';
+export { meanArterialPressure, computeMews, type MewsResult } from './case/mews';
+export type { Patient, VitalsSample } from './case/patient';
+export { EMPTY_TABLES, MEWS_COMPONENT_KEYS, VITAL_KEYS } from './case/tables';
+export type {
+  CaseFsmRow,
+  CaseTemplateRow,
+  EngineTables,
+  FormularyRow,
+  MewsAlert,
+  MewsComponentKey,
+  MewsRow,
+  NurseRosterRow,
+  OrderCatalogRow,
+  OrderEffectRow,
+  QuickWordRow,
+  RhythmRow,
+  TrajectoryRow,
+  VitalKey,
+} from './case/tables';
+export type { ChatLine, ChatThread, Present, SpeakerKind } from './chat/chatTypes';
+export { renderTemplate, extractTokens, validateTemplate } from './chat/tokens';
+export { parseMentions } from './chat/mentions';
+export {
+  typingSpeakerIds,
+  abnormalOf,
+  vitalTokens,
+  type Abnormal,
+  type Beat,
+} from './chat/dialogue';
+export type { ActionLogEntry } from './log/actionLog';
 export {
   CANCELLABLE_STATUSES,
   ORDER_STATUSES,

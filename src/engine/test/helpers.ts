@@ -12,6 +12,27 @@ export const testConfig: EngineConfig = {
     cprSlowFactor: 0.5,
   },
   saves: { manualSlots: 5, autoSaveEveryGameMinutes: 30 },
+  vitals: {
+    sampleIntervalSeconds: 60,
+    criticalSampleIntervalSeconds: 10,
+    historyLimit: 240,
+    limits: {
+      hr: [20, 240],
+      sbp: [40, 260],
+      dbp: [20, 160],
+      spo2: [50, 100],
+      rr: [4, 50],
+      temp: [34, 42],
+    },
+  },
+  chat: {
+    maxLinesPerTurn: 4,
+    maxLineChars: 140,
+    recentLinesForContext: 8,
+    playerTextMaxChars: 200,
+    alertCooldownSeconds: 600,
+  },
+  orders: { maxActionsPerParse: 3 },
 };
 
 export const newGame: NewGameParams = {

@@ -19,6 +19,15 @@ export const orderSchema = z
     startsAt: z.number().int().min(0),
     completesAt: z.number().int().min(0),
     status: z.enum(ORDER_STATUSES),
+    source: z.enum(['MANUAL', 'QUICKWORD', 'AI_PARSED']),
+    params: z
+      .object({
+        drugFormularyId: z.string().nullable(),
+        dose: z.object({ value: z.number(), unit: z.string() }).strict().nullable(),
+        route: z.string().nullable(),
+      })
+      .strict(),
+    executor: z.string().nullable(),
   })
   .strict();
 

@@ -1,1 +1,137 @@
-[]
+[
+  {
+    "id": "SINUS_BRADYCARDIA",
+    "label": "Sinus Bradycardia",
+    "family": "SINUS",
+    "hrRange": [0, 60],
+    "shockable": false,
+    "pulse": true,
+    "wave": {
+      "kind": "sinus",
+      "ecg": [
+        {
+          "offsetSec": -0.16,
+          "widthSec": 0.035,
+          "amplitude": 0.15
+        },
+        {
+          "offsetSec": -0.03,
+          "widthSec": 0.01,
+          "amplitude": -0.12
+        },
+        {
+          "offsetSec": 0,
+          "widthSec": 0.012,
+          "amplitude": 1.0
+        },
+        {
+          "offsetSec": 0.03,
+          "widthSec": 0.012,
+          "amplitude": -0.22
+        },
+        {
+          "offsetSec": 0.22,
+          "widthSec": 0.05,
+          "amplitude": 0.32
+        }
+      ],
+      "pleth": {
+        "delaySec": 0.18,
+        "riseSec": 0.12,
+        "fallSec": 0.28,
+        "notchSec": 0.22,
+        "notchAmplitude": 0.3
+      }
+    }
+  },
+  {
+    "id": "SINUS_RHYTHM",
+    "label": "Sinus Rhythm",
+    "family": "SINUS",
+    "hrRange": [60, 101],
+    "shockable": false,
+    "pulse": true,
+    "wave": {
+      "kind": "sinus",
+      "ecg": [
+        {
+          "offsetSec": -0.16,
+          "widthSec": 0.035,
+          "amplitude": 0.15
+        },
+        {
+          "offsetSec": -0.03,
+          "widthSec": 0.01,
+          "amplitude": -0.12
+        },
+        {
+          "offsetSec": 0,
+          "widthSec": 0.012,
+          "amplitude": 1.0
+        },
+        {
+          "offsetSec": 0.03,
+          "widthSec": 0.012,
+          "amplitude": -0.22
+        },
+        {
+          "offsetSec": 0.22,
+          "widthSec": 0.05,
+          "amplitude": 0.32
+        }
+      ],
+      "pleth": {
+        "delaySec": 0.18,
+        "riseSec": 0.12,
+        "fallSec": 0.28,
+        "notchSec": 0.22,
+        "notchAmplitude": 0.3
+      }
+    }
+  },
+  {
+    "id": "SINUS_TACHYCARDIA",
+    "label": "Sinus Tachycardia",
+    "family": "SINUS",
+    "hrRange": [101, 1000],
+    "shockable": false,
+    "pulse": true,
+    "wave": {
+      "kind": "sinus",
+      "ecg": [
+        {
+          "offsetSec": -0.16,
+          "widthSec": 0.035,
+          "amplitude": 0.15
+        },
+        {
+          "offsetSec": -0.03,
+          "widthSec": 0.01,
+          "amplitude": -0.12
+        },
+        {
+          "offsetSec": 0,
+          "widthSec": 0.012,
+          "amplitude": 1.0
+        },
+        {
+          "offsetSec": 0.03,
+          "widthSec": 0.012,
+          "amplitude": -0.22
+        },
+        {
+          "offsetSec": 0.22,
+          "widthSec": 0.05,
+          "amplitude": 0.32
+        }
+      ],
+      "pleth": {
+        "delaySec": 0.18,
+        "riseSec": 0.12,
+        "fallSec": 0.28,
+        "notchSec": 0.22,
+        "notchAmplitude": 0.3
+      }
+    }
+  }
+]

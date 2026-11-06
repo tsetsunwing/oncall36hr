@@ -1,5 +1,8 @@
+import type { z } from 'zod';
 import { configSchema, type GameConfig } from './schema/config';
-import { TABLE_NAMES, tableSchemas, type ContentRecord, type TableName } from './schema/tables';
+import { validateCrossReferences } from './crossRefs';
+import type { ContentIssue } from './schema/issues';
+import { TABLE_NAMES, tableSchemas, type ContentRecord, type Tables } from './schema/tables';
 
 export interface RawContent {
   config: unknown;
@@ -8,14 +11,10 @@ export interface RawContent {
 
 export interface ContentBundle {
   config: GameConfig;
-  tables: Record<TableName, ContentRecord[]>;
+  tables: Tables;
 }
 
-export interface ContentIssue {
-  table: string;
-  path: string;
-  message: string;
-}
+export type { ContentIssue };
 
 export type ContentResult =
   { ok: true; content: ContentBundle } | { ok: false; issues: ContentIssue[] };
@@ -45,13 +44,15 @@ export function validateContent(raw: RawContent): ContentResult {
     }
   }
 
-  const tables = {} as Record<TableName, ContentRecord[]>;
+  const tables: Record<string, readonly ContentRecord[]> = {};
   for (const name of TABLE_NAMES) {
     if (!(name in raw.tables)) {
       issues.push({ table: name, path: '(根)', message: '缺少此內容表（空表必須明確寫 []）' });
       continue;
     }
-    const parsed = tableSchemas[name].safeParse(raw.tables[name]);
+    const parsed = (tableSchemas[name] as z.ZodType<readonly ContentRecord[]>).safeParse(
+      raw.tables[name],
+    );
     if (!parsed.success) {
       for (const issue of parsed.error.issues) {
         issues.push({ table: name, path: formatPath(issue.path), message: issue.message });
@@ -76,7 +77,10 @@ export function validateContent(raw: RawContent): ContentResult {
   }
 
   if (issues.length > 0 || !configResult.success) return { ok: false, issues };
-  return { ok: true, content: { config: configResult.data, tables } };
+  const typedTables = tables as unknown as Tables;
+  issues.push(...validateCrossReferences(typedTables));
+  if (issues.length > 0) return { ok: false, issues };
+  return { ok: true, content: { config: configResult.data, tables: typedTables } };
 }
 
 export function loadContent(raw: RawContent): ContentBundle {

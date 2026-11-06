@@ -8,7 +8,10 @@ export type CoreIntent =
   | { type: 'SET_SPEED'; speed: number }
   | { type: 'PLACE_ORDER'; patientId: string; catalogId: string; durationSec: number }
   | { type: 'CANCEL_ORDER'; orderId: string }
-  | { type: 'SAVE_GAME'; slot: number };
+  | { type: 'SAVE_GAME'; slot: number }
+  | { type: 'SUBMIT_CHAT'; patientId: string; text: string }
+  | { type: 'ENTER_BED'; patientId: string }
+  | { type: 'LEAVE_BED'; patientId: string };
 
 /** 後續 milestone 嘅 module 於自己嘅 typed intent 加入 core union 之前，可經呢條通道收 intent */
 export interface ExtensionIntent {
@@ -43,7 +46,10 @@ export type NoticeKind =
   | 'SPEED_INVALID'
   | 'SAVE_SLOT_INVALID'
   | 'RESUME_BLOCKED_AI_FAILURE'
-  | 'RESUME_NOT_PAUSED_BY_FAILURE';
+  | 'RESUME_NOT_PAUSED_BY_FAILURE'
+  | 'CHAT_EMPTY'
+  | 'CHAT_TOO_LONG'
+  | 'PATIENT_UNKNOWN';
 
 export type Effect =
   | { type: 'AI_REQUEST'; reqId: string; kind: string; context: JsonValue }

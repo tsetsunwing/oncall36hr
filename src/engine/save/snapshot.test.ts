@@ -114,6 +114,7 @@ describe('corrupt or incompatible saves are reported, never thrown', () => {
 
 describe('migration hook', () => {
   const v1 = JSON.parse(serializeSnapshot(played(), '0.0.1')) as { state: Record<string, unknown> };
+  v1.state.schema = 1;
   const accept = (raw: Record<string, unknown>) => ({
     success: true as const,
     data: raw as unknown as GameState,
@@ -166,7 +167,48 @@ describe('migration hook', () => {
   });
 
   it('current schema needs no migration and the default registry is valid for it', () => {
-    expect(migrateRawState({ ...v1.state }, CURRENT_SCHEMA)).toMatchObject({ ok: true });
-    expect(gameStateSchema.safeParse(v1.state).success).toBe(true);
+    const current = JSON.parse(serializeSnapshot(played(), '0.0.1')) as {
+      state: Record<string, unknown>;
+    };
+    expect(migrateRawState({ ...current.state }, CURRENT_SCHEMA)).toMatchObject({ ok: true });
+    expect(gameStateSchema.safeParse(current.state).success).toBe(true);
+  });
+
+  it('migrates a genuine schema-1 save (M1) to the current schema', () => {
+    const legacy = {
+      format: SAVE_FORMAT,
+      appVersion: '0.1.0-m1',
+      state: {
+        schema: 1,
+        seed: 'seed-A',
+        mode: 'NIGHT',
+        difficulty: 'MEDIUM',
+        playerRank: 'MO',
+        rng: JSON.parse(JSON.stringify(played().rng)) as unknown,
+        clock: { t: 45, frac: 0, speed: 1, cprSlow: false, phase: 'REGULAR' },
+        paused: null,
+        orders: {
+          o1: {
+            id: 'o1',
+            patientId: 'p1',
+            catalogId: 'lab.cbc',
+            createdAt: 0,
+            startsAt: 0,
+            completesAt: 300,
+            status: 'RUNNING',
+          },
+        },
+        counters: { order: 1, req: 0 },
+        scheduler: { nextSeq: 0, items: [] },
+        pendingAi: [],
+      },
+    };
+    const result = deserializeSnapshot(JSON.stringify(legacy));
+    expect(result).toMatchObject({ ok: true, migratedFrom: 1 });
+    if (!result.ok) return;
+    expect(result.state.schema).toBe(CURRENT_SCHEMA);
+    expect(result.state.orders.o1).toMatchObject({ source: 'MANUAL', executor: null });
+    expect(result.state.patients).toEqual({});
+    expect(result.state.counters).toEqual({ order: 1, req: 0, line: 0, log: 0 });
   });
 });

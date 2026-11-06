@@ -45,6 +45,9 @@ export const probeModule: EngineModule = {
             startsAt: event.time,
             completesAt: event.time,
             status: 'DONE',
+            source: 'MANUAL',
+            params: { drugFormularyId: null, dose: null, route: null },
+            executor: null,
           },
         },
         scheduler: enqueue(next.scheduler, {

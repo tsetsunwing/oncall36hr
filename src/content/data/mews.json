@@ -1,1 +1,193 @@
-[]
+[
+  {
+    "id": "hk-modified-mews",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：RR、HR、SBP、Temp、AVPU 採用公開發表嘅 Modified Early Warning Score（Subbe 2001）；SpO2 分段同 band 劃分係設計者預設值，並非香港醫管局改良 MEWS 原表。必須由臨床人員核對後替換（implementation-plan §4.4、R6）。",
+    "components": {
+      "rr": [
+        {
+          "min": null,
+          "max": 9,
+          "score": 2,
+          "direction": "LOW"
+        },
+        {
+          "min": 9,
+          "max": 15,
+          "score": 0,
+          "direction": null
+        },
+        {
+          "min": 15,
+          "max": 21,
+          "score": 1,
+          "direction": "HIGH"
+        },
+        {
+          "min": 21,
+          "max": 30,
+          "score": 2,
+          "direction": "HIGH"
+        },
+        {
+          "min": 30,
+          "max": null,
+          "score": 3,
+          "direction": "HIGH"
+        }
+      ],
+      "hr": [
+        {
+          "min": null,
+          "max": 41,
+          "score": 2,
+          "direction": "LOW"
+        },
+        {
+          "min": 41,
+          "max": 51,
+          "score": 1,
+          "direction": "LOW"
+        },
+        {
+          "min": 51,
+          "max": 101,
+          "score": 0,
+          "direction": null
+        },
+        {
+          "min": 101,
+          "max": 111,
+          "score": 1,
+          "direction": "HIGH"
+        },
+        {
+          "min": 111,
+          "max": 130,
+          "score": 2,
+          "direction": "HIGH"
+        },
+        {
+          "min": 130,
+          "max": null,
+          "score": 3,
+          "direction": "HIGH"
+        }
+      ],
+      "sbp": [
+        {
+          "min": null,
+          "max": 71,
+          "score": 3,
+          "direction": "LOW"
+        },
+        {
+          "min": 71,
+          "max": 81,
+          "score": 2,
+          "direction": "LOW"
+        },
+        {
+          "min": 81,
+          "max": 101,
+          "score": 1,
+          "direction": "LOW"
+        },
+        {
+          "min": 101,
+          "max": 200,
+          "score": 0,
+          "direction": null
+        },
+        {
+          "min": 200,
+          "max": null,
+          "score": 2,
+          "direction": "HIGH"
+        }
+      ],
+      "temp": [
+        {
+          "min": null,
+          "max": 35,
+          "score": 2,
+          "direction": "LOW"
+        },
+        {
+          "min": 35,
+          "max": 38.5,
+          "score": 0,
+          "direction": null
+        },
+        {
+          "min": 38.5,
+          "max": null,
+          "score": 2,
+          "direction": "HIGH"
+        }
+      ],
+      "spo2": [
+        {
+          "min": null,
+          "max": 92,
+          "score": 3,
+          "direction": "LOW"
+        },
+        {
+          "min": 92,
+          "max": 94,
+          "score": 2,
+          "direction": "LOW"
+        },
+        {
+          "min": 94,
+          "max": 96,
+          "score": 1,
+          "direction": "LOW"
+        },
+        {
+          "min": 96,
+          "max": null,
+          "score": 0,
+          "direction": null
+        }
+      ]
+    },
+    "avpu": {
+      "A": 0,
+      "V": 1,
+      "P": 2,
+      "U": 3
+    },
+    "componentAlert": {
+      "cautionMin": 1,
+      "alarmMin": 2
+    },
+    "bands": [
+      {
+        "id": "LOW",
+        "min": 0,
+        "max": 2,
+        "alert": "NONE"
+      },
+      {
+        "id": "MID",
+        "min": 3,
+        "max": 4,
+        "alert": "CAUTION"
+      },
+      {
+        "id": "HIGH",
+        "min": 5,
+        "max": 6,
+        "alert": "ALARM"
+      },
+      {
+        "id": "CRITICAL",
+        "min": 7,
+        "max": null,
+        "alert": "ALARM"
+      }
+    ]
+  }
+]

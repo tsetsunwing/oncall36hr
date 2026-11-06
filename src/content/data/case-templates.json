@@ -1,1 +1,31 @@
-[]
+[
+  {
+    "id": "pna-sepsis-01",
+    "fsmId": "pna-sepsis-01",
+    "bed": 7,
+    "demographics": {
+      "name": "黃國強",
+      "age": 72,
+      "sex": "M",
+      "code": "FULL"
+    },
+    "presentingComplaint": "發燒、咳嗽、氣促",
+    "allergies": [],
+    "diagnosisIds": ["pneumonia", "sepsis"],
+    "diagnosisTerms": [
+      "肺炎",
+      "pneumonia",
+      "sepsis",
+      "敗血",
+      "septic",
+      "感染性休克",
+      "chest infection",
+      "LRTI"
+    ],
+    "symptomsByState": {
+      "DETERIORATING": ["氣促", "發冷", "咳嗽有痰"],
+      "SEPTIC_SHOCK": ["頭暈", "氣促", "乏力，說話困難"],
+      "STABILISING": ["感覺好轉", "仍然有少許咳嗽"]
+    }
+  }
+]

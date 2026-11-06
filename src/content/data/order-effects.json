@@ -1,1 +1,124 @@
-[]
+[
+  {
+    "id": "fx.o2.nrb.det",
+    "catalogId": "oxygen.nrb",
+    "states": ["DETERIORATING"],
+    "delta": {
+      "spo2": 5,
+      "rr": -2,
+      "hr": -4
+    },
+    "delaySec": 30,
+    "rampSec": 180,
+    "durationSec": null
+  },
+  {
+    "id": "fx.o2.nrb.shock",
+    "catalogId": "oxygen.nrb",
+    "states": ["SEPTIC_SHOCK"],
+    "delta": {
+      "spo2": 4,
+      "rr": -2
+    },
+    "delaySec": 30,
+    "rampSec": 180,
+    "durationSec": null
+  },
+  {
+    "id": "fx.o2.nrb.stab",
+    "catalogId": "oxygen.nrb",
+    "states": ["STABILISING"],
+    "delta": {
+      "spo2": 2,
+      "rr": -1
+    },
+    "delaySec": 30,
+    "rampSec": 180,
+    "durationSec": null
+  },
+  {
+    "id": "fx.o2.nasal.any",
+    "catalogId": "oxygen.nasal",
+    "states": ["DETERIORATING", "SEPTIC_SHOCK"],
+    "delta": {
+      "spo2": 2,
+      "rr": -1
+    },
+    "delaySec": 30,
+    "rampSec": 180,
+    "durationSec": null
+  },
+  {
+    "id": "fx.o2.nasal.stab",
+    "catalogId": "oxygen.nasal",
+    "states": ["STABILISING"],
+    "delta": {
+      "spo2": 1
+    },
+    "delaySec": 30,
+    "rampSec": 180,
+    "durationSec": null
+  },
+  {
+    "id": "fx.ns.det",
+    "catalogId": "fluid.ns500",
+    "states": ["DETERIORATING"],
+    "delta": {
+      "sbp": 6,
+      "dbp": 4,
+      "hr": -3
+    },
+    "delaySec": 60,
+    "rampSec": 900,
+    "durationSec": 5400
+  },
+  {
+    "id": "fx.ns.shock",
+    "catalogId": "fluid.ns500",
+    "states": ["SEPTIC_SHOCK"],
+    "delta": {
+      "sbp": 10,
+      "dbp": 6,
+      "hr": -5
+    },
+    "delaySec": 60,
+    "rampSec": 900,
+    "durationSec": 5400
+  },
+  {
+    "id": "fx.ns.stab",
+    "catalogId": "fluid.ns500",
+    "states": ["STABILISING"],
+    "delta": {
+      "sbp": 2,
+      "dbp": 1
+    },
+    "delaySec": 60,
+    "rampSec": 900,
+    "durationSec": 5400
+  },
+  {
+    "id": "fx.abx.any",
+    "catalogId": "drug.ceftriaxone",
+    "states": ["*"],
+    "delta": {
+      "temp": -0.3,
+      "hr": -2
+    },
+    "delaySec": 1800,
+    "rampSec": 3600,
+    "durationSec": null
+  },
+  {
+    "id": "fx.pcm.any",
+    "catalogId": "drug.paracetamol",
+    "states": ["*"],
+    "delta": {
+      "temp": -1.0,
+      "hr": -4
+    },
+    "delaySec": 900,
+    "rampSec": 1800,
+    "durationSec": 14400
+  }
+]

@@ -172,7 +172,7 @@ describe('AI events (§2.3, §12.2)', () => {
     name: 'ai-probe',
     handleIntent(state, i) {
       if (i.type !== 'EXTENSION' || i.module !== 'ai-probe') return undefined;
-      const { state: next, effect } = requestAi(state, 'order.parse', { text: 'x' });
+      const { state: next, effect } = requestAi(state, 'probe.ask', { text: 'x' });
       return { state: next, effects: [effect] };
     },
   };
@@ -187,7 +187,7 @@ describe('AI events (§2.3, §12.2)', () => {
   it('AI_FAILURE pauses, freezes the clock and saves into the AI_FAILURE slot', () => {
     const asked = replay(aiEngine, aiEngine.init(newGame), [ask]);
     expect(asked.effects).toEqual([
-      { type: 'AI_REQUEST', reqId: 'r1', kind: 'order.parse', context: { text: 'x' } },
+      { type: 'AI_REQUEST', reqId: 'r1', kind: 'probe.ask', context: { text: 'x' } },
     ]);
     const failed = replay(aiEngine, asked.state, [
       { type: 'AI_FAILURE', reqId: 'r1', reason: 'TIMEOUT' },
@@ -213,7 +213,7 @@ describe('AI events (§2.3, §12.2)', () => {
     const retried = replay(aiEngine, failed, [{ type: 'RESUME_FROM_FAILURE', reqId: 'r1' }]);
     expect(retried.state.paused).toBeNull();
     expect(retried.effects).toEqual([
-      { type: 'AI_REQUEST', reqId: 'r1', kind: 'order.parse', context: { text: 'x' } },
+      { type: 'AI_REQUEST', reqId: 'r1', kind: 'probe.ask', context: { text: 'x' } },
     ]);
 
     const wrong = replay(aiEngine, failed, [{ type: 'RESUME_FROM_FAILURE', reqId: 'r2' }]);

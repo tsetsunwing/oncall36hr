@@ -1,1 +1,93 @@
-[]
+[
+  {
+    "id": "obs.vitals",
+    "type": "OBSERVATION",
+    "label": "Vital signs",
+    "aliases": [
+      "check vitals",
+      "check vital signs",
+      "vital signs",
+      "vitals",
+      "vs",
+      "check vs",
+      "量vital",
+      "量生命體徵"
+    ],
+    "executors": ["NURSE"],
+    "fixedDurationSec": 60,
+    "setsFlags": [],
+    "resultTemplate": "HR {{vital.hr}}, BP {{vital.sbp}}/{{vital.dbp}}, SpO2 {{vital.spo2}}%, RR {{vital.rr}}, Temp {{vital.temp}}, MEWS {{mews.score}}",
+    "cancelWhile": ["QUEUED", "RUNNING"]
+  },
+  {
+    "id": "obs.pulse",
+    "type": "OBSERVATION",
+    "label": "Pulse",
+    "aliases": ["check pulse", "pulse check", "摸脈", "探脈"],
+    "executors": ["NURSE"],
+    "fixedDurationSec": 15,
+    "setsFlags": [],
+    "resultTemplate": "Pulse {{vital.hr}}/min, {{rhythm.label}}",
+    "cancelWhile": ["QUEUED", "RUNNING"]
+  },
+  {
+    "id": "oxygen.nrb",
+    "type": "OXYGEN",
+    "label": "Oxygen NRB 15 L/min",
+    "aliases": ["oxygen nrb", "o2 nrb", "nrb", "nrb mask", "o2 15l", "oxygen 15l", "非循環面罩"],
+    "executors": ["NURSE"],
+    "fixedDurationSec": 60,
+    "setsFlags": ["oxygen.on"],
+    "cancelWhile": ["QUEUED", "RUNNING"]
+  },
+  {
+    "id": "oxygen.nasal",
+    "type": "OXYGEN",
+    "label": "Oxygen nasal prong 2 L/min",
+    "aliases": ["oxygen nasal", "o2 nasal", "o2 np", "nasal prong", "o2 2l", "oxygen 2l", "鼻導管"],
+    "executors": ["NURSE"],
+    "fixedDurationSec": 60,
+    "setsFlags": ["oxygen.on"],
+    "cancelWhile": ["QUEUED", "RUNNING"]
+  },
+  {
+    "id": "fluid.ns500",
+    "type": "FLUID",
+    "label": "Normal saline 500 mL IV",
+    "aliases": [
+      "ns 500",
+      "ns 500ml",
+      "ns 500 ml",
+      "normal saline 500 ml",
+      "fluid bolus",
+      "ivf bolus",
+      "生理鹽水"
+    ],
+    "executors": ["NURSE"],
+    "fixedDurationSec": 1800,
+    "setsFlags": ["fluid.bolus"],
+    "cancelWhile": ["QUEUED", "RUNNING"]
+  },
+  {
+    "id": "drug.ceftriaxone",
+    "type": "DRUG",
+    "label": "Ceftriaxone",
+    "aliases": [],
+    "formularyId": "ceftriaxone",
+    "executors": ["NURSE"],
+    "fixedDurationSec": 1800,
+    "setsFlags": ["abx.iv"],
+    "cancelWhile": ["QUEUED", "RUNNING"]
+  },
+  {
+    "id": "drug.paracetamol",
+    "type": "DRUG",
+    "label": "Paracetamol",
+    "aliases": [],
+    "formularyId": "paracetamol",
+    "executors": ["NURSE"],
+    "fixedDurationSec": 300,
+    "setsFlags": [],
+    "cancelWhile": ["QUEUED", "RUNNING"]
+  }
+]
