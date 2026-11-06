@@ -27,7 +27,11 @@ export const configSchema = z
           .object({ startHour: z.number().int().min(0).max(23), regularSeconds: positive })
           .strict(),
         onCall: z
-          .object({ segmentHours: z.array(positive).length(3), regularSeconds: positive })
+          .object({
+            startHour: z.number().int().min(0).max(23),
+            segmentHours: z.array(positive).length(3),
+            regularSeconds: positive,
+          })
           .strict(),
         overtimeSeconds: positive,
       })
@@ -117,6 +121,7 @@ export const configSchema = z
       .object({
         touchTargetMinPx: positive,
         maxFlashesPerSecond: z.number().int().min(0).max(3),
+        tickIntervalMs: z.number().int().min(50).max(1000),
         monitor: z
           .object({ sweepSeconds: positive, targetFps: z.number().int().min(1).max(60) })
           .strict(),

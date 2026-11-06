@@ -95,7 +95,13 @@ export type {
   VitalKey,
 } from './case/tables';
 export type { ChatLine, ChatThread, Present, SpeakerKind } from './chat/chatTypes';
-export { renderTemplate, extractTokens, validateTemplate } from './chat/tokens';
+export {
+  renderTemplate,
+  extractTokens,
+  validateTemplate,
+  hasBareNumber,
+  leaksDiagnosis,
+} from './chat/tokens';
 export { parseMentions } from './chat/mentions';
 export {
   typingSpeakerIds,

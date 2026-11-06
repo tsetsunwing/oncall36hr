@@ -20,7 +20,7 @@ export function Layout({ current, children }: LayoutProps) {
           </a>
         </nav>
       </header>
-      <main>{children}</main>
+      <main className={current === 'game' ? 'wide' : undefined}>{children}</main>
     </div>
   );
 }

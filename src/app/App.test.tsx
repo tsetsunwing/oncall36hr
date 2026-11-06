@@ -17,7 +17,7 @@ describe('App (M0 gate)', () => {
     window.location.hash = '#/game';
     render(<App />);
     expect(await screen.findByTestId('start-blocked')).toBeInTheDocument();
-    expect(screen.queryByTestId('game-placeholder')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('game-screen')).not.toBeInTheDocument();
     await waitFor(() => {
       expect(window.location.hash).toBe('#/');
     });
@@ -35,7 +35,7 @@ describe('App (M0 gate)', () => {
 
     await user.click(screen.getByRole('link', { name: ui.nav.start }));
     await user.click(await screen.findByRole('button', { name: ui.start.startButton }));
-    expect(await screen.findByTestId('game-placeholder')).toBeInTheDocument();
+    expect(await screen.findByTestId('game-screen')).toBeInTheDocument();
   });
 
   it('starts directly when a key was already stored', () => {

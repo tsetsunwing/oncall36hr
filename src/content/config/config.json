@@ -12,6 +12,7 @@
     "day": { "startHour": 8, "regularSeconds": 36000 },
     "night": { "startHour": 18, "regularSeconds": 50400 },
     "onCall": {
+      "startHour": 8,
       "segmentHours": [10, 14, 10],
       "regularSeconds": 122400
     },
@@ -76,6 +77,7 @@
   "ui": {
     "touchTargetMinPx": 44,
     "maxFlashesPerSecond": 0,
+    "tickIntervalMs": 250,
     "monitor": { "sweepSeconds": 6, "targetFps": 30 }
   }
 }

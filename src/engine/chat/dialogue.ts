@@ -13,10 +13,12 @@ import type { Effect, Reduction } from '../core/events';
 import type { EngineContext } from '../core/module';
 import type { GameState, PendingAiRequest } from '../core/state';
 import type { ChatLine, ChatThread, Present } from './chatTypes';
-import { validateTemplate } from './tokens';
+import { extractTokens, leaksDiagnosis, validateTemplate } from './tokens';
 
 export const DIALOGUE_KIND = 'dialogue.turn';
 
+// JSON 相容（有隱含 index signature）先可以放入 AI context，所以用 type 而唔係 interface
+// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 export type Abnormal = {
   key: MewsComponentKey;
   direction: 'LOW' | 'HIGH';
@@ -131,6 +133,7 @@ export function queueDialogue(
       allowedTokens,
       recent: recentLines(thread, ctx.config.chat.recentLinesForContext),
       maxLines: ctx.config.chat.maxLinesPerTurn,
+      maxLineChars: ctx.config.chat.maxLineChars,
     },
     local: {
       patientId: patient.id,
@@ -189,6 +192,10 @@ export function handleDialogueResult(
   const { maxLinesPerTurn, maxLineChars } = ctx.config.chat;
   const lines = parsedPayload.data.lines;
   const allowed = new Set(local.allowedTokens);
+  const patient = state.patients[local.patientId];
+  const denyTerms =
+    ctx.tables['case-templates'].find((c) => c.id === patient?.hidden.caseTemplateId)
+      ?.diagnosisTerms ?? [];
   const speakers = new Map(thread.present.map((p) => [p.id, p]));
   if (lines.length > maxLinesPerTurn) return rejectAiResult(state, pending);
 
@@ -199,7 +206,8 @@ export function handleDialogueResult(
     if (validateTemplate(line.text, allowed, maxLineChars) !== null) {
       return rejectAiResult(state, pending);
     }
-    const used = [...line.text.matchAll(/\{\{([a-z][a-zA-Z0-9_.]*)\}\}/g)].map((m) => m[1] ?? '');
+    if (leaksDiagnosis(line.text, denyTerms)) return rejectAiResult(state, pending);
+    const used = extractTokens(line.text);
     const tokenValues: Record<string, string> = {};
     for (const token of used) {
       const value = local.frozenTokens[token];

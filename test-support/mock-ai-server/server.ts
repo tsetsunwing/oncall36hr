@@ -1,5 +1,6 @@
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
 import type { AddressInfo } from 'node:net';
+import { CONTRACT_MODES, contractReply, parseRequest, type ContractMode } from './contracts';
 
 /**
  * 本地 mock OpenAI-compatible server（只供 dev／test，唔進 production bundle，亦唔作離線後備）。
@@ -12,6 +13,14 @@ import type { AddressInfo } from 'node:net';
  *   mock-slow          延遲 slowMs 後先回
  *   mock-hang          永不回應（測逾時）
  *   mock-bad-json      回 200 但 body 唔係合法 JSON
+ *
+ * 契約請求（order.parse／dialogue.turn）：
+ *   mock-ok            按請求內容回有效契約回應（關鍵字比對 catalog、對白用 {{token}}）
+ *   mock-<mode>        惡意／錯誤輸出：numbers、inject、bad-token、diagnosis、extra-fields、
+ *                      wrong-speaker、unknown-catalog、invented-dose
+ *   mock-flaky         同一個請求內容嘅第 1 次先回壞格式，修復重試（第 2 次）成功
+ *   mock-fail-twice    同一個請求內容嘅頭 2 次 HTTP 503，第 3 次成功（測 gateway 重試＋玩家重試）
+ *   mock-auth-fail     契約請求一律 401
  */
 export interface MockServerOptions {
   port?: number;
@@ -75,6 +84,7 @@ export async function startMockServer(options: MockServerOptions = {}): Promise<
   const slowMs = options.slowMs ?? 1500;
   const requests: RecordedRequest[] = [];
   const hanging = new Set<ServerResponse>();
+  const attempts = new Map<string, number>();
 
   const server: Server = createServer((req, res) => {
     void (async () => {
@@ -82,6 +92,12 @@ export async function startMockServer(options: MockServerOptions = {}): Promise<
       if (req.method === 'OPTIONS') {
         res.writeHead(204, CORS_HEADERS);
         res.end();
+        return;
+      }
+      if (path === '/__reset') {
+        attempts.clear();
+        requests.length = 0;
+        sendJson(res, 200, { ok: true });
         return;
       }
       if (req.method === 'GET' && path === '/health') {
@@ -107,6 +123,48 @@ export async function startMockServer(options: MockServerOptions = {}): Promise<
         typeof body === 'object' && body !== null && 'model' in body
           ? String(body.model)
           : 'mock-ok';
+
+      const contract = parseRequest(body);
+      if (contract && (contract.kind === 'order.parse' || contract.kind === 'dialogue.turn')) {
+        const key = `${model}|${contract.kind}|${JSON.stringify(contract.prompt)}`;
+        const attempt = (attempts.get(key) ?? 0) + 1;
+        attempts.set(key, attempt);
+        const mode = model.replace(/^mock-/, '');
+        if (model === 'mock-auth-fail') {
+          sendJson(res, 401, { error: { message: 'Invalid API key' } });
+          return;
+        }
+        if (model === 'mock-fail-twice' && attempt <= 2) {
+          sendJson(res, 503, { error: { message: 'Unavailable' } });
+          return;
+        }
+        if (model === 'mock-flaky' && attempt === 1) {
+          sendJson(res, 200, completion(model, 'sorry, here is some prose and no JSON'));
+          return;
+        }
+        if (model === 'mock-hang') {
+          hanging.add(res);
+          return;
+        }
+        const effective: ContractMode = (CONTRACT_MODES as readonly string[]).includes(mode)
+          ? (mode as ContractMode)
+          : 'ok';
+        const reply = contractReply(contract, effective);
+        if (
+          reply !== null &&
+          ![
+            'mock-5xx',
+            'mock-429',
+            'mock-text',
+            'mock-bad-shape',
+            'mock-bad-json',
+            'mock-slow',
+          ].includes(model)
+        ) {
+          sendJson(res, 200, completion(model, reply));
+          return;
+        }
+      }
 
       switch (model) {
         case 'mock-5xx':

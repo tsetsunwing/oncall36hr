@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import { testConnection, type DevProxy } from '@/ai';
 import { loadSettings, saveSettings, type Settings } from '@/storage';
-import { GamePage, Layout, SettingsPage, StartPage } from '@/ui';
+import { Layout, SettingsPage, StartPage } from '@/ui';
 import { selectStartGate } from '@/view';
+import { GameScreen } from './GameScreen';
 import { navigate, useRoute } from './router';
 
 const devProxy: DevProxy | undefined = import.meta.env.DEV ? { prefix: '/ai-proxy' } : undefined;
@@ -37,7 +38,7 @@ export function App() {
   if (route === 'game' && gate.canStart) {
     return (
       <Layout current="game">
-        <GamePage />
+        <GameScreen settings={settings} devProxy={devProxy} />
       </Layout>
     );
   }

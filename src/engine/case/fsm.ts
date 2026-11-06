@@ -26,7 +26,7 @@ export function evaluateFsm(
   let rolled = patient.hidden.fsm.rolled;
   for (let i = 0; i < fsm.transitions.length; i++) {
     const tr = fsm.transitions[i];
-    if (!tr || tr.from !== patient.hidden.fsm.state || rolled.includes(i)) continue;
+    if (tr?.from !== patient.hidden.fsm.state || rolled.includes(i)) continue;
     if (!conditionHolds(tr.when, patient, t)) continue;
     let hit = true;
     if (tr.p < 1) {

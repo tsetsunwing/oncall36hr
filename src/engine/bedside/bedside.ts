@@ -100,7 +100,7 @@ export const bedsideModule: EngineModule = {
         const thread = state.chats[intent.patientId];
         if (!thread) return reject(state, 'PATIENT_UNKNOWN');
         const last = thread.visits.at(-1);
-        const inBed = last !== undefined && last.leftAt === null;
+        const inBed = last?.leftAt === null;
         if (intent.type === 'ENTER_BED') {
           if (inBed) return { state, effects: [] };
           const visits = [
@@ -120,7 +120,7 @@ export const bedsideModule: EngineModule = {
             effects: [],
           };
         }
-        if (!inBed || !last) return { state, effects: [] };
+        if (!inBed) return { state, effects: [] };
         const visits = [
           ...thread.visits.slice(0, -1),
           { ...last, leftAt: state.clock.t, lineCountAtLeave: thread.lines.length },

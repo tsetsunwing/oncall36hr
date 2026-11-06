@@ -20,7 +20,7 @@ test.describe('M0 acceptance', () => {
 
     await page.goto('/#/game');
     await expect(page.getByTestId('start-blocked')).toBeVisible();
-    await expect(page.getByTestId('game-placeholder')).toHaveCount(0);
+    await expect(page.getByTestId('game-screen')).toHaveCount(0);
 
     await page.getByRole('link', { name: ui.start.settingsLink }).click();
     await fillSettings(page, { key: 'test-key' });
@@ -39,7 +39,7 @@ test.describe('M0 acceptance', () => {
 
     await page.getByRole('link', { name: ui.nav.start }).click();
     await page.getByRole('button', { name: ui.start.startButton }).click();
-    await expect(page.getByTestId('game-placeholder')).toBeVisible();
+    await expect(page.getByTestId('game-screen')).toBeVisible();
   });
 
   test('connection test: success, wrong key, and server error', async ({ page }) => {

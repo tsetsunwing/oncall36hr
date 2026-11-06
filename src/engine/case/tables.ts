@@ -103,6 +103,7 @@ export type MewsAlert = 'NONE' | 'CAUTION' | 'ALARM';
 
 export interface MewsRow {
   id: string;
+  reviewStatus: 'PENDING_CLINICAL_REVIEW' | 'REVIEWED';
   components: Readonly<Record<MewsComponentKey, readonly MewsRange[]>>;
   avpu: Readonly<Record<Consciousness, number>>;
   componentAlert: { cautionMin: number; alarmMin: number };

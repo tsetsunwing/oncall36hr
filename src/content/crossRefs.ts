@@ -7,7 +7,7 @@ export function validateCrossReferences(tables: Tables): ContentIssue[] {
   const add = (table: string, path: string, message: string) => {
     issues.push({ table, path, message });
   };
-  const ids = <T extends { id: string }>(rows: readonly T[]) => new Set(rows.map((r) => r.id));
+  const ids = (rows: readonly { id: string }[]) => new Set(rows.map((r) => r.id));
 
   const trajectoryIds = ids(tables.trajectories);
   const rhythmIds = ids(tables.rhythms);
