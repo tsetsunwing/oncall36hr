@@ -1,0 +1,3 @@
+// fixture: {"target":"src/ai/__control__.ts","eslint":null,"depcruise":null}
+import type { EngineBoundaryInfo } from "@/engine";
+export type V = EngineBoundaryInfo;

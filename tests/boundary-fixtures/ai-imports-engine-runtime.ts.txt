@@ -1,0 +1,3 @@
+// fixture: {"target":"src/ai/__violation__.ts","eslint":null,"depcruise":"ai-only-engine-types"}
+import { ENGINE_BOUNDARY_VERSION } from "@/engine";
+export const v = ENGINE_BOUNDARY_VERSION;

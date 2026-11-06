@@ -1,0 +1,3 @@
+// fixture: {"target":"src/view/__violation__.ts","eslint":null,"depcruise":"src-no-test-support"}
+import { startMockServer } from "../../test-support/mock-ai-server/server";
+export const v = startMockServer;

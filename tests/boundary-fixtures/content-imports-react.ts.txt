@@ -1,0 +1,3 @@
+// fixture: {"target":"src/content/__violation__.ts","eslint":null,"depcruise":"content-only-zod"}
+import { useState } from "react";
+export const v = useState;

@@ -1,0 +1,3 @@
+// fixture: {"target":"src/view/__violation__.ts","eslint":null,"depcruise":"view-no-ui-ai-app"}
+import { Layout } from "@/ui";
+export const v = Layout;

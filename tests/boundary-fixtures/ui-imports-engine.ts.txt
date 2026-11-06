@@ -1,0 +1,3 @@
+// fixture: {"target":"src/ui/__violation__.ts","eslint":null,"depcruise":"ui-only-view-storage"}
+import type { EngineBoundaryInfo } from "@/engine";
+export type V = EngineBoundaryInfo;

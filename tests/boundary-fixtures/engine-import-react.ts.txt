@@ -1,0 +1,3 @@
+// fixture: {"target":"src/engine/__violation__.ts","eslint":"no-restricted-imports","depcruise":"engine-no-ui-or-io-packages"}
+import { useState } from "react";
+export const x = useState;

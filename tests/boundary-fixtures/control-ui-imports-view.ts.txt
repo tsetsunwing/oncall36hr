@@ -1,0 +1,3 @@
+// fixture: {"target":"src/ui/__control__.ts","eslint":null,"depcruise":null}
+import { selectStartGate } from "@/view";
+export const v = selectStartGate;

@@ -1,0 +1,3 @@
+// fixture: {"target":"src/engine/__violation__.ts","eslint":"no-restricted-imports","depcruise":"engine-no-outward-imports"}
+import { testConnection } from "@/ai";
+export const x = testConnection;

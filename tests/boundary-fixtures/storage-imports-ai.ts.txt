@@ -1,0 +1,3 @@
+// fixture: {"target":"src/storage/__violation__.ts","eslint":null,"depcruise":"storage-no-ui-view-ai-app"}
+import { testConnection } from "@/ai";
+export const v = testConnection;
