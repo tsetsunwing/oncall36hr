@@ -14,8 +14,16 @@ const orderPrompt: OrderParsePrompt = {
       label: 'Ceftriaxone',
       aliases: [],
       formularyId: 'ceftriaxone',
+      executors: ['NURSE'],
     },
-    { id: 'oxygen.nrb', type: 'OXYGEN', label: 'Oxygen NRB', aliases: ['nrb'], formularyId: null },
+    {
+      id: 'oxygen.nrb',
+      type: 'OXYGEN',
+      label: 'Oxygen NRB',
+      aliases: ['nrb'],
+      formularyId: null,
+      executors: ['NURSE'],
+    },
   ],
   formulary: [
     { id: 'ceftriaxone', label: 'Ceftriaxone', aliases: [], units: ['g', 'mg'], routes: ['IV'] },
@@ -150,8 +158,15 @@ describe('dialogue.turn 契約', () => {
   });
 });
 
-it('contractFor：只認識兩個 kind', () => {
-  expect(contractFor('order.parse')).toBeDefined();
-  expect(contractFor('dialogue.turn')).toBeDefined();
-  expect(contractFor('gate.pharmacy')).toBeUndefined();
+it('contractFor：只認識已登記嘅 kind', () => {
+  for (const kind of [
+    'order.parse',
+    'dialogue.turn',
+    'gate.pharmacy',
+    'gate.nurse',
+    'gate.danger',
+  ]) {
+    expect(contractFor(kind), kind).toBeDefined();
+  }
+  expect(contractFor('gate.unknown')).toBeUndefined();
 });

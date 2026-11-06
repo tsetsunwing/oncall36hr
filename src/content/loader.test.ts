@@ -16,9 +16,11 @@ describe('content loader', () => {
     'mews',
     'nurse-roster',
     'quick-words',
+    'results',
+    'consequences',
   ] as const;
 
-  it('accepts the shipped bundle: M2 tables are filled, every later table is still an empty array', () => {
+  it('accepts the shipped bundle: M2/M3 tables are filled, every later table is still an empty array', () => {
     const content = getContent();
     expect(Object.keys(content.tables)).toHaveLength(TABLE_NAMES.length);
     for (const name of TABLE_NAMES) {
@@ -59,13 +61,13 @@ describe('content loader', () => {
 
   it('rejects records without an id', () => {
     const raw = clone(rawContent);
-    raw.tables.results = [{ label: 'no id' }];
+    raw.tables['acls-transitions'] = [{ label: 'no id' }];
     expect(validateContent(raw).ok).toBe(false);
   });
 
   it('rejects duplicate ids within a table', () => {
     const raw = clone(rawContent);
-    raw.tables.results = [{ id: 'a' }, { id: 'a' }];
+    raw.tables['acls-transitions'] = [{ id: 'a' }, { id: 'a' }];
     const result = validateContent(raw);
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.issues[0]?.message).toContain('id 重複');
@@ -73,7 +75,7 @@ describe('content loader', () => {
 
   it('accepts valid records', () => {
     const raw = clone(rawContent);
-    raw.tables.results = [{ id: 'cbc', anything: 'goes until the table is tightened' }];
+    raw.tables['acls-transitions'] = [{ id: 'x', anything: 'goes until the table is tightened' }];
     const result = validateContent(raw);
     expect(result.ok).toBe(true);
   });

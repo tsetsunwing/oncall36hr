@@ -33,6 +33,11 @@ export const testConfig: EngineConfig = {
     alertCooldownSeconds: 600,
   },
   orders: { maxActionsPerParse: 3 },
+  gate: { pharmacyName: '藥房', maxConcerns: 3, insistRequired: { CONFIRM: 1, OBJECT: 2 } },
+  staff: {
+    nurseSeniorityByDifficulty: { EASY: 'SENIOR', MEDIUM: 'NORMAL', HARD: 'NEW' },
+    speedMultiplier: { NOVICE: 1.5, NORMAL: 1, SENIOR: 0.8 },
+  },
 };
 
 export const newGame: NewGameParams = {

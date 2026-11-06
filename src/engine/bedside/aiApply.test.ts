@@ -7,6 +7,7 @@ import type { Run } from '../test/realEngine';
 import {
   advance,
   aiRequests,
+  answerGates,
   feed,
   intentEvent,
   params,
@@ -53,9 +54,13 @@ describe('order.parse 套用', () => {
       source: 'AI_PARSED',
       params: { drugFormularyId: 'ceftriaxone', dose: { value: 2, unit: 'g' }, route: 'IV' },
     });
-    const ack = aiRequests(done.effects);
+    expect(orders[0]?.status).toBe('GATED');
+    const reviews = aiRequests(done.effects);
+    expect(reviews.map((r) => r.kind)).toEqual(['gate.pharmacy', 'gate.nurse']);
+    const released = answerGates(engine, done);
+    expect(Object.values(released.state.orders)[0]?.status).toBe('RUNNING');
+    const ack = aiRequests(released.effects).filter((r) => r.kind === 'dialogue.turn');
     expect(ack).toHaveLength(1);
-    expect(ack[0]?.kind).toBe('dialogue.turn');
   });
 
   it('虛構劑量（原文冇出現）被丟棄，order 照建但冇劑量', () => {
@@ -242,34 +247,83 @@ describe('prompt injection／虛構數字：任何 payload 都改唔到病人狀
   });
 });
 
-describe('dialogue.turn：token 於 queue 嘅一刻凍結', () => {
-  it('AI 慢返嚟時，對白數值係 queue 當刻嘅 state，而唔係而家嘅 state', () => {
+describe('dialogue.turn：token 凍結與即時', () => {
+  const statusLine = {
+    lines: [{ speaker: 'nurse:N1', text: '心率 {{vital.hr}}，血氧 {{vital.spo2}}' }],
+  };
+
+  it('M2 回歸：ALERT 對白嘅生命表徵喺「寫入對話」當刻取，同監護器同一分鐘一致（唔係排隊當刻）', () => {
     let run = advance(engine, fresh('freeze-1'), 1800);
     const request = aiRequests(run.effects)[0];
     if (!request) throw new Error('預期有 ALERT 請求');
-    const frozen = JSON.parse(JSON.stringify(request.context)) as {
-      local: { frozenTokens: Record<string, string> };
+    const queued = JSON.parse(JSON.stringify(request.context)) as {
+      local: { frozenTokens: Record<string, string>; liveTokens: string[] };
     };
     const hrAtQueue = run.state.patients.p1?.visible.vitals.hr;
-    expect(frozen.local.frozenTokens['vital.hr']).toBe(String(hrAtQueue));
+    expect(queued.local.frozenTokens['vital.hr']).toBe(String(hrAtQueue));
+    expect(queued.local.liveTokens).toEqual(expect.arrayContaining(['vital.hr', 'vital.spo2']));
 
     run = feed(engine, run.state, [say('oxygen nrb')]);
     run = advance(engine, run.state, 7200);
-    expect(run.state.patients.p1?.visible.vitals.hr).not.toBe(hrAtQueue);
+    const hrAtWrite = run.state.patients.p1?.visible.vitals.hr;
+    expect(hrAtWrite).not.toBe(hrAtQueue);
 
     const done = feed(engine, run.state, [
-      {
-        type: 'AI_RESULT',
-        reqId: request.reqId,
-        payload: {
-          lines: [{ speaker: 'nurse:N1', text: '心率 {{vital.hr}}，血氧 {{vital.spo2}}' }],
-        },
-      },
+      { type: 'AI_RESULT', reqId: request.reqId, payload: statusLine },
     ]);
     const line = done.state.chats.p1?.lines.at(-1);
-    expect(line?.tokenValues['vital.hr']).toBe(String(hrAtQueue));
-    expect(line?.tokenValues['vital.spo2']).toBe(frozen.local.frozenTokens['vital.spo2']);
+    const visible = done.state.patients.p1?.visible.vitals;
+    expect(line?.t).toBe(done.state.clock.t);
+    expect(line?.tokenValues['vital.hr']).toBe(String(visible?.hr));
+    expect(line?.tokenValues['vital.spo2']).toBe(String(visible?.spo2));
     expect(line?.speaker).toEqual({ kind: 'NURSE', id: 'nurse:N1' });
+  });
+
+  it('寫入後數值唔再變：之後生命表徵改變，已寫入嘅對白維持原值', () => {
+    const run = advance(engine, fresh('freeze-1b'), 1800);
+    const request = aiRequests(run.effects)[0];
+    if (!request) throw new Error('預期有 ALERT 請求');
+    const done = feed(engine, run.state, [
+      { type: 'AI_RESULT', reqId: request.reqId, payload: statusLine },
+    ]);
+    const before = JSON.stringify(done.state.chats.p1?.lines.at(-1));
+    const later = advance(engine, done.state, 3600);
+    expect(JSON.stringify(later.state.chats.p1?.lines.at(-1))).toBe(before);
+  });
+
+  it('REPORT_STATUS（問情況）同樣即時：回覆慢返嚟時講嘅係寫入當刻嘅數值', () => {
+    const asked = ask('護士，病人而家情況點呀？').run;
+    const parsed = answer(
+      { state: asked.state, effects: [] },
+      aiRequests(asked.effects)[0]?.reqId ?? '',
+      { intent: 'QUESTION', addressee: { kind: 'nurse', id: null }, actions: [] },
+    );
+    const request = aiRequests(parsed.effects)[0];
+    if (request?.kind !== 'dialogue.turn') throw new Error('預期有對白請求');
+    const treated = feed(engine, parsed.state, [say('oxygen nrb')]);
+    const later = advance(engine, treated.state, 7200);
+    expect(later.state.patients.p1?.visible.vitals.hr).not.toBe(
+      parsed.state.patients.p1?.visible.vitals.hr,
+    );
+    const done = feed(engine, later.state, [
+      { type: 'AI_RESULT', reqId: request.reqId, payload: statusLine },
+    ]);
+    const line = done.state.chats.p1?.lines.at(-1);
+    expect(line?.tokenValues['vital.hr']).toBe(String(done.state.patients.p1?.visible.vitals.hr));
+  });
+
+  it('非即時 beat（例如 ACK_ORDER）嘅 token 仍然凍結喺 queue 當刻', () => {
+    let run = feed(engine, fresh('freeze-1c'), [say('oxygen nrb')]);
+    const request = aiRequests(run.effects).find((r) => r.kind === 'dialogue.turn');
+    if (!request) throw new Error('預期有 ACK 請求');
+    const frozen = (request.context as { local: { frozenTokens: Record<string, string> } }).local
+      .frozenTokens;
+    run = advance(engine, run.state, 7200);
+    const done = feed(engine, run.state, [
+      { type: 'AI_RESULT', reqId: request.reqId, payload: statusLine },
+    ]);
+    const line = done.state.chats.p1?.lines.at(-1);
+    expect(line?.tokenValues['vital.hr']).toBe(frozen['vital.hr']);
   });
 
   it('同一個 reqId 重送結果一致（凍結值存喺 pending context）', () => {

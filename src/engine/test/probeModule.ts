@@ -48,6 +48,11 @@ export const probeModule: EngineModule = {
             source: 'MANUAL',
             params: { drugFormularyId: null, dose: null, route: null },
             executor: null,
+            executorKind: null,
+            cancelledAt: null,
+            resultStatus: null,
+            sampledState: null,
+            gate: null,
           },
         },
         scheduler: enqueue(next.scheduler, {

@@ -76,6 +76,19 @@ export const configSchema = z
       })
       .strict(),
     orders: z.object({ maxActionsPerParse: z.number().int().positive() }).strict(),
+    gate: z
+      .object({
+        pharmacyName: z.string().min(1),
+        maxConcerns: z.number().int().positive(),
+        /** 把關 verdict 要玩家確認幾多次先放行（CONFIRM＝1；OBJECT＝堅持＋再確認＝2；spec §15.1） */
+        insistRequired: z
+          .object({
+            CONFIRM: z.number().int().min(1).max(2),
+            OBJECT: z.number().int().min(1).max(2),
+          })
+          .strict(),
+      })
+      .strict(),
     acls: z
       .object({ cycleSeconds: positive, minCyclesBeforeStop: z.number().int().min(0) })
       .strict(),
@@ -108,6 +121,14 @@ export const configSchema = z
       .strict(),
     staff: z
       .object({
+        /** 護士資歷由難度決定（spec §4）；NEW 完全唔提醒、唔發 gate 請求 */
+        nurseSeniorityByDifficulty: z
+          .object({
+            EASY: z.enum(['SENIOR', 'NORMAL', 'NEW']),
+            MEDIUM: z.enum(['SENIOR', 'NORMAL', 'NEW']),
+            HARD: z.enum(['SENIOR', 'NORMAL', 'NEW']),
+          })
+          .strict(),
         reliability: levelRecord(probability),
         speedMultiplier: levelRecord(positive),
         rankImpression: z

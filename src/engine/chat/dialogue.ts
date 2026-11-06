@@ -6,13 +6,18 @@
 import { z } from 'zod';
 import { meanArterialPressure } from '../case/mews';
 import type { Patient } from '../case/patient';
-import { MEWS_COMPONENT_KEYS, type EngineTables, type MewsComponentKey } from '../case/tables';
+import {
+  MEWS_COMPONENT_KEYS,
+  type EngineTables,
+  type ExecutorKind,
+  type MewsComponentKey,
+} from '../case/tables';
 import { rejectAiResult, requestAi } from '../core/ai';
 import type { JsonValue } from '../core/eventQueue';
 import type { Effect, Reduction } from '../core/events';
 import type { EngineContext } from '../core/module';
 import type { GameState, PendingAiRequest } from '../core/state';
-import type { ChatLine, ChatThread, Present } from './chatTypes';
+import type { ChatLine, ChatThread } from './chatTypes';
 import { extractTokens, leaksDiagnosis, validateTemplate } from './tokens';
 
 export const DIALOGUE_KIND = 'dialogue.turn';
@@ -24,8 +29,12 @@ export type Abnormal = {
   direction: 'LOW' | 'HIGH';
 };
 
+export const PHARMACY_SPEAKER_ID = 'dept:pharmacy';
+
 export type Beat =
-  | { type: 'ACK_ORDER'; speaker: 'NURSE'; labelToken: string }
+  | { type: 'ACK_ORDER'; speaker: 'NURSE'; labelToken: string; executor: ExecutorKind | null }
+  | { type: 'GATE_RECONFIRM'; speaker: 'NURSE' | 'PHARMACY'; labelToken: string }
+  | { type: 'REPORT_LAB_READY'; speaker: 'NURSE'; labelToken: string; abnormal: boolean }
   | { type: 'ORDER_CANCELLED'; speaker: 'NURSE'; labelToken: string }
   | {
       type: 'REPORT_RESULT';
@@ -97,8 +106,39 @@ export interface DialogueTurnInput {
   addressed: string[];
 }
 
-function speakerView(present: Present) {
+interface SpeakerLike {
+  id: string;
+  kind: ChatLine['speaker']['kind'];
+  name: string;
+  tone: string | null;
+}
+
+function speakerView(present: SpeakerLike) {
   return { id: present.id, kind: present.kind, name: present.name, tone: present.tone };
+}
+
+/** 藥房唔喺床邊，只經電話出現（spec §15）：獨立 speaker，唔入 thread.present */
+export function pharmacySpeaker(ctx: EngineContext): SpeakerLike {
+  return {
+    id: PHARMACY_SPEAKER_ID,
+    kind: 'PHARMACY',
+    name: ctx.config.gate.pharmacyName,
+    tone: null,
+  };
+}
+
+/** 呢啲 beat 講嘅係「而家」嘅狀態：數值喺發言（寫入對話）當刻取，唔係排隊當刻 */
+const LIVE_BEATS: readonly Beat['type'][] = ['REPORT_STATUS', 'ALERT_DETERIORATION'];
+
+function liveTokensOf(beats: readonly Beat[]): string[] {
+  const live = new Set<string>();
+  const frozen = new Set<string>();
+  for (const beat of beats) {
+    const tokens = 'tokens' in beat ? beat.tokens : [];
+    for (const token of tokens) (LIVE_BEATS.includes(beat.type) ? live : frozen).add(token);
+    if ('labelToken' in beat) frozen.add(beat.labelToken);
+  }
+  return [...live].filter((token) => !frozen.has(token));
 }
 
 function recentLines(thread: ChatThread, limit: number) {
@@ -122,7 +162,12 @@ export function queueDialogue(
   const thread = state.chats[input.patientId];
   if (!patient || !thread) return undefined;
   const template = ctx.tables['case-templates'].find((c) => c.id === patient.hidden.caseTemplateId);
-  const speakers = thread.present.map(speakerView);
+  const speakers = [
+    ...thread.present.map(speakerView),
+    ...(input.beats.some((beat) => beat.speaker === 'PHARMACY')
+      ? [speakerView(pharmacySpeaker(ctx))]
+      : []),
+  ];
   const allowedTokens = Object.keys(input.tokens);
   const context = {
     prompt: {
@@ -141,6 +186,7 @@ export function queueDialogue(
       allowedTokens,
       denyTerms: template ? [...template.diagnosisTerms] : [],
       frozenTokens: input.tokens,
+      liveTokens: liveTokensOf(input.beats),
     },
   } satisfies JsonValue;
   return requestAi(state, DIALOGUE_KIND, context);
@@ -155,9 +201,13 @@ const localSchema = z.object({
   speakerIds: z.array(z.string()),
   allowedTokens: z.array(z.string()),
   frozenTokens: z.record(z.string(), z.string()),
+  liveTokens: z.array(z.string()).default([]),
 });
 
-export function appendLine(state: GameState, line: Omit<ChatLine, 'id' | 'source'>): GameState {
+export function appendLine(
+  state: GameState,
+  line: Omit<ChatLine, 'id' | 'source'> & { source?: ChatLine['source'] },
+): GameState {
   const thread = state.chats[line.patientId];
   if (!thread) return state;
   const id = `c${String(state.counters.line + 1)}`;
@@ -166,7 +216,10 @@ export function appendLine(state: GameState, line: Omit<ChatLine, 'id' | 'source
     counters: { ...state.counters, line: state.counters.line + 1 },
     chats: {
       ...state.chats,
-      [line.patientId]: { ...thread, lines: [...thread.lines, { ...line, id, source: 'BEDSIDE' }] },
+      [line.patientId]: {
+        ...thread,
+        lines: [...thread.lines, { ...line, id, source: line.source ?? 'BEDSIDE' }],
+      },
     },
   };
 }
@@ -196,8 +249,13 @@ export function handleDialogueResult(
   const denyTerms =
     ctx.tables['case-templates'].find((c) => c.id === patient?.hidden.caseTemplateId)
       ?.diagnosisTerms ?? [];
-  const speakers = new Map(thread.present.map((p) => [p.id, p]));
+  const speakers = new Map<string, SpeakerLike>([
+    ...thread.present.map((p) => [p.id, p] as const),
+    [PHARMACY_SPEAKER_ID, pharmacySpeaker(ctx)],
+  ]);
   if (lines.length > maxLinesPerTurn) return rejectAiResult(state, pending);
+  const live = new Set(local.liveTokens);
+  const liveValues = patient ? vitalTokens(patient, ctx.tables) : {};
 
   let next = state;
   for (const line of lines) {
@@ -210,7 +268,9 @@ export function handleDialogueResult(
     const used = extractTokens(line.text);
     const tokenValues: Record<string, string> = {};
     for (const token of used) {
-      const value = local.frozenTokens[token];
+      const value = live.has(token)
+        ? (liveValues[token] ?? local.frozenTokens[token])
+        : local.frozenTokens[token];
       if (value === undefined) return rejectAiResult(state, pending);
       tokenValues[token] = value;
     }
@@ -221,6 +281,7 @@ export function handleDialogueResult(
       template: line.text,
       tokenValues,
       orderId: null,
+      source: speaker.kind === 'PHARMACY' ? 'PHONE' : 'BEDSIDE',
     });
   }
   return { state: next, effects: [] };

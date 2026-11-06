@@ -46,19 +46,41 @@ export interface CaseTemplateRow {
   symptomsByState: Readonly<Record<string, readonly string[]>>;
 }
 
-export type OrderType = 'OBSERVATION' | 'OXYGEN' | 'FLUID' | 'DRUG';
+export type OrderType =
+  | 'OBSERVATION'
+  | 'MONITORING'
+  | 'OXYGEN'
+  | 'FLUID'
+  | 'DRUG'
+  | 'LAB_BLOOD'
+  | 'ECG'
+  | 'XRAY'
+  | 'CT'
+  | 'ULTRASOUND'
+  | 'ABG'
+  | 'BLOOD_CULTURE'
+  | 'CROSSMATCH'
+  | 'PROCEDURE';
+
+export type ExecutorKind = 'NURSE' | 'SUBORDINATE' | 'PLAYER';
+export type ReviewStatus = 'PENDING_CLINICAL_REVIEW' | 'REVIEWED';
 
 export interface OrderCatalogRow {
   id: string;
   type: OrderType;
   label: string;
   aliases: readonly string[];
-  executors: readonly 'NURSE'[];
+  executors: readonly ExecutorKind[];
   fixedDurationSec: number;
   setsFlags: readonly string[];
   formularyId?: string | undefined;
+  resultId?: string | undefined;
   resultTemplate?: string | undefined;
   cancelWhile: readonly ('QUEUED' | 'RUNNING')[];
+  sunkEffectRule: 'DISCARD' | 'KEEP_PARTIAL';
+  pharmacyGate: boolean;
+  nurseGate: 'ALWAYS' | 'HIGH_RISK' | 'NEVER';
+  reviewStatus: ReviewStatus;
 }
 
 export interface FormularyRow {
@@ -68,6 +90,10 @@ export interface FormularyRow {
   catalogId: string;
   units: readonly string[];
   routes: readonly string[];
+  drugClass: string;
+  allergyClasses: readonly string[];
+  typicalDose: { min: number; max: number; unit: string } | null;
+  reviewStatus: ReviewStatus;
 }
 
 export interface OrderEffectRow {
@@ -78,6 +104,7 @@ export interface OrderEffectRow {
   delaySec: number;
   rampSec: number;
   durationSec: number | null;
+  reviewStatus: ReviewStatus;
 }
 
 export interface RhythmRow {
@@ -128,8 +155,64 @@ export interface QuickWordRow {
         drugFormularyId?: string | undefined;
         dose?: { value: number; unit: string } | undefined;
         route?: string | undefined;
+        executor?: ExecutorKind | undefined;
       }
     | undefined;
+}
+
+export interface ResultItemRow {
+  id: string;
+  label: string;
+  unit: string;
+  decimals: number;
+  ref: { low: number; high: number };
+  byState: Readonly<Record<string, number>>;
+}
+
+export interface ResultRow {
+  id: string;
+  kind: 'PANEL' | 'REPORT';
+  label: string;
+  reportDelaySec: number;
+  reviewStatus: ReviewStatus;
+  items: readonly ResultItemRow[];
+  textByState: Readonly<Record<string, { text: string; abnormal: boolean }>>;
+}
+
+export const CONCERN_CATEGORIES = [
+  'ALLERGY',
+  'INTERACTION',
+  'DOSE_HIGH',
+  'DOSE_LOW',
+  'WRONG_ROUTE',
+  'CONTRAINDICATION',
+  'OTHER',
+] as const;
+export type ConcernCategory = (typeof CONCERN_CATEGORIES)[number];
+export type DangerLevel = 'LOW' | 'MID' | 'HIGH';
+export type ConsequenceMode = 'IMMEDIATE' | 'DELAYED' | 'REVIEW_ONLY';
+
+export interface ConsequenceEffect {
+  delta: VitalDelta;
+  delaySec: number;
+  rampSec: number;
+  durationSec: number | null;
+  setsFlags: readonly string[];
+}
+
+export interface ConsequenceLevel {
+  p: number;
+  mode: ConsequenceMode;
+  delayMinSec?: number | undefined;
+  delayMaxSec?: number | undefined;
+  effect: ConsequenceEffect | null;
+}
+
+export interface ConsequenceRow {
+  id: string;
+  category: ConcernCategory;
+  reviewStatus: ReviewStatus;
+  levels: Readonly<Record<DangerLevel, ConsequenceLevel>>;
 }
 
 export interface EngineTables {
@@ -143,6 +226,8 @@ export interface EngineTables {
   mews: readonly MewsRow[];
   'nurse-roster': readonly NurseRosterRow[];
   'quick-words': readonly QuickWordRow[];
+  results: readonly ResultRow[];
+  consequences: readonly ConsequenceRow[];
 }
 
 export const EMPTY_TABLES: EngineTables = {
@@ -156,4 +241,6 @@ export const EMPTY_TABLES: EngineTables = {
   mews: [],
   'nurse-roster': [],
   'quick-words': [],
+  results: [],
+  consequences: [],
 };

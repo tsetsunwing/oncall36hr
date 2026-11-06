@@ -8,7 +8,8 @@ import {
   type KeyboardEvent,
 } from 'react';
 import { ui } from '@/i18n';
-import type { ChatLineView, ChatView, GameActions, QuickChipView } from '@/view';
+import type { ChatLineView, ChatView, GameActions, GateCardView, QuickChipView } from '@/view';
+import { GatePanel } from './GatePanel';
 
 const MENTION_AT_END = /[@＠]([^\s@＠]*)$/u;
 
@@ -16,6 +17,7 @@ export interface ChatPanelProps {
   chat: ChatView;
   notice: { kind: string; tone: 'info' | 'warn' | 'error' } | null;
   chips: QuickChipView[];
+  gates?: GateCardView[];
   actions: GameActions;
 }
 
@@ -38,6 +40,7 @@ function Line({ line }: { line: ChatLineView }) {
     >
       <div className="chat-meta">
         <span className="chat-who">{mine ? c.you : line.speakerName}</span>
+        {line.source === 'PHONE' ? <span className="chat-source">{c.phone}</span> : null}
         <time>{line.timeLabel}</time>
       </div>
       <p className="chat-text" lang={mine ? undefined : 'yue-Hant-HK'}>
@@ -47,7 +50,7 @@ function Line({ line }: { line: ChatLineView }) {
   );
 }
 
-export function ChatPanel({ chat, chips, notice, actions }: ChatPanelProps) {
+export function ChatPanel({ chat, chips, gates = [], notice, actions }: ChatPanelProps) {
   const c = ui.game.chat;
   const [text, setText] = useState('');
   const [active, setActive] = useState(0);
@@ -147,6 +150,8 @@ export function ChatPanel({ chat, chips, notice, actions }: ChatPanelProps) {
           ))}
         </ol>
       </div>
+
+      <GatePanel gates={gates} actions={actions} />
 
       <div className="chips" role="group" aria-label={c.quickGroup}>
         {chips.map((chip) => (

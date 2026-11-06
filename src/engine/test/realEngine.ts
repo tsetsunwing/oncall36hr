@@ -65,3 +65,36 @@ export const say = (text: string): EngineEvent =>
 export function aiRequests(effects: readonly Effect[]) {
   return effects.flatMap((e) => (e.type === 'AI_REQUEST' ? [e] : []));
 }
+
+export interface GateAnswer {
+  verdict?: 'OK' | 'CONFIRM' | 'OBJECT';
+  concerns?: { category: string; line: string }[];
+}
+
+const GATE_KINDS = ['gate.pharmacy', 'gate.nurse'];
+
+/** 回覆所有未決嘅藥房／護士審視（預設全部 OK），直到再冇新嘅審視請求 */
+export function answerGates(
+  engine: Engine,
+  run: Run,
+  answers: Partial<Record<'gate.pharmacy' | 'gate.nurse', GateAnswer>> = {},
+): Run {
+  let current = run;
+  const effects: Effect[] = [...run.effects];
+  let pending = aiRequests(run.effects).filter((r) => GATE_KINDS.includes(r.kind));
+  while (pending.length > 0) {
+    const events: EngineEvent[] = pending.map((request) => {
+      const answer = answers[request.kind as 'gate.pharmacy' | 'gate.nurse'] ?? {};
+      return {
+        type: 'AI_RESULT',
+        reqId: request.reqId,
+        payload: { verdict: answer.verdict ?? 'OK', concerns: answer.concerns ?? [] },
+      };
+    });
+    const next = feed(engine, current.state, events);
+    effects.push(...next.effects);
+    current = next;
+    pending = aiRequests(next.effects).filter((r) => GATE_KINDS.includes(r.kind));
+  }
+  return { state: current.state, effects };
+}

@@ -31,12 +31,14 @@ export function GamePage({ view, actions }: GamePageProps) {
             <ChatPanel
               chat={view.chat}
               chips={view.quickChips}
+              gates={view.gates}
               notice={view.notice}
               actions={actions}
             />
           </div>
           <LogPanel
             orders={view.orders}
+            reports={view.reports}
             log={view.actionLog}
             actions={actions}
             open={drawerOpen}

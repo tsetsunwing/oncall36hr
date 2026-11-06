@@ -92,6 +92,7 @@ function applySample(
     ...evaluated.patient,
     hidden: { ...evaluated.patient.hidden, base: sample.base, lastSampleAt: t },
     visible: {
+      ...evaluated.patient.visible,
       vitals: { t, ...sample.vitals },
       vitalsHistory: history,
       rhythm,
@@ -131,10 +132,12 @@ export function createPatientState(
       lastSampleAt: t,
       alertedBand: null,
       lastAlertAt: null,
+      activeEffects: [],
     },
     visible: {
       vitals: { t, ...base },
       vitalsHistory: [],
+      reports: [],
       rhythm: trajectory.rhythm,
       consciousness: trajectory.consciousness,
       mews: { score: 0, band: '', components: {} },

@@ -12,7 +12,23 @@ const abnormalSchema = z.object({
 });
 
 const beatSchema = z.discriminatedUnion('type', [
-  z.object({ type: z.literal('ACK_ORDER'), speaker: z.literal('NURSE'), labelToken: z.string() }),
+  z.object({
+    type: z.literal('ACK_ORDER'),
+    speaker: z.literal('NURSE'),
+    labelToken: z.string(),
+    executor: z.enum(['NURSE', 'SUBORDINATE', 'PLAYER']).nullable(),
+  }),
+  z.object({
+    type: z.literal('GATE_RECONFIRM'),
+    speaker: z.enum(['NURSE', 'PHARMACY']),
+    labelToken: z.string(),
+  }),
+  z.object({
+    type: z.literal('REPORT_LAB_READY'),
+    speaker: z.literal('NURSE'),
+    labelToken: z.string(),
+    abnormal: z.boolean(),
+  }),
   z.object({
     type: z.literal('ORDER_CANCELLED'),
     speaker: z.literal('NURSE'),
@@ -74,6 +90,7 @@ export const dialogueLocalSchema = z.object({
   allowedTokens: z.array(z.string()),
   denyTerms: z.array(z.string()),
   frozenTokens: z.record(z.string(), z.string()),
+  liveTokens: z.array(z.string()).optional(),
 });
 
 export const dialogueDataSchema = z.object({

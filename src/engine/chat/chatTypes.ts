@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const SPEAKER_KINDS = ['PLAYER', 'NURSE', 'PATIENT', 'SYSTEM'] as const;
+export const SPEAKER_KINDS = ['PLAYER', 'NURSE', 'PATIENT', 'SYSTEM', 'PHARMACY'] as const;
 export type SpeakerKind = (typeof SPEAKER_KINDS)[number];
 
 export const speakerSchema = z
@@ -20,7 +20,8 @@ export const chatLineSchema = z
     speaker: speakerSchema,
     template: z.string(),
     tokenValues: z.record(z.string(), z.string()),
-    source: z.literal('BEDSIDE'),
+    /** BEDSIDE＝床邊；PHONE＝電話（藥房把關），記入病人紀錄並標明來源（spec §9.3 Q60 A） */
+    source: z.enum(['BEDSIDE', 'PHONE']),
     orderId: z.string().nullable(),
   })
   .strict();

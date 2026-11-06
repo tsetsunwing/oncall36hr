@@ -6,7 +6,7 @@
 import {
   abnormalOf,
   composeOrderLabel,
-  CANCELLABLE_STATUSES,
+  isCancellable,
   meanArterialPressure,
   renderTemplate,
   typingSpeakerIds,
@@ -21,12 +21,14 @@ import type {
   AlarmLevel,
   ChatLineView,
   ChatView,
+  GateCardView,
   Direction,
   GameView,
   MonitorView,
   OrderRowView,
   PatientView,
   QuickChipView,
+  ReportView,
   VitalReadout,
 } from './types';
 import { parseWave, plethAmplitude } from './waveform';
@@ -36,6 +38,7 @@ export interface ViewEnv {
   config: ShiftClockConfig & {
     clock: { speeds: readonly number[] };
     chat: { playerTextMaxChars: number };
+    gate: { pharmacyName: string };
     ui: { monitor: { sweepSeconds: number; targetFps: number } };
   };
   aiFailureReason?: string | null;
@@ -135,9 +138,15 @@ function selectChat(
     const base = {
       id: line.id,
       speakerId: line.speaker.id,
-      speakerName: line.speaker.kind === 'PLAYER' ? '' : (names.get(line.speaker.id) ?? ''),
+      speakerName:
+        line.speaker.kind === 'PLAYER'
+          ? ''
+          : line.speaker.kind === 'PHARMACY'
+            ? env.config.gate.pharmacyName
+            : (names.get(line.speaker.id) ?? ''),
       timeLabel: clockLabel(line.t),
       orderId: line.orderId,
+      source: line.source,
     };
     switch (line.speaker.kind) {
       case 'PLAYER':
@@ -203,13 +212,57 @@ function selectOrders(
         label: composeOrderLabel(row, order),
         status: order.status,
         executorName: executorName(state, order.executor),
+        executorKind: order.executorKind,
         timeLabel: clockLabel(order.createdAt),
         etaSeconds: running ? Math.max(0, order.completesAt - state.clock.t) : null,
-        cancellable:
-          CANCELLABLE_STATUSES.includes(order.status) &&
-          (row?.cancelWhile.includes(order.status as 'QUEUED' | 'RUNNING') ?? false),
+        cancellable: isCancellable(order, row),
+        resultStatus: order.resultStatus,
       };
     });
+}
+
+function selectGates(state: GameState, patientId: string, env: ViewEnv): GateCardView[] {
+  return Object.values(state.orders)
+    .filter((o) => o.patientId === patientId && o.status === 'GATED' && o.gate)
+    .sort((a, b) => a.createdAt - b.createdAt || a.id.localeCompare(b.id, 'en', { numeric: true }))
+    .flatMap((order) => {
+      const gate = order.gate;
+      if (!gate || gate.phase === 'RELEASED') return [];
+      const row = env.tables['order-catalog'].find((r) => r.id === order.catalogId);
+      const nurseName = state.chats[patientId]?.present.find((p) => p.kind === 'NURSE')?.name ?? '';
+      return [
+        {
+          orderId: order.id,
+          label: composeOrderLabel(row, order),
+          phase: gate.phase,
+          concerns: gate.reviews.flatMap((review) =>
+            review.concerns.map((concern) => ({
+              by: review.by,
+              byName: review.by === 'PHARMACY' ? env.config.gate.pharmacyName : nurseName,
+              category: concern.category,
+              text: renderTemplate(concern.line, concern.tokenValues),
+            })),
+          ),
+          insistCount: gate.insistCount,
+          required: gate.required,
+          canInsist: gate.phase === 'DECISION' || gate.phase === 'RECONFIRM',
+        },
+      ];
+    });
+}
+
+function selectReports(patient: Patient, clockLabel: (t: number) => string): ReportView[] {
+  return [...patient.visible.reports].reverse().map((report) => ({
+    id: report.id,
+    orderId: report.orderId,
+    label: report.label,
+    timeLabel: clockLabel(report.reportedAt),
+    kind: report.kind,
+    abnormal: report.abnormal,
+    items: report.items.map((item) => ({ ...item })),
+    text: report.text,
+    reviewPending: report.reviewStatus !== 'REVIEWED',
+  }));
 }
 
 function selectActionLog(
@@ -266,6 +319,8 @@ export function selectGameView(state: GameState, env: ViewEnv): GameView {
     monitor: current ? selectMonitor(current, env, clockLabel) : null,
     chat: current ? selectChat(state, current.id, env, clockLabel) : null,
     orders: current ? selectOrders(state, current.id, env, clockLabel) : [],
+    gates: current ? selectGates(state, current.id, env) : [],
+    reports: current ? selectReports(current, clockLabel) : [],
     actionLog: {
       all: actionLog,
       patient: current ? actionLog.filter((r) => r.patientId === current.id) : [],

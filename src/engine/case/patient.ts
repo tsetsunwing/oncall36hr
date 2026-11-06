@@ -13,6 +13,53 @@ const vitalsSampleSchema = z
   })
   .strict();
 
+const activeEffectSchema = z
+  .object({
+    id: z.string().min(1),
+    orderId: z.string().min(1),
+    startsAt: z.number().int().min(0),
+    delta: z
+      .object({
+        hr: z.number(),
+        sbp: z.number(),
+        dbp: z.number(),
+        spo2: z.number(),
+        rr: z.number(),
+        temp: z.number(),
+      })
+      .partial()
+      .strict(),
+    rampSec: z.number().int().min(1),
+    durationSec: z.number().int().positive().nullable(),
+  })
+  .strict();
+
+const reportSchema = z
+  .object({
+    id: z.string().min(1),
+    orderId: z.string().min(1),
+    resultId: z.string().min(1),
+    label: z.string().min(1),
+    kind: z.enum(['PANEL', 'REPORT']),
+    reportedAt: z.number().int().min(0),
+    abnormal: z.boolean(),
+    items: z.array(
+      z
+        .object({
+          label: z.string(),
+          valueText: z.string(),
+          refText: z.string(),
+          flag: z.enum(['H', 'L']).nullable(),
+        })
+        .strict(),
+    ),
+    text: z.string().nullable(),
+    reviewStatus: z.enum(['PENDING_CLINICAL_REVIEW', 'REVIEWED']),
+  })
+  .strict();
+
+export type PatientReport = z.infer<typeof reportSchema>;
+
 const baseSchema = z
   .object({
     hr: z.number(),
@@ -60,12 +107,16 @@ export const patientSchema = z
         lastSampleAt: z.number().int().min(0),
         alertedBand: z.string().nullable(),
         lastAlertAt: z.number().int().min(0).nullable(),
+        /** 後果（堅持下單）產生嘅生理效果；同 order 效果一齊疊加入 vitals */
+        activeEffects: z.array(activeEffectSchema),
       })
       .strict(),
     visible: z
       .object({
         vitals: vitalsSampleSchema,
         vitalsHistory: z.array(vitalsSampleSchema),
+        /** 已回報嘅化驗／檢查（T7 查表結果，唔係 AI 文字） */
+        reports: z.array(reportSchema),
         rhythm: z.string().min(1),
         consciousness: z.enum(['A', 'V', 'P', 'U']),
         mews: z

@@ -1,8 +1,8 @@
 /**
  * Order 生命週期：落單、固定完成時間（S28 A）、取消。
  * 暫停時唔接受新 order，但接受取消（Q76 B、S-6 A）。
- * M2：由 order-catalog（T4）驅動；完成時套用 flags、凍結結果文字、等護士匯報。
- * 化驗結果／把關／多執行者屬 M3。
+ * 由 order-catalog（T4）驅動；完成時套用 flags、凍結結果文字、等護士匯報；
+ * 化驗／影像完成後按 T7 排程報告（results 模組）；把關由 gate 模組處理，放行後先排程完成。
  */
 import { abnormalOf, patientTokens, queueDialogue, vitalTokens, type Beat } from '../chat/dialogue';
 import { extractTokens, renderTemplate } from '../chat/tokens';
@@ -11,7 +11,8 @@ import type { Effect, NoticeKind, Reduction } from '../core/events';
 import type { EngineContext, EngineModule } from '../core/module';
 import type { GameState } from '../core/state';
 import type { OrderCatalogRow } from '../case/tables';
-import { appendLog, updateOrderLog } from '../log/log';
+import { updateOrderLog } from '../log/log';
+import { scheduleResultReport } from '../results/results';
 import { composeOrderLabel } from './label';
 import { CANCELLABLE_STATUSES, type Order } from './orderTypes';
 
@@ -32,11 +33,9 @@ function isOrderCompletePayload(payload: unknown): payload is { orderId: string 
 
 export const NO_PARAMS: Order['params'] = { drugFormularyId: null, dose: null, route: null };
 
-function insertOrder(state: GameState, order: Order): GameState {
+export function scheduleCompletion(state: GameState, order: Order): GameState {
   return {
     ...state,
-    orders: { ...state.orders, [order.id]: order },
-    counters: { ...state.counters, order: state.counters.order + 1 },
     scheduler: enqueue(state.scheduler, {
       time: order.completesAt,
       kind: ORDER_COMPLETE_EVENT_KIND,
@@ -45,61 +44,40 @@ function insertOrder(state: GameState, order: Order): GameState {
   };
 }
 
-export interface CatalogOrderInput {
-  patientId: string;
-  row: OrderCatalogRow;
-  params: Order['params'];
-  source: Order['source'];
-  executor: string | null;
-  /** 玩家按下送出嘅時刻。AI 解析較慢時，生效時間唔會因而推遲（§2.4） */
-  submittedAt: number;
-}
-
-/**
- * 由 catalog 建立 order。完成時間 ＝ max(提交時刻 ＋ 固定完成時間, 而家)：
- * 快捷詞即刻有結果；AI 解析慢，玩家唔會因而吃虧，但亦唔會早過而家。
- */
-export function createCatalogOrder(
-  state: GameState,
-  input: CatalogOrderInput,
-): { state: GameState; order: Order } {
-  const now = state.clock.t;
-  const id = `o${String(state.counters.order + 1)}`;
-  const order: Order = {
-    id,
-    patientId: input.patientId,
-    catalogId: input.row.id,
-    createdAt: input.submittedAt,
-    startsAt: input.submittedAt,
-    completesAt: Math.max(input.submittedAt + input.row.fixedDurationSec, now),
-    status: 'RUNNING',
-    source: input.source,
-    params: input.params,
-    executor: input.executor,
+/** 登記 order（分配 id 計數）。只有 RUNNING 嘅 order 即時排程完成；GATED 等放行 */
+export function registerOrder(state: GameState, order: Order): GameState {
+  const registered: GameState = {
+    ...state,
+    orders: { ...state.orders, [order.id]: order },
+    counters: { ...state.counters, order: state.counters.order + 1 },
   };
-  const withOrder = insertOrder(state, order);
-  const logged = appendLog(withOrder, {
-    patientId: input.patientId,
-    kind: 'ORDER',
-    orderId: id,
-    executor: input.executor,
-    reasonCode: null,
-    resultText: null,
-    nurseNote: null,
-  });
-  return { state: logged, order };
+  return order.status === 'RUNNING' ? scheduleCompletion(registered, order) : registered;
 }
 
 export function isCancellable(order: Order, row: OrderCatalogRow | undefined): boolean {
   if (!CANCELLABLE_STATUSES.includes(order.status)) return false;
-  if (!row) return true;
+  if (order.status === 'GATED' || !row) return true;
   return (row.cancelWhile as readonly string[]).includes(order.status);
 }
 
+/**
+ * 取消 order。冇開始過（等把關）嘅 order 冇任何已投入部分；
+ * 已開始嘅按 catalog `sunkEffectRule` 處理（見 vitals.sunkFraction）。
+ */
 export function cancelOrderState(state: GameState, order: Order, reasonCode: string): GameState {
+  const now = state.clock.t;
+  const neverStarted = order.status === 'GATED' || order.status === 'PENDING_PARSE';
   const cancelled: GameState = {
     ...state,
-    orders: { ...state.orders, [order.id]: { ...order, status: 'CANCELLED' } },
+    orders: {
+      ...state.orders,
+      [order.id]: {
+        ...order,
+        status: 'CANCELLED',
+        cancelledAt: now,
+        ...(neverStarted ? { startsAt: now, completesAt: now } : {}),
+      },
+    },
     scheduler: removeWhere(
       state.scheduler,
       (e) =>
@@ -127,6 +105,10 @@ function completeOrder(state: GameState, order: Order, ctx: EngineContext): Redu
     hidden: { ...patient.hidden, fsm: { ...patient.hidden.fsm, flags } },
   };
   next = { ...next, patients: { ...next.patients, [patient.id]: withFlags } };
+
+  if (row.resultId) {
+    next = scheduleResultReport(next, order.id, withFlags.hidden.fsm.state, row, ctx);
+  }
 
   if (row.resultTemplate) {
     const tokens = { ...vitalTokens(withFlags, ctx.tables), ...patientTokens(withFlags) };
@@ -188,8 +170,13 @@ export const ordersModule: EngineModule = {
         source: 'MANUAL',
         params: NO_PARAMS,
         executor: null,
+        executorKind: null,
+        cancelledAt: null,
+        resultStatus: null,
+        sampledState: null,
+        gate: null,
       };
-      return { state: insertOrder(state, order), effects: [] };
+      return { state: registerOrder(state, order), effects: [] };
     }
 
     if (intent.type === 'CANCEL_ORDER') {

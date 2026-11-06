@@ -10,7 +10,8 @@
     },
     "delaySec": 30,
     "rampSec": 180,
-    "durationSec": null
+    "durationSec": null,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
   },
   {
     "id": "fx.o2.nrb.shock",
@@ -22,7 +23,8 @@
     },
     "delaySec": 30,
     "rampSec": 180,
-    "durationSec": null
+    "durationSec": null,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
   },
   {
     "id": "fx.o2.nrb.stab",
@@ -34,7 +36,8 @@
     },
     "delaySec": 30,
     "rampSec": 180,
-    "durationSec": null
+    "durationSec": null,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
   },
   {
     "id": "fx.o2.nasal.any",
@@ -46,7 +49,8 @@
     },
     "delaySec": 30,
     "rampSec": 180,
-    "durationSec": null
+    "durationSec": null,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
   },
   {
     "id": "fx.o2.nasal.stab",
@@ -57,7 +61,8 @@
     },
     "delaySec": 30,
     "rampSec": 180,
-    "durationSec": null
+    "durationSec": null,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
   },
   {
     "id": "fx.ns.det",
@@ -70,7 +75,8 @@
     },
     "delaySec": 60,
     "rampSec": 900,
-    "durationSec": 5400
+    "durationSec": 5400,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
   },
   {
     "id": "fx.ns.shock",
@@ -83,7 +89,8 @@
     },
     "delaySec": 60,
     "rampSec": 900,
-    "durationSec": 5400
+    "durationSec": 5400,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
   },
   {
     "id": "fx.ns.stab",
@@ -95,7 +102,8 @@
     },
     "delaySec": 60,
     "rampSec": 900,
-    "durationSec": 5400
+    "durationSec": 5400,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
   },
   {
     "id": "fx.abx.any",
@@ -107,7 +115,8 @@
     },
     "delaySec": 1800,
     "rampSec": 3600,
-    "durationSec": null
+    "durationSec": null,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
   },
   {
     "id": "fx.pcm.any",
@@ -119,6 +128,34 @@
     },
     "delaySec": 900,
     "rampSec": 1800,
-    "durationSec": 14400
+    "durationSec": 14400,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "fx.augmentin.any",
+    "catalogId": "drug.augmentin",
+    "states": ["*"],
+    "delta": {
+      "temp": -0.3,
+      "hr": -2
+    },
+    "delaySec": 1800,
+    "rampSec": 3600,
+    "durationSec": null,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "fx.furosemide.any",
+    "catalogId": "drug.furosemide",
+    "states": ["*"],
+    "delta": {
+      "sbp": -6,
+      "dbp": -4,
+      "hr": 4
+    },
+    "delaySec": 900,
+    "rampSec": 1800,
+    "durationSec": 10800,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
   }
 ]

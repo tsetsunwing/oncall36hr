@@ -916,3 +916,129 @@ main.wide {
   font-weight: 700;
   color: var(--blocked-text);
 }
+
+.chat-source {
+  padding: 0 0.4rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+}
+
+.chat-line--pharmacy {
+  background: #ece8f7;
+  color: #3b2a6b;
+}
+
+.gate-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 40vh;
+  margin-top: 0.5rem;
+  overflow-y: auto;
+}
+
+.gate-card {
+  padding: 0.5rem 0.75rem;
+  border: 2px solid #9a5b00;
+  border-radius: 8px;
+  background: var(--blocked-bg);
+  color: var(--blocked-text);
+}
+
+.gate-title {
+  margin: 0 0 0.25rem;
+  font-size: 1rem;
+}
+
+.gate-lead,
+.gate-wait {
+  margin: 0 0 0.25rem;
+  font-size: 0.85rem;
+}
+
+.gate-concerns {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin: 0 0 0.5rem;
+  padding: 0;
+  list-style: none;
+}
+
+.gate-concern {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.5rem;
+  align-items: baseline;
+}
+
+.gate-by {
+  font-weight: 700;
+}
+
+.gate-category {
+  padding: 0 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+}
+
+.gate-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.btn-danger {
+  color: #ffffff;
+  background: #9b1c1c;
+  border-color: #9b1c1c;
+}
+
+.report-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.report-row {
+  padding: 0.4rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #fafcfd;
+}
+
+.report-table {
+  width: 100%;
+  margin-top: 0.25rem;
+  font-size: 0.8rem;
+  border-collapse: collapse;
+}
+
+.report-table th,
+.report-table td {
+  padding: 0.1rem 0.3rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.report-table tr[data-flag='H'] td,
+.report-table tr[data-flag='L'] td {
+  font-weight: 700;
+  color: var(--error-text);
+}
+
+.report-flag {
+  margin-left: 0.3rem;
+  font-size: 0.7rem;
+}
+
+.report-text {
+  margin: 0.25rem 0 0;
+}

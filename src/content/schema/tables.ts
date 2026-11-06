@@ -11,10 +11,11 @@ import {
   rhythmSchema,
   trajectorySchema,
 } from './m2Tables';
+import { consequenceSchema, resultSchema } from './m3Tables';
 
 /**
  * implementation-plan §5：T1–T29 為陣列型內容表（T30 config 另有 schema）。
- * M2 收緊咗 T1、T2、T3、T4、T5、T6、T8、T10、T14、T26；其餘表只驗證「存在、為陣列、每筆有唯一字串 id」，
+ * M2 收緊咗 T1、T2、T3、T4、T5、T6、T8、T10、T14、T26；M3 收緊 T4／T5／T6 並加 T7、T11；其餘表只驗證「存在、為陣列、每筆有唯一字串 id」，
  * 於對應 milestone 逐張收緊。
  */
 export const TABLE_NAMES = [
@@ -63,11 +64,11 @@ export const tableSchemas = {
   'order-catalog': z.array(orderCatalogEntrySchema),
   formulary: z.array(formularyEntrySchema),
   'order-effects': z.array(orderEffectSchema),
-  results: looseRecords,
+  results: z.array(resultSchema),
   rhythms: z.array(rhythmSchema),
   'acls-transitions': looseRecords,
   mews: z.array(mewsSchema),
-  consequences: looseRecords,
+  consequences: z.array(consequenceSchema),
   'difficulty-profiles': looseRecords,
   'rank-complexity': looseRecords,
   'nurse-roster': z.array(nurseRosterEntrySchema),

@@ -5,7 +5,11 @@
     "aliases": ["ceftriaxone", "rocephin"],
     "catalogId": "drug.ceftriaxone",
     "units": ["g", "mg"],
-    "routes": ["IV"]
+    "routes": ["IV"],
+    "drugClass": "Cephalosporin antibiotic",
+    "allergyClasses": ["cephalosporin"],
+    "typicalDose": null,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
   },
   {
     "id": "paracetamol",
@@ -13,6 +17,34 @@
     "aliases": ["paracetamol", "panadol"],
     "catalogId": "drug.paracetamol",
     "units": ["g", "mg"],
-    "routes": ["PO", "IV"]
+    "routes": ["PO", "IV"],
+    "drugClass": "Analgesic/antipyretic",
+    "allergyClasses": [],
+    "typicalDose": null,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "amoxicillin-clavulanate",
+    "label": "Amoxicillin-clavulanate",
+    "aliases": ["amoxicillin-clavulanate", "augmentin", "co-amoxiclav"],
+    "catalogId": "drug.augmentin",
+    "units": ["g", "mg"],
+    "routes": ["IV", "PO"],
+    "drugClass": "Penicillin antibiotic",
+    "allergyClasses": ["penicillin"],
+    "typicalDose": null,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "furosemide",
+    "label": "Furosemide",
+    "aliases": ["furosemide", "frusemide", "lasix"],
+    "catalogId": "drug.furosemide",
+    "units": ["mg"],
+    "routes": ["IV", "PO"],
+    "drugClass": "Loop diuretic",
+    "allergyClasses": [],
+    "typicalDose": null,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
   }
 ]

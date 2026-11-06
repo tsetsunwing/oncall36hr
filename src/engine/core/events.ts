@@ -8,6 +8,7 @@ export type CoreIntent =
   | { type: 'SET_SPEED'; speed: number }
   | { type: 'PLACE_ORDER'; patientId: string; catalogId: string; durationSec: number }
   | { type: 'CANCEL_ORDER'; orderId: string }
+  | { type: 'INSIST_ORDER'; orderId: string }
   | { type: 'SAVE_GAME'; slot: number }
   | { type: 'SUBMIT_CHAT'; patientId: string; text: string }
   | { type: 'ENTER_BED'; patientId: string }
@@ -43,6 +44,7 @@ export type NoticeKind =
   | 'ORDER_INVALID'
   | 'ORDER_UNKNOWN'
   | 'ORDER_NOT_CANCELLABLE'
+  | 'INSIST_NOT_AVAILABLE'
   | 'SPEED_INVALID'
   | 'SAVE_SLOT_INVALID'
   | 'RESUME_BLOCKED_AI_FAILURE'

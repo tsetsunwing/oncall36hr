@@ -2,13 +2,15 @@
  * 本地快捷詞 parser（implementation-plan §2.4、spec §9.3）：有明確結構嘅輸入直接變 action，不經 AI，
  * 所以搶救唔受 AI 延遲影響。字典來自 T26 quick-words，藥物句式來自 T5 formulary。
  */
-import type { EngineTables } from '../case/tables';
+import type { EngineTables, ExecutorKind } from '../case/tables';
 import { stripMentions } from '../chat/mentions';
 import type { Order } from './orderTypes';
 
 export interface LocalOrderMatch {
   catalogId: string;
   params: Order['params'];
+  /** 快捷詞指定嘅執行者（例如「自己插 NG tube」）；null＝由系統揀 */
+  executor: ExecutorKind | null;
 }
 
 export function normalizePhrase(text: string): string {
@@ -32,6 +34,7 @@ export function matchQuickPhrase(text: string, tables: EngineTables): LocalOrder
     const params = word.params;
     return {
       catalogId: word.catalogId,
+      executor: params?.executor ?? null,
       params: params
         ? {
             drugFormularyId: params.drugFormularyId ?? null,
@@ -57,6 +60,7 @@ export function matchQuickPhrase(text: string, tables: EngineTables): LocalOrder
     const route = drug.routes.find((r) => r.toLowerCase() === match[3]) ?? null;
     return {
       catalogId: drug.catalogId,
+      executor: null,
       params: { drugFormularyId: drug.id, dose: { value, unit }, route },
     };
   }
@@ -64,5 +68,5 @@ export function matchQuickPhrase(text: string, tables: EngineTables): LocalOrder
   const entry = tables['order-catalog'].find((row) =>
     row.aliases.some((alias) => normalizePhrase(alias) === phrase),
   );
-  return entry ? { catalogId: entry.id, params: NO_PARAMS } : null;
+  return entry ? { catalogId: entry.id, params: NO_PARAMS, executor: null } : null;
 }

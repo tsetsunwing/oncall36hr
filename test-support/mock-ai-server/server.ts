@@ -14,14 +14,23 @@ import { CONTRACT_MODES, contractReply, parseRequest, type ContractMode } from '
  *   mock-hang          永不回應（測逾時）
  *   mock-bad-json      回 200 但 body 唔係合法 JSON
  *
- * 契約請求（order.parse／dialogue.turn）：
+ * 契約請求（order.parse／dialogue.turn／gate.pharmacy／gate.nurse／gate.danger）：
  *   mock-ok            按請求內容回有效契約回應（關鍵字比對 catalog、對白用 {{token}}）
  *   mock-<mode>        惡意／錯誤輸出：numbers、inject、bad-token、diagnosis、extra-fields、
- *                      wrong-speaker、unknown-catalog、invented-dose
+ *                      wrong-speaker、unknown-catalog、invented-dose、gate-bad-line（把關句子含裸數字）、
+ *                      danger-low／danger-high（強制 gate.danger 評級）
  *   mock-flaky         同一個請求內容嘅第 1 次先回壞格式，修復重試（第 2 次）成功
  *   mock-fail-twice    同一個請求內容嘅頭 2 次 HTTP 503，第 3 次成功（測 gateway 重試＋玩家重試）
  *   mock-auth-fail     契約請求一律 401
  */
+const CONTRACT_KINDS = [
+  'order.parse',
+  'dialogue.turn',
+  'gate.pharmacy',
+  'gate.nurse',
+  'gate.danger',
+];
+
 export interface MockServerOptions {
   port?: number;
   host?: string;
@@ -125,7 +134,7 @@ export async function startMockServer(options: MockServerOptions = {}): Promise<
           : 'mock-ok';
 
       const contract = parseRequest(body);
-      if (contract && (contract.kind === 'order.parse' || contract.kind === 'dialogue.turn')) {
+      if (contract && CONTRACT_KINDS.includes(contract.kind)) {
         const key = `${model}|${contract.kind}|${JSON.stringify(contract.prompt)}`;
         const attempt = (attempts.get(key) ?? 0) + 1;
         attempts.set(key, attempt);

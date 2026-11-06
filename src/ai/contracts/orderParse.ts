@@ -22,6 +22,7 @@ export const orderParsePromptSchema = z.object({
       label: z.string(),
       aliases: z.array(z.string()),
       formularyId: z.string().nullable(),
+      executors: z.array(z.string()),
     }),
   ),
   formulary: z.array(
@@ -51,6 +52,7 @@ export const orderParseDataSchema = z.object({
     .array(
       z.object({
         catalogId: z.string(),
+        executor: z.enum(['NURSE', 'SUBORDINATE', 'PLAYER']).nullish(),
         drug: z
           .object({
             formularyId: z.string().nullish(),

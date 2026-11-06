@@ -48,5 +48,49 @@
       },
       "route": "IV"
     }
+  },
+  {
+    "id": "qw.ecg",
+    "aliases": ["ecg", "stat ecg", "12 lead ecg"],
+    "catalogId": "ecg.12lead",
+    "chipLabel": "ECG"
+  },
+  {
+    "id": "qw.cbc",
+    "aliases": ["cbc", "抽血 cbc"],
+    "catalogId": "lab.cbc",
+    "chipLabel": "CBC"
+  },
+  {
+    "id": "qw.ng.self",
+    "aliases": ["ng tube myself", "ng tube self", "我自己落 ng tube"],
+    "catalogId": "proc.ngtube",
+    "params": {
+      "executor": "PLAYER"
+    }
+  },
+  {
+    "id": "qw.ng.sub",
+    "aliases": ["ng tube sub", "ng tube junior", "叫下屬落 ng tube"],
+    "catalogId": "proc.ngtube",
+    "params": {
+      "executor": "SUBORDINATE"
+    }
+  },
+  {
+    "id": "qw.foley.self",
+    "aliases": ["foley myself", "foley self", "我自己落 foley"],
+    "catalogId": "proc.foley",
+    "params": {
+      "executor": "PLAYER"
+    }
+  },
+  {
+    "id": "qw.foley.sub",
+    "aliases": ["foley sub", "foley junior", "叫下屬落 foley"],
+    "catalogId": "proc.foley",
+    "params": {
+      "executor": "SUBORDINATE"
+    }
   }
 ]

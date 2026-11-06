@@ -47,7 +47,7 @@ export interface PatientView {
   allergies: string[];
 }
 
-export type ChatLineKind = 'PLAYER' | 'NURSE' | 'PATIENT' | 'SYSTEM';
+export type ChatLineKind = 'PLAYER' | 'NURSE' | 'PATIENT' | 'SYSTEM' | 'PHARMACY';
 
 export interface ChatLineView {
   id: string;
@@ -59,6 +59,8 @@ export interface ChatLineView {
   systemCode: string | null;
   timeLabel: string;
   orderId: string | null;
+  /** PHONE＝電話（藥房）；UI 會標明來源 */
+  source: 'BEDSIDE' | 'PHONE';
 }
 
 export interface PresentView {
@@ -88,9 +90,53 @@ export interface OrderRowView {
   label: string;
   status: OrderStatusCode;
   executorName: string | null;
+  executorKind: 'NURSE' | 'SUBORDINATE' | 'PLAYER' | null;
   timeLabel: string;
   etaSeconds: number | null;
   cancellable: boolean;
+  /** 化驗／檢查：PENDING＝等報告；REPORTED＝報告已出；其他 order＝null */
+  resultStatus: 'PENDING' | 'REPORTED' | null;
+}
+
+export type GateRoleView = 'PHARMACY' | 'NURSE';
+export type GatePhaseView = 'REVIEW' | 'DECISION' | 'RECONFIRM' | 'RATING';
+
+export interface GateConcernView {
+  by: GateRoleView;
+  byName: string;
+  category: string;
+  text: string;
+}
+
+/** 等把關嘅 order：審視中，或者等玩家取消／堅持 */
+export interface GateCardView {
+  orderId: string;
+  label: string;
+  phase: GatePhaseView;
+  concerns: GateConcernView[];
+  insistCount: number;
+  required: number;
+  canInsist: boolean;
+}
+
+export interface ReportItemView {
+  label: string;
+  valueText: string;
+  refText: string;
+  flag: 'H' | 'L' | null;
+}
+
+export interface ReportView {
+  id: string;
+  orderId: string;
+  label: string;
+  timeLabel: string;
+  kind: 'PANEL' | 'REPORT';
+  abnormal: boolean;
+  items: ReportItemView[];
+  text: string | null;
+  /** 數值係佔位，未經臨床審閱（PENDING_CLINICAL_REVIEW） */
+  reviewPending: boolean;
 }
 
 export interface ActionRowView {
@@ -128,6 +174,8 @@ export interface GameView {
   monitor: MonitorView | null;
   chat: ChatView | null;
   orders: OrderRowView[];
+  gates: GateCardView[];
+  reports: ReportView[];
   actionLog: { all: ActionRowView[]; patient: ActionRowView[] };
   quickChips: QuickChipView[];
   pendingAiCount: number;
@@ -142,5 +190,6 @@ export interface GameActions {
   togglePause: () => void;
   setSpeed: (speed: number) => void;
   cancelOrder: (orderId: string) => void;
+  insistOrder: (orderId: string) => void;
   retryAi: () => void;
 }

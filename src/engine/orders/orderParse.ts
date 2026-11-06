@@ -7,14 +7,14 @@ import { z } from 'zod';
 import { queueBeatsForOrders } from '../bedside/queue';
 import { abnormalOf, type Beat } from '../chat/dialogue';
 import { parseMentions } from '../chat/mentions';
-import type { Present } from '../chat/chatTypes';
 import { rejectAiResult } from '../core/ai';
 import type { JsonValue } from '../core/eventQueue';
 import type { Reduction } from '../core/events';
 import type { EngineContext } from '../core/module';
 import type { GameState, PendingAiRequest } from '../core/state';
 import type { Patient } from '../case/patient';
-import { cancelOrderState, createCatalogOrder, isCancellable, NO_PARAMS } from './orders';
+import { cancelOrderState, isCancellable, NO_PARAMS } from './orders';
+import { placeAndAck, type PlaceInput } from './placement';
 import { composeOrderLabel } from './label';
 import type { Order } from './orderTypes';
 
@@ -29,6 +29,7 @@ const resultSchema = z.object({
     .array(
       z.object({
         catalogId: z.string(),
+        executor: z.enum(['NURSE', 'SUBORDINATE', 'PLAYER']).nullable().optional(),
         drug: z
           .object({
             formularyId: z.string().nullable().optional(),
@@ -94,22 +95,6 @@ function symptomsOf(patient: Patient, ctx: EngineContext): string[] {
   return [...(template?.symptomsByState[patient.hidden.fsm.state] ?? [])];
 }
 
-export function ackBeatsFor(orders: readonly Order[], ctx: EngineContext) {
-  const tokens: Record<string, string> = {};
-  const beats: Beat[] = [];
-  orders.forEach((order, index) => {
-    const token = `order.${String(index + 1)}.label`;
-    const row = ctx.tables['order-catalog'].find((r) => r.id === order.catalogId);
-    tokens[token] = composeOrderLabel(row, order);
-    beats.push({ type: 'ACK_ORDER', speaker: 'NURSE', labelToken: token });
-  });
-  return { beats, tokens };
-}
-
-function nurseOf(present: readonly Present[]): Present | undefined {
-  return present.find((p) => p.kind === 'NURSE');
-}
-
 export function handleOrderParseResult(
   state: GameState,
   pending: PendingAiRequest,
@@ -125,7 +110,6 @@ export function handleOrderParseResult(
   const thread = state.chats[patientId];
   if (!patient || !thread) return { state, effects: [] };
   const result = parsed.data;
-  const nurse = nurseOf(thread.present);
   const mentioned = parseMentions(playerText, thread.present);
 
   const rephrase = (reason: 'UNKNOWN_ORDER' | 'UNSUPPORTED') =>
@@ -144,26 +128,26 @@ export function handleOrderParseResult(
         .slice(0, ctx.config.orders.maxActionsPerParse)
         .flatMap((action) => {
           const row = ctx.tables['order-catalog'].find((r) => r.id === action.catalogId);
-          return row ? [{ row, params: sanitizeParams(action, ctx, playerText) }] : [];
+          return row
+            ? [
+                {
+                  row,
+                  params: sanitizeParams(action, ctx, playerText),
+                  executor: action.executor ?? null,
+                },
+              ]
+            : [];
         });
       if (accepted.length === 0) return rephrase('UNKNOWN_ORDER');
-      let next = state;
-      const created: Order[] = [];
-      for (const { row, params } of accepted) {
-        const made = createCatalogOrder(next, {
-          patientId,
-          row,
-          params,
-          source: 'AI_PARSED',
-          executor: nurse?.id ?? null,
-          submittedAt,
-        });
-        next = made.state;
-        created.push(made.order);
-      }
-      const { beats, tokens } = ackBeatsFor(created, ctx);
-      const dialogue = queueBeatsForOrders(next, patient, beats, tokens, mentioned, ctx);
-      return dialogue;
+      const inputs: PlaceInput[] = accepted.map(({ row, params, executor }) => ({
+        patientId,
+        row,
+        params,
+        source: 'AI_PARSED',
+        preferredExecutor: executor,
+        submittedAt,
+      }));
+      return placeAndAck(state, patient, inputs, mentioned, ctx);
     }
 
     case 'CANCEL': {

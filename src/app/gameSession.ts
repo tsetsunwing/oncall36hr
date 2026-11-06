@@ -150,6 +150,9 @@ export function createGameSession(options: GameSessionOptions): GameSession {
     cancelOrder(orderId) {
       dispatch({ type: 'PLAYER_INTENT', intent: { type: 'CANCEL_ORDER', orderId } });
     },
+    insistOrder(orderId) {
+      dispatch({ type: 'PLAYER_INTENT', intent: { type: 'INSIST_ORDER', orderId } });
+    },
     retryAi() {
       const paused = runtime.getState().paused;
       if (paused?.by !== 'ai-failure' || !paused.reqId) return;

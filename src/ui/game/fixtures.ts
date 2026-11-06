@@ -61,6 +61,7 @@ const line = (over: Partial<ChatLineView>): ChatLineView => ({
   systemCode: null,
   timeLabel: '21:00',
   orderId: null,
+  source: 'BEDSIDE',
   ...over,
 });
 
@@ -110,9 +111,11 @@ export function order(over: Partial<OrderRowView> = {}): OrderRowView {
     label: '量度生命表徵',
     status: 'RUNNING',
     executorName: '何姑娘',
+    executorKind: 'NURSE',
     timeLabel: '21:01',
     etaSeconds: 120,
     cancellable: true,
+    resultStatus: null,
     ...over,
   };
 }

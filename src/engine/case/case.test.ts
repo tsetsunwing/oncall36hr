@@ -4,6 +4,7 @@ import { VITAL_KEYS, type VitalKey } from './tables';
 import { effectFactor, pickEffectRow, resolveRhythm } from './vitals';
 import {
   advance,
+  answerGates,
   aiRequests,
   feed,
   intentEvent,
@@ -138,7 +139,10 @@ describe('FSM（表驅動）', () => {
 
   it('氧氣＋抗生素 → 900 秒後 STABILISING，之後 vitals 趨向 stabilising 目標', () => {
     let state = engine.init(params('fsm-1'));
-    state = feed(engine, state, [say('oxygen nrb'), say('ceftriaxone 1 g iv')]).state;
+    state = answerGates(
+      engine,
+      feed(engine, state, [say('oxygen nrb'), say('ceftriaxone 1 g iv')]),
+    ).state;
     state = advance(engine, state, 3600 * 3).state;
     expect(state.patients.p1?.hidden.fsm.state).toBe('STABILISING');
     expect(state.patients.p1?.hidden.fsm.flags).toEqual(

@@ -7,7 +7,7 @@ import { z } from 'zod';
 export const VITAL_KEYS = ['hr', 'sbp', 'dbp', 'spo2', 'rr', 'temp'] as const;
 export type VitalKey = (typeof VITAL_KEYS)[number];
 
-const id = z.string().min(1);
+export const id = z.string().min(1);
 const vitalNumbers = z
   .object({
     hr: z.number(),
@@ -38,7 +38,7 @@ const positiveVitals = z
     temp: z.number().positive(),
   })
   .strict();
-const partialVitalDelta = z
+export const partialVitalDelta = z
   .object({
     hr: z.number(),
     sbp: z.number(),
@@ -118,25 +118,58 @@ export const caseTemplateSchema = z
   })
   .strict();
 
-export const ORDER_TYPES = ['OBSERVATION', 'OXYGEN', 'FLUID', 'DRUG'] as const;
+/** spec §11 全部 order 類型（X-ray／CT／ultrasound 各自一類；監測醫囑為 M3 加入） */
+export const ORDER_TYPES = [
+  'OBSERVATION',
+  'MONITORING',
+  'OXYGEN',
+  'FLUID',
+  'DRUG',
+  'LAB_BLOOD',
+  'ECG',
+  'XRAY',
+  'CT',
+  'ULTRASOUND',
+  'ABG',
+  'BLOOD_CULTURE',
+  'CROSSMATCH',
+  'PROCEDURE',
+] as const;
 
-/** T4 order-catalog（M2 只有 4 類；其餘類型屬 M3） */
+export const EXECUTOR_KINDS = ['NURSE', 'SUBORDINATE', 'PLAYER'] as const;
+export const REVIEW_STATUSES = ['PENDING_CLINICAL_REVIEW', 'REVIEWED'] as const;
+export const SUNK_EFFECT_RULES = ['DISCARD', 'KEEP_PARTIAL'] as const;
+
+/**
+ * T4 order-catalog。
+ * `fixedDurationSec`：執行完成（例如抽血完成、膠片拍攝完成）所需時間；化驗／影像報告延遲屬 T7（`resultId`）。
+ * 把關：`pharmacyGate` 藥房永遠把關；`nurseGate` 只喺護士可提醒（非新入職）時先會發出請求。
+ * `sunkEffectRule`：取消時已投入部分嘅處理（DISCARD＝效果全部撤回；KEEP_PARTIAL＝按已完成比例保留）。
+ */
 export const orderCatalogEntrySchema = z
   .object({
     id,
     type: z.enum(ORDER_TYPES),
     label: z.string().min(1),
     aliases: z.array(z.string().min(1)),
-    executors: z.array(z.enum(['NURSE'])).min(1),
+    executors: z.array(z.enum(EXECUTOR_KINDS)).min(1),
     fixedDurationSec: z.number().int().min(0),
     setsFlags: z.array(id),
     formularyId: id.optional(),
+    resultId: id.optional(),
     resultTemplate: z.string().min(1).optional(),
     cancelWhile: z.array(z.enum(['QUEUED', 'RUNNING'])),
+    sunkEffectRule: z.enum(SUNK_EFFECT_RULES),
+    pharmacyGate: z.boolean(),
+    nurseGate: z.enum(['ALWAYS', 'HIGH_RISK', 'NEVER']),
+    reviewStatus: z.enum(REVIEW_STATUSES),
   })
   .strict();
 
-/** T5 formulary（M2：只作本地 parse 對照；把關屬 M3） */
+/**
+ * T5 formulary：parse 對照同顯示一致。把關判斷仍然係 AI（Q80 C），所以呢度冇規則；
+ * `typicalDose` 於臨床審核前一律 null（唔臆測劑量範圍），AI 按自身藥理知識判斷。
+ */
 export const formularyEntrySchema = z
   .object({
     id,
@@ -145,6 +178,13 @@ export const formularyEntrySchema = z
     catalogId: id,
     units: z.array(z.string().min(1)).min(1),
     routes: z.array(z.string().min(1)).min(1),
+    drugClass: z.string().min(1),
+    allergyClasses: z.array(id),
+    typicalDose: z
+      .object({ min: z.number().positive(), max: z.number().positive(), unit: z.string().min(1) })
+      .strict()
+      .nullable(),
+    reviewStatus: z.enum(REVIEW_STATUSES),
   })
   .strict();
 
@@ -158,6 +198,7 @@ export const orderEffectSchema = z
     delaySec: z.number().int().min(0),
     rampSec: z.number().int().min(1),
     durationSec: z.number().int().positive().nullable(),
+    reviewStatus: z.enum(REVIEW_STATUSES),
   })
   .strict();
 
@@ -270,6 +311,7 @@ export const quickWordSchema = z
           .strict()
           .optional(),
         route: z.string().min(1).optional(),
+        executor: z.enum(EXECUTOR_KINDS).optional(),
       })
       .strict()
       .optional(),

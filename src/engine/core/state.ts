@@ -13,7 +13,7 @@ import { actionLogEntrySchema } from '../log/actionLog';
 import { orderSchema } from '../orders/orderTypes';
 import type { EngineConfig } from './config';
 
-export const CURRENT_SCHEMA = 2;
+export const CURRENT_SCHEMA = 3;
 
 export const MODES = ['DAY', 'NIGHT', 'ONCALL'] as const;
 export const DIFFICULTIES = ['EASY', 'MEDIUM', 'HARD'] as const;
@@ -59,6 +59,8 @@ export const gameStateSchema = z
     mode: z.enum(MODES),
     difficulty: z.enum(DIFFICULTIES),
     playerRank: z.enum(PLAYER_RANKS),
+    /** 開局時由設定頁帶入嘅玩法選項（engine 唔讀 localStorage） */
+    options: z.object({ nurseConfirmHighRisk: z.boolean() }).strict(),
     rng: rngStateSchema,
     clock: clockSchema,
     paused: pausedSchema.nullable(),
@@ -88,6 +90,8 @@ export interface NewGameParams {
   mode: Mode;
   difficulty: Difficulty;
   playerRank: PlayerRank;
+  /** 護士高風險 order 先確認（設定頁開關，spec §13、§21）；預設開 */
+  nurseConfirmHighRisk?: boolean;
   /** 指定 case 模板 id；唔填就用 content 第一個 case（M2 只有一個） */
   caseId?: string;
 }
@@ -105,6 +109,7 @@ export function createInitialState(params: NewGameParams, config: EngineConfig):
     mode: params.mode,
     difficulty: params.difficulty,
     playerRank: params.playerRank,
+    options: { nurseConfirmHighRisk: params.nurseConfirmHighRisk ?? true },
     rng: createRngState(params.seed),
     clock: {
       t: 0,

@@ -45,6 +45,11 @@
     "alertCooldownSeconds": 600
   },
   "orders": { "maxActionsPerParse": 3 },
+  "gate": {
+    "pharmacyName": "藥房",
+    "maxConcerns": 3,
+    "insistRequired": { "CONFIRM": 1, "OBJECT": 2 }
+  },
   "acls": {
     "cycleSeconds": 120,
     "minCyclesBeforeStop": 3
@@ -69,6 +74,7 @@
     "phoneVolumeUplift": { "EASY": 0, "MEDIUM": 0.1, "HARD": 0.2 }
   },
   "staff": {
+    "nurseSeniorityByDifficulty": { "EASY": "SENIOR", "MEDIUM": "NORMAL", "HARD": "NEW" },
     "reliability": { "NOVICE": 0.7, "NORMAL": 0.85, "SENIOR": 0.95 },
     "speedMultiplier": { "NOVICE": 1.5, "NORMAL": 1.0, "SENIOR": 0.8 },
     "rankImpression": { "start": 50, "min": 0, "max": 100 }

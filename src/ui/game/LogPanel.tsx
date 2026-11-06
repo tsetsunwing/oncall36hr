@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { ui } from '@/i18n';
-import type { ActionRowView, GameActions, GameView, OrderRowView } from '@/view';
+import type { ActionRowView, GameActions, GameView, OrderRowView, ReportView } from '@/view';
 
 export interface LogPanelProps {
   orders: OrderRowView[];
+  reports?: ReportView[];
   log: GameView['actionLog'];
   actions: GameActions;
   open: boolean;
@@ -14,6 +15,15 @@ function etaText(order: OrderRowView): string | null {
   if (order.etaSeconds === null) return null;
   const minutes = Math.ceil(order.etaSeconds / 60);
   return minutes <= 0 ? ui.game.orders.etaSoon : ui.game.orders.eta(minutes);
+}
+
+function executorText(order: OrderRowView): string {
+  if (order.executorKind === null) return '';
+  const name =
+    order.executorKind === 'NURSE'
+      ? (order.executorName ?? ui.game.orders.executorKind.NURSE)
+      : ui.game.orders.executorKind[order.executorKind];
+  return ` · ${ui.game.log.executor}：${name}`;
 }
 
 function OrderItem({ order, actions }: { order: OrderRowView; actions: GameActions }) {
@@ -29,7 +39,8 @@ function OrderItem({ order, actions }: { order: OrderRowView; actions: GameActio
       </div>
       <div className="order-sub">
         {order.timeLabel}
-        {order.executorName ? ` · ${ui.game.log.executor}：${order.executorName}` : ''}
+        {executorText(order)}
+        {order.resultStatus ? ` · ${o.resultStatus[order.resultStatus]}` : ''}
         {eta ? ` · ${eta}` : ''}
       </div>
       {order.cancellable ? (
@@ -44,6 +55,47 @@ function OrderItem({ order, actions }: { order: OrderRowView; actions: GameActio
           {o.cancel}
         </button>
       ) : null}
+    </li>
+  );
+}
+
+function ReportItem({ report }: { report: ReportView }) {
+  const r = ui.game.reports;
+  return (
+    <li className="report-row" data-testid="report-row" data-abnormal={report.abnormal}>
+      <div className="order-main">
+        <span className="order-label">{report.label}</span>
+        <time className="log-time">{report.timeLabel}</time>
+      </div>
+      {report.kind === 'PANEL' ? (
+        <table className="report-table">
+          <caption className="visually-hidden">{r.tableCaption(report.label)}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{r.item}</th>
+              <th scope="col">{r.value}</th>
+              <th scope="col">{r.reference}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {report.items.map((item) => (
+              <tr key={item.label} data-flag={item.flag ?? ''}>
+                <th scope="row">{item.label}</th>
+                <td>
+                  {item.valueText}
+                  {item.flag ? <span className="report-flag">{r.flag[item.flag]}</span> : null}
+                </td>
+                <td>{item.refText}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <p className="report-text" lang="yue-Hant-HK">
+          {report.text}
+        </p>
+      )}
+      {report.reviewPending ? <p className="hint">{r.pending}</p> : null}
     </li>
   );
 }
@@ -76,7 +128,7 @@ function LogItem({ row }: { row: ActionRowView }) {
   );
 }
 
-export function LogPanel({ orders, log, actions, open, onClose }: LogPanelProps) {
+export function LogPanel({ orders, reports = [], log, actions, open, onClose }: LogPanelProps) {
   const l = ui.game.log;
   const [scope, setScope] = useState<'all' | 'patient'>('patient');
   const rows = scope === 'all' ? log.all : log.patient;
@@ -98,6 +150,18 @@ export function LogPanel({ orders, log, actions, open, onClose }: LogPanelProps)
           <ul className="order-list">
             {orders.map((order) => (
               <OrderItem key={order.id} order={order} actions={actions} />
+            ))}
+          </ul>
+        )}
+      </section>
+      <section aria-labelledby="reports-heading" data-testid="reports">
+        <h2 id="reports-heading">{ui.game.reports.heading}</h2>
+        {reports.length === 0 ? (
+          <p className="hint">{ui.game.reports.empty}</p>
+        ) : (
+          <ul className="report-list">
+            {reports.map((report) => (
+              <ReportItem key={report.id} report={report} />
             ))}
           </ul>
         )}

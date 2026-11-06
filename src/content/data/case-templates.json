@@ -10,7 +10,7 @@
       "code": "FULL"
     },
     "presentingComplaint": "發燒、咳嗽、氣促",
-    "allergies": [],
+    "allergies": ["penicillin"],
     "diagnosisIds": ["pneumonia", "sepsis"],
     "diagnosisTerms": [
       "肺炎",

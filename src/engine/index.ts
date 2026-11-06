@@ -70,17 +70,25 @@ export {
   type PausedState,
   type PlayerRank,
 } from './core/state';
-export { ordersModule } from './orders/orders';
+export { ordersModule, isCancellable } from './orders/orders';
+export { gateModule } from './gate/gate';
+export { resultsModule } from './results/results';
+export { gateRecordSchema, type GateRecord, type GatePhase, type GateRole } from './gate/gateTypes';
+export type { PatientReport } from './case/patient';
 export { bedsideModule } from './bedside/bedside';
 export { caseModule } from './case/caseModule';
 export { composeOrderLabel } from './orders/label';
 export { matchQuickPhrase, normalizePhrase } from './orders/quickPhrase';
 export { meanArterialPressure, computeMews, type MewsResult } from './case/mews';
 export type { Patient, VitalsSample } from './case/patient';
-export { EMPTY_TABLES, MEWS_COMPONENT_KEYS, VITAL_KEYS } from './case/tables';
+export { CONCERN_CATEGORIES, EMPTY_TABLES, MEWS_COMPONENT_KEYS, VITAL_KEYS } from './case/tables';
 export type {
   CaseFsmRow,
   CaseTemplateRow,
+  ConcernCategory,
+  ConsequenceRow,
+  DangerLevel,
+  ExecutorKind,
   EngineTables,
   FormularyRow,
   MewsAlert,
@@ -90,6 +98,7 @@ export type {
   OrderCatalogRow,
   OrderEffectRow,
   QuickWordRow,
+  ResultRow,
   RhythmRow,
   TrajectoryRow,
   VitalKey,

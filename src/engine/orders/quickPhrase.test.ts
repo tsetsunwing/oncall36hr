@@ -23,6 +23,7 @@ describe('本地快捷詞 parser', () => {
   it('藥物句式：劑量、單位、途徑只取自玩家原文，並經 formulary 驗證', () => {
     expect(matchQuickPhrase('ceftriaxone 1 g iv', tables)).toEqual({
       catalogId: 'drug.ceftriaxone',
+      executor: null,
       params: { drugFormularyId: 'ceftriaxone', dose: { value: 1, unit: 'g' }, route: 'IV' },
     });
     expect(matchQuickPhrase('Ceftriaxone 2g IV', tables)?.params.dose).toEqual({

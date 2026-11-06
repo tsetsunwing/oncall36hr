@@ -1,1 +1,345 @@
-[]
+[
+  {
+    "id": "ALLERGY",
+    "category": "ALLERGY",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "機率沿用 implementation-plan §5.1 T11 範例（0.10／0.35／0.70）；效果 delta 為通用佔位，未按類別建模，兩者均待臨床審核（spec §15.1 未定數值）。",
+    "levels": {
+      "LOW": {
+        "p": 0.1,
+        "mode": "REVIEW_ONLY",
+        "effect": null
+      },
+      "MID": {
+        "p": 0.35,
+        "mode": "DELAYED",
+        "delayMinSec": 600,
+        "delayMaxSec": 1800,
+        "effect": {
+          "delta": {
+            "hr": 10,
+            "sbp": -8,
+            "dbp": -5,
+            "spo2": -2,
+            "rr": 2
+          },
+          "delaySec": 0,
+          "rampSec": 300,
+          "durationSec": 3600,
+          "setsFlags": ["adverse.event"]
+        }
+      },
+      "HIGH": {
+        "p": 0.7,
+        "mode": "IMMEDIATE",
+        "effect": {
+          "delta": {
+            "hr": 25,
+            "sbp": -25,
+            "dbp": -15,
+            "spo2": -6,
+            "rr": 5
+          },
+          "delaySec": 0,
+          "rampSec": 120,
+          "durationSec": 7200,
+          "setsFlags": ["adverse.event"]
+        }
+      }
+    }
+  },
+  {
+    "id": "INTERACTION",
+    "category": "INTERACTION",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "機率沿用 implementation-plan §5.1 T11 範例（0.10／0.35／0.70）；效果 delta 為通用佔位，未按類別建模，兩者均待臨床審核（spec §15.1 未定數值）。",
+    "levels": {
+      "LOW": {
+        "p": 0.1,
+        "mode": "REVIEW_ONLY",
+        "effect": null
+      },
+      "MID": {
+        "p": 0.35,
+        "mode": "DELAYED",
+        "delayMinSec": 600,
+        "delayMaxSec": 1800,
+        "effect": {
+          "delta": {
+            "hr": 10,
+            "sbp": -8,
+            "dbp": -5,
+            "spo2": -2,
+            "rr": 2
+          },
+          "delaySec": 0,
+          "rampSec": 300,
+          "durationSec": 3600,
+          "setsFlags": ["adverse.event"]
+        }
+      },
+      "HIGH": {
+        "p": 0.7,
+        "mode": "IMMEDIATE",
+        "effect": {
+          "delta": {
+            "hr": 25,
+            "sbp": -25,
+            "dbp": -15,
+            "spo2": -6,
+            "rr": 5
+          },
+          "delaySec": 0,
+          "rampSec": 120,
+          "durationSec": 7200,
+          "setsFlags": ["adverse.event"]
+        }
+      }
+    }
+  },
+  {
+    "id": "DOSE_HIGH",
+    "category": "DOSE_HIGH",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "機率沿用 implementation-plan §5.1 T11 範例（0.10／0.35／0.70）；效果 delta 為通用佔位，未按類別建模，兩者均待臨床審核（spec §15.1 未定數值）。",
+    "levels": {
+      "LOW": {
+        "p": 0.1,
+        "mode": "REVIEW_ONLY",
+        "effect": null
+      },
+      "MID": {
+        "p": 0.35,
+        "mode": "DELAYED",
+        "delayMinSec": 600,
+        "delayMaxSec": 1800,
+        "effect": {
+          "delta": {
+            "hr": 10,
+            "sbp": -8,
+            "dbp": -5,
+            "spo2": -2,
+            "rr": 2
+          },
+          "delaySec": 0,
+          "rampSec": 300,
+          "durationSec": 3600,
+          "setsFlags": ["adverse.event"]
+        }
+      },
+      "HIGH": {
+        "p": 0.7,
+        "mode": "IMMEDIATE",
+        "effect": {
+          "delta": {
+            "hr": 25,
+            "sbp": -25,
+            "dbp": -15,
+            "spo2": -6,
+            "rr": 5
+          },
+          "delaySec": 0,
+          "rampSec": 120,
+          "durationSec": 7200,
+          "setsFlags": ["adverse.event"]
+        }
+      }
+    }
+  },
+  {
+    "id": "DOSE_LOW",
+    "category": "DOSE_LOW",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "機率沿用 implementation-plan §5.1 T11 範例（0.10／0.35／0.70）；效果 delta 為通用佔位，未按類別建模，兩者均待臨床審核（spec §15.1 未定數值）。",
+    "levels": {
+      "LOW": {
+        "p": 0.1,
+        "mode": "REVIEW_ONLY",
+        "effect": null
+      },
+      "MID": {
+        "p": 0.35,
+        "mode": "DELAYED",
+        "delayMinSec": 600,
+        "delayMaxSec": 1800,
+        "effect": {
+          "delta": {
+            "hr": 10,
+            "sbp": -8,
+            "dbp": -5,
+            "spo2": -2,
+            "rr": 2
+          },
+          "delaySec": 0,
+          "rampSec": 300,
+          "durationSec": 3600,
+          "setsFlags": ["adverse.event"]
+        }
+      },
+      "HIGH": {
+        "p": 0.7,
+        "mode": "IMMEDIATE",
+        "effect": {
+          "delta": {
+            "hr": 25,
+            "sbp": -25,
+            "dbp": -15,
+            "spo2": -6,
+            "rr": 5
+          },
+          "delaySec": 0,
+          "rampSec": 120,
+          "durationSec": 7200,
+          "setsFlags": ["adverse.event"]
+        }
+      }
+    }
+  },
+  {
+    "id": "WRONG_ROUTE",
+    "category": "WRONG_ROUTE",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "機率沿用 implementation-plan §5.1 T11 範例（0.10／0.35／0.70）；效果 delta 為通用佔位，未按類別建模，兩者均待臨床審核（spec §15.1 未定數值）。",
+    "levels": {
+      "LOW": {
+        "p": 0.1,
+        "mode": "REVIEW_ONLY",
+        "effect": null
+      },
+      "MID": {
+        "p": 0.35,
+        "mode": "DELAYED",
+        "delayMinSec": 600,
+        "delayMaxSec": 1800,
+        "effect": {
+          "delta": {
+            "hr": 10,
+            "sbp": -8,
+            "dbp": -5,
+            "spo2": -2,
+            "rr": 2
+          },
+          "delaySec": 0,
+          "rampSec": 300,
+          "durationSec": 3600,
+          "setsFlags": ["adverse.event"]
+        }
+      },
+      "HIGH": {
+        "p": 0.7,
+        "mode": "IMMEDIATE",
+        "effect": {
+          "delta": {
+            "hr": 25,
+            "sbp": -25,
+            "dbp": -15,
+            "spo2": -6,
+            "rr": 5
+          },
+          "delaySec": 0,
+          "rampSec": 120,
+          "durationSec": 7200,
+          "setsFlags": ["adverse.event"]
+        }
+      }
+    }
+  },
+  {
+    "id": "CONTRAINDICATION",
+    "category": "CONTRAINDICATION",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "機率沿用 implementation-plan §5.1 T11 範例（0.10／0.35／0.70）；效果 delta 為通用佔位，未按類別建模，兩者均待臨床審核（spec §15.1 未定數值）。",
+    "levels": {
+      "LOW": {
+        "p": 0.1,
+        "mode": "REVIEW_ONLY",
+        "effect": null
+      },
+      "MID": {
+        "p": 0.35,
+        "mode": "DELAYED",
+        "delayMinSec": 600,
+        "delayMaxSec": 1800,
+        "effect": {
+          "delta": {
+            "hr": 10,
+            "sbp": -8,
+            "dbp": -5,
+            "spo2": -2,
+            "rr": 2
+          },
+          "delaySec": 0,
+          "rampSec": 300,
+          "durationSec": 3600,
+          "setsFlags": ["adverse.event"]
+        }
+      },
+      "HIGH": {
+        "p": 0.7,
+        "mode": "IMMEDIATE",
+        "effect": {
+          "delta": {
+            "hr": 25,
+            "sbp": -25,
+            "dbp": -15,
+            "spo2": -6,
+            "rr": 5
+          },
+          "delaySec": 0,
+          "rampSec": 120,
+          "durationSec": 7200,
+          "setsFlags": ["adverse.event"]
+        }
+      }
+    }
+  },
+  {
+    "id": "OTHER",
+    "category": "OTHER",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "機率沿用 implementation-plan §5.1 T11 範例（0.10／0.35／0.70）；效果 delta 為通用佔位，未按類別建模，兩者均待臨床審核（spec §15.1 未定數值）。",
+    "levels": {
+      "LOW": {
+        "p": 0.1,
+        "mode": "REVIEW_ONLY",
+        "effect": null
+      },
+      "MID": {
+        "p": 0.35,
+        "mode": "DELAYED",
+        "delayMinSec": 600,
+        "delayMaxSec": 1800,
+        "effect": {
+          "delta": {
+            "hr": 10,
+            "sbp": -8,
+            "dbp": -5,
+            "spo2": -2,
+            "rr": 2
+          },
+          "delaySec": 0,
+          "rampSec": 300,
+          "durationSec": 3600,
+          "setsFlags": ["adverse.event"]
+        }
+      },
+      "HIGH": {
+        "p": 0.7,
+        "mode": "IMMEDIATE",
+        "effect": {
+          "delta": {
+            "hr": 25,
+            "sbp": -25,
+            "dbp": -15,
+            "spo2": -6,
+            "rr": 5
+          },
+          "delaySec": 0,
+          "rampSec": 120,
+          "durationSec": 7200,
+          "setsFlags": ["adverse.event"]
+        }
+      }
+    }
+  }
+]

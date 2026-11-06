@@ -1,1 +1,333 @@
-[]
+[
+  {
+    "id": "res.cbc",
+    "kind": "PANEL",
+    "label": "CBC",
+    "reportDelaySec": 1500,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [
+      {
+        "id": "wbc",
+        "label": "WBC",
+        "unit": "×10⁹/L",
+        "decimals": 1,
+        "ref": {
+          "low": 4,
+          "high": 11
+        },
+        "byState": {
+          "DETERIORATING": 15.2,
+          "SEPTIC_SHOCK": 22.4,
+          "STABILISING": 13.1
+        }
+      },
+      {
+        "id": "hb",
+        "label": "Hb",
+        "unit": "g/dL",
+        "decimals": 1,
+        "ref": {
+          "low": 13,
+          "high": 17
+        },
+        "byState": {
+          "*": 13.4
+        }
+      },
+      {
+        "id": "plt",
+        "label": "Platelet",
+        "unit": "×10⁹/L",
+        "decimals": 0,
+        "ref": {
+          "low": 150,
+          "high": 400
+        },
+        "byState": {
+          "DETERIORATING": 210,
+          "SEPTIC_SHOCK": 110,
+          "STABILISING": 190
+        }
+      }
+    ],
+    "textByState": {}
+  },
+  {
+    "id": "res.rft",
+    "kind": "PANEL",
+    "label": "RFT",
+    "reportDelaySec": 1500,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [
+      {
+        "id": "na",
+        "label": "Na",
+        "unit": "mmol/L",
+        "decimals": 0,
+        "ref": {
+          "low": 135,
+          "high": 145
+        },
+        "byState": {
+          "DETERIORATING": 137,
+          "SEPTIC_SHOCK": 134,
+          "STABILISING": 137
+        }
+      },
+      {
+        "id": "k",
+        "label": "K",
+        "unit": "mmol/L",
+        "decimals": 1,
+        "ref": {
+          "low": 3.5,
+          "high": 5.0
+        },
+        "byState": {
+          "DETERIORATING": 4.2,
+          "SEPTIC_SHOCK": 5.3,
+          "STABILISING": 4.3
+        }
+      },
+      {
+        "id": "urea",
+        "label": "Urea",
+        "unit": "mmol/L",
+        "decimals": 1,
+        "ref": {
+          "low": 2.5,
+          "high": 7.8
+        },
+        "byState": {
+          "DETERIORATING": 8.4,
+          "SEPTIC_SHOCK": 14.2,
+          "STABILISING": 9.0
+        }
+      },
+      {
+        "id": "creat",
+        "label": "Creatinine",
+        "unit": "µmol/L",
+        "decimals": 0,
+        "ref": {
+          "low": 60,
+          "high": 110
+        },
+        "byState": {
+          "DETERIORATING": 118,
+          "SEPTIC_SHOCK": 186,
+          "STABILISING": 125
+        }
+      }
+    ],
+    "textByState": {}
+  },
+  {
+    "id": "res.troponin",
+    "kind": "PANEL",
+    "label": "Troponin I",
+    "reportDelaySec": 1500,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [
+      {
+        "id": "tni",
+        "label": "Troponin I",
+        "unit": "ng/L",
+        "decimals": 0,
+        "ref": {
+          "low": 0,
+          "high": 14
+        },
+        "byState": {
+          "DETERIORATING": 6,
+          "SEPTIC_SHOCK": 38,
+          "STABILISING": 12
+        }
+      }
+    ],
+    "textByState": {}
+  },
+  {
+    "id": "res.abg",
+    "kind": "PANEL",
+    "label": "ABG",
+    "reportDelaySec": 300,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [
+      {
+        "id": "ph",
+        "label": "pH",
+        "unit": "",
+        "decimals": 2,
+        "ref": {
+          "low": 7.35,
+          "high": 7.45
+        },
+        "byState": {
+          "DETERIORATING": 7.43,
+          "SEPTIC_SHOCK": 7.28,
+          "STABILISING": 7.41
+        }
+      },
+      {
+        "id": "pco2",
+        "label": "pCO₂",
+        "unit": "kPa",
+        "decimals": 1,
+        "ref": {
+          "low": 4.7,
+          "high": 6.0
+        },
+        "byState": {
+          "DETERIORATING": 4.4,
+          "SEPTIC_SHOCK": 3.9,
+          "STABILISING": 4.9
+        }
+      },
+      {
+        "id": "po2",
+        "label": "pO₂",
+        "unit": "kPa",
+        "decimals": 1,
+        "ref": {
+          "low": 10,
+          "high": 13
+        },
+        "byState": {
+          "DETERIORATING": 8.6,
+          "SEPTIC_SHOCK": 7.2,
+          "STABILISING": 9.8
+        }
+      },
+      {
+        "id": "hco3",
+        "label": "HCO₃⁻",
+        "unit": "mmol/L",
+        "decimals": 1,
+        "ref": {
+          "low": 22,
+          "high": 26
+        },
+        "byState": {
+          "DETERIORATING": 22.5,
+          "SEPTIC_SHOCK": 16,
+          "STABILISING": 23
+        }
+      },
+      {
+        "id": "lactate",
+        "label": "Lactate",
+        "unit": "mmol/L",
+        "decimals": 1,
+        "ref": {
+          "low": 0.5,
+          "high": 2.0
+        },
+        "byState": {
+          "DETERIORATING": 2.4,
+          "SEPTIC_SHOCK": 4.8,
+          "STABILISING": 1.6
+        }
+      }
+    ],
+    "textByState": {}
+  },
+  {
+    "id": "res.ecg",
+    "kind": "REPORT",
+    "label": "ECG 12-lead",
+    "reportDelaySec": 0,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "{{rhythm.label}}, ventricular rate {{vital.hr}}/min. No acute ST-segment change reported.",
+        "abnormal": true
+      },
+      "STABILISING": {
+        "text": "{{rhythm.label}}, ventricular rate {{vital.hr}}/min. No acute ST-segment change reported.",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.cxr",
+    "kind": "REPORT",
+    "label": "Chest X-ray",
+    "reportDelaySec": 900,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "Right lower zone consolidation. No pleural effusion or pneumothorax.",
+        "abnormal": true
+      }
+    }
+  },
+  {
+    "id": "res.ct.thorax",
+    "kind": "REPORT",
+    "label": "CT thorax",
+    "reportDelaySec": 1800,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "Right lower lobe consolidation. No significant pleural effusion.",
+        "abnormal": true
+      }
+    }
+  },
+  {
+    "id": "res.us.abdomen",
+    "kind": "REPORT",
+    "label": "Ultrasound abdomen",
+    "reportDelaySec": 600,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "No free intraperitoneal fluid. No hydronephrosis.",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.bloodculture",
+    "kind": "REPORT",
+    "label": "Blood culture",
+    "reportDelaySec": 43200,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "No growth to date (preliminary report).",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.crossmatch",
+    "kind": "REPORT",
+    "label": "Cross-match",
+    "reportDelaySec": 3600,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "Cross-match completed: compatible blood available.",
+        "abnormal": false
+      }
+    }
+  }
+]

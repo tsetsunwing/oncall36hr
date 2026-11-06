@@ -29,4 +29,15 @@ export interface EngineConfig {
     alertCooldownSeconds: number;
   };
   orders: { maxActionsPerParse: number };
+  gate: {
+    pharmacyName: string;
+    maxConcerns: number;
+    insistRequired: { CONFIRM: number; OBJECT: number };
+  };
+  staff: {
+    nurseSeniorityByDifficulty: Readonly<
+      Record<'EASY' | 'MEDIUM' | 'HARD', 'SENIOR' | 'NORMAL' | 'NEW'>
+    >;
+    speedMultiplier: Readonly<Record<'NOVICE' | 'NORMAL' | 'SENIOR', number>>;
+  };
 }

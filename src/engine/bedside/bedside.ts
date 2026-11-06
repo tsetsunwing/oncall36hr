@@ -10,9 +10,8 @@ import { requestAi } from '../core/ai';
 import type { Reduction } from '../core/events';
 import type { EngineContext, EngineModule } from '../core/module';
 import type { GameState } from '../core/state';
-import { handleOrderParseResult, ORDER_PARSE_KIND, ackBeatsFor } from '../orders/orderParse';
-import { createCatalogOrder } from '../orders/orders';
-import { queueBeatsForOrders } from './queue';
+import { handleOrderParseResult, ORDER_PARSE_KIND } from '../orders/orderParse';
+import { placeAndAck } from '../orders/placement';
 import { matchQuickPhrase } from '../orders/quickPhrase';
 
 const reject = (
@@ -154,17 +153,22 @@ export const bedsideModule: EngineModule = {
         const local = matchQuickPhrase(text, ctx.tables);
         const row = local && ctx.tables['order-catalog'].find((r) => r.id === local.catalogId);
         if (local && row) {
-          const nurse = thread.present.find((p) => p.kind === 'NURSE');
-          const made = createCatalogOrder(withPlayerLine, {
-            patientId: patient.id,
-            row,
-            params: local.params,
-            source: 'QUICKWORD',
-            executor: nurse?.id ?? null,
-            submittedAt,
-          });
-          const { beats, tokens } = ackBeatsFor([made.order], ctx);
-          return queueBeatsForOrders(made.state, patient, beats, tokens, addressed, ctx);
+          return placeAndAck(
+            withPlayerLine,
+            patient,
+            [
+              {
+                patientId: patient.id,
+                row,
+                params: local.params,
+                source: 'QUICKWORD',
+                preferredExecutor: local.executor,
+                submittedAt,
+              },
+            ],
+            addressed,
+            ctx,
+          );
         }
 
         const context = {
@@ -178,6 +182,7 @@ export const bedsideModule: EngineModule = {
               label: r.label,
               aliases: [...r.aliases],
               formularyId: r.formularyId ?? null,
+              executors: [...r.executors],
             })),
             formulary: ctx.tables.formulary.map((f) => ({
               id: f.id,
@@ -187,7 +192,10 @@ export const bedsideModule: EngineModule = {
               routes: [...f.routes],
             })),
             openOrders: Object.values(withPlayerLine.orders)
-              .filter((o) => o.patientId === patient.id && o.status === 'RUNNING')
+              .filter(
+                (o) =>
+                  o.patientId === patient.id && (o.status === 'RUNNING' || o.status === 'GATED'),
+              )
               .map((o) => ({ id: o.id, catalogId: o.catalogId })),
           },
           local: { patientId: patient.id, playerText: text, submittedAt },

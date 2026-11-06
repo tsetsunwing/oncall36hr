@@ -23,7 +23,13 @@ export function GameScreen({ settings, devProxy }: GameScreenProps) {
       createGameSession({
         config: getConfig(),
         tables: getContent().tables,
-        params: { seed: pickSeed(), mode: 'NIGHT', difficulty: 'MEDIUM', playerRank: 'MO' },
+        params: {
+          seed: pickSeed(),
+          mode: 'NIGHT',
+          difficulty: 'MEDIUM',
+          playerRank: 'MO',
+          nurseConfirmHighRisk: settings.nurseConfirmHighRisk,
+        },
         gateway: createAiGateway(settings, devProxy ? { proxy: devProxy } : {}),
         saves: createLazySaveService(),
         onSaveError: () => undefined,

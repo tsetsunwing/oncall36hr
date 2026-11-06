@@ -126,6 +126,7 @@ describe('自由文字 → order.parse → order', () => {
     session.actions.submitChat('p1', '幫病人落 Ceftriaxone 2 g IV');
     await session.settled();
     const order = session.getSnapshot().orders[0];
+    expect(order?.status).toBe('RUNNING');
     expect(order?.label).toContain('Ceftriaxone');
     expect(order?.label).toContain('2 g');
     const ack = session.getSnapshot().chat?.lines.find((l) => l.kind === 'NURSE');

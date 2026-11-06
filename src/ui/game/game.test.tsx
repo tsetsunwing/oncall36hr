@@ -17,6 +17,7 @@ function makeActions() {
     togglePause: vi.fn(),
     setSpeed: vi.fn(),
     cancelOrder: vi.fn(),
+    insistOrder: vi.fn(),
     retryAi: vi.fn(),
   } satisfies GameActions;
 }

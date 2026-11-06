@@ -17,10 +17,18 @@ import {
 } from './state';
 import { bedsideModule } from '../bedside/bedside';
 import { caseModule } from '../case/caseModule';
+import { gateModule } from '../gate/gate';
 import { ordersModule } from '../orders/orders';
+import { resultsModule } from '../results/results';
 import { requestAi } from './ai';
 
-export const defaultModules: readonly EngineModule[] = [ordersModule, caseModule, bedsideModule];
+export const defaultModules: readonly EngineModule[] = [
+  ordersModule,
+  gateModule,
+  resultsModule,
+  caseModule,
+  bedsideModule,
+];
 
 export { requestAi };
 

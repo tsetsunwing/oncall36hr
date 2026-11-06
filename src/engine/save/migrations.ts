@@ -30,7 +30,47 @@ function migrateV1toV2(raw: RawState): RawState {
   };
 }
 
-export const migrations: MigrationRegistry = { 1: migrateV1toV2 };
+/**
+ * schema 2 → 3（M3）：order 加執行者種類、取消時間、結果狀態、把關紀錄；病人加後果效果同已回報報告；
+ * state 加玩法選項。舊存檔嘅 order 全部當作已放行（冇把關紀錄）。
+ */
+function migrateV2toV3(raw: RawState): RawState {
+  const orders = (raw.orders ?? {}) as Record<string, Record<string, unknown>>;
+  const patients = (raw.patients ?? {}) as Record<string, Record<string, unknown>>;
+  return {
+    ...raw,
+    options: { nurseConfirmHighRisk: true },
+    orders: Object.fromEntries(
+      Object.entries(orders).map(([id, order]) => [
+        id,
+        {
+          ...order,
+          executorKind: typeof order.executor === 'string' ? 'NURSE' : null,
+          cancelledAt: null,
+          resultStatus: null,
+          sampledState: null,
+          gate: null,
+        },
+      ]),
+    ),
+    patients: Object.fromEntries(
+      Object.entries(patients).map(([id, patient]) => {
+        const hidden = (patient.hidden ?? {}) as Record<string, unknown>;
+        const visible = (patient.visible ?? {}) as Record<string, unknown>;
+        return [
+          id,
+          {
+            ...patient,
+            hidden: { ...hidden, activeEffects: [] },
+            visible: { ...visible, reports: [] },
+          },
+        ];
+      }),
+    ),
+  };
+}
+
+export const migrations: MigrationRegistry = { 1: migrateV1toV2, 2: migrateV2toV3 };
 
 export type MigrateResult =
   | { ok: true; raw: RawState; fromSchema: number }
