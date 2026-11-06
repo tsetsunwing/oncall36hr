@@ -1,0 +1,63 @@
+{
+  "_note": "全部為設計者預設值（spec §25、implementation-plan §5 T30）。邏輯不得內置數字，改值只需改本檔。",
+  "clock": {
+    "realSecondsPerGameMinuteAt1x": 2,
+    "speeds": [0, 1, 2, 4],
+    "defaultSpeed": 1,
+    "cprSlowFactor": 0.5,
+    "speedAfterCpr": 1,
+    "speedAfterInterrupt": 1
+  },
+  "shifts": {
+    "day": { "startHour": 8, "regularSeconds": 36000 },
+    "night": { "startHour": 18, "regularSeconds": 50400 },
+    "onCall": {
+      "segmentHours": [10, 14, 10],
+      "regularSeconds": 122400
+    },
+    "overtimeSeconds": 7200
+  },
+  "rounds": {
+    "hours": [9, 14],
+    "suppressInterruptsDuringRound": true,
+    "onCallRoundsTotal": 4
+  },
+  "meals": { "lunchHour": 12, "dinnerHour": 20 },
+  "vitals": {
+    "sampleIntervalSeconds": 60,
+    "criticalSampleIntervalSeconds": 10
+  },
+  "acls": {
+    "cycleSeconds": 120,
+    "minCyclesBeforeStop": 3
+  },
+  "ai": {
+    "defaultBaseUrl": "https://api.openai.com/v1",
+    "defaultModel": "gpt-4o-mini",
+    "requestTimeoutMs": 25000,
+    "connectionTestTimeoutMs": 15000,
+    "autoRepairRetries": 1,
+    "parseTemperature": 0.1,
+    "dialogueTemperature": 0.7,
+    "contractVersion": "v1"
+  },
+  "saves": {
+    "manualSlots": 5,
+    "autoSlots": 2,
+    "aiFailureSlots": 1,
+    "autoSaveEveryGameMinutes": 30
+  },
+  "difficulty": {
+    "phoneVolumeUplift": { "EASY": 0, "MEDIUM": 0.1, "HARD": 0.2 }
+  },
+  "staff": {
+    "reliability": { "NOVICE": 0.7, "NORMAL": 0.85, "SENIOR": 0.95 },
+    "speedMultiplier": { "NOVICE": 1.5, "NORMAL": 1.0, "SENIOR": 0.8 },
+    "rankImpression": { "start": 50, "min": 0, "max": 100 }
+  },
+  "ward": { "bedCount": 20 },
+  "ui": {
+    "touchTargetMinPx": 44,
+    "maxFlashesPerSecond": 0
+  }
+}
