@@ -1,0 +1,238 @@
+import { readFileSync } from 'node:fs';
+import { render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { describe, expect, it, vi } from 'vitest';
+import type { GameActions } from '@/view';
+import { ui } from '@/i18n';
+import { AiFailureBanner } from './AiFailureBanner';
+import { ChatPanel } from './ChatPanel';
+import { ClockBar } from './ClockBar';
+import { LogPanel } from './LogPanel';
+import { MonitorPanel } from './MonitorPanel';
+import { chat, clock, monitor, order, patient, row } from './fixtures';
+
+function makeActions() {
+  return {
+    submitChat: vi.fn(),
+    togglePause: vi.fn(),
+    setSpeed: vi.fn(),
+    cancelOrder: vi.fn(),
+    retryAi: vi.fn(),
+  } satisfies GameActions;
+}
+
+describe('MonitorPanel：靜態顏色＋文字警報', () => {
+  it('數值全部來自 view；警報用文字標籤（唔單靠顏色）', () => {
+    render(<MonitorPanel patient={patient} monitor={monitor()} />);
+    expect(screen.getByTestId('vital-hr')).toHaveTextContent('118');
+    expect(screen.getByTestId('vital-hr')).toHaveAttribute('data-level', 'ALARM');
+    expect(screen.getByTestId('vital-hr')).toHaveTextContent(ui.game.monitor.direction.HIGH);
+    expect(screen.getByTestId('vital-spo2')).toHaveTextContent(ui.game.monitor.direction.LOW);
+    expect(screen.getByTestId('vital-map')).toHaveTextContent('71');
+    const tags = within(screen.getByTestId('alarm-tags')).getAllByRole('listitem');
+    expect(tags.length).toBe(5);
+    expect(tags[0]).toHaveTextContent(ui.game.monitor.level.ALARM);
+    expect(screen.getByTestId('mews-badge')).toHaveTextContent('6');
+    expect(screen.getByText(ui.game.monitor.mewsPending)).toBeInTheDocument();
+  });
+
+  it('全部正常：顯示「無警報」，面板 level 為 NORMAL', () => {
+    const normal = monitor({
+      hr: { text: '80', level: 'NORMAL', direction: null },
+      bp: { text: '120/80', level: 'NORMAL', direction: null, sbp: 120, dbp: 80 },
+      spo2: { text: '98', level: 'NORMAL', direction: null },
+      rr: { text: '16', level: 'NORMAL', direction: null },
+      temp: { text: '36.8', level: 'NORMAL', direction: null },
+      mews: { score: 0, bandId: 'LOW', level: 'NORMAL', components: [], reviewPending: false },
+    });
+    render(<MonitorPanel patient={patient} monitor={normal} />);
+    expect(screen.getByText(ui.game.monitor.noAlarm)).toBeInTheDocument();
+    expect(screen.getByTestId('monitor')).toHaveAttribute('data-level', 'NORMAL');
+    expect(screen.queryByText(ui.game.monitor.mewsPending)).not.toBeInTheDocument();
+  });
+
+  it('有 Lead II 同 Pleth 兩條波形（canvas）', () => {
+    const { container } = render(<MonitorPanel patient={patient} monitor={monitor()} />);
+    expect(container.querySelectorAll('canvas')).toHaveLength(2);
+  });
+});
+
+describe('靜態警報：全 stylesheet 禁止閃爍／動畫', () => {
+  const css = readFileSync('src/app/styles.css', 'utf8');
+  it('冇 @keyframes／animation（除 reduced-motion 嘅 none）／blink', () => {
+    expect(css).not.toMatch(/@keyframes/);
+    expect(css.replace(/animation:\s*none\s*!important;/g, '')).not.toMatch(/animation\s*:/);
+    expect(css).not.toMatch(/animation-name/);
+    expect(css).not.toMatch(/blink/i);
+    expect(css).not.toMatch(/text-decoration\s*:[^;]*blink/);
+  });
+  it('組件原始碼冇用 setInterval 切換 alarm 樣式', () => {
+    const src = readFileSync('src/ui/game/MonitorPanel.tsx', 'utf8');
+    expect(src).not.toMatch(/setInterval|setTimeout/);
+  });
+});
+
+describe('ChatPanel', () => {
+  it('SYSTEM 行由 code 顯示；NURSE 行顯示已解析文字；輸入中指示', () => {
+    const view = chat();
+    view.present[0] = { ...view.present[0]!, typing: true };
+    render(<ChatPanel chat={view} chips={[]} notice={null} actions={makeActions()} />);
+    const lines = screen.getAllByTestId('chat-line');
+    expect(lines[0]).toHaveTextContent(ui.game.chat.system.ARRIVE ?? '');
+    expect(screen.getByText('血壓 96/58，我即刻幫你量。')).toBeInTheDocument();
+    expect(screen.getByTestId('typing')).toHaveTextContent('何姑娘');
+  });
+
+  it('上次離開分隔線喺資料指定位置出現', () => {
+    render(
+      <ChatPanel
+        chat={chat({ lastLeftDividerIndex: 2 })}
+        chips={[]}
+        notice={null}
+        actions={makeActions()}
+      />,
+    );
+    expect(screen.getAllByRole('separator')).toHaveLength(1);
+    expect(screen.getByRole('separator')).toHaveTextContent(ui.game.chat.lastLeft);
+  });
+
+  it('@ 觸發 combobox：過濾、方向鍵、Enter 插入名稱；Escape 關閉', async () => {
+    const user = userEvent.setup();
+    render(<ChatPanel chat={chat()} chips={[]} notice={null} actions={makeActions()} />);
+    const input = screen.getByRole('combobox');
+    await user.type(input, '@');
+    expect(input).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getAllByRole('option')).toHaveLength(2);
+    await user.keyboard('{ArrowDown}{Enter}');
+    expect(input).toHaveValue('@陳大文 ');
+    expect(input).toHaveAttribute('aria-expanded', 'false');
+
+    await user.clear(input);
+    await user.type(input, '@何');
+    expect(screen.getAllByRole('option')).toHaveLength(1);
+    await user.keyboard('{Escape}');
+    expect(input).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('提交會 trim、清空輸入，並帶 patientId；空白唔可提交', async () => {
+    const user = userEvent.setup();
+    const actions = makeActions();
+    render(<ChatPanel chat={chat()} chips={[]} notice={null} actions={actions} />);
+    const send = screen.getByRole('button', { name: ui.game.chat.send });
+    expect(send).toBeDisabled();
+    await user.type(screen.getByRole('combobox'), '  量血壓  {Enter}');
+    expect(actions.submitChat).toHaveBeenCalledWith('p1', '量血壓');
+    expect(screen.getByRole('combobox')).toHaveValue('');
+  });
+
+  it('快捷 chips 直接提交其文字', async () => {
+    const user = userEvent.setup();
+    const actions = makeActions();
+    render(
+      <ChatPanel
+        chat={chat()}
+        chips={[{ id: 'c1', label: '查看生命表徵', text: 'check vitals' }]}
+        notice={null}
+        actions={actions}
+      />,
+    );
+    await user.click(screen.getByRole('button', { name: '查看生命表徵' }));
+    expect(actions.submitChat).toHaveBeenCalledWith('p1', 'check vitals');
+  });
+
+  it('被拒絕嘅動作顯示 notice（role=status）', () => {
+    render(
+      <ChatPanel
+        chat={chat()}
+        chips={[]}
+        notice={{ kind: 'unknown', tone: 'warn' }}
+        actions={makeActions()}
+      />,
+    );
+    expect(screen.getByTestId('chat-notice')).toHaveTextContent(ui.game.notice.fallback ?? '');
+    expect(screen.getByRole('status')).toBeInTheDocument();
+  });
+});
+
+describe('LogPanel', () => {
+  const log = {
+    all: [
+      row({
+        id: 'a2',
+        kind: 'EVENT',
+        label: null,
+        eventCode: 'SHIFT_START',
+        status: null,
+        patientId: null,
+        bed: null,
+        resultText: null,
+      }),
+      row(),
+    ],
+    patient: [row()],
+  };
+
+  it('預設顯示當前病人；切換到「全局」見到事件', async () => {
+    const user = userEvent.setup();
+    render(
+      <LogPanel orders={[]} log={log} actions={makeActions()} open onClose={() => undefined} />,
+    );
+    expect(screen.getAllByTestId('log-row')).toHaveLength(1);
+    await user.click(screen.getByRole('button', { name: ui.game.log.scopeAll }));
+    expect(screen.getAllByTestId('log-row')).toHaveLength(2);
+    expect(screen.getByRole('button', { name: ui.game.log.scopeAll })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+  });
+
+  it('可取消 order 有取消鈕；已完成冇', async () => {
+    const user = userEvent.setup();
+    const actions = makeActions();
+    render(
+      <LogPanel
+        orders={[order(), order({ id: 'o2', status: 'DONE', cancellable: false, label: '抽血' })]}
+        log={log}
+        actions={actions}
+        open
+        onClose={() => undefined}
+      />,
+    );
+    const buttons = screen.getAllByRole('button', { name: /取消/ });
+    expect(buttons).toHaveLength(1);
+    await user.click(buttons[0]!);
+    expect(actions.cancelOrder).toHaveBeenCalledWith('o1');
+  });
+});
+
+describe('AiFailureBanner', () => {
+  it('role=alert，顯示原因；重試呼叫 retryAi', async () => {
+    const user = userEvent.setup();
+    const actions = makeActions();
+    render(<AiFailureBanner failure={{ reqId: 'r1', reason: 'TIMEOUT' }} actions={actions} />);
+    expect(screen.getByRole('alert')).toHaveTextContent(ui.game.aiFailure.reason.TIMEOUT ?? '');
+    await user.click(screen.getByRole('button', { name: ui.game.aiFailure.retry }));
+    expect(actions.retryAi).toHaveBeenCalledOnce();
+  });
+});
+
+describe('ClockBar', () => {
+  it('AI 失敗暫停時唔可手動恢復；顯示暫停徽章', () => {
+    render(
+      <ClockBar clock={clock({ paused: true, pausedBy: 'ai-failure' })} actions={makeActions()} />,
+    );
+    expect(screen.getByTestId('pause-toggle')).toBeDisabled();
+    expect(screen.getByTestId('paused-badge')).toBeInTheDocument();
+  });
+
+  it('玩家暫停可恢復；速度鍵來自 config（排除 0）', async () => {
+    const user = userEvent.setup();
+    const actions = makeActions();
+    render(<ClockBar clock={clock({ paused: true, pausedBy: 'player' })} actions={actions} />);
+    await user.click(screen.getByTestId('pause-toggle'));
+    expect(actions.togglePause).toHaveBeenCalledOnce();
+    await user.click(screen.getByRole('button', { name: ui.game.speedOption(4) }));
+    expect(actions.setSpeed).toHaveBeenCalledWith(4);
+    expect(screen.getAllByRole('button')).toHaveLength(1 + 3);
+  });
+});
