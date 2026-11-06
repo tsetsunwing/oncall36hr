@@ -8,6 +8,9 @@ export interface GatePanelProps {
 
 function GateCard({ gate, actions }: { gate: GateCardView; actions: GameActions }) {
   const g = ui.game.gate;
+  const insistText = `${gate.phase === 'RECONFIRM' ? g.insistAgain : g.insist}${
+    gate.required > 1 ? `（${String(gate.insistCount + 1)}／${String(gate.required)}）` : ''
+  }`;
   const waiting = gate.phase === 'REVIEW' || gate.phase === 'RATING';
   return (
     <article
@@ -57,15 +60,12 @@ function GateCard({ gate, actions }: { gate: GateCardView; actions: GameActions 
             type="button"
             className="btn btn-small btn-danger"
             data-testid="insist-button"
-            aria-label={g.insistLabel(gate.label)}
+            aria-label={g.insistLabel(insistText, gate.label)}
             onClick={() => {
               actions.insistOrder(gate.orderId);
             }}
           >
-            {gate.phase === 'RECONFIRM' ? g.insistAgain : g.insist}
-            {gate.required > 1
-              ? `（${String(gate.insistCount + 1)}／${String(gate.required)}）`
-              : ''}
+            {insistText}
           </button>
         ) : null}
       </div>

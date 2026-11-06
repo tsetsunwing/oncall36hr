@@ -144,10 +144,10 @@ export const ui = {
         CONTRAINDICATION: '禁忌',
         OTHER: '其他',
       } as Record<string, string>,
-      cancel: '取消 order',
+      cancel: '取消',
       insist: '堅持下單',
       insistAgain: '再次確認，堅持下單',
-      insistLabel: (label: string) => `堅持下單 ${label}`,
+      insistLabel: (visible: string, label: string) => `${visible} ${label}`,
     },
     reports: {
       heading: '化驗與檢查報告',
