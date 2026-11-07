@@ -114,9 +114,10 @@ export function StartPage({
     <section aria-labelledby="start-heading" className="page setup">
       <div className="setup-grid">
         <div className="soft-panel setup-main">
-          <h1 id="start-heading">
-            {ui.start.heading} <span className="hint">{ui.start.tagline}</span>
-          </h1>
+          <header className="setup-title">
+            <h1 id="start-heading">{ui.start.heading}</h1>
+            <p className="setup-tagline">{ui.start.tagline}</p>
+          </header>
           <ChoiceGroup
             name="rank"
             legend={`① ${s.rankHeading}`}
@@ -203,7 +204,7 @@ export function StartPage({
               </a>
             </div>
           )}
-          <section className="soft-panel" aria-labelledby="setup-disclaimer">
+          <section className="soft-panel setup-note" aria-labelledby="setup-disclaimer">
             <h2 id="setup-disclaimer">{ui.settings.disclaimerHeading}</h2>
             <p>{ui.settings.disclaimer}</p>
             <p>{ui.settings.privacy}</p>
