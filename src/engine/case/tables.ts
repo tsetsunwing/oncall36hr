@@ -219,14 +219,10 @@ export interface ConsequenceRow {
 export type RankId = 'HO' | 'MO' | 'RES' | 'AC' | 'COS';
 export type Priority = 'ROUTINE' | 'URGENT' | 'EMERGENCY';
 export type SubscoreId =
-  | 'CLINICAL_OUTCOME'
-  | 'TIMELINESS'
-  | 'SAFETY'
-  | 'COMMUNICATION'
-  | 'PRIORITISATION'
-  | 'SELF_CARE';
+  'CLINICAL_OUTCOME' | 'TIMELINESS' | 'SAFETY' | 'COMMUNICATION' | 'PRIORITISATION' | 'SELF_CARE';
 export type SubordinateLevel = 'NOVICE' | 'NORMAL' | 'SENIOR';
-export type DelegationTask = 'PROCEDURE' | 'ORDER_NOTE' | 'ADMISSION' | 'SIMPLE_CALL' | 'ROUND_PREP';
+export type DelegationTask =
+  'PROCEDURE' | 'ORDER_NOTE' | 'ADMISSION' | 'SIMPLE_CALL' | 'ROUND_PREP';
 export type FailureMode = 'DELAYED' | 'INCOMPLETE' | 'WRONG';
 export type CallTag = 'NURSE' | 'JUNIOR' | 'LAB' | 'XRAY' | 'PHARMACY' | 'DEPT';
 export type CallNeeds = 'NONE' | 'ANY_PATIENT' | 'WORST_PATIENT' | 'ABNORMAL_REPORT' | 'FREE_BED';

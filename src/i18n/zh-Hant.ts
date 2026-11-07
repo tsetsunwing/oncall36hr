@@ -2,6 +2,8 @@
  * 單一 zh-Hant 字串檔（介面）。介面一律用繁體中文書面語；
  * 藥物、儀器、程序名稱依香港醫院習慣保留英文。角色對白（粵語）另放 dialogue.zh-Hant.ts。
  */
+import { wardUi } from './ward.zh-Hant';
+
 export const ui = {
   appTitle: '單獨值夜',
   nav: {
@@ -175,6 +177,7 @@ export const ui = {
       toSettings: '前往設定',
     },
     noPatient: '目前沒有病人。',
+    ward: wardUi,
     notice: {
       ORDER_BLOCKED_PAUSED: '遊戲暫停中，無法下達指示。請先按「繼續」。',
       CHAT_EMPTY: '請先輸入內容。',
@@ -184,6 +187,7 @@ export const ui = {
       ORDER_UNKNOWN: '找不到這個 order。',
       ORDER_INVALID: '這個 order 無效。',
       INSIST_NOT_AVAILABLE: '這個 order 目前不需要或無法堅持下單。',
+      ...wardUi.notice,
       fallback: '這個動作目前無法執行。',
     } as Record<string, string>,
   },

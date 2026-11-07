@@ -500,7 +500,7 @@ describe('委派（S-1、S-4）', () => {
         }),
       ]);
       const task = run.state.ward.tasks[0];
-      if (task && task.mode === 'OK') durations[level]?.push(task.completesAt - task.startsAt);
+      if (task?.mode === 'OK') durations[level]?.push(task.completesAt - task.startsAt);
     }
     const mean = (values: number[]) =>
       values.reduce((a, b) => a + b, 0) / Math.max(1, values.length);

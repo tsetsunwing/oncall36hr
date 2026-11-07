@@ -9,6 +9,7 @@ import type {
   EngineEvent,
   EngineTables,
   GameState,
+  JsonValue,
   NewGameParams,
 } from '@/engine';
 import { createEngine, type Engine } from '@/engine';
@@ -130,9 +131,17 @@ export function createGameSession(options: GameSessionOptions): GameSession {
       after.chats === before.chats &&
       after.orders === before.orders &&
       after.actionLog === before.actionLog &&
+      after.ward === before.ward &&
       after.pendingAi === before.pendingAi &&
       after.paused === before.paused;
     if (!unchanged) publish();
+  }
+
+  function wardIntent(name: string, payload: Record<string, unknown>): void {
+    dispatch({
+      type: 'PLAYER_INTENT',
+      intent: { type: 'EXTENSION', module: 'ward', name, payload: payload as JsonValue },
+    });
   }
 
   const actions: GameActions = {
@@ -157,6 +166,24 @@ export function createGameSession(options: GameSessionOptions): GameSession {
       const paused = runtime.getState().paused;
       if (paused?.by !== 'ai-failure' || !paused.reqId) return;
       dispatch({ type: 'RESUME_FROM_FAILURE', reqId: paused.reqId });
+    },
+    goToBed(bed) {
+      wardIntent('GO_TO_BED', { bed: bed ?? 0 });
+    },
+    respondCall(callId, response) {
+      wardIntent('RESPOND_CALL', { callId, response });
+    },
+    prepareCall(patientId, target) {
+      wardIntent('PREPARE_CALL', { patientId, target });
+    },
+    sendCall(sbar) {
+      wardIntent('SEND_CALL', { sbar });
+    },
+    discardCall() {
+      wardIntent('DISCARD_CALL', {});
+    },
+    delegate(request) {
+      wardIntent('DELEGATE', request);
     },
   };
 

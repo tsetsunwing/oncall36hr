@@ -12,6 +12,25 @@ export interface GameScreenProps {
   devProxy?: DevProxy | undefined;
 }
 
+const MODES = ['DAY', 'NIGHT', 'ONCALL'] as const;
+const DIFFICULTIES = ['EASY', 'MEDIUM', 'HARD'] as const;
+const RANKS = ['HO', 'MO', 'RES'] as const;
+
+function pick<T extends string>(value: string | null, allowed: readonly T[], fallback: T): T {
+  return allowed.find((a) => a === value) ?? fallback;
+}
+
+/** 開局選項（hash 參數，供測試與預覽用）：mode／difficulty／rank；ward=single 為舊式單一病人 */
+function pickParams() {
+  const params = hashParams(window.location.hash);
+  return {
+    mode: pick(params.get('mode'), MODES, 'NIGHT'),
+    difficulty: pick(params.get('difficulty'), DIFFICULTIES, 'MEDIUM'),
+    playerRank: pick(params.get('rank'), RANKS, 'MO'),
+    ward: params.get('ward') !== 'single',
+  };
+}
+
 function pickSeed(): string {
   const fromUrl = hashParams(window.location.hash).get('seed');
   return fromUrl && fromUrl.length > 0 ? fromUrl : `night-${String(Date.now())}`;
@@ -25,9 +44,7 @@ export function GameScreen({ settings, devProxy }: GameScreenProps) {
         tables: getContent().tables,
         params: {
           seed: pickSeed(),
-          mode: 'NIGHT',
-          difficulty: 'MEDIUM',
-          playerRank: 'MO',
+          ...pickParams(),
           nurseConfirmHighRisk: settings.nurseConfirmHighRisk,
         },
         gateway: createAiGateway(settings, devProxy ? { proxy: devProxy } : {}),

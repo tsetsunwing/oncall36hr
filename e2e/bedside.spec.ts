@@ -16,7 +16,7 @@ async function openGame(page: Page, model: string, seed = 'e2e-bedside') {
     },
     { baseUrl: MOCK_BASE_URL, model },
   );
-  await page.goto(`/#/game?seed=${seed}`);
+  await page.goto(`/#/game?seed=${seed}&ward=single`);
   await expect(page.getByTestId('monitor')).toBeVisible();
 }
 

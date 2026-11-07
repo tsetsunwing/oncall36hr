@@ -202,7 +202,9 @@ export const consultDepartmentSchema = z
         EMERGENCY: z.enum(['PHONE', 'BEDSIDE']),
       })
       .strict(),
-    reactionSec: z.object({ PHONE: z.number().int().min(0), BEDSIDE: z.number().int().min(0) }).strict(),
+    reactionSec: z
+      .object({ PHONE: z.number().int().min(0), BEDSIDE: z.number().int().min(0) })
+      .strict(),
     icu: z
       .object({ mewsMin: z.number().int().min(0), assessSec: z.number().int().positive() })
       .strict()

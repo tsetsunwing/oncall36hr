@@ -32,6 +32,7 @@ import type {
   VitalReadout,
 } from './types';
 import { parseWave, plethAmplitude } from './waveform';
+import { selectWard } from './wardView';
 
 export interface ViewEnv {
   tables: EngineTables;
@@ -39,6 +40,8 @@ export interface ViewEnv {
     clock: { speeds: readonly number[] };
     chat: { playerTextMaxChars: number };
     gate: { pharmacyName: string };
+    phone: { sbarMaxChars: number; transcriptLimit: number };
+    staff: { rankImpression: { start: number } };
     ui: { monitor: { sweepSeconds: number; targetFps: number } };
   };
   aiFailureReason?: string | null;
@@ -187,6 +190,7 @@ function selectChat(
 
 function executorName(state: GameState, executor: string | null): string | null {
   if (!executor) return null;
+  if (executor === 'sub:1' && state.ward.sub) return state.ward.sub.name;
   for (const thread of Object.values(state.chats)) {
     const found = thread.present.find((p) => p.id === executor);
     if (found) return found.name;
@@ -214,7 +218,11 @@ function selectOrders(
         executorName: executorName(state, order.executor),
         executorKind: order.executorKind,
         timeLabel: clockLabel(order.createdAt),
-        etaSeconds: running ? Math.max(0, order.completesAt - state.clock.t) : null,
+        // 下屬嘅預計完成時間會洩露速度（資歷），所以唔顯示（B7）
+        etaSeconds:
+          running && order.executorKind !== 'SUBORDINATE'
+            ? Math.max(0, order.completesAt - state.clock.t)
+            : null,
         cancellable: isCancellable(order, row),
         resultStatus: order.resultStatus,
       };
@@ -302,7 +310,9 @@ function selectQuickChips(tables: EngineTables): QuickChipView[] {
 
 export function selectGameView(state: GameState, env: ViewEnv): GameView {
   const clockLabel = (t: number) => formatClock(t, state.mode, env.config);
-  const current = Object.values(state.patients).sort((a, b) => a.bed - b.bed)[0] ?? null;
+  const current = state.ward.enabled
+    ? (Object.values(state.patients).find((p) => p.bed === state.ward.location.bed) ?? null)
+    : (Object.values(state.patients).sort((a, b) => a.bed - b.bed)[0] ?? null);
   const actionLog = selectActionLog(state, env, clockLabel);
   const failedReq =
     state.paused?.by === 'ai-failure' && state.paused.reqId ? state.paused.reqId : null;
@@ -329,5 +339,6 @@ export function selectGameView(state: GameState, env: ViewEnv): GameView {
     pendingAiCount: state.pendingAi.length,
     aiFailure: failedReq ? { reqId: failedReq, reason: env.aiFailureReason ?? null } : null,
     notice: env.notice ?? null,
+    ward: selectWard(state, env, clockLabel),
   };
 }

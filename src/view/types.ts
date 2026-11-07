@@ -161,6 +161,141 @@ export interface QuickChipView {
   text: string;
 }
 
+export type RankCode = 'HO' | 'MO' | 'RES' | 'AC' | 'COS';
+export type CallTagCode = 'NURSE' | 'JUNIOR' | 'LAB' | 'XRAY' | 'PHARMACY' | 'DEPT' | 'OUTGOING';
+export type PriorityCode = 'ROUTINE' | 'URGENT' | 'EMERGENCY';
+export type CallResponseCode = 'GO_NOW' | 'LATER' | 'CONTINUE';
+export type DelegationTaskCode =
+  'PROCEDURE' | 'ORDER_NOTE' | 'ADMISSION' | 'SIMPLE_CALL' | 'ROUND_PREP';
+
+export interface BedView {
+  bed: number;
+  zone: string;
+  row: number;
+  col: number;
+  patientId: string | null;
+  name: string | null;
+  age: number | null;
+  sex: 'M' | 'F' | null;
+  mewsScore: number | null;
+  mewsBandId: string | null;
+  level: AlarmLevel;
+  /** 新入院、尚未接收 */
+  newAdmission: boolean;
+  /** 護士名（區內負責護士） */
+  nurseName: string | null;
+  here: boolean;
+}
+
+export interface CallLineView {
+  speaker: 'CALLER' | 'CALLEE' | 'PLAYER';
+  name: string;
+  /** 已用凍結 token 解析嘅文字；系統碼（@XXX）行為 null，由 UI 按 code 顯示 */
+  text: string | null;
+  code: string | null;
+  timeLabel: string;
+}
+
+export interface CallRowView {
+  id: string;
+  direction: 'IN' | 'OUT';
+  tag: CallTagCode;
+  priority: PriorityCode;
+  callerName: string;
+  callerRank: RankCode | null;
+  patientId: string | null;
+  bed: number | null;
+  patientName: string | null;
+  deptId: string | null;
+  deptLabel: string | null;
+  text: string;
+  status: 'RINGING' | 'DEFERRED' | 'DONE' | 'MISSED' | 'DELEGATED';
+  resolution: string | null;
+  outcome: string | null;
+  timeLabel: string;
+  /** 剩餘秒數（未接／延後來電） */
+  remainingSec: number | null;
+  defers: number;
+  canRespond: boolean;
+  canDelegate: boolean;
+  sbar: { S: string; B: string; A: string; R: string } | null;
+  lines: CallLineView[];
+}
+
+export interface LadderStepView {
+  rank: RankCode;
+  /** 玩家可以致電（職級高過自己） */
+  reachable: boolean;
+  /** 如果而家直接致電呢一級，會越過邊啲未聯絡嘅職級 */
+  skips: RankCode[];
+  contacted: boolean;
+}
+
+export interface SbarDraftView {
+  patientId: string;
+  bed: number;
+  patientName: string;
+  target: { kind: 'RANK'; rank: RankCode } | { kind: 'DEPT'; deptId: string; label: string };
+  sbar: { S: string; B: string; A: string; R: string };
+  maxChars: number;
+  skips: RankCode[];
+}
+
+export interface DelegationItemView {
+  id: string;
+  label: string;
+  needsPatient: boolean;
+  needsTag: string | null;
+}
+
+export interface DelegationGroupView {
+  task: DelegationTaskCode;
+  items: DelegationItemView[];
+}
+
+export interface DelegationTaskView {
+  id: string;
+  task: DelegationTaskCode;
+  label: string;
+  bed: number | null;
+  /** 只顯示實際結果：RUNNING 時冇預計完成時間（B7） */
+  status: 'RUNNING' | 'DONE' | 'FAILED';
+  startLabel: string;
+  doneLabel: string | null;
+  elapsedSec: number | null;
+  failureCode: string | null;
+}
+
+export interface DelegationView {
+  /** HO 冇下屬（S-1 A） */
+  hasSubordinate: boolean;
+  subordinate: { name: string; rank: RankCode; busy: boolean } | null;
+  groups: DelegationGroupView[];
+  tasks: DelegationTaskView[];
+}
+
+export interface PhoneView {
+  ringing: number;
+  calls: CallRowView[];
+  /** 每位病人一條職級階梯（越級預覽按該病人已聯絡嘅職級計） */
+  ladders: Record<string, LadderStepView[]>;
+  depts: { id: string; label: string }[];
+  draft: SbarDraftView | null;
+}
+
+export interface WardView {
+  beds: BedView[];
+  /** 你而家喺邊張床；null＝護士站／行緊 */
+  locationBed: number | null;
+  movingToBed: number | null;
+  arriveInSec: number | null;
+  playerRank: RankCode;
+  phone: PhoneView;
+  delegation: DelegationView;
+  occupied: number;
+  total: number;
+}
+
 export interface GameView {
   clock: {
     label: string;
@@ -182,6 +317,8 @@ export interface GameView {
   aiFailure: { reqId: string; reason: string | null } | null;
   /** 最近一次被 engine 拒絕嘅玩家動作（暫停中落 order 等）；下一個動作時清除 */
   notice: { kind: string; tone: 'info' | 'warn' | 'error' } | null;
+  /** 多病人病房（M4）；舊式單一病人時為 null */
+  ward: WardView | null;
 }
 
 /** UI 通過呢個介面嘅動作同 engine 溝通（UI 唔直接 import engine） */
@@ -192,4 +329,18 @@ export interface GameActions {
   cancelOrder: (orderId: string) => void;
   insistOrder: (orderId: string) => void;
   retryAi: () => void;
+  goToBed: (bed: number | null) => void;
+  respondCall: (callId: string, response: CallResponseCode) => void;
+  prepareCall: (
+    patientId: string,
+    target: { kind: 'RANK'; rank: RankCode } | { kind: 'DEPT'; deptId: string },
+  ) => void;
+  sendCall: (sbar: { S: string; B: string; A: string; R: string }) => void;
+  discardCall: () => void;
+  delegate: (request: {
+    task: DelegationTaskCode;
+    itemId: string;
+    patientId: string | null;
+    callId: string | null;
+  }) => void;
 }

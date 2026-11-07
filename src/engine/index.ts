@@ -142,3 +142,30 @@ export {
   type DeserializeResult,
   type SaveSummary,
 } from './save/snapshot';
+export { wardModule } from './ward/wardModule';
+export { subordinateOrderModule } from './ward/delegation';
+export { nurseForBed } from './ward/nurses';
+export { reachableRanks, skippedRanks } from './ward/calls';
+export { plannedCallCount, shiftSeconds } from './ward/generate';
+export {
+  CALL_RESPONSES,
+  DELEGATION_TASKS,
+  RANKS,
+  wardStateSchema,
+  type Call,
+  type CallLine,
+  type CallResponse,
+  type CallTarget,
+  type DelegationTaskId,
+  type Rank,
+  type Sbar,
+  type WardState,
+  type WardTask,
+} from './ward/wardTypes';
+export type {
+  CallTemplateRow,
+  DelegationResultRow,
+  DifficultyProfileRow,
+  SubordinateRow,
+  WardLayoutRow,
+} from './case/tables';

@@ -19,6 +19,12 @@ function makeActions() {
     cancelOrder: vi.fn(),
     insistOrder: vi.fn(),
     retryAi: vi.fn(),
+    goToBed: vi.fn(),
+    respondCall: vi.fn(),
+    prepareCall: vi.fn(),
+    sendCall: vi.fn(),
+    discardCall: vi.fn(),
+    delegate: vi.fn(),
   } satisfies GameActions;
 }
 

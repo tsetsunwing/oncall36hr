@@ -6,6 +6,7 @@ import { ChatPanel } from '../game/ChatPanel';
 import { ClockBar } from '../game/ClockBar';
 import { LogPanel } from '../game/LogPanel';
 import { MonitorPanel } from '../game/MonitorPanel';
+import { WardGame } from './WardGame';
 
 export interface GamePageProps {
   view: GameView;
@@ -22,7 +23,9 @@ export function GamePage({ view, actions }: GamePageProps) {
       </h1>
       <ClockBar clock={view.clock} actions={actions} />
       {view.aiFailure ? <AiFailureBanner failure={view.aiFailure} actions={actions} /> : null}
-      {view.patient && view.monitor && view.chat ? (
+      {view.ward ? (
+        <WardGame view={view} ward={view.ward} actions={actions} />
+      ) : view.patient && view.monitor && view.chat ? (
         <div className="game-grid">
           <div className="game-main">
             <MonitorPanel patient={view.patient} monitor={view.monitor} />
