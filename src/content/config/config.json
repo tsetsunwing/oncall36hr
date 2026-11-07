@@ -65,7 +65,7 @@
   },
   "ai": {
     "defaultBaseUrl": "https://api.openai.com/v1",
-    "defaultModel": "gpt-4o-mini",
+    "defaultModel": "gpt-5.6-luna",
     "requestTimeoutMs": 25000,
     "connectionTestTimeoutMs": 15000,
     "autoRepairRetries": 1,

@@ -1,10 +1,24 @@
 import { z } from 'zod';
 import { getConfig } from '@/content';
+import {
+  defaultThinking,
+  inferProvider,
+  isProviderId,
+  providerSpec,
+  sanitizeThinking,
+  withProvider,
+  type ProviderId,
+} from './providers';
+
+export type { ProviderId } from './providers';
 
 export interface Settings {
+  provider: ProviderId;
   baseUrl: string;
   apiKey: string;
   model: string;
+  /** 空字串表示不送思考參數，由模型使用自己的預設。 */
+  thinkingLevel: string;
   nurseConfirmHighRisk: boolean;
 }
 
@@ -14,19 +28,25 @@ export const SETTINGS_STORAGE_KEY = 'dandu.settings.v1';
 
 const storedSchema = z
   .object({
+    provider: z.string(),
     baseUrl: z.string(),
     apiKey: z.string(),
     model: z.string(),
+    thinkingLevel: z.string(),
     nurseConfirmHighRisk: z.boolean(),
   })
   .partial();
 
 export function defaultSettings(): Settings {
   const { ai } = getConfig();
+  const provider: ProviderId = 'openai';
+  const spec = providerSpec(provider);
   return {
+    provider,
     baseUrl: ai.defaultBaseUrl,
     apiKey: '',
-    model: ai.defaultModel,
+    model: spec.defaultModel,
+    thinkingLevel: defaultThinking(provider, spec.defaultModel),
     nurseConfirmHighRisk: true,
   };
 }
@@ -36,12 +56,20 @@ export function normalizeBaseUrl(value: string): string {
 }
 
 export function normalizeSettings(settings: Settings): Settings {
+  const provider = isProviderId(settings.provider) ? settings.provider : 'openai';
+  const model = settings.model.trim();
   return {
+    provider,
     baseUrl: normalizeBaseUrl(settings.baseUrl),
     apiKey: settings.apiKey.trim(),
-    model: settings.model.trim(),
+    model,
+    thinkingLevel: sanitizeThinking(provider, model, settings.thinkingLevel),
     nurseConfirmHighRisk: settings.nurseConfirmHighRisk,
   };
+}
+
+export function settingsForProvider(settings: Settings, provider: ProviderId): Settings {
+  return normalizeSettings({ ...settings, provider, ...withProvider(provider, settings.model) });
 }
 
 function isHttpUrl(value: string): boolean {
@@ -82,16 +110,31 @@ export function loadSettings(storage: Storage | undefined = safeStorage()): Sett
     if (raw === null) return defaults;
     const parsed = storedSchema.safeParse(JSON.parse(raw));
     if (!parsed.success) return defaults;
-    return { ...defaults, ...stripUndefined(parsed.data) };
+    const stored = definedFields(parsed.data);
+    const provider =
+      stored.provider && isProviderId(stored.provider)
+        ? stored.provider
+        : (inferProvider(stored.baseUrl ?? defaults.baseUrl) ?? defaults.provider);
+    const model = stored.model ?? defaults.model;
+    const thinkingLevel =
+      stored.thinkingLevel !== undefined
+        ? sanitizeThinking(provider, model, stored.thinkingLevel)
+        : defaultThinking(provider, model);
+    return normalizeSettings({
+      provider,
+      baseUrl: stored.baseUrl ?? defaults.baseUrl,
+      apiKey: stored.apiKey ?? defaults.apiKey,
+      model,
+      thinkingLevel,
+      nurseConfirmHighRisk: stored.nurseConfirmHighRisk ?? defaults.nurseConfirmHighRisk,
+    });
   } catch {
     return defaults;
   }
 }
 
-function stripUndefined(value: {
-  [K in keyof Settings]?: Settings[K] | undefined;
-}): Partial<Settings> {
-  return Object.fromEntries(Object.entries(value).filter(([, v]) => v !== undefined));
+function definedFields<T extends Record<string, unknown>>(value: T): Partial<T> {
+  return Object.fromEntries(Object.entries(value).filter(([, v]) => v !== undefined)) as Partial<T>;
 }
 
 export function saveSettings(

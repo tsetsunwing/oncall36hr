@@ -1,7 +1,13 @@
+export type AiProvider = 'grok' | 'gemini' | 'openai' | 'claude';
+
 export interface AiEndpoint {
   baseUrl: string;
   apiKey: string;
   model: string;
+  /** 缺省當 OpenAI chat/completions。Claude 改走 Messages API。 */
+  provider?: AiProvider;
+  /** 空字串或省略：不送思考參數。 */
+  thinkingLevel?: string;
 }
 
 export interface DevProxy {

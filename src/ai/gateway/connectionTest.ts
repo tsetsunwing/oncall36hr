@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { getConfig } from '@/content';
-import { postChatCompletion } from './transport';
+import { postCompletion } from './transport';
 import type { AiEndpoint, TransportOptions } from './types';
 
 export type ConnectionTestResult =
@@ -34,13 +34,12 @@ export async function testConnection(
   options: Partial<TransportOptions> = {},
 ): Promise<ConnectionTestResult> {
   const { ai } = getConfig();
-  const result = await postChatCompletion(
+  const result = await postCompletion(
     endpoint,
     {
-      model: endpoint.model,
       temperature: 0,
-      max_tokens: 16,
-      response_format: { type: 'json_object' },
+      maxTokens: endpoint.provider === 'claude' ? 1024 : 16,
+      jsonMode: true,
       messages: [
         { role: 'system', content: 'Reply with the JSON object {"ok":true} and nothing else.' },
         { role: 'user', content: 'ping' },

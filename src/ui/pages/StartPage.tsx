@@ -3,6 +3,7 @@ import { ui } from '@/i18n';
 import type { SaveSlotView, Settings } from '@/storage';
 import type { StartGate } from '@/view';
 import { SaveLibrary } from '../saves/SaveLibrary';
+import { AiSettingsFields } from './AiSettingsFields';
 
 export type SetupRank = 'HO' | 'MO' | 'RES';
 export type SetupDifficulty = 'EASY' | 'MEDIUM' | 'HARD';
@@ -103,13 +104,6 @@ export function StartPage({
   const [mode, setMode] = useState<SetupMode>('NIGHT');
   const [draft, setDraft] = useState<Settings | null>(settings ?? null);
 
-  function update<K extends keyof Settings>(key: K, value: Settings[K]) {
-    if (!draft) return;
-    const next = { ...draft, [key]: value };
-    setDraft(next);
-    onSettingsChange?.(next);
-  }
-
   const summary = s.summary(
     s.rank[rank]?.name ?? rank,
     s.difficulty[difficulty]?.name ?? difficulty,
@@ -118,13 +112,14 @@ export function StartPage({
 
   return (
     <section aria-labelledby="start-heading" className="page setup">
-      <h1 id="start-heading">{ui.start.heading}</h1>
-      <p>{ui.start.tagline}</p>
       <div className="setup-grid">
-        <div className="setup-main">
+        <div className="soft-panel setup-main">
+          <h1 id="start-heading">
+            {ui.start.heading} <span className="hint">{ui.start.tagline}</span>
+          </h1>
           <ChoiceGroup
             name="rank"
-            legend={s.rankHeading}
+            legend={`① ${s.rankHeading}`}
             hint={s.rankHint}
             value={rank}
             onChange={setRank}
@@ -137,7 +132,7 @@ export function StartPage({
           />
           <ChoiceGroup
             name="difficulty"
-            legend={s.difficultyHeading}
+            legend={`② ${s.difficultyHeading}`}
             hint={s.difficultyHint}
             value={difficulty}
             onChange={setDifficulty}
@@ -149,7 +144,7 @@ export function StartPage({
           />
           <ChoiceGroup
             name="mode"
-            legend={s.modeHeading}
+            legend={`③ ${s.modeHeading}`}
             hint={s.modeHint}
             value={mode}
             onChange={setMode}
@@ -160,64 +155,40 @@ export function StartPage({
               line2: s.modeCard[id]?.desc,
             }))}
           />
-          <p className="setup-summary" data-testid="setup-summary">
-            {summary}
-          </p>
-          {gate.canStart ? (
-            <button
-              type="button"
-              className="primary"
-              onClick={() => {
-                onStart({ rank, difficulty, mode });
-              }}
-            >
-              {ui.start.startButton}
-            </button>
-          ) : null}
+          <div className="setup-footer">
+            <p className="setup-summary" data-testid="setup-summary">
+              {summary}
+            </p>
+            {gate.canStart ? (
+              <button
+                type="button"
+                className="primary"
+                onClick={() => {
+                  onStart({ rank, difficulty, mode });
+                }}
+              >
+                {ui.start.startButton}
+              </button>
+            ) : null}
+          </div>
         </div>
         <aside className="setup-side" aria-label={s.apiHeading}>
           {draft ? (
-            <fieldset className="setup-api">
-              <legend>{s.apiHeading}</legend>
-              <div className="field">
-                <label htmlFor="setup-base-url">{ui.settings.baseUrlLabel}</label>
-                <input
-                  id="setup-base-url"
-                  type="url"
-                  value={draft.baseUrl}
-                  onChange={(e) => {
-                    update('baseUrl', e.target.value);
-                  }}
-                />
-              </div>
-              <div className="field">
-                <label htmlFor="setup-api-key">{ui.settings.apiKeyLabel}</label>
-                <input
-                  id="setup-api-key"
-                  type="password"
-                  autoComplete="off"
-                  value={draft.apiKey}
-                  onChange={(e) => {
-                    update('apiKey', e.target.value);
-                  }}
-                />
-                <p className="hint">{ui.settings.apiKeyHint}</p>
-              </div>
-              <div className="field">
-                <label htmlFor="setup-model">{ui.settings.modelLabel}</label>
-                <input
-                  id="setup-model"
-                  type="text"
-                  value={draft.model}
-                  onChange={(e) => {
-                    update('model', e.target.value);
-                  }}
-                />
-              </div>
+            <fieldset className="soft-panel setup-api">
+              <legend>{`④ ${s.apiHeading}`}</legend>
+              <AiSettingsFields
+                draft={draft}
+                idPrefix="setup"
+                includeNurseConfirm
+                onChange={(next) => {
+                  setDraft(next);
+                  onSettingsChange?.(next);
+                }}
+              />
             </fieldset>
           ) : null}
           {gate.canStart ? null : (
-            <div className="notice notice-blocked" data-testid="start-blocked">
+            <div className="soft-panel notice notice-blocked" data-testid="start-blocked">
               <h2>{ui.start.blockedTitle}</h2>
               <ul>
                 {gate.missing.map((field) => (
@@ -232,6 +203,11 @@ export function StartPage({
               </a>
             </div>
           )}
+          <section className="soft-panel" aria-labelledby="setup-disclaimer">
+            <h2 id="setup-disclaimer">{ui.settings.disclaimerHeading}</h2>
+            <p>{ui.settings.disclaimer}</p>
+            <p>{ui.settings.privacy}</p>
+          </section>
         </aside>
       </div>
       {slots && onContinue && onDelete && onExport && onImport ? (

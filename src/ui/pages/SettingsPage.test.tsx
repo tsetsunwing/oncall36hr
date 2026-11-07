@@ -44,6 +44,27 @@ describe('SettingsPage', () => {
     expect(screen.getByLabelText(ui.settings.apiKeyLabel)).toHaveAttribute('aria-invalid', 'true');
   });
 
+  it('fills the official base URL when the provider changes', async () => {
+    const { user } = setup();
+    await user.selectOptions(screen.getByLabelText(ui.settings.providerLabel), 'claude');
+    expect(screen.getByLabelText(ui.settings.baseUrlLabel)).toHaveValue(
+      'https://api.anthropic.com',
+    );
+    expect(screen.getByLabelText(ui.settings.modelLabel)).toHaveValue('claude-haiku-5-5');
+    expect(screen.getByLabelText(ui.settings.thinkingLabel)).toHaveValue('medium');
+    await user.selectOptions(screen.getByLabelText(ui.settings.providerLabel), 'grok');
+    expect(screen.getByLabelText(ui.settings.baseUrlLabel)).toHaveValue('https://api.x.ai/v1');
+    expect(screen.getByLabelText(ui.settings.modelLabel)).toHaveValue('grok-4.7');
+    expect(screen.getByLabelText(ui.settings.thinkingLabel)).toHaveValue('high');
+  });
+
+  it('hides thinking for a typed model id that is not in the list', async () => {
+    const { user } = setup();
+    await user.clear(screen.getByLabelText(ui.settings.modelLabel));
+    await user.type(screen.getByLabelText(ui.settings.modelLabel), 'my-model');
+    expect(screen.queryByLabelText(ui.settings.thinkingLabel)).not.toBeInTheDocument();
+  });
+
   it('toggles key visibility', async () => {
     const { user } = setup();
     await user.click(screen.getByLabelText(ui.settings.showKey));

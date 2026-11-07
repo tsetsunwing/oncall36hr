@@ -1071,21 +1071,25 @@ tr[data-flag='H'] .value-flagged {
 
 /* ---------- 設定、結果、精力 ---------- */
 .choice-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background: #fff;
+  border: 1.5px solid var(--border);
   border-radius: 10px;
 }
 
 .choice-card[data-checked='true'] {
   background: #e6effa;
-  border-color: var(--accent);
+  border: 2px solid var(--accent);
 }
 
-.frame-desktop .choice-row {
+.choice-card[data-checked='true'] .choice-title::after {
+  content: ' ✓';
+}
+
+.frame-desktop .choice-row,
+.frame-mobile .choice-row {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.frame-mobile .choice-row,
 .frame-mobile .result-subscores {
   grid-template-columns: minmax(0, 1fr);
 }
@@ -1184,4 +1188,194 @@ tr[data-flag='H'] .value-flagged {
 
 .frame-mobile main.wide {
   overflow: auto;
+}
+
+/* ---------- 開局與設定：跟 v2-setup 的淺框、字級、選中態 ---------- */
+.play-stage .app-header {
+  flex-wrap: nowrap;
+  gap: 10px;
+  height: 44px;
+  padding: 0 14px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.play-stage .app-title {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.play-stage .app-header nav {
+  margin-left: auto;
+}
+
+.play-stage .app-header a {
+  min-height: 0;
+  padding: 2px 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  text-decoration: none;
+  border-radius: 99px;
+}
+
+.play-stage .app-header a[aria-current='page'] {
+  color: var(--accent);
+  background: #e6effa;
+  border-bottom: 0;
+}
+
+.frame-mobile .app-header {
+  flex-wrap: wrap;
+  height: auto;
+  padding: 6px 10px;
+}
+
+.play-stage .page fieldset {
+  padding: 14px 16px;
+  margin: 0 0 12px;
+  background: transparent;
+  border: 0;
+}
+
+.play-stage .page fieldset.soft-panel,
+.soft-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.play-stage .page legend {
+  padding: 0;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.play-stage .page h1 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.play-stage .page h1 .hint {
+  display: inline;
+  margin-left: 8px;
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.play-stage .page input[type='text'],
+.play-stage .page input[type='url'],
+.play-stage .page input[type='password'],
+.play-stage .page select {
+  width: 100%;
+  min-height: 40px;
+  padding: 6px 10px;
+  color: var(--text);
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.play-stage .page button,
+.play-stage .page .button-link {
+  min-height: 36px;
+  padding: 6px 16px;
+  font-weight: 700;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.play-stage .page button.primary {
+  color: #fff;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.play-stage .page button:disabled {
+  color: var(--muted);
+  background: #ecebe5;
+  border-color: var(--border);
+  opacity: 0.7;
+}
+
+.choice-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.choice-group .hint {
+  margin: 0;
+}
+
+.choice-title {
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.choice-line {
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+
+.setup-main {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.setup-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.setup-summary {
+  margin: 0;
+  font-weight: 600;
+}
+
+.setup-side {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.setup-side > * + * {
+  margin-top: 0;
+}
+
+.play-stage .notice-blocked {
+  color: var(--text);
+  background: #fffaf0;
+  border-color: #e2c48c;
+}
+
+.play-stage .settings-page {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.play-stage .settings-page > h1 {
+  margin-bottom: 0;
+}
+
+.frame-mobile .choice-title {
+  font-size: 14px;
+}
+
+.frame-mobile .choice-line {
+  font-size: 11px;
+}
+
+.frame-mobile .choice-card {
+  padding: 8px;
 }

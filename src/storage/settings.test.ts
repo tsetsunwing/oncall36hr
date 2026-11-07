@@ -43,6 +43,18 @@ describe('settings storage', () => {
     const s = loadSettings();
     expect(s.apiKey).toBe('k');
     expect(s.baseUrl).toBe(defaultSettings().baseUrl);
+    expect(s.provider).toBe('openai');
+    expect(s.thinkingLevel).toBe('medium');
+  });
+
+  it('infers the provider from a stored base URL and drops unknown thinking levels', () => {
+    localStorage.setItem(
+      SETTINGS_STORAGE_KEY,
+      JSON.stringify({ baseUrl: 'https://api.x.ai/v1', model: 'grok-4.5', thinkingLevel: 'xhigh' }),
+    );
+    const s = loadSettings();
+    expect(s.provider).toBe('grok');
+    expect(s.thinkingLevel).toBe('high');
   });
 
   it('validates base URL protocol, key and model', () => {

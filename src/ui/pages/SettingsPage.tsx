@@ -7,6 +7,7 @@ import {
   type Settings,
   type SettingsField,
 } from '@/storage';
+import { AiSettingsFields } from './AiSettingsFields';
 
 export type ConnectionOutcome =
   | { kind: 'ok'; jsonMode: boolean }
@@ -43,15 +44,8 @@ function describeOutcome(outcome: ConnectionOutcome): { message: string; ok: boo
   }
 }
 
-const fieldMessage: Record<SettingsField, string> = {
-  baseUrl: ui.settings.validation.baseUrl,
-  apiKey: ui.settings.validation.apiKey,
-  model: ui.settings.validation.model,
-};
-
 export function SettingsPage({ initial, onSave, onTestConnection }: SettingsPageProps) {
   const [draft, setDraft] = useState<Settings>(initial);
-  const [showKey, setShowKey] = useState(false);
   const [invalid, setInvalid] = useState<SettingsField[]>([]);
   const [notice, setNotice] = useState<string | null>(null);
   const [test, setTest] = useState<TestState>({ phase: 'idle' });
@@ -87,97 +81,23 @@ export function SettingsPage({ initial, onSave, onTestConnection }: SettingsPage
     setNotice(ui.settings.resetDone);
   };
 
-  const errorId = (field: SettingsField) => `${field}-error`;
-  const describedBy = (field: SettingsField, hintId: string) =>
-    invalid.includes(field) ? `${hintId} ${errorId(field)}` : hintId;
-
   return (
-    <section aria-labelledby="settings-heading" className="page">
+    <section aria-labelledby="settings-heading" className="page settings-page">
       <h1 id="settings-heading">{ui.settings.heading}</h1>
       <form onSubmit={handleSave} noValidate>
-        <fieldset>
+        <fieldset className="soft-panel">
           <legend>{ui.settings.aiSection}</legend>
-
-          <div className="field">
-            <label htmlFor="baseUrl">{ui.settings.baseUrlLabel}</label>
-            <input
-              id="baseUrl"
-              name="baseUrl"
-              type="url"
-              inputMode="url"
-              autoComplete="off"
-              spellCheck={false}
-              value={draft.baseUrl}
-              aria-invalid={invalid.includes('baseUrl')}
-              aria-describedby={describedBy('baseUrl', 'baseUrl-hint')}
-              onChange={(e) => update('baseUrl', e.target.value)}
-            />
-            <p id="baseUrl-hint" className="hint">
-              {ui.settings.baseUrlHint}
-            </p>
-            {invalid.includes('baseUrl') && (
-              <p id={errorId('baseUrl')} className="field-error">
-                {fieldMessage.baseUrl}
-              </p>
-            )}
-          </div>
-
-          <div className="field">
-            <label htmlFor="apiKey">{ui.settings.apiKeyLabel}</label>
-            <input
-              id="apiKey"
-              name="apiKey"
-              type={showKey ? 'text' : 'password'}
-              autoComplete="off"
-              spellCheck={false}
-              value={draft.apiKey}
-              aria-invalid={invalid.includes('apiKey')}
-              aria-describedby={describedBy('apiKey', 'apiKey-hint')}
-              onChange={(e) => update('apiKey', e.target.value)}
-            />
-            <p id="apiKey-hint" className="hint">
-              {ui.settings.apiKeyHint}
-            </p>
-            {invalid.includes('apiKey') && (
-              <p id={errorId('apiKey')} className="field-error">
-                {fieldMessage.apiKey}
-              </p>
-            )}
-            <label className="checkbox">
-              <input
-                type="checkbox"
-                checked={showKey}
-                onChange={(e) => setShowKey(e.target.checked)}
-              />
-              {ui.settings.showKey}
-            </label>
-          </div>
-
-          <div className="field">
-            <label htmlFor="model">{ui.settings.modelLabel}</label>
-            <input
-              id="model"
-              name="model"
-              type="text"
-              autoComplete="off"
-              spellCheck={false}
-              value={draft.model}
-              aria-invalid={invalid.includes('model')}
-              aria-describedby={describedBy('model', 'model-hint')}
-              onChange={(e) => update('model', e.target.value)}
-            />
-            <p id="model-hint" className="hint">
-              {ui.settings.modelHint}
-            </p>
-            {invalid.includes('model') && (
-              <p id={errorId('model')} className="field-error">
-                {fieldMessage.model}
-              </p>
-            )}
-          </div>
+          <AiSettingsFields
+            draft={draft}
+            invalid={invalid}
+            onChange={(next) => {
+              setDraft(next);
+              setNotice(null);
+            }}
+          />
         </fieldset>
 
-        <fieldset>
+        <fieldset className="soft-panel">
           <legend>{ui.settings.gameSection}</legend>
           <label className="checkbox">
             <input
@@ -221,7 +141,7 @@ export function SettingsPage({ initial, onSave, onTestConnection }: SettingsPage
         )}
       </form>
 
-      <section aria-labelledby="shortcuts-heading">
+      <section className="soft-panel" aria-labelledby="shortcuts-heading">
         <h2 id="shortcuts-heading">{ui.settings.shortcutsHeading}</h2>
         <table className="shortcut-table" data-testid="shortcut-table">
           <caption className="visually-hidden">{ui.settings.shortcutsHeading}</caption>
@@ -244,7 +164,7 @@ export function SettingsPage({ initial, onSave, onTestConnection }: SettingsPage
         </table>
       </section>
 
-      <section aria-labelledby="disclaimer-heading">
+      <section className="soft-panel" aria-labelledby="disclaimer-heading">
         <h2 id="disclaimer-heading">{ui.settings.disclaimerHeading}</h2>
         <p>{ui.settings.disclaimer}</p>
         <p data-testid="privacy-line">{ui.settings.privacy}</p>

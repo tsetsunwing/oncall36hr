@@ -12,6 +12,9 @@ export function Layout({ current, children }: LayoutProps) {
     <PlayFrame>
       <div className="app-shell">
         <header className="app-header">
+          <span className="tag">
+            {current === 'settings' ? ui.nav.settings : ui.shift.setup.heading}
+          </span>
           <span className="app-title">{ui.appTitle}</span>
           <nav aria-label={ui.nav.label}>
             <a href="#/" aria-current={current === 'start' ? 'page' : undefined}>

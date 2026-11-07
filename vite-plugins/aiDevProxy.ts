@@ -17,14 +17,22 @@ async function forward(req: IncomingMessage, res: ServerResponse, path: string):
   const method = req.method ?? 'GET';
   const url = `${target.replace(/\/+$/, '')}/${path}`;
   try {
+    const forwardHeaders = [
+      'content-type',
+      'authorization',
+      'x-api-key',
+      'anthropic-version',
+      'anthropic-dangerous-direct-browser-access',
+    ];
+    const headers: Record<string, string> = {};
+    for (const name of forwardHeaders) {
+      const value = req.headers[name];
+      if (typeof value === 'string') headers[name] = value;
+    }
+    headers['content-type'] ??= 'application/json';
     const upstream = await fetch(url, {
       method,
-      headers: {
-        'content-type': req.headers['content-type'] ?? 'application/json',
-        ...(typeof req.headers.authorization === 'string'
-          ? { authorization: req.headers.authorization }
-          : {}),
-      },
+      headers,
       ...(method !== 'GET' && body.length > 0 ? { body } : {}),
     });
     res.statusCode = upstream.status;

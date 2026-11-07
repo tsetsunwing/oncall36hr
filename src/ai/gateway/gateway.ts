@@ -10,7 +10,7 @@ import type { AiFailureReason, JsonValue } from '@/engine';
 import { contractFor } from '../contracts';
 import { CONTRACT_VERSION } from '../contracts/types';
 import { buildMessages, repairMessages, type ChatMessage } from '../prompts/messages';
-import { postChatCompletion } from './transport';
+import { postCompletion } from './transport';
 import type { AiEndpoint, TransportOptions } from './types';
 
 export interface AiRequest {
@@ -84,13 +84,12 @@ export function createAiGateway(
       let last: AiFailureReason = 'FORMAT';
 
       const attempt = async (): Promise<Attempt> => {
-        const response = await postChatCompletion(
+        const response = await postCompletion(
           endpoint,
           {
-            model: endpoint.model,
-            temperature: ai[contract.temperatureKey],
-            response_format: { type: 'json_object' },
             messages,
+            temperature: ai[contract.temperatureKey],
+            jsonMode: true,
           },
           { timeoutMs: ai.requestTimeoutMs, ...options },
         );

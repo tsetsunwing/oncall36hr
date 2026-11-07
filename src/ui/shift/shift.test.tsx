@@ -317,7 +317,14 @@ describe('StartPage 設定畫面', () => {
       <StartPage
         gate={{ canStart: false, missing: ['apiKey'] }}
         onStart={vi.fn()}
-        settings={{ baseUrl: 'https://x/v1', apiKey: '', model: 'm', nurseConfirmHighRisk: true }}
+        settings={{
+          provider: 'openai',
+          baseUrl: 'https://x/v1',
+          apiKey: '',
+          model: 'm',
+          thinkingLevel: '',
+          nurseConfirmHighRisk: true,
+        }}
         onSettingsChange={onSettingsChange}
       />,
     );
