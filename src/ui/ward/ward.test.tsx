@@ -1,0 +1,320 @@
+import { render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
+import { ui } from '@/i18n';
+import type { BedView, CallRowView, GameActions, SbarDraftView, WardView } from '@/view';
+import { DelegationDialog } from './DelegationDialog';
+import { FloorPlan } from './FloorPlan';
+import { PhonePanel } from './PhonePanel';
+import { SbarPanel } from './SbarPanel';
+
+function makeActions() {
+  return {
+    submitChat: vi.fn(),
+    togglePause: vi.fn(),
+    setSpeed: vi.fn(),
+    cancelOrder: vi.fn(),
+    insistOrder: vi.fn(),
+    retryAi: vi.fn(),
+    goToBed: vi.fn(),
+    respondCall: vi.fn(),
+    prepareCall: vi.fn(),
+    sendCall: vi.fn(),
+    discardCall: vi.fn(),
+    delegate: vi.fn(),
+  } satisfies GameActions;
+}
+
+const bed = (n: number, over: Partial<BedView> = {}): BedView => ({
+  bed: n,
+  zone: n <= 10 ? 'A' : 'B',
+  row: Math.floor((n - 1) / 5),
+  col: (n - 1) % 5,
+  patientId: null,
+  name: null,
+  age: null,
+  sex: null,
+  mewsScore: null,
+  mewsBandId: null,
+  level: 'NORMAL',
+  newAdmission: false,
+  nurseName: null,
+  here: false,
+  ...over,
+});
+
+const beds: BedView[] = Array.from({ length: 20 }, (_, i) => bed(i + 1)).map((b) =>
+  b.bed === 7
+    ? { ...b, patientId: 'p1', name: '李婆婆', age: 78, sex: 'F', mewsScore: 6, level: 'ALARM' }
+    : b.bed === 8
+      ? {
+          ...b,
+          patientId: 'p2',
+          name: '吳先生',
+          age: 64,
+          sex: 'M',
+          mewsScore: 1,
+          level: 'NORMAL',
+          newAdmission: true,
+        }
+      : b,
+);
+
+const call: CallRowView = {
+  id: 'c1',
+  direction: 'IN',
+  tag: 'NURSE',
+  priority: 'URGENT',
+  callerName: '何姑娘',
+  callerRank: null,
+  patientId: 'p1',
+  bed: 7,
+  patientName: '李婆婆',
+  deptId: null,
+  deptLabel: null,
+  text: '7 床李婆婆血氧偏低。',
+  status: 'RINGING',
+  resolution: null,
+  outcome: null,
+  timeLabel: '02:10',
+  remainingSec: 600,
+  defers: 0,
+  canRespond: true,
+  canDelegate: true,
+  sbar: null,
+  lines: [],
+};
+
+function ward(over: Partial<WardView> = {}): WardView {
+  return {
+    beds,
+    locationBed: null,
+    movingToBed: null,
+    arriveInSec: null,
+    playerRank: 'MO',
+    occupied: 2,
+    total: 20,
+    phone: {
+      ringing: 1,
+      calls: [call],
+      ladders: {
+        p1: [
+          { rank: 'RES', reachable: true, skips: [], contacted: false },
+          { rank: 'AC', reachable: true, skips: ['RES'], contacted: false },
+          { rank: 'COS', reachable: true, skips: ['RES', 'AC'], contacted: false },
+        ],
+        p2: [],
+      },
+      depts: [{ id: 'ICU', label: 'ICU' }],
+      draft: null,
+    },
+    delegation: {
+      hasSubordinate: true,
+      subordinate: { name: '陳醫生', rank: 'MO', busy: false },
+      groups: [
+        {
+          task: 'PROCEDURE',
+          items: [{ id: 'proc.foley', label: 'Foley', needsPatient: true, needsTag: null }],
+        },
+        {
+          task: 'SIMPLE_CALL',
+          items: [{ id: 'call.handle', label: '處理來電', needsPatient: false, needsTag: null }],
+        },
+      ],
+      tasks: [],
+    },
+    ...over,
+  };
+}
+
+describe('FloorPlan', () => {
+  it('20 個床位按鈕；入住床有姓名、MEWS 及文字風險標籤；按床呼叫 goToBed', async () => {
+    const actions = makeActions();
+    render(<FloorPlan ward={ward()} actions={actions} onOpenPhone={vi.fn()} />);
+    expect(screen.getAllByTestId(/^bed-\d+$/)).toHaveLength(20);
+    const occupied = screen.getByTestId('bed-7');
+    expect(occupied).toHaveTextContent('李婆婆');
+    expect(occupied).toHaveTextContent(ui.game.ward.level.ALARM ?? '');
+    expect(screen.getByTestId('bed-8')).toHaveTextContent(ui.game.ward.newAdmission);
+    expect(screen.getByTestId('bed-1')).toHaveTextContent(ui.game.ward.empty);
+    expect(screen.getByTestId('occupancy')).toHaveTextContent('2');
+    await userEvent.click(occupied);
+    expect(actions.goToBed).toHaveBeenCalledWith(7);
+    await userEvent.click(screen.getByTestId('landmark-station'));
+    expect(actions.goToBed).toHaveBeenCalledWith(null);
+  });
+
+  it('行緊路時顯示狀態；來電時電話地標顯示響鈴數', () => {
+    render(
+      <FloorPlan
+        ward={ward({ movingToBed: 7, arriveInSec: 40 })}
+        actions={makeActions()}
+        onOpenPhone={vi.fn()}
+      />,
+    );
+    expect(screen.getByTestId('walking')).toBeInTheDocument();
+    expect(screen.getByTestId('landmark-phone')).toHaveAttribute('data-ringing', 'true');
+  });
+});
+
+describe('PhonePanel', () => {
+  it('來電列表帶標籤；三個回應按鈕各自回報；可委派來電有委派按鈕', async () => {
+    const actions = makeActions();
+    const onDelegate = vi.fn();
+    render(
+      <PhonePanel
+        ward={ward()}
+        actions={actions}
+        currentPatientId={null}
+        onDelegateCall={onDelegate}
+      />,
+    );
+    const row = screen.getByTestId('call-row');
+    expect(row).toHaveTextContent(ui.game.ward.phone.tag.NURSE ?? '');
+    await userEvent.click(screen.getByTestId('respond-go-now'));
+    await userEvent.click(screen.getByTestId('respond-later'));
+    await userEvent.click(screen.getByTestId('respond-continue'));
+    expect(actions.respondCall.mock.calls).toEqual([
+      ['c1', 'GO_NOW'],
+      ['c1', 'LATER'],
+      ['c1', 'CONTINUE'],
+    ]);
+    await userEvent.click(screen.getByTestId('respond-delegate'));
+    expect(onDelegate).toHaveBeenCalledWith('c1');
+  });
+
+  it('職級階梯：越級時標示警告；致電科室與職級都會預備 SBAR', async () => {
+    const actions = makeActions();
+    render(
+      <PhonePanel ward={ward()} actions={actions} currentPatientId="p1" onDelegateCall={vi.fn()} />,
+    );
+    expect(screen.queryByTestId('skip-RES')).toBeNull();
+    expect(within(screen.getByTestId('ladder')).getByTestId('skip-AC')).toBeInTheDocument();
+    await userEvent.click(screen.getByTestId('call-rank-AC'));
+    expect(actions.prepareCall).toHaveBeenCalledWith('p1', { kind: 'RANK', rank: 'AC' });
+    await userEvent.click(screen.getByTestId('call-dept-ICU'));
+    expect(actions.prepareCall).toHaveBeenCalledWith('p1', { kind: 'DEPT', deptId: 'ICU' });
+  });
+
+  it('有草稿時顯示 SBAR 面板', () => {
+    const draft: SbarDraftView = {
+      patientId: 'p1',
+      bed: 7,
+      patientName: '李婆婆',
+      target: { kind: 'RANK', rank: 'AC' },
+      sbar: { S: 's', B: 'b', A: 'a', R: 'r' },
+      maxChars: 200,
+      skips: ['RES'],
+    };
+    const base = ward();
+    render(
+      <PhonePanel
+        ward={{ ...base, phone: { ...base.phone, draft } }}
+        actions={makeActions()}
+        currentPatientId={null}
+        onDelegateCall={vi.fn()}
+      />,
+    );
+    expect(screen.getByTestId('sbar-panel')).toBeInTheDocument();
+  });
+});
+
+describe('SbarPanel', () => {
+  const draft: SbarDraftView = {
+    patientId: 'p1',
+    bed: 7,
+    patientName: '李婆婆',
+    target: { kind: 'RANK', rank: 'AC' },
+    sbar: { S: '狀況', B: '背景', A: '評估', R: '建議' },
+    maxChars: 200,
+    skips: ['RES'],
+  };
+
+  it('預填四段、越級警告、可編輯後傳送、或放棄', async () => {
+    const actions = makeActions();
+    render(<SbarPanel draft={draft} playerRank="MO" actions={actions} />);
+    expect(screen.getByTestId('sbar-skip')).toBeInTheDocument();
+    expect(screen.getByTestId('sbar-S')).toHaveValue('狀況');
+    const field = screen.getByTestId('sbar-R');
+    await userEvent.clear(field);
+    await userEvent.type(field, '請覆診');
+    await userEvent.click(screen.getByTestId('sbar-send'));
+    expect(actions.sendCall).toHaveBeenCalledWith({ S: '狀況', B: '背景', A: '評估', R: '請覆診' });
+    await userEvent.click(screen.getByTestId('sbar-discard'));
+    expect(actions.discardCall).toHaveBeenCalled();
+  });
+
+  it('沒有越級時不顯示警告', () => {
+    render(
+      <SbarPanel
+        draft={{ ...draft, skips: [], target: { kind: 'DEPT', deptId: 'ICU', label: 'ICU' } }}
+        playerRank="MO"
+        actions={makeActions()}
+      />,
+    );
+    expect(screen.queryByTestId('sbar-skip')).toBeNull();
+  });
+});
+
+describe('DelegationDialog', () => {
+  beforeAll(() => {
+    HTMLDialogElement.prototype.showModal = function showModal(this: HTMLDialogElement) {
+      this.setAttribute('open', '');
+    };
+    HTMLDialogElement.prototype.close = function close(this: HTMLDialogElement) {
+      this.removeAttribute('open');
+    };
+  });
+
+  it('只顯示下屬姓名、職級及空閒／忙碌；不顯示能力、可靠度或預計時間', () => {
+    render(
+      <DelegationDialog
+        ward={ward()}
+        actions={makeActions()}
+        open
+        callId={null}
+        onClose={vi.fn()}
+      />,
+    );
+    const dialog = screen.getByTestId('delegation-dialog');
+    expect(screen.getByTestId('sub-name')).toHaveTextContent('陳醫生');
+    expect(screen.getByTestId('sub-status')).toHaveAttribute('data-busy', 'false');
+    expect(dialog.textContent).not.toMatch(
+      /NOVICE|NORMAL|SENIOR|reliability|可靠度[:：]?\s*\d|\d+\s*%/i,
+    );
+  });
+
+  it('沒有下屬（HO）時只顯示說明；有下屬時提交委派並關閉', async () => {
+    const none = ward({
+      delegation: { hasSubordinate: false, subordinate: null, groups: [], tasks: [] },
+    });
+    const { unmount } = render(
+      <DelegationDialog ward={none} actions={makeActions()} open callId={null} onClose={vi.fn()} />,
+    );
+    expect(screen.getByTestId('no-subordinate')).toBeInTheDocument();
+    unmount();
+
+    const actions = makeActions();
+    const onClose = vi.fn();
+    render(
+      <DelegationDialog ward={ward()} actions={actions} open callId={null} onClose={onClose} />,
+    );
+    await userEvent.click(screen.getByTestId('delegate-submit'));
+    expect(actions.delegate).toHaveBeenCalledWith(
+      expect.objectContaining({ task: 'PROCEDURE', itemId: 'proc.foley', callId: null }),
+    );
+    expect(onClose).toHaveBeenCalled();
+  });
+
+  it('由來電打開時預選處理來電並帶上 callId', async () => {
+    const actions = makeActions();
+    render(<DelegationDialog ward={ward()} actions={actions} open callId="c1" onClose={vi.fn()} />);
+    await userEvent.click(screen.getByTestId('delegate-submit'));
+    expect(actions.delegate).toHaveBeenCalledWith({
+      task: 'SIMPLE_CALL',
+      itemId: 'call.handle',
+      patientId: null,
+      callId: 'c1',
+    });
+  });
+});

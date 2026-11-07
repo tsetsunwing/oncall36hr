@@ -26,7 +26,7 @@ export function DelegationDialog({ ward, actions, open, callId, onClose }: Deleg
     if (!open && el.open) el.close();
   }, [open]);
 
-  const [prevKey, setPrevKey] = useState(`${String(open)}:${callId ?? ''}`);
+  const [prevKey, setPrevKey] = useState<string | null>(null);
   const key = `${String(open)}:${callId ?? ''}`;
   if (prevKey !== key) {
     setPrevKey(key);

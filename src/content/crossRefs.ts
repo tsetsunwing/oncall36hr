@@ -187,5 +187,110 @@ export function validateCrossReferences(tables: Tables): ContentIssue[] {
     }
   });
 
+  validateWardRefs(tables, add);
+
   return issues;
+}
+
+const REQUIRED_RULES: readonly string[] = [
+  'ESCALATION_SKIPPED_LEVEL',
+  'ESCALATION_STEP_OK',
+  'SBAR_GOOD',
+  'SBAR_POOR',
+  'CONSULT_GOOD',
+  'CONSULT_POOR',
+  'DELEGATION_FAILED',
+  'CALL_DELEGATED_OK',
+];
+
+function validateWardRefs(
+  tables: Tables,
+  add: (table: string, path: string, message: string) => void,
+) {
+  const ruleIds = new Set(tables['scoring-rules'].map((r) => r.id));
+  const catalog = new Map(tables['order-catalog'].map((r) => [r.id, r]));
+  const deptIds = new Set(tables['consult-departments'].map((r) => r.id));
+
+  for (const rule of tables['scoring-rules'].length > 0 ? REQUIRED_RULES : []) {
+    if (!ruleIds.has(rule)) add('scoring-rules', rule, `缺少 M4 必需規則：${rule}`);
+  }
+
+  tables['call-templates'].forEach((row, i) => {
+    if (row.kind !== 'CALL') return;
+    for (const [response, effect] of Object.entries(row.responses)) {
+      for (const event of effect.events) {
+        if (!ruleIds.has(event)) {
+          add(
+            'call-templates',
+            `${String(i)}.responses.${response}`,
+            `未知 scoring-rules：${event}`,
+          );
+        }
+      }
+    }
+    for (const dept of row.deptPool ?? []) {
+      if (!deptIds.has(dept)) {
+        add('call-templates', `${String(i)}.deptPool`, `未知 consult-departments：${dept}`);
+      }
+    }
+  });
+  const prefills = tables['call-templates'].filter((r) => r.kind === 'SBAR_PREFILL');
+  if (tables['call-templates'].length > 0 && prefills.length !== 1) {
+    add(
+      'call-templates',
+      'SBAR_PREFILL',
+      `必須剛好一個 SBAR_PREFILL 模板（現有 ${String(prefills.length)}）`,
+    );
+  }
+
+  tables['delegation-results'].forEach((row, i) => {
+    row.items.forEach((item, j) => {
+      if (item.catalogId === undefined) return;
+      const entry = catalog.get(item.catalogId);
+      if (!entry) {
+        add(
+          'delegation-results',
+          `${String(i)}.items.${String(j)}`,
+          `未知 order-catalog：${item.catalogId}`,
+        );
+      } else if (!entry.executors.includes('SUBORDINATE')) {
+        add(
+          'delegation-results',
+          `${String(i)}.items.${String(j)}`,
+          `${item.catalogId} 不允許下屬執行`,
+        );
+      }
+    });
+  });
+
+  const beds = tables['ward-layout'].filter((r) => r.kind === 'BED');
+  const bedNumbers = new Set(beds.map((b) => b.bed));
+  if (bedNumbers.size !== beds.length) add('ward-layout', 'bed', '床號重複');
+  for (let n = 1; n <= beds.length; n++) {
+    if (!bedNumbers.has(n)) add('ward-layout', 'bed', `床號必須由 1 起連續，缺 ${String(n)}`);
+  }
+  const cells = new Set(beds.map((b) => `${String(b.row)},${String(b.col)}`));
+  if (cells.size !== beds.length) add('ward-layout', 'row,col', '兩張床佔用同一格');
+  const zones = new Set(beds.map((b) => b.zone));
+  for (const nurse of tables['nurse-roster']) {
+    if (!zones.has(nurse.zone)) add('nurse-roster', nurse.id, `護士分區 ${nurse.zone} 沒有床位`);
+  }
+  for (const zone of tables['nurse-roster'].length > 0 ? zones : []) {
+    for (const shift of ['DAY', 'NIGHT'] as const) {
+      if (!tables['nurse-roster'].some((n) => n.zone === zone && n.shift === shift)) {
+        add('nurse-roster', `${zone}.${shift}`, `分區 ${zone} 的 ${shift} 班沒有護士`);
+      }
+    }
+  }
+  if (beds.length > 0 && !tables['ward-layout'].some((r) => r.kind === 'WALK')) {
+    add('ward-layout', 'WALK', '缺少行走時間');
+  }
+
+  for (const rank of tables.subordinates.length > 0 ? (['HO', 'MO'] as const) : []) {
+    for (const level of ['NOVICE', 'NORMAL', 'SENIOR'] as const) {
+      if (!tables.subordinates.some((r) => r.rank === rank && r.level === level)) {
+        add('subordinates', `${rank}.${level}`, `缺少 ${rank} 的 ${level} 下屬`);
+      }
+    }
+  }
 }

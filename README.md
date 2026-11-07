@@ -26,3 +26,10 @@ Vite + React 18 + TypeScript（strict）純前端遊戲。目前進度：**M2 �
 - 開局：`/#/` 設定 API（或用 mock：`npm run mock-ai`，key `test-key`，model 名稱控制行為，例如 `mock-ok`、`mock-prompt-injection`、`mock-fail-twice`），再 `開始`。可加 `?seed=xxx` 固定種子。
 - 病人狀態、生命表徵、MEWS、order 效果全部由 `src/content/data/*.json` 表驅動；AI 只輸出「理解」（`order.parse`、`dialogue.turn`），數字一律用 `{{token}}`，由 engine 於排隊時凍結。
 - 已知待辦（M2 範圍外）：MEWS SpO2 分段／band 為 placeholder（`PENDING_CLINICAL_REVIEW`）、無心臟停頓／ACLS、無讀檔 UI、重新載入不會重發 pending AI 請求。
+
+## M4 病房：20 床、電話、人手
+
+- 預設開局為病房模式（20 床固定平面圖、護士分區、共用電話、下屬委派）。網址參數（測試與預覽用）：`seed`、`mode=DAY|NIGHT|ONCALL`、`difficulty=EASY|MEDIUM|HARD`、`rank=HO|MO|RES`、`callrate=<每小時來電基數>`、`ward=single`（舊式單一病人）。
+- 病人組合、來電量（T12：+0／+10／+20%）、下屬可靠度與速度、職級反應全部由 `src/content/data/*.json` 與 `config.json` 驅動；engine 在 `src/engine/ward/`，介面在 `src/ui/ward/`。
+- 下屬能力（level）只存在於 engine 內，從不進入 view、介面或 AI context；玩家只能由實際表現判斷。
+- 電話對白與 SBAR 預填由 engine 以模板產生（M4 未新增 AI contract）；所有臨床／平衡數值均標 `PENDING_CLINICAL_REVIEW`。
