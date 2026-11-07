@@ -31,6 +31,17 @@ function pickParams() {
   };
 }
 
+/** callrate=每小時來電基數（測試與預覽用，上限 120）；不設則用內容設定 */
+function pickConfig() {
+  const config = getConfig();
+  const raw = Number(hashParams(window.location.hash).get('callrate'));
+  if (!Number.isFinite(raw) || raw <= 0) return config;
+  return {
+    ...config,
+    phone: { ...config.phone, baseCallsPerHour: Math.min(Math.round(raw), 120) },
+  };
+}
+
 function pickSeed(): string {
   const fromUrl = hashParams(window.location.hash).get('seed');
   return fromUrl && fromUrl.length > 0 ? fromUrl : `night-${String(Date.now())}`;
@@ -40,7 +51,7 @@ export function GameScreen({ settings, devProxy }: GameScreenProps) {
   const session: GameSession = useMemo(
     () =>
       createGameSession({
-        config: getConfig(),
+        config: pickConfig(),
         tables: getContent().tables,
         params: {
           seed: pickSeed(),
@@ -51,7 +62,7 @@ export function GameScreen({ settings, devProxy }: GameScreenProps) {
         saves: createLazySaveService(),
         onSaveError: () => undefined,
       }),
-    // 一局遊戲只喺進入畫面時建立；中途改設定唔會換局
+    // 一局遊戲只在進入畫面時建立；中途改設定不會換局
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   );

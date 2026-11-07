@@ -70,7 +70,7 @@ function CallDetail({
         <span className="tag tag--priority" data-priority={call.priority}>
           {p.priority[call.priority]}
         </span>{' '}
-        <span className="call-status" data-testid="call-status">
+        <span className="call-status" data-testid="call-status" data-status={call.status}>
           {p.status[call.status]}
         </span>
       </p>

@@ -13,9 +13,6 @@ export const wardUi = {
   walking: (bed: number, seconds: number) => `前往 ${String(bed)} 號床，約 ${String(seconds)} 秒`,
   newAdmission: '新入院，尚未接收',
   mewsShort: (score: number) => `MEWS ${String(score)}`,
-  bedAria: (bed: number, name: string, age: number, sex: string, score: number, level: string) =>
-    `${String(bed)} 號床，${name}，${String(age)} 歲${sex}，MEWS ${String(score)}，${level}`,
-  bedEmptyAria: (bed: number) => `${String(bed)} 號床，空床`,
   sex: { M: '男', F: '女' } as Record<string, string>,
   level: { NORMAL: '穩定', CAUTION: '注意', ALARM: '警報' } as Record<string, string>,
   station: '護士站',

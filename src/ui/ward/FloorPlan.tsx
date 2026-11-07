@@ -12,16 +12,6 @@ function BedButton({ bed, actions }: { bed: BedView; actions: GameActions }) {
   const w = ui.game.ward;
   const occupied =
     bed.patientId !== null && bed.name !== null && bed.age !== null && bed.sex !== null;
-  const aria = occupied
-    ? w.bedAria(
-        bed.bed,
-        bed.name ?? '',
-        bed.age ?? 0,
-        w.sex[bed.sex ?? 'M'] ?? '',
-        bed.mewsScore ?? 0,
-        w.level[bed.level] ?? '',
-      )
-    : w.bedEmptyAria(bed.bed);
   return (
     <button
       type="button"
@@ -29,46 +19,27 @@ function BedButton({ bed, actions }: { bed: BedView; actions: GameActions }) {
       data-testid={`bed-${String(bed.bed)}`}
       data-level={occupied ? bed.level : 'EMPTY'}
       data-here={bed.here}
-      aria-label={`${aria}${bed.here ? `，${w.here}` : ''}`}
       aria-pressed={bed.here}
       onClick={() => {
         actions.goToBed(bed.bed);
       }}
     >
-      <span className="bed-no" aria-hidden="true">
-        {bed.bed}
-      </span>
+      <span className="bed-no">{bed.bed}</span>
       {occupied ? (
         <>
-          <span className="bed-name" aria-hidden="true">
-            {bed.name}
-          </span>
-          <span className="bed-meta" aria-hidden="true">
+          <span className="bed-name">{bed.name}</span>
+          <span className="bed-meta">
             {bed.age}
             {w.sex[bed.sex ?? 'M']}
           </span>
-          <span className="bed-mews" aria-hidden="true">
-            {w.mewsShort(bed.mewsScore ?? 0)}
-          </span>
-          <span className="bed-level" aria-hidden="true">
-            {w.level[bed.level]}
-          </span>
-          {bed.newAdmission ? (
-            <span className="bed-tag" aria-hidden="true">
-              {w.newAdmission}
-            </span>
-          ) : null}
+          <span className="bed-mews">{w.mewsShort(bed.mewsScore ?? 0)}</span>
+          <span className="bed-level">{w.level[bed.level]}</span>
+          {bed.newAdmission ? <span className="bed-tag">{w.newAdmission}</span> : null}
         </>
       ) : (
-        <span className="bed-empty" aria-hidden="true">
-          {w.empty}
-        </span>
+        <span className="bed-empty">{w.empty}</span>
       )}
-      {bed.here ? (
-        <span className="bed-here" aria-hidden="true">
-          {w.here}
-        </span>
-      ) : null}
+      {bed.here ? <span className="bed-here">{w.here}</span> : null}
     </button>
   );
 }

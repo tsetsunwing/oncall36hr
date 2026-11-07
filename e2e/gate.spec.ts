@@ -81,9 +81,12 @@ test.describe('M3 order + gate flow', () => {
     await openSidePanel(page);
     await expect(page.getByTestId('order-row').first()).toContainText('Amoxicillin-clavulanate');
     await expect(page.getByTestId('order-row').first()).not.toHaveAttribute('data-status', 'GATED');
-    await expect(page.locator('[data-kind="NURSE"]').last()).toContainText('Amoxicillin-clavulanate', {
-      timeout: 20_000,
-    });
+    await expect(page.locator('[data-kind="NURSE"]').last()).toContainText(
+      'Amoxicillin-clavulanate',
+      {
+        timeout: 20_000,
+      },
+    );
     await page.getByTestId('pause-toggle').click();
     await shot(page, 'gate-released');
     await expectAxeClean(page);

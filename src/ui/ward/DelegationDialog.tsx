@@ -81,6 +81,7 @@ export function DelegationDialog({ ward, actions, open, callId, onClose }: Deleg
                 className="badge"
                 data-level={busy ? 'CAUTION' : 'NORMAL'}
                 data-testid="sub-status"
+                data-busy={busy}
               >
                 {busy ? d.status.busy : d.status.idle}
               </span>
