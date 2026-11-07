@@ -116,6 +116,31 @@ describe('AI gateway', () => {
     expect(sent).toHaveLength(1);
   });
 
+  it('xAI 的 400 incorrect API key 唔重試 → AUTH', async () => {
+    const { sent, fetchImpl } = scripted([
+      { status: 400, body: { error: 'Incorrect API key provided. Obtain one from the console.' } },
+    ]);
+    expect(await createAiGateway(endpoint, { fetchImpl, timeoutMs: 500 }).run(request)).toEqual({
+      ok: false,
+      reason: 'AUTH',
+    });
+    expect(sent).toHaveLength(1);
+  });
+
+  it('404 唔重試', async () => {
+    const { sent, fetchImpl } = scripted([
+      {
+        status: 404,
+        body: { error: 'The model grok-4.7 does not exist or your team lacks access.' },
+      },
+    ]);
+    expect(await createAiGateway(endpoint, { fetchImpl, timeoutMs: 500 }).run(request)).toEqual({
+      ok: false,
+      reason: 'NETWORK',
+    });
+    expect(sent).toHaveLength(1);
+  });
+
   it('HTTP 5xx／429／網絡錯誤：重試 1 次後 → NETWORK', async () => {
     for (const step of [{ status: 503, body: {} }, { status: 429, body: {} }, 'network' as const]) {
       const { sent, fetchImpl } = scripted([step]);

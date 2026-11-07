@@ -309,7 +309,7 @@ export const ui = {
     heading: '設定',
     aiSection: 'AI 連線',
     baseUrlLabel: 'API base URL',
-    baseUrlHint: '選擇供應商會填上官方位址，仍可自行修改。',
+    baseUrlHint: '選擇供應商會填上官方位址。從主控台複製完整端點（連 /chat/completions）也可以。',
     apiKeyLabel: 'API key',
     apiKeyHint: '只儲存在這個瀏覽器的 localStorage，請使用低額度的 key。',
     showKey: '顯示',

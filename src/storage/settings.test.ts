@@ -75,4 +75,23 @@ describe('settings storage', () => {
   it('normalizes trailing slashes', () => {
     expect(normalizeBaseUrl(' https://a.test/v1/// ')).toBe('https://a.test/v1');
   });
+
+  it('turns a pasted console endpoint into the base URL', () => {
+    expect(normalizeBaseUrl('https://api.x.ai/v1/chat/completions')).toBe('https://api.x.ai/v1');
+    expect(normalizeBaseUrl('https://api.x.ai')).toBe('https://api.x.ai/v1');
+    expect(normalizeBaseUrl('https://us.api.x.ai/v1/chat/completions?x=1')).toBe(
+      'https://us.api.x.ai/v1',
+    );
+    expect(normalizeBaseUrl('https://api.openai.com/v1/chat/completions')).toBe(
+      'https://api.openai.com/v1',
+    );
+    expect(normalizeBaseUrl('https://api.anthropic.com/v1/messages')).toBe(
+      'https://api.anthropic.com/v1',
+    );
+  });
+
+  it('strips a copied Bearer prefix from the key', () => {
+    saveSettings({ ...defaultSettings(), apiKey: 'Bearer xai-test-key' });
+    expect(loadSettings().apiKey).toBe('xai-test-key');
+  });
 });

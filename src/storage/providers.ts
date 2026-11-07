@@ -116,7 +116,7 @@ export function modelOption(provider: ProviderId, modelId: string): ModelOption 
 export function inferProvider(baseUrl: string): ProviderId | undefined {
   try {
     const host = new URL(baseUrl).host;
-    if (host === 'api.x.ai') return 'grok';
+    if (host === 'api.x.ai' || host === 'us.api.x.ai') return 'grok';
     if (host === 'generativelanguage.googleapis.com') return 'gemini';
     if (host === 'api.openai.com') return 'openai';
     if (host === 'api.anthropic.com') return 'claude';

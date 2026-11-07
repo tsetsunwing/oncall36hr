@@ -51,8 +51,46 @@ export function defaultSettings(): Settings {
   };
 }
 
+const PASTED_ENDPOINT_SUFFIXES = ['/chat/completions', '/messages', '/responses'] as const;
+
+/**
+ * 主控台複製的常常是完整端點。去掉路徑尾同 query，xAI 只有 host 時補上 /v1。
+ * 請求時 transport.completionTarget 再做一次，避免舊存檔仍打出 404。
+ */
+function normalizeApiKey(value: string): string {
+  let key = value.trim();
+  if ((key.startsWith('"') && key.endsWith('"')) || (key.startsWith("'") && key.endsWith("'"))) {
+    key = key.slice(1, -1).trim();
+  }
+  return key.replace(/^bearer\s+/i, '').trim();
+}
+
 export function normalizeBaseUrl(value: string): string {
-  return value.trim().replace(/\/+$/, '');
+  let text = value.trim();
+  try {
+    const url = new URL(text);
+    url.hash = '';
+    url.search = '';
+    text = url.toString();
+  } catch {
+    return value.trim().replace(/\/+$/, '');
+  }
+  text = text.replace(/\/+$/, '');
+  const lower = text.toLowerCase();
+  for (const suffix of PASTED_ENDPOINT_SUFFIXES) {
+    if (lower.endsWith(suffix)) {
+      text = text.slice(0, -suffix.length).replace(/\/+$/, '');
+      break;
+    }
+  }
+  try {
+    const url = new URL(text);
+    const bare = url.pathname === '' || url.pathname === '/';
+    if (bare && (url.host === 'api.x.ai' || url.host === 'us.api.x.ai')) return `${url.origin}/v1`;
+  } catch {
+    return text;
+  }
+  return text;
 }
 
 export function normalizeSettings(settings: Settings): Settings {
@@ -61,7 +99,7 @@ export function normalizeSettings(settings: Settings): Settings {
   return {
     provider,
     baseUrl: normalizeBaseUrl(settings.baseUrl),
-    apiKey: settings.apiKey.trim(),
+    apiKey: normalizeApiKey(settings.apiKey),
     model,
     thinkingLevel: sanitizeThinking(provider, model, settings.thinkingLevel),
     nurseConfirmHighRisk: settings.nurseConfirmHighRisk,

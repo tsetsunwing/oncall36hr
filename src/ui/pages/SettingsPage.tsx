@@ -11,8 +11,8 @@ import { AiSettingsFields } from './AiSettingsFields';
 
 export type ConnectionOutcome =
   | { kind: 'ok'; jsonMode: boolean }
-  | { kind: 'auth'; status: number }
-  | { kind: 'http'; status: number }
+  | { kind: 'auth'; status: number; detail?: string }
+  | { kind: 'http'; status: number; detail?: string }
   | { kind: 'format' }
   | { kind: 'timeout' }
   | { kind: 'network' };
@@ -32,9 +32,19 @@ function describeOutcome(outcome: ConnectionOutcome): { message: string; ok: boo
     case 'ok':
       return { message: outcome.jsonMode ? t.ok : t.okNonJson, ok: true };
     case 'auth':
-      return { message: `${t.auth}（HTTP ${outcome.status}）`, ok: false };
+      return {
+        message: outcome.detail
+          ? `${t.auth}（HTTP ${outcome.status}）${outcome.detail}`
+          : `${t.auth}（HTTP ${outcome.status}）`,
+        ok: false,
+      };
     case 'http':
-      return { message: `${t.http}${outcome.status}`, ok: false };
+      return {
+        message: outcome.detail
+          ? `${t.http}${outcome.status}。${outcome.detail}`
+          : `${t.http}${outcome.status}`,
+        ok: false,
+      };
     case 'format':
       return { message: t.format, ok: false };
     case 'timeout':

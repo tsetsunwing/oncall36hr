@@ -10,7 +10,7 @@ import type { AiFailureReason, JsonValue } from '@/engine';
 import { contractFor } from '../contracts';
 import { CONTRACT_VERSION } from '../contracts/types';
 import { buildMessages, repairMessages, type ChatMessage } from '../prompts/messages';
-import { postCompletion } from './transport';
+import { isApiKeyRejection, postCompletion } from './transport';
 import type { AiEndpoint, TransportOptions } from './types';
 
 export interface AiRequest {
@@ -95,8 +95,11 @@ export function createAiGateway(
         );
         if (response.kind === 'timeout') return { kind: 'fail', reason: 'TIMEOUT', retry: true };
         if (response.kind === 'network') return { kind: 'fail', reason: 'NETWORK', retry: true };
-        if (response.status === 401 || response.status === 403) {
+        if (isApiKeyRejection(response.status, response.body)) {
           return { kind: 'fail', reason: 'AUTH', retry: false };
+        }
+        if (response.status === 404) {
+          return { kind: 'fail', reason: 'NETWORK', retry: false };
         }
         if (response.status < 200 || response.status >= 300) {
           return { kind: 'fail', reason: 'NETWORK', retry: true };

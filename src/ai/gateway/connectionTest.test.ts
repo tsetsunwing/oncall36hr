@@ -2,6 +2,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { startMockServer, type MockServer } from '../../../test-support/mock-ai-server/server';
 import { testConnection } from './connectionTest';
+import { providerErrorDetail } from './transport';
 
 let mock: MockServer;
 
@@ -41,6 +42,7 @@ describe('testConnection against the mock OpenAI-compatible server', () => {
     expect(await testConnection(endpoint({ apiKey: 'bad' }))).toEqual({
       kind: 'auth',
       status: 401,
+      detail: 'Invalid API key',
     });
   });
 
@@ -48,10 +50,12 @@ describe('testConnection against the mock OpenAI-compatible server', () => {
     expect(await testConnection(endpoint({ model: 'mock-5xx' }))).toEqual({
       kind: 'http',
       status: 500,
+      detail: 'Internal error',
     });
     expect(await testConnection(endpoint({ model: 'mock-429' }))).toEqual({
       kind: 'http',
       status: 429,
+      detail: 'Rate limited',
     });
   });
 
@@ -95,5 +99,38 @@ describe('testConnection against the mock OpenAI-compatible server', () => {
     expect(result.kind).toBe('ok');
     expect(calls[0]?.url).toBe('/ai-proxy/chat/completions');
     expect(calls[0]?.headers['x-ai-target-base-url']).toBe(mock.baseUrl);
+  });
+
+  it('surfaces a Grok 404 body and collapses a pasted endpoint', async () => {
+    let url = '';
+    const fetchImpl = ((input: string) => {
+      url = input;
+      return Promise.resolve(
+        new Response(
+          JSON.stringify({
+            code: 'not-found',
+            error: 'The model grok-4.7 does not exist or your team does not have access to it.',
+          }),
+          { status: 404 },
+        ),
+      );
+    }) as typeof fetch;
+    const result = await testConnection(
+      {
+        provider: 'grok',
+        baseUrl: 'https://api.x.ai/v1/chat/completions',
+        apiKey: 'xai-test',
+        model: 'grok-4.7',
+      },
+      { fetchImpl, timeoutMs: 500 },
+    );
+    expect(url).toBe('https://api.x.ai/v1/chat/completions');
+    expect(result).toEqual({
+      kind: 'http',
+      status: 404,
+      detail: providerErrorDetail({
+        error: 'The model grok-4.7 does not exist or your team does not have access to it.',
+      }),
+    });
   });
 });

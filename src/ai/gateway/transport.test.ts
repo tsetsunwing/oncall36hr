@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { createAiGateway, type AiRequest } from './gateway';
-import { claudePayload, openAiPayload, postCompletion } from './transport';
+import {
+  claudePayload,
+  completionTarget,
+  openAiPayload,
+  postCompletion,
+  providerErrorDetail,
+} from './transport';
 
 const messages = [
   { role: 'system' as const, content: 'sys' },
@@ -131,5 +137,41 @@ describe('Claude transport', () => {
       { timeoutMs: 500, fetchImpl },
     );
     expect(result).toMatchObject({ kind: 'response', status: 401 });
+  });
+});
+
+describe('pasted console endpoints', () => {
+  it('does not append chat/completions twice', () => {
+    expect(completionTarget('https://api.x.ai/v1/chat/completions')).toBe('https://api.x.ai/v1');
+    expect(completionTarget('https://api.x.ai')).toBe('https://api.x.ai/v1');
+    expect(completionTarget('https://api.x.ai/v1')).toBe('https://api.x.ai/v1');
+  });
+
+  it('posts a pasted Grok endpoint to /v1/chat/completions once', async () => {
+    const sent: string[] = [];
+    const fetchImpl = ((url: string) => {
+      sent.push(url);
+      return Promise.resolve(new Response('{}', { status: 200 }));
+    }) as typeof fetch;
+    await postCompletion(
+      {
+        provider: 'grok',
+        baseUrl: 'https://api.x.ai/v1/chat/completions',
+        apiKey: 'xai-test',
+        model: 'grok-4.7',
+      },
+      { messages, temperature: 0, jsonMode: true, maxTokens: 16 },
+      { timeoutMs: 500, fetchImpl },
+    );
+    expect(sent).toEqual(['https://api.x.ai/v1/chat/completions']);
+  });
+
+  it('reads an xAI error without keeping a key', () => {
+    const detail = providerErrorDetail({
+      code: 'not-found',
+      error: 'The model grok-4.7 does not exist. Key xai-secretvalue was not logged.',
+    });
+    expect(detail).toContain('does not exist');
+    expect(detail).not.toContain('xai-secretvalue');
   });
 });

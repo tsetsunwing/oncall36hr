@@ -1,12 +1,12 @@
 import { z } from 'zod';
 import { getConfig } from '@/content';
-import { postCompletion } from './transport';
+import { isApiKeyRejection, postCompletion, providerErrorDetail } from './transport';
 import type { AiEndpoint, TransportOptions } from './types';
 
 export type ConnectionTestResult =
   | { kind: 'ok'; jsonMode: boolean }
-  | { kind: 'auth'; status: number }
-  | { kind: 'http'; status: number }
+  | { kind: 'auth'; status: number; detail?: string }
+  | { kind: 'http'; status: number; detail?: string }
   | { kind: 'format' }
   | { kind: 'timeout' }
   | { kind: 'network' };
@@ -49,9 +49,17 @@ export async function testConnection(
   );
 
   if (result.kind !== 'response') return { kind: result.kind };
-  if (result.status === 401 || result.status === 403)
-    return { kind: 'auth', status: result.status };
-  if (result.status < 200 || result.status >= 300) return { kind: 'http', status: result.status };
+  const detail = providerErrorDetail(result.body);
+  if (isApiKeyRejection(result.status, result.body)) {
+    return detail
+      ? { kind: 'auth', status: result.status, detail }
+      : { kind: 'auth', status: result.status };
+  }
+  if (result.status < 200 || result.status >= 300) {
+    return detail
+      ? { kind: 'http', status: result.status, detail }
+      : { kind: 'http', status: result.status };
+  }
 
   const parsed = completionSchema.safeParse(result.body);
   if (!parsed.success) return { kind: 'format' };

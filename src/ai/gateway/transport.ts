@@ -116,6 +116,69 @@ async function postJson(
   }
 }
 
+const ENDPOINT_SUFFIXES = ['/chat/completions', '/messages', '/responses'] as const;
+
+/**
+ * 主控台通常複製完整端點（例如 https://api.x.ai/v1/chat/completions）。
+ * 再拼一次 /chat/completions 會打到不存在的路徑，xAI 回 404。
+ * 只有 host、沒有 /v1 的 api.x.ai 同樣 404。
+ */
+export function completionTarget(baseUrl: string): string {
+  let value = baseUrl.trim();
+  try {
+    const url = new URL(value);
+    url.hash = '';
+    url.search = '';
+    value = url.toString();
+  } catch {
+    return baseUrl.trim().replace(/\/+$/, '');
+  }
+  value = value.replace(/\/+$/, '');
+  const lower = value.toLowerCase();
+  for (const suffix of ENDPOINT_SUFFIXES) {
+    if (lower.endsWith(suffix)) {
+      value = value.slice(0, -suffix.length).replace(/\/+$/, '');
+      break;
+    }
+  }
+  try {
+    const url = new URL(value);
+    const bareHost = url.pathname === '' || url.pathname === '/';
+    if (bareHost && (url.host === 'api.x.ai' || url.host === 'us.api.x.ai')) {
+      return `${url.origin}/v1`;
+    }
+  } catch {
+    return value;
+  }
+  return value;
+}
+
+/** 供應商錯誤正文。去掉可能混入的 key，並截短。 */
+export function providerErrorDetail(body: unknown): string {
+  if (!body || typeof body !== 'object') return '';
+  const record = body as { error?: unknown; message?: unknown };
+  const error = record.error;
+  let text = '';
+  if (typeof error === 'string') text = error;
+  else if (error && typeof error === 'object') {
+    const message = (error as { message?: unknown }).message;
+    if (typeof message === 'string') text = message;
+  } else if (typeof record.message === 'string') text = record.message;
+  text = text.replace(/\s+/g, ' ').trim();
+  text = text.replace(/bearer\s+\S+/gi, 'Bearer …');
+  text = text.replace(/\b(?:sk-|xai-|sk-ant-)[A-Za-z0-9_-]{8,}\b/g, '…');
+  if (text.length > 180) text = `${text.slice(0, 177)}…`;
+  return text;
+}
+
+export function isApiKeyRejection(status: number, body: unknown): boolean {
+  if (status === 401 || status === 403) return true;
+  if (status !== 400) return false;
+  return /incorrect api key|invalid api key|invalid x-api-key|authentication/i.test(
+    providerErrorDetail(body),
+  );
+}
+
 function requestUrl(
   options: TransportOptions,
   target: string,
@@ -142,7 +205,7 @@ export async function postCompletion(
   options: TransportOptions,
 ): Promise<TransportResult> {
   if (endpoint.provider === 'claude') {
-    const { target, path } = claudeMessagesTarget(endpoint.baseUrl);
+    const { target, path } = claudeMessagesTarget(completionTarget(endpoint.baseUrl));
     const { url, headers } = requestUrl(options, target, path);
     headers['x-api-key'] = endpoint.apiKey;
     headers['anthropic-version'] = ANTHROPIC_VERSION;
@@ -156,7 +219,7 @@ export async function postCompletion(
     };
   }
 
-  const target = endpoint.baseUrl.replace(/\/+$/, '');
+  const target = completionTarget(endpoint.baseUrl);
   const { url, headers } = requestUrl(options, target, 'chat/completions');
   headers.Authorization = `Bearer ${endpoint.apiKey}`;
   return postJson(url, headers, openAiPayload(endpoint, call), options);
