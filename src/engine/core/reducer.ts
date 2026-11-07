@@ -22,11 +22,13 @@ import { deathModule } from '../death/deathModule';
 import { gateModule } from '../gate/gate';
 import { ordersModule } from '../orders/orders';
 import { resultsModule } from '../results/results';
+import { shiftModule } from '../shift/shiftModule';
 import { subordinateOrderModule } from '../ward/delegation';
 import { wardModule } from '../ward/wardModule';
 import { requestAi } from './ai';
 
 export const defaultModules: readonly EngineModule[] = [
+  shiftModule,
   subordinateOrderModule,
   ordersModule,
   gateModule,
@@ -207,12 +209,20 @@ export function createEngine(config: EngineConfig, options: EngineOptions = {}):
         result = tick(state, event.dtRealMs);
         break;
 
-      case 'PLAYER_INTENT':
-        result =
-          handleCoreIntent(state, event.intent) ??
-          applyIntentToModules(state, event.intent) ??
-          none(state);
+      case 'PLAYER_INTENT': {
+        const core = handleCoreIntent(state, event.intent);
+        if (core) {
+          result = core;
+          break;
+        }
+        const handled = applyIntentToModules(state, event.intent) ?? none(state);
+        result = handled;
+        for (const module of modules) {
+          const adjusted = module.afterIntent?.(state, result, event.intent, ctx);
+          if (adjusted) result = adjusted;
+        }
         break;
+      }
 
       case 'AI_RESULT': {
         const pending = state.pendingAi.find((p) => p.reqId === event.reqId);

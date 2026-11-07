@@ -90,7 +90,7 @@ describe('快捷詞 → order → 結果（唔經 order.parse）', () => {
     const sent = mock.requests.map((r) => JSON.stringify(r.body));
     expect(sent.some((b) => b.includes('order.parse'))).toBe(false);
 
-    await timer.run(4000, session);
+    await timer.run(8000, session);
     const view = session.getSnapshot();
     const row = view.actionLog.patient.find((r) => r.kind === 'ORDER');
     expect(row?.status).toBe('DONE');
@@ -137,14 +137,18 @@ describe('自由文字 → order.parse → order', () => {
     expect(session.getSnapshot().aiFailure).toBeNull();
   });
 
-  it('AI 回應期間時鐘照走（C1 A）；order 完成時間跟 §2.4', async () => {
+  it('AI 回應期間時鐘自動暫停（C1 B）；回覆後繼續', async () => {
     const { session, timer } = open('mock-ok');
+    session.start();
     const t0 = session.getState().clock.t;
     session.actions.submitChat('p1', '幫我睇下 vital signs');
+    expect(session.getState().pendingAi.length).toBeGreaterThan(0);
     await timer.run(1000);
-    expect(session.getState().clock.t).toBeGreaterThan(t0);
+    expect(session.getState().clock.t).toBe(t0);
     await session.settled();
     expect(session.getSnapshot().orders).toHaveLength(1);
+    await timer.run(2000, session);
+    expect(session.getState().clock.t).toBeGreaterThan(t0);
   });
 });
 
@@ -173,7 +177,7 @@ describe('惡意／錯誤 AI 輸出：改唔到任何顯示數字', () => {
   it('mock-extra-fields：多餘欄位（vitals／diagnosis）被剝除，正常完成，數字不受影響', async () => {
     const { session, timer } = open('mock-extra-fields', { seed: 'int-extra' });
     session.actions.submitChat('p1', '睇下 vital signs');
-    await timer.run(4000, session);
+    await timer.run(8000, session);
     const view = session.getSnapshot();
     expect(view.aiFailure).toBeNull();
     expect(view.monitor?.spo2.text).not.toBe('99');
@@ -370,7 +374,7 @@ describe('M3：把關（真 gateway ＋ mock AI）', () => {
   it('化驗：order 完成後按表內延遲出報告，護士口頭通知，報告數值唔來自 AI', async () => {
     const { session, timer } = open('mock-ok', { seed: 'int-lab' });
     session.actions.submitChat('p1', 'cbc');
-    await timer.run(70_000, session);
+    await timer.run(250_000, session);
     const view = session.getSnapshot();
     expect(view.reports[0]?.kind).toBe('PANEL');
     expect(view.orders[0]?.resultStatus).toBe('REPORTED');

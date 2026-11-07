@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { contractFor, dialogueContract, orderParseContract } from '.';
+import {
+  contractFor,
+  dialogueContract,
+  orderParseContract,
+  roundsGradeContract,
+  roundsQuestionContract,
+} from '.';
 import type { DialoguePrompt } from './dialogueTurn';
 import type { OrderParsePrompt } from './orderParse';
 
@@ -165,6 +171,8 @@ it('contractFor：只認識已登記嘅 kind', () => {
     'gate.pharmacy',
     'gate.nurse',
     'gate.danger',
+    'rounds.question',
+    'rounds.grade',
   ]) {
     expect(contractFor(kind), kind).toBeDefined();
   }
@@ -212,5 +220,74 @@ describe('dialogue.turn：搶救／死亡 beats', () => {
   it('system prompt 聲明 engine 先決定結果、AI 只措辭，唔提生存機率', () => {
     expect(dialogueContract.system).toMatch(/engine alone decides every outcome/);
     expect(dialogueContract.system).toMatch(/never state or hint at a chance of survival/);
+  });
+});
+
+describe('rounds.question／rounds.grade 契約', () => {
+  const question = {
+    hostRank: 'AC',
+    playerRank: 'MO',
+    category: 'HISTORY',
+    focus: '肺炎病人的病史重點',
+    keyFacts: [
+      { id: 'f1', text: '典型症狀包括發燒、咳嗽' },
+      { id: 'f2', text: '要問吸煙史' },
+      { id: 'f3', text: '了解近期入院' },
+    ],
+    patient: { age: 70, sex: 'M', presentingComplaint: '氣促' },
+    hintCount: 3,
+    maxQuestionChars: 40,
+    maxHintChars: 20,
+  } as const;
+  const qGuard = (data: unknown) =>
+    roundsQuestionContract.guard(
+      roundsQuestionContract.dataSchema.parse(data),
+      roundsQuestionContract.promptSchema.parse(question),
+      { number: 1, patientId: 'p1', topicId: 't1' },
+    ).issues;
+
+  it('題目：合法輸出通過；數字、token、超長、提示數量錯、重複提示都被擋', () => {
+    expect(
+      qGuard({ question: '你會問啲咩病史？', hints: ['發燒咳嗽', '吸煙史', '近期入院'] }),
+    ).toEqual([]);
+    expect(qGuard({ question: '血氧九十三', hints: ['甲', '乙', '丙'] }).join()).toMatch(/number/);
+    expect(qGuard({ question: '請答 3 點', hints: ['甲', '乙', '丙'] }).join()).toMatch(/digit/);
+    expect(qGuard({ question: '血氧 {{vital.spo2}}', hints: ['甲', '乙', '丙'] }).join()).toMatch(
+      /tokens/,
+    );
+    expect(qGuard({ question: '好'.repeat(41), hints: ['甲', '乙', '丙'] }).join()).toMatch(
+      /longer/,
+    );
+    expect(qGuard({ question: '你會問啲咩？', hints: ['甲', '乙'] }).join()).toMatch(/exactly 3/);
+    expect(qGuard({ question: '你會問啲咩？', hints: ['甲', '甲', '丙'] }).join()).toMatch(
+      /different/,
+    );
+  });
+
+  const grade = {
+    ...question,
+    question: '你會問啲咩？',
+    answer: '發燒咳嗽',
+    viaHint: false,
+    maxLineChars: 30,
+  };
+  const gGuard = (data: unknown) =>
+    roundsGradeContract.guard(
+      roundsGradeContract.dataSchema.parse(data),
+      roundsGradeContract.promptSchema.parse(grade),
+      { number: 1, patientId: 'p1', topicId: 't1' },
+    ).issues;
+
+  it('評分：只可引用 key fact id；非答錯必須有命中；seniorLine 唔准有數字', () => {
+    expect(gGuard({ verdict: 'CORRECT', matchedKeyFacts: ['f1'], seniorLine: '啱' })).toEqual([]);
+    expect(gGuard({ verdict: 'WRONG', matchedKeyFacts: [] })).toEqual([]);
+    expect(gGuard({ verdict: 'CORRECT', matchedKeyFacts: ['zzz'] }).join()).toMatch(/copied/);
+    expect(gGuard({ verdict: 'PARTIAL', matchedKeyFacts: [] }).join()).toMatch(
+      /needs at least one/,
+    );
+    expect(gGuard({ verdict: 'WRONG', matchedKeyFacts: [], seniorLine: '畀 9 分' }).join()).toMatch(
+      /digit/,
+    );
+    expect(roundsGradeContract.dataSchema.safeParse({ verdict: 'GREAT' }).success).toBe(false);
   });
 });

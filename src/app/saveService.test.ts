@@ -7,7 +7,8 @@ import { getEngineConfig } from './engineConfig';
 import { createGameRuntime } from './runtime';
 import { createSaveService } from './saveService';
 
-const config = getEngineConfig();
+const realConfig = getEngineConfig();
+const config = { ...realConfig, clock: { ...realConfig.clock, pauseWhileAiPending: false } };
 const engine = createEngine(config);
 const slots = { manualSlots: 5, autoSlots: 2, aiFailureSlots: 1 };
 let counter = 0;
@@ -30,13 +31,15 @@ const place = (durationSec: number): EngineEvent => ({
 });
 
 describe('real content config', () => {
-  it('uses C3 B: 1 game minute = 2 real seconds at 1x, speeds 0/1/2/4, 30-minute autosave', () => {
-    expect(config.clock.realSecondsPerGameMinuteAt1x).toBe(2);
-    expect(config.clock.speeds).toEqual([0, 1, 2, 4]);
-    expect(config.saves.autoSaveEveryGameMinutes).toBe(30);
-    expect(
-      engine.reduce(engine.init(newGame), { type: 'TICK', dtRealMs: 2000 }).state.clock.t,
-    ).toBe(60);
+  it('uses C3 C: 1 game minute = 5 real seconds at 1x, speeds 0/1/2/4, 30-minute autosave, C1 AI auto-pause', () => {
+    expect(realConfig.clock.realSecondsPerGameMinuteAt1x).toBe(5);
+    expect(realConfig.clock.pauseWhileAiPending).toBe(true);
+    expect(realConfig.clock.speeds).toEqual([0, 1, 2, 4]);
+    expect(realConfig.saves.autoSaveEveryGameMinutes).toBe(30);
+    const real = createEngine(realConfig);
+    expect(real.reduce(real.init(newGame), { type: 'TICK', dtRealMs: 5000 }).state.clock.t).toBe(
+      60,
+    );
   });
 });
 
@@ -87,7 +90,7 @@ describe('game runtime (effects → saves)', () => {
   it('writes an AUTO slot every 30 game minutes and a MANUAL slot on SAVE_GAME', async () => {
     const { saves, repo } = await services();
     const runtime = createGameRuntime({ engine, saves, initialState: engine.init(newGame) });
-    runtime.dispatch({ type: 'TICK', dtRealMs: 60_000 });
+    runtime.dispatch({ type: 'TICK', dtRealMs: 150_000 });
     runtime.dispatch({ type: 'PLAYER_INTENT', intent: { type: 'SAVE_GAME', slot: 4 } });
     await runtime.flushSaves();
     const list = await repo.list();
@@ -110,7 +113,7 @@ describe('game runtime (effects → saves)', () => {
       initialState: engine.init(newGame),
       onEffect: (e) => effects.push(e.type),
     });
-    runtime.dispatch({ type: 'TICK', dtRealMs: 4000 });
+    runtime.dispatch({ type: 'TICK', dtRealMs: 10_000 });
     runtime.dispatch({ type: 'AI_FAILURE', reqId: 'r1', reason: 'TIMEOUT' });
     await runtime.flushSaves();
     const loaded = await saves.load('ai-failure-1');

@@ -1,7 +1,8 @@
 {
   "_note": "全部為設計者預設值（spec §25、implementation-plan §5 T30）。邏輯不得內置數字，改值只需改本檔。",
   "clock": {
-    "realSecondsPerGameMinuteAt1x": 2,
+    "realSecondsPerGameMinuteAt1x": 5,
+    "pauseWhileAiPending": true,
     "speeds": [0, 1, 2, 4],
     "defaultSpeed": 1,
     "cprSlowFactor": 0.5,
@@ -16,14 +17,22 @@
       "segmentHours": [10, 14, 10],
       "regularSeconds": 122400
     },
-    "overtimeSeconds": 7200
+    "overtimeSeconds": 7200,
+    "overtimePenaltyStepSeconds": 600
   },
   "rounds": {
     "hours": [9, 14],
     "suppressInterruptsDuringRound": true,
-    "onCallRoundsTotal": 4
+    "onCallRoundsTotal": 4,
+    "questionSeconds": 180,
+    "revealSeconds": 30,
+    "deferStepSeconds": 60,
+    "arrestDeferMaxSeconds": 1800,
+    "hostRank": "AC",
+    "questionMaxChars": 120,
+    "hintMaxChars": 60
   },
-  "meals": { "lunchHour": 12, "dinnerHour": 20 },
+  "meals": { "lunchHour": 12, "dinnerHour": 20, "windowSeconds": 5400 },
   "vitals": {
     "sampleIntervalSeconds": 60,
     "criticalSampleIntervalSeconds": 10,

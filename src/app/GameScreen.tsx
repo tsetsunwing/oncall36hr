@@ -5,7 +5,7 @@ import type { Settings } from '@/storage';
 import { GamePage } from '@/ui';
 import { createGameSession, type GameSession } from './gameSession';
 import { createLazySaveService } from './lazySaves';
-import { hashParams } from './router';
+import { hashParams, navigate } from './router';
 
 export interface GameScreenProps {
   settings: Settings;
@@ -31,14 +31,23 @@ function pickParams() {
   };
 }
 
-/** callrate=每小時來電基數（測試與預覽用，上限 120）；不設則用內容設定 */
+/**
+ * 測試與預覽用 hash 參數：callrate=每小時來電基數（上限 120）；
+ * realsec=1 倍速時每遊戲分鐘嘅真實秒數（0.005–60，加快 e2e）。不設則用內容設定。
+ */
 function pickConfig() {
-  const config = getConfig();
-  const raw = Number(hashParams(window.location.hash).get('callrate'));
-  if (!Number.isFinite(raw) || raw <= 0) return config;
+  const base = getConfig();
+  const params = hashParams(window.location.hash);
+  const rate = Number(params.get('callrate'));
+  const realSec = Number(params.get('realsec'));
+  const withCalls =
+    Number.isFinite(rate) && rate > 0
+      ? { ...base, phone: { ...base.phone, baseCallsPerHour: Math.min(Math.round(rate), 120) } }
+      : base;
+  if (!Number.isFinite(realSec) || realSec < 0.005 || realSec > 60) return withCalls;
   return {
-    ...config,
-    phone: { ...config.phone, baseCallsPerHour: Math.min(Math.round(raw), 120) },
+    ...withCalls,
+    clock: { ...withCalls.clock, realSecondsPerGameMinuteAt1x: realSec },
   };
 }
 
@@ -88,5 +97,13 @@ export function GameScreen({ settings, devProxy }: GameScreenProps) {
   }, [session]);
 
   const view = useSyncExternalStore(session.subscribe, session.getSnapshot);
-  return <GamePage view={view} actions={session.actions} />;
+  return (
+    <GamePage
+      view={view}
+      actions={session.actions}
+      onExit={() => {
+        navigate('start');
+      }}
+    />
+  );
 }

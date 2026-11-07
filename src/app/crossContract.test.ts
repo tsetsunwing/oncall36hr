@@ -18,13 +18,18 @@ import {
   createEngine,
   hasBareNumber,
   leaksDiagnosis,
+  roundTextOk,
   validateTemplate,
   type Effect,
   type EngineEvent,
   type GameState,
 } from '@/engine';
 
-const engine = createEngine(getConfig(), { tables: getContent().tables });
+const baseConfig = getConfig();
+const engine = createEngine(
+  { ...baseConfig, clock: { ...baseConfig.clock, pauseWhileAiPending: false } },
+  { tables: getContent().tables },
+);
 
 function collectRequests() {
   const requests: Extract<Effect, { type: 'AI_REQUEST' }>[] = [];
@@ -452,5 +457,84 @@ describe('M4b：consult／family 契約同 engine 一致', () => {
       run.answer(CONSULT_REPLY_KIND, data);
       expect(aiOk, text).toBe(run.state().paused?.by !== 'ai-failure');
     }
+  });
+});
+
+describe('巡房：engine 同 ai 嘅契約一致', () => {
+  const answerQuestion = (state: GameState, reqId: string) =>
+    engine.reduce(state, {
+      type: 'AI_RESULT',
+      reqId,
+      payload: { question: '你會問啲咩病史？', hints: ['提示甲', '提示乙', '提示丙'] },
+    });
+
+  function toRound() {
+    let state: GameState = {
+      ...engine.init({
+        seed: 'cross-rounds',
+        mode: 'DAY',
+        difficulty: 'MEDIUM',
+        playerRank: 'MO',
+      }),
+    };
+    const requests: Extract<Effect, { type: 'AI_REQUEST' }>[] = [];
+    while (state.shift.rounds.active === null && state.clock.t < 4000) {
+      state = { ...state, pendingAi: [] };
+      const result = engine.reduce(state, { type: 'TICK', dtRealMs: 60_000 / 12 });
+      state = result.state;
+      for (const e of result.effects) {
+        if (e.type === 'AI_REQUEST' && e.kind.startsWith('rounds.')) requests.push(e);
+      }
+    }
+    return { state, requests };
+  }
+
+  it('rounds.question／rounds.grade 嘅 prompt／local 符合 ai 契約，prompt 唔含診斷詞同隱藏狀態', () => {
+    const { state, requests } = toRound();
+    expect(requests).toHaveLength(1);
+    const asked = answerQuestion(state, requests[0]?.reqId ?? '');
+    const answered = engine.reduce(asked.state, {
+      type: 'PLAYER_INTENT',
+      intent: {
+        type: 'EXTENSION',
+        module: 'shift',
+        name: 'ROUND_ANSWER',
+        payload: { text: '發燒咳嗽' },
+      },
+    });
+    const grade = answered.effects.find(
+      (e): e is Extract<Effect, { type: 'AI_REQUEST' }> => e.type === 'AI_REQUEST',
+    );
+    const all = [...requests, ...(grade ? [grade] : [])];
+    expect(all.map((r) => r.kind)).toEqual(['rounds.question', 'rounds.grade']);
+    for (const request of all) {
+      const contract = contractFor(request.kind);
+      const context = request.context as { prompt: unknown; local: unknown };
+      expect(contract?.promptSchema.safeParse(context.prompt).success, request.kind).toBe(true);
+      expect(contract?.localSchema.safeParse(context.local).success, request.kind).toBe(true);
+      const sent = JSON.stringify(context.prompt);
+      for (const secret of ['fsm', 'rolled', 'hidden', 'alertedBand', 'activeEffects']) {
+        expect(sent).not.toContain(secret);
+      }
+    }
+  });
+
+  const corpus = [
+    '你會問啲咩？',
+    '答三點',
+    '答 3 點',
+    '血氧 {{vital.spo2}}',
+    '',
+    '   ',
+    '好'.repeat(200),
+    '全形１２３',
+    '百分之九十',
+    'Aspirin 同 clopidogrel',
+  ];
+  it.each(corpus)('文字規則：%s', (text) => {
+    const aiOk =
+      checkDialogueText(text, { allowedTokens: new Set(), denyTerms: [], maxChars: 120 }).length ===
+      0;
+    expect(roundTextOk(text, 120)).toBe(aiOk);
   });
 });

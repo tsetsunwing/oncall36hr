@@ -12,7 +12,13 @@ import type {
   JsonValue,
   NewGameParams,
 } from '@/engine';
-import { COMPLETE_STEP_INTENT, createEngine, DEATH_MODULE, type Engine } from '@/engine';
+import {
+  COMPLETE_STEP_INTENT,
+  createEngine,
+  DEATH_MODULE,
+  shiftIntent,
+  type Engine,
+} from '@/engine';
 import { selectGameView, type GameActions, type GameView, type ViewEnv } from '@/view';
 import { createGameRuntime, type GameRuntime } from './runtime';
 import type { SaveService } from './saveService';
@@ -66,6 +72,26 @@ export function createGameSession(options: GameSessionOptions): GameSession {
   let stopped = false;
   let timerId: number | null = null;
   let lastTickAt = 0;
+  let resent = false;
+
+  function sendAiRequest(request: { reqId: string; kind: string; context: JsonValue }): void {
+    const task = options.gateway
+      .run({ reqId: request.reqId, kind: request.kind, context: request.context })
+      .then((outcome) => {
+        if (stopped) return;
+        if (outcome.ok) {
+          failureReason = null;
+          dispatch({ type: 'AI_RESULT', reqId: request.reqId, payload: outcome.payload });
+        } else {
+          failureReason = outcome.reason;
+          dispatch({ type: 'AI_FAILURE', reqId: request.reqId, reason: outcome.reason });
+        }
+      })
+      .finally(() => {
+        inflight.delete(task);
+      });
+    inflight.add(task);
+  }
 
   const env = (): ViewEnv => ({
     tables: options.tables,
@@ -84,22 +110,7 @@ export function createGameSession(options: GameSessionOptions): GameSession {
         return;
       }
       if (effect.type !== 'AI_REQUEST') return;
-      const task = options.gateway
-        .run({ reqId: effect.reqId, kind: effect.kind, context: effect.context })
-        .then((outcome) => {
-          if (stopped) return;
-          if (outcome.ok) {
-            failureReason = null;
-            dispatch({ type: 'AI_RESULT', reqId: effect.reqId, payload: outcome.payload });
-          } else {
-            failureReason = outcome.reason;
-            dispatch({ type: 'AI_FAILURE', reqId: effect.reqId, reason: outcome.reason });
-          }
-        })
-        .finally(() => {
-          inflight.delete(task);
-        });
-      inflight.add(task);
+      sendAiRequest(effect);
     },
     onSaveError: (error) => options.onSaveError?.(error),
   });
@@ -136,6 +147,7 @@ export function createGameSession(options: GameSessionOptions): GameSession {
       after.paused === before.paused &&
       after.resus === before.resus &&
       after.death === before.death &&
+      after.shift === before.shift &&
       after.clock.cprSlow === before.clock.cprSlow;
     if (!unchanged) publish();
   }
@@ -214,6 +226,30 @@ export function createGameSession(options: GameSessionOptions): GameSession {
     delegate(request) {
       wardIntent('DELEGATE', request);
     },
+    answerRound(text, viaHint) {
+      dispatch({ type: 'PLAYER_INTENT', intent: shiftIntent('ROUND_ANSWER', { text, viaHint }) });
+    },
+    passRound() {
+      dispatch({ type: 'PLAYER_INTENT', intent: shiftIntent('ROUND_PASS') });
+    },
+    nextRound() {
+      dispatch({ type: 'PLAYER_INTENT', intent: shiftIntent('ROUND_NEXT') });
+    },
+    startSelfCare(actionId) {
+      dispatch({ type: 'PLAYER_INTENT', intent: shiftIntent('SELF_CARE_START', { actionId }) });
+    },
+    stopSelfCare() {
+      dispatch({ type: 'PLAYER_INTENT', intent: shiftIntent('SELF_CARE_STOP') });
+    },
+    beginHandover() {
+      dispatch({ type: 'PLAYER_INTENT', intent: shiftIntent('BEGIN_HANDOVER') });
+    },
+    toggleHandover(patientId) {
+      dispatch({ type: 'PLAYER_INTENT', intent: shiftIntent('HANDOVER_TOGGLE', { patientId }) });
+    },
+    confirmHandover() {
+      dispatch({ type: 'PLAYER_INTENT', intent: shiftIntent('HANDOVER_CONFIRM') });
+    },
   };
 
   return {
@@ -231,6 +267,12 @@ export function createGameSession(options: GameSessionOptions): GameSession {
       if (timerId !== null) return;
       stopped = false;
       lastTickAt = timer.now();
+      if (!resent) {
+        resent = true;
+        if (options.initialState && options.initialState.paused?.by !== 'ai-failure') {
+          for (const pending of options.initialState.pendingAi) sendAiRequest(pending);
+        }
+      }
       timerId = timer.setInterval(tick, options.config.ui.tickIntervalMs);
     },
     stop() {

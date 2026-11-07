@@ -68,7 +68,20 @@ export type NoticeKind =
   | 'DELEGATE_INVALID'
   | 'DELEGATE_STARTED'
   | 'DELEGATE_DONE'
-  | 'DELEGATE_FAILED';
+  | 'DELEGATE_FAILED'
+  | 'SHIFT_NOT_ACTIVE'
+  | 'OVERTIME_FROZEN'
+  | 'ROUND_ACTIVE'
+  | 'ROUND_STARTED'
+  | 'ROUND_ENDED'
+  | 'ROUND_ANSWER_INVALID'
+  | 'SELF_CARE_BUSY'
+  | 'SELF_CARE_UNAVAILABLE'
+  | 'REST_NUDGE'
+  | 'HANDOVER_NOT_AVAILABLE'
+  | 'FAINTED'
+  | 'OVERTIME_STARTED'
+  | 'FORCED_HANDOVER';
 
 export type Effect =
   | { type: 'AI_REQUEST'; reqId: string; kind: string; context: JsonValue }

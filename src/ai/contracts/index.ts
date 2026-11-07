@@ -15,6 +15,12 @@ import {
   gateNurseContract,
   gatePharmacyContract,
 } from './gate';
+import {
+  ROUNDS_GRADE_KIND,
+  ROUNDS_QUESTION_KIND,
+  roundsGradeContract,
+  roundsQuestionContract,
+} from './rounds';
 import { orderParseContract, ORDER_PARSE_KIND } from './orderParse';
 import type { Contract } from './types';
 
@@ -24,6 +30,7 @@ export * from './dialogueTurn';
 export * from './familyAssess';
 export * from './gate';
 export * from './orderParse';
+export * from './rounds';
 export { CONTRACT_VERSION, type Contract, type GuardResult } from './types';
 
 export const CONTRACTS = {
@@ -36,6 +43,8 @@ export const CONTRACTS = {
   [CONSULT_REPLY_KIND]: consultReplyContract,
   [FAMILY_ASSESS_KIND]: familyAssessContract,
   [FAMILY_REPLY_KIND]: familyReplyContract,
+  [ROUNDS_QUESTION_KIND]: roundsQuestionContract,
+  [ROUNDS_GRADE_KIND]: roundsGradeContract,
 } as const;
 
 export function contractFor(kind: string): Contract<unknown, unknown, unknown> | undefined {

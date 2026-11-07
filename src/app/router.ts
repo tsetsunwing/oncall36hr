@@ -14,6 +14,15 @@ function subscribe(callback: () => void): () => void {
   return () => window.removeEventListener('hashchange', callback);
 }
 
+export function navigateToGame(choice: { mode: string; difficulty: string; rank: string }): void {
+  const query = new URLSearchParams({
+    mode: choice.mode,
+    difficulty: choice.difficulty,
+    rank: choice.rank,
+  });
+  window.location.hash = `#/game?${query.toString()}`;
+}
+
 export function navigate(route: Route): void {
   window.location.hash = route === 'start' ? '#/' : `#/${route}`;
 }

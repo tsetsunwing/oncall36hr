@@ -34,7 +34,7 @@ export function addPatientFlag(state: GameState, patientId: string, flag: string
   };
 }
 
-function leaveVisit(state: GameState, patientId: string): GameState {
+export function leaveVisit(state: GameState, patientId: string): GameState {
   const thread = state.chats[patientId];
   const last = thread?.visits.at(-1);
   if (!thread || last?.leftAt !== null) return state;

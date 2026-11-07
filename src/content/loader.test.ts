@@ -30,9 +30,13 @@ describe('content loader', () => {
     'acls-transitions',
     'death-process',
     'family-scenarios',
+    'rounds-topics',
+    'energy-config',
+    'self-care-actions',
+    'endings',
   ] as const;
 
-  it('accepts the shipped bundle: M2–M5 and M4b tables are filled, every later table is still an empty array', () => {
+  it('accepts the shipped bundle: M2–M6 and M4b tables are filled, every later table is still an empty array', () => {
     const content = getContent();
     expect(Object.keys(content.tables)).toHaveLength(TABLE_NAMES.length);
     for (const name of TABLE_NAMES) {
@@ -73,13 +77,13 @@ describe('content loader', () => {
 
   it('rejects records without an id', () => {
     const raw = clone(rawContent);
-    raw.tables['rounds-topics'] = [{ label: 'no id' }];
+    raw.tables['event-schedule-templates'] = [{ label: 'no id' }];
     expect(validateContent(raw).ok).toBe(false);
   });
 
   it('rejects duplicate ids within a table', () => {
     const raw = clone(rawContent);
-    raw.tables['rounds-topics'] = [{ id: 'a' }, { id: 'a' }];
+    raw.tables['event-schedule-templates'] = [{ id: 'a' }, { id: 'a' }];
     const result = validateContent(raw);
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.issues[0]?.message).toContain('id 重複');
@@ -87,7 +91,9 @@ describe('content loader', () => {
 
   it('accepts valid records', () => {
     const raw = clone(rawContent);
-    raw.tables['rounds-topics'] = [{ id: 'x', anything: 'goes until the table is tightened' }];
+    raw.tables['event-schedule-templates'] = [
+      { id: 'x', anything: 'goes until the table is tightened' },
+    ];
     const result = validateContent(raw);
     expect(result.ok).toBe(true);
   });
@@ -120,8 +126,9 @@ describe('content loader', () => {
 describe('config designer defaults', () => {
   const { config } = getContent();
 
-  it('holds the plan defaults (C3 B, S32d, shift lengths, AI timeout)', () => {
-    expect(config.clock.realSecondsPerGameMinuteAt1x).toBe(2);
+  it('holds the plan defaults (C3 C, C1, S32d, shift lengths, AI timeout)', () => {
+    expect(config.clock.realSecondsPerGameMinuteAt1x).toBe(5);
+    expect(config.clock.pauseWhileAiPending).toBe(true);
     expect(config.clock.cprSlowFactor).toBe(0.5);
     expect(config.shifts.day.regularSeconds).toBe(36000);
     expect(config.shifts.night.regularSeconds).toBe(50400);

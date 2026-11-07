@@ -2,6 +2,8 @@
  * AI 輸出套用（B1–B8）：惡意／錯誤 payload 只可能被當作「理解」，唔可以改任何顯示數字。
  */
 import { describe, expect, it } from 'vitest';
+import { getConfig } from '@/content';
+import { createEngine } from '../core/reducer';
 import type { JsonValue } from '../core/eventQueue';
 import type { Run } from '../test/realEngine';
 import {
@@ -17,6 +19,7 @@ import {
 } from '../test/realEngine';
 
 const engine = realEngine(zeroNoiseTables());
+const pausingEngine = createEngine(getConfig(), { tables: zeroNoiseTables() });
 
 function fresh(seed = 'ai-1') {
   return engine.init(params(seed));
@@ -169,15 +172,15 @@ describe('order.parse 套用', () => {
 });
 
 describe('AI 解析 order 嘅時間（§2.4）', () => {
-  it('時鐘喺 AI 回應期間照走；order 完成時間 ＝ max(落單時間 ＋ 固定時長, 回應時間)', () => {
+  it('等 AI 回應期間時鐘自動暫停（C1）；order 完成時間 ＝ 落單時間 ＋ 固定時長', () => {
     const { run, reqId } = ask('幫我睇下 vital');
     const submittedAt = run.state.clock.t;
-    const waited = advance(engine, run.state, 600);
-    expect(waited.state.clock.t).toBe(submittedAt + 600);
+    const waited = pausingEngine.reduce(run.state, { type: 'TICK', dtRealMs: 600_000 });
+    expect(waited.state.clock.t).toBe(submittedAt);
     const done = answer(waited, reqId, { intent: 'ORDER', actions: [{ catalogId: 'obs.vitals' }] });
     const order = Object.values(done.state.orders)[0];
     expect(order?.createdAt).toBe(submittedAt);
-    expect(order?.completesAt).toBe(done.state.clock.t);
+    expect(order?.completesAt).toBe(submittedAt + 60);
   });
 
   it('AI 即時回應：完成時間 ＝ 落單時間 ＋ 固定時長', () => {

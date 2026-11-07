@@ -11,6 +11,8 @@ export const configSchema = z
     clock: z
       .object({
         realSecondsPerGameMinuteAt1x: positive,
+        /** C1：等 AI 回應期間遊戲時鐘自動暫停（用戶已決定） */
+        pauseWhileAiPending: z.boolean(),
         speeds: z.array(z.number().nonnegative()).min(1),
         defaultSpeed: z.number().nonnegative(),
         cprSlowFactor: z.number().gt(0).lte(1),
@@ -34,6 +36,8 @@ export const configSchema = z
           })
           .strict(),
         overtimeSeconds: positive,
+        /** 超時每過幾多遊戲秒扣一次「時效」分 */
+        overtimePenaltyStepSeconds: positive,
       })
       .strict(),
     rounds: z
@@ -41,12 +45,26 @@ export const configSchema = z
         hours: z.array(z.number().int().min(0).max(23)).min(1),
         suppressInterruptsDuringRound: z.boolean(),
         onCallRoundsTotal: z.number().int().positive(),
+        /** 單次巡房最長時間（遊戲秒）；全部病人問完會提早結束 */
+        /** 每條題目作答時限（遊戲秒）；AI 生成同評分期間時鐘自動暫停，唔計入 */
+        questionSeconds: positive,
+        /** 上級揭曉答案後自動入下一個病人嘅等待時間 */
+        revealSeconds: positive,
+        /** 巡房期間被延後嘅 interrupt／來電，每隔幾多遊戲秒重新檢查一次 */
+        deferStepSeconds: positive,
+        /** 搶救進行中，巡房最多延後幾耐；超過就照常開始（搶救唔受巡房限制） */
+        arrestDeferMaxSeconds: positive,
+        hostRank: z.enum(['AC', 'COS']),
+        questionMaxChars: z.number().int().positive(),
+        hintMaxChars: z.number().int().positive(),
       })
       .strict(),
     meals: z
       .object({
         lunchHour: z.number().int().min(0).max(23),
         dinnerHour: z.number().int().min(0).max(23),
+        /** 用餐節點開始後可「食飯」嘅窗口（遊戲秒） */
+        windowSeconds: positive,
       })
       .strict(),
     vitals: z

@@ -1,1 +1,14 @@
-[]
+[
+  {
+    "id": "TAG_OVERTIME",
+    "tag": "OVERTIME",
+    "reason": "OVERTIME",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "TAG_FAINT",
+    "tag": "FAINT",
+    "reason": "FAINT",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  }
+]

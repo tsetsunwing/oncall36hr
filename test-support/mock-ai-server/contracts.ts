@@ -606,6 +606,87 @@ function familyAssess(prompt: Record<string, unknown>, mode: ContractMode): stri
 }
 
 /** 若唔係已知契約請求，回 null，由 server 用舊有行為（連線測試等）處理 */
+interface RoundFact {
+  id: string;
+  text: string;
+}
+
+const firstClause = (text: string): string => text.split(/[，、；：]/)[0] ?? text;
+
+function bigrams(text: string): Set<string> {
+  const compact = norm(text).replace(/[\s，。、；：,.]/g, '');
+  const set = new Set<string>();
+  for (let i = 0; i + 1 < compact.length; i++) set.add(compact.slice(i, i + 2));
+  return set;
+}
+
+function roundsQuestion(prompt: Record<string, unknown>, mode: ContractMode): string {
+  const facts = (prompt.keyFacts ?? []) as RoundFact[];
+  const hintCount = typeof prompt.hintCount === 'number' ? prompt.hintCount : 3;
+  const maxHint = typeof prompt.maxHintChars === 'number' ? prompt.maxHintChars : 60;
+  const category = typeof prompt.category === 'string' ? prompt.category : 'HISTORY';
+  const stem: Record<string, string> = {
+    HISTORY: '呢位病人嘅病史你會問啲咩？',
+    PATHOLOGY: '你講下呢個病嘅病理係點樣？',
+    PHARMACOLOGY: '用藥方面你會點諗？',
+  };
+  const hints = Array.from({ length: hintCount }, (_, i) => {
+    const clause = facts[i] ? firstClause(facts[i].text) : `暫時冇更多提示${'丙丁戊己庚'[i] ?? ''}`;
+    return clause.slice(0, maxHint);
+  });
+  let question = stem[category] ?? stem.HISTORY ?? '';
+  if (mode === 'numbers') question = `${question}（答 3 點）`;
+  if (mode === 'bad-token') question = `${question}{{vital.hr}}`;
+  const data: Record<string, unknown> = { question, hints };
+  if (mode === 'inject' || mode === 'extra-fields') {
+    data.vitals = { spo2: 99, hr: 60 };
+    data.diagnosis = 'pneumonia';
+  }
+  return envelope('rounds.question', data);
+}
+
+function roundsGrade(prompt: Record<string, unknown>, mode: ContractMode): string {
+  const facts = (prompt.keyFacts ?? []) as RoundFact[];
+  const answer = typeof prompt.answer === 'string' ? prompt.answer : '';
+  const answerGrams = bigrams(answer);
+  let verdict: 'CORRECT' | 'PARTIAL' | 'WRONG' = 'WRONG';
+  const matched: string[] = [];
+  for (const fact of facts) {
+    const clause = norm(firstClause(fact.text));
+    const said = norm(answer);
+    if (
+      clause.length > 0 &&
+      (said.includes(clause) || (said.length >= 4 && clause.startsWith(said)))
+    ) {
+      matched.push(fact.id);
+      verdict = 'CORRECT';
+    }
+  }
+  if (verdict === 'WRONG') {
+    for (const fact of facts) {
+      const shared = [...bigrams(fact.text)].filter((g) => answerGrams.has(g)).length;
+      if (shared >= 3) {
+        matched.push(fact.id);
+        verdict = 'PARTIAL';
+      }
+    }
+  }
+  const seniorLine =
+    verdict === 'CORRECT'
+      ? '啱，記得跟進。'
+      : verdict === 'PARTIAL'
+        ? '方向啱，不過未夠全面。'
+        : '再溫習下。';
+  const data: Record<string, unknown> = { verdict, matchedKeyFacts: matched, seniorLine };
+  if (mode === 'bad-token') data.matchedKeyFacts = ['made-up-fact'];
+  if (mode === 'numbers') data.seniorLine = '呢題我畀 9 分。';
+  if (mode === 'inject' || mode === 'extra-fields') {
+    data.score = 100;
+    data.vitals = { spo2: 99 };
+  }
+  return envelope('rounds.grade', data);
+}
+
 export function contractReply(request: ParsedRequest, mode: ContractMode): string | null {
   if (request.kind === 'order.parse') return orderParse(request.prompt, mode);
   if (request.kind === 'dialogue.turn') return dialogue(request.prompt, mode);
@@ -617,6 +698,8 @@ export function contractReply(request: ParsedRequest, mode: ContractMode): strin
   if (request.kind === 'consult.reply') return consultReply(request.prompt, mode);
   if (request.kind === 'family.assess') return familyAssess(request.prompt, mode);
   if (request.kind === 'family.reply') return familyReply(request.prompt, mode);
+  if (request.kind === 'rounds.question') return roundsQuestion(request.prompt, mode);
+  if (request.kind === 'rounds.grade') return roundsGrade(request.prompt, mode);
   return null;
 }
 

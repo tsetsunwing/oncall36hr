@@ -522,6 +522,48 @@ export interface FamilyScenarioRow {
   };
 }
 
+export type RoundCategory = 'HISTORY' | 'PATHOLOGY' | 'PHARMACOLOGY';
+
+export interface RoundTopicRow {
+  id: string;
+  diagnosisId: string;
+  category: RoundCategory;
+  focus: string;
+  keyFacts: readonly { id: string; text: string }[];
+}
+
+export interface EnergyModelRow {
+  id: 'MODEL';
+  startPercent: number;
+  decayPerGameHour: number;
+  tickSeconds: number;
+  lowPercent: number;
+  veryLowPercent: number;
+  nudgeBelowPercent: number;
+  nudgeCooldownSeconds: number;
+  actionCosts: { MOVE: number; CALL: number; DELEGATE: number };
+}
+
+export const SELF_CARE_IDS = ['MEAL', 'NAP', 'TOILET', 'WATER', 'PHONE_CHAT', 'MUSIC'] as const;
+export type SelfCareId = (typeof SELF_CARE_IDS)[number];
+
+export interface SelfCareRow {
+  id: SelfCareId;
+  durationSeconds: number;
+  gainPercent: number;
+  requires: 'NONE' | 'MEAL_WINDOW';
+  cooldownSeconds: number;
+  rule: string;
+}
+
+export type EndingReason = 'OVERTIME' | 'FAINT';
+
+export interface EndingTagRow {
+  id: string;
+  tag: EndingReason;
+  reason: EndingReason;
+}
+
 export interface EngineTables {
   'case-templates': readonly CaseTemplateRow[];
   'case-fsm': readonly CaseFsmRow[];
@@ -547,6 +589,10 @@ export interface EngineTables {
   'acls-transitions': readonly AclsRow[];
   'death-process': readonly DeathRow[];
   'family-scenarios': readonly FamilyScenarioRow[];
+  'rounds-topics': readonly RoundTopicRow[];
+  'energy-config': readonly EnergyModelRow[];
+  'self-care-actions': readonly SelfCareRow[];
+  endings: readonly EndingTagRow[];
 }
 
 export const EMPTY_TABLES: EngineTables = {
@@ -574,4 +620,8 @@ export const EMPTY_TABLES: EngineTables = {
   'acls-transitions': [],
   'death-process': [],
   'family-scenarios': [],
+  'rounds-topics': [],
+  'energy-config': [],
+  'self-care-actions': [],
+  endings: [],
 };

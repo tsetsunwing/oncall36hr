@@ -33,6 +33,7 @@ import type {
 } from './types';
 import { selectDeath, selectResus } from './resusView';
 import { parseWave, plethAmplitude } from './waveform';
+import { selectShift } from './shiftView';
 import { selectWard } from './wardView';
 import type { ViewEnv } from './viewEnv';
 
@@ -348,5 +349,6 @@ export function selectGameView(state: GameState, env: ViewEnv): GameView {
     aiFailure: failedReq ? { reqId: failedReq, reason: env.aiFailureReason ?? null } : null,
     notice: env.notice ?? null,
     ward: selectWard(state, env, clockLabel),
+    shift: selectShift(state, env, clockLabel),
   };
 }

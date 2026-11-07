@@ -3,10 +3,11 @@ import type { EngineConfig } from '../core/config';
 import type { EngineEvent, PlayerIntent } from '../core/events';
 import type { NewGameParams } from '../core/state';
 
-/** 同 content/config/config.json 嘅 C3 B 預設一致：1 遊戲分鐘 ＝ 2 真實秒（@1x） */
+/** 同 content/config/config.json 一致：C3 ＝ 1 遊戲分鐘 ＝ 5 真實秒（@1x）；C1 ＝ 等 AI 時自動暫停 */
 export const testConfig: EngineConfig = {
   clock: {
     realSecondsPerGameMinuteAt1x: 2,
+    pauseWhileAiPending: true,
     speeds: [0, 1, 2, 4],
     defaultSpeed: 1,
     cprSlowFactor: 0.5,
@@ -44,10 +45,25 @@ export const testConfig: EngineConfig = {
     rankImpression: { start: 50, min: 0, max: 100, warmMin: 65, coldMax: 35 },
   },
   shifts: {
-    day: { regularSeconds: 36000 },
-    night: { regularSeconds: 50400 },
-    onCall: { regularSeconds: 122400, segmentHours: [10, 14, 10] },
+    day: { startHour: 8, regularSeconds: 36000 },
+    night: { startHour: 18, regularSeconds: 50400 },
+    onCall: { startHour: 8, regularSeconds: 122400, segmentHours: [10, 14, 10] },
+    overtimeSeconds: 7200,
+    overtimePenaltyStepSeconds: 600,
   },
+  rounds: {
+    hours: [9, 14],
+    suppressInterruptsDuringRound: true,
+    onCallRoundsTotal: 4,
+    questionSeconds: 180,
+    revealSeconds: 30,
+    deferStepSeconds: 60,
+    arrestDeferMaxSeconds: 1800,
+    hostRank: 'AC',
+    questionMaxChars: 120,
+    hintMaxChars: 60,
+  },
+  meals: { lunchHour: 12, dinnerHour: 20, windowSeconds: 5400 },
   ward: { bedCount: 20 },
   phone: {
     baseCallsPerHour: 2,

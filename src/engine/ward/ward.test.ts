@@ -1,14 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { getConfig } from '@/content';
 import { enqueue } from '../core/eventQueue';
 import type { EngineEvent } from '../core/events';
 import type { GameState, NewGameParams } from '../core/state';
-import { advance, aiRequests, feed, intentEvent, realEngine } from '../test/realEngine';
+import { advance, aiRequests, feed, intentEvent, realConfig, realEngine } from '../test/realEngine';
 import { plannedCallCount, shiftSeconds } from './generate';
 import type { Call, DelegationTaskId, Rank } from './wardTypes';
 
 const engine = realEngine();
-const config = getConfig();
+const config = realConfig();
 
 const wardParams = (
   seed: string,

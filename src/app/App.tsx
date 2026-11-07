@@ -4,7 +4,7 @@ import { loadSettings, saveSettings, type Settings } from '@/storage';
 import { Layout, SettingsPage, StartPage } from '@/ui';
 import { selectStartGate } from '@/view';
 import { GameScreen } from './GameScreen';
-import { navigate, useRoute } from './router';
+import { navigate, navigateToGame, useRoute } from './router';
 
 const devProxy: DevProxy | undefined = import.meta.env.DEV ? { prefix: '/ai-proxy' } : undefined;
 
@@ -45,7 +45,12 @@ export function App() {
 
   return (
     <Layout current="start">
-      <StartPage gate={gate} onStart={() => navigate('game')} />
+      <StartPage
+        gate={gate}
+        settings={settings}
+        onSettingsChange={handleSave}
+        onStart={navigateToGame}
+      />
     </Layout>
   );
 }

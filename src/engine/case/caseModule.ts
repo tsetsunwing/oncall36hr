@@ -20,6 +20,7 @@ import type {
 } from './tables';
 import { nextSample, resolveRhythm } from './vitals';
 import type { Effect, Reduction } from '../core/events';
+import { interruptsSuppressed } from '../shift/suppress';
 
 export const VITALS_SAMPLE_EVENT = 'VITALS_SAMPLE';
 export const VITALS_SAMPLE_PRIORITY = 10;
@@ -79,7 +80,9 @@ function applySample(
   const mewsTable = ctx.tables.mews[0];
   if (!mewsTable) throw new Error('缺少 MEWS 表');
 
-  const evaluated = evaluateFsm(patient, fsm, t, state.rng);
+  const evaluated = evaluateFsm(patient, fsm, t, state.rng, {
+    blockArrest: interruptsSuppressed(state, ctx.config),
+  });
   const fsmState = evaluated.patient.hidden.fsm.state;
   let working: GameState = { ...state, rng: evaluated.rng };
   const effects: Effect[] = [];
@@ -246,7 +249,9 @@ export const caseModule: EngineModule = {
     const previous = applied.patient.hidden;
     let alertedBand = previous.alertedBand;
     let lastAlertAt = previous.lastAlertAt;
-    if (applied.arresting) {
+    if (interruptsSuppressed(state, ctx.config)) {
+      // 巡房期間：唔發護士惡化提示，亦唔改提示紀錄
+    } else if (applied.arresting) {
       // 心臟停頓由 acls 模組嘅「ARREST_ANNOUNCED」呼叫，唔再行 MEWS 惡化提示
     } else if (applied.alert === 'NONE') {
       alertedBand = null;

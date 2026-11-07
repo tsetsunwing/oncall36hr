@@ -23,6 +23,13 @@ export interface EngineModule {
     intent: PlayerIntent,
     ctx: EngineContext,
   ) => Reduction | undefined;
+  /** 所有模組處理完一個玩家 intent 後呼叫（用嚟按「已接受嘅動作」扣精力等）；回傳新 Reduction 或 undefined */
+  afterIntent?: (
+    before: GameState,
+    after: Reduction,
+    intent: PlayerIntent,
+    ctx: EngineContext,
+  ) => Reduction | undefined;
   handleScheduled?: (
     state: GameState,
     event: ScheduledEvent,

@@ -5,7 +5,15 @@
  */
 import { z } from 'zod';
 
-export const RNG_STREAMS = ['vitals', 'events', 'consequence', 'cpr', 'calls', 'staff'] as const;
+export const RNG_STREAMS = [
+  'vitals',
+  'events',
+  'consequence',
+  'cpr',
+  'calls',
+  'staff',
+  'rounds',
+] as const;
 export type RngStream = (typeof RNG_STREAMS)[number];
 
 const uint32 = z.number().int().min(0).max(0xffffffff);
@@ -18,13 +26,14 @@ export const rngStateSchema = z
     cpr: uint32,
     calls: uint32,
     staff: uint32,
+    rounds: uint32,
   })
   .strict();
 
 export type RngState = z.infer<typeof rngStateSchema>;
 
 /** xmur3：字串 → uint32 */
-function hashString(input: string): number {
+export function hashString(input: string): number {
   let h = 1779033703 ^ input.length;
   for (let i = 0; i < input.length; i++) {
     h = Math.imul(h ^ input.charCodeAt(i), 3432918353);

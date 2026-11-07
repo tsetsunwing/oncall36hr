@@ -15,7 +15,7 @@ import { CONTRACT_MODES, contractReply, parseRequest, type ContractMode } from '
  *   mock-bad-json      回 200 但 body 唔係合法 JSON
  *
  * 契約請求（order.parse／dialogue.turn／gate.pharmacy／gate.nurse／gate.danger／consult.assess／
- * consult.reply／family.assess／family.reply）：
+ * consult.reply／family.assess／family.reply／rounds.question／rounds.grade）：
  *   mock-ok            按請求內容回有效契約回應（關鍵字比對 catalog、對白用 {{token}}）
  *   mock-<mode>        惡意／錯誤輸出：numbers、inject、bad-token、diagnosis、extra-fields、
  *                      wrong-speaker、unknown-catalog、invented-dose、gate-bad-line（把關句子含裸數字）、
@@ -34,6 +34,8 @@ const CONTRACT_KINDS = [
   'consult.reply',
   'family.assess',
   'family.reply',
+  'rounds.question',
+  'rounds.grade',
 ];
 
 export interface MockServerOptions {

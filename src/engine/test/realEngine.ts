@@ -6,8 +6,20 @@ import type { EngineEvent, Effect, PlayerIntent } from '../core/events';
 import { createEngine, type Engine } from '../core/reducer';
 import type { GameState, NewGameParams } from '../core/state';
 
-export function realTables(): EngineTables {
+/** 測試用真 config：關閉「等 AI 自動暫停」，令冇回覆 AI 嘅舊測試照樣前進；C1 行為由專屬測試覆蓋 */
+export function realConfig(): ReturnType<typeof getConfig> {
+  const base = getConfig();
+  return { ...base, clock: { ...base.clock, pauseWhileAiPending: false } };
+}
+
+/** 完整 content 表（含巡房題目） */
+export function fullTables(): EngineTables {
   return getContent().tables;
+}
+
+/** 舊測試用：巡房冇題目，巡房即時結束，唔使答 AI（巡房行為由 shift 測試覆蓋） */
+export function realTables(): EngineTables {
+  return { ...getContent().tables, 'rounds-topics': [] };
 }
 
 export function zeroNoiseTables(): EngineTables {
@@ -22,7 +34,7 @@ export function zeroNoiseTables(): EngineTables {
 }
 
 export function realEngine(tables: EngineTables = realTables()): Engine {
-  return createEngine(getConfig(), { tables });
+  return createEngine(realConfig(), { tables });
 }
 
 export const params = (seed = 'real-A'): NewGameParams => ({

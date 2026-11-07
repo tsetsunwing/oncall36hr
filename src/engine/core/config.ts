@@ -5,6 +5,7 @@
 export interface EngineConfig {
   clock: {
     realSecondsPerGameMinuteAt1x: number;
+    pauseWhileAiPending: boolean;
     speeds: readonly number[];
     defaultSpeed: number;
     cprSlowFactor: number;
@@ -54,10 +55,25 @@ export interface EngineConfig {
     };
   };
   shifts: {
-    day: { regularSeconds: number };
-    night: { regularSeconds: number };
-    onCall: { regularSeconds: number; segmentHours: readonly number[] };
+    day: { startHour: number; regularSeconds: number };
+    night: { startHour: number; regularSeconds: number };
+    onCall: { startHour: number; regularSeconds: number; segmentHours: readonly number[] };
+    overtimeSeconds: number;
+    overtimePenaltyStepSeconds: number;
   };
+  rounds: {
+    hours: readonly number[];
+    suppressInterruptsDuringRound: boolean;
+    onCallRoundsTotal: number;
+    questionSeconds: number;
+    revealSeconds: number;
+    deferStepSeconds: number;
+    arrestDeferMaxSeconds: number;
+    hostRank: 'AC' | 'COS';
+    questionMaxChars: number;
+    hintMaxChars: number;
+  };
+  meals: { lunchHour: number; dinnerHour: number; windowSeconds: number };
   ward: { bedCount: number };
   phone: {
     baseCallsPerHour: number;

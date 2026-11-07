@@ -1,5 +1,6 @@
 /** T-F 內容驗證：交叉引用檢查（implementation-plan §15）。只讀 data，唔含遊戲邏輯。 */
 import type { ContentIssue } from './schema/issues';
+import { ENDING_REASONS, ROUND_CATEGORIES, SELF_CARE_IDS } from './schema/m6Tables';
 import { ACLS_ACTIONS } from './schema/m2Tables';
 import { CONCERN_CATEGORIES } from './schema/m3Tables';
 import { DEATH_STEPS } from './schema/m5Tables';
@@ -205,6 +206,7 @@ export function validateCrossReferences(tables: Tables): ContentIssue[] {
 
   validateWardRefs(tables, add);
   validateAcls(tables, add);
+  validateShift(tables, add);
 
   return issues;
 }
@@ -489,5 +491,76 @@ function validateFamilyRefs(
         }
       }
     }
+  });
+}
+
+const M6_REQUIRED_RULES: readonly string[] = [
+  'ROUND_CORRECT',
+  'ROUND_CORRECT_HINTED',
+  'ROUND_PARTIAL',
+  'ROUND_WRONG',
+  'ROUND_UNANSWERED',
+  'OVERTIME_ENTERED',
+  'OVERTIME_MINUTES',
+  'HANDOVER_MENTION_NEEDED',
+  'HANDOVER_OMIT_NEEDED',
+  'HANDOVER_MENTION_STABLE',
+  'HANDOVER_FORCED',
+  'FAINT',
+];
+
+function validateShift(
+  tables: Tables,
+  add: (table: string, path: string, message: string) => void,
+) {
+  const ruleIds = new Set(tables['scoring-rules'].map((r) => r.id));
+  const topics = tables['rounds-topics'];
+  const care = tables['self-care-actions'];
+  const endings = tables.endings;
+  const energy = tables['energy-config'];
+  if (topics.length + care.length + endings.length + energy.length === 0) return;
+
+  for (const rule of M6_REQUIRED_RULES) {
+    if (!ruleIds.has(rule)) add('scoring-rules', rule, `缺少 M6 必需規則：${rule}`);
+  }
+
+  const diagnoses = new Set(tables['case-templates'].flatMap((t) => t.diagnosisIds));
+  const seen = new Set<string>();
+  topics.forEach((row, i) => {
+    seen.add(`${row.diagnosisId}/${row.category}`);
+    if (!diagnoses.has(row.diagnosisId)) {
+      add('rounds-topics', `${String(i)}.diagnosisId`, `冇病例用到診斷：${row.diagnosisId}`);
+    }
+    const factIds = row.keyFacts.map((f) => f.id);
+    if (new Set(factIds).size !== factIds.length) {
+      add('rounds-topics', `${String(i)}.keyFacts`, 'keyFacts id 重複');
+    }
+  });
+  for (const diagnosis of diagnoses) {
+    for (const category of ROUND_CATEGORIES) {
+      if (!seen.has(`${diagnosis}/${category}`)) {
+        add('rounds-topics', '(根)', `診斷 ${diagnosis} 缺少 ${category} 題目`);
+      }
+    }
+  }
+
+  if (energy.length !== 1) add('energy-config', '(根)', '必須有且只有一列 MODEL');
+  for (const id of SELF_CARE_IDS) {
+    if (care.filter((r) => r.id === id).length !== 1) {
+      add('self-care-actions', id, `動作 ${id} 必須有且只有一列`);
+    }
+  }
+  care.forEach((row, i) => {
+    if (!ruleIds.has(row.rule)) {
+      add('self-care-actions', `${String(i)}.rule`, `未知 scoring-rules：${row.rule}`);
+    }
+  });
+  for (const reason of ENDING_REASONS) {
+    if (endings.filter((r) => r.reason === reason).length !== 1) {
+      add('endings', reason, `結局原因 ${reason} 必須有且只有一列`);
+    }
+  }
+  endings.forEach((row, i) => {
+    if (row.tag !== row.reason) add('endings', `${String(i)}.tag`, '標籤必須同原因一致');
   });
 }

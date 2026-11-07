@@ -21,12 +21,15 @@ export function evaluateFsm(
   fsm: CaseFsmRow,
   t: number,
   rng: RngState,
+  options: { blockArrest?: boolean } = {},
 ): { patient: Patient; rng: RngState } {
   let nextRng = rng;
   let rolled = patient.hidden.fsm.rolled;
   for (let i = 0; i < fsm.transitions.length; i++) {
     const tr = fsm.transitions[i];
     if (tr?.from !== patient.hidden.fsm.state || rolled.includes(i)) continue;
+    // 巡房期間抑制心臟停頓：唔擲骰、唔標記，巡房完結後照常評估
+    if (options.blockArrest && fsm.states[tr.to]?.arrest) continue;
     if (!conditionHolds(tr.when, patient, t)) continue;
     let hit = true;
     if (tr.p < 1) {

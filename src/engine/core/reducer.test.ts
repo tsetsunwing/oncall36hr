@@ -12,7 +12,7 @@ const run = (events: EngineEvent[], initial = fresh()) => replay(engine, initial
 const notices = (effects: Effect[]) =>
   effects.flatMap((e) => (e.type === 'NOTICE' ? [e.kind] : []));
 
-describe('game clock (C3 B: 1 game minute = 2 real seconds at 1x)', () => {
+describe('game clock (fixture config: 1 game minute = 2 real seconds at 1x)', () => {
   it('starts at t=0, 1x, running', () => {
     const s = fresh();
     expect(s.clock).toMatchObject({ t: 0, frac: 0, speed: 1, cprSlow: false, phase: 'REGULAR' });

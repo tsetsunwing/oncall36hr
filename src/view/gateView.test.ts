@@ -3,7 +3,8 @@ import { getConfig, getContent } from '@/content';
 import { createEngine, type EngineEvent, type GameState } from '@/engine';
 import { selectGameView, type ViewEnv } from './gameView';
 
-const config = getConfig();
+const baseConfig = getConfig();
+const config = { ...baseConfig, clock: { ...baseConfig.clock, pauseWhileAiPending: false } };
 const tables = getContent().tables;
 const engine = createEngine(config, { tables });
 const env: ViewEnv = { tables, config };
@@ -95,7 +96,7 @@ describe('把關 ViewModel', () => {
       engine.init({ seed: 'gv-2', mode: 'NIGHT', difficulty: 'MEDIUM', playerRank: 'MO' }),
       [say('cbc')],
     );
-    state = run(state, [{ type: 'TICK', dtRealMs: (3000 / 30) * 1000 }]);
+    state = run(state, [{ type: 'TICK', dtRealMs: (3000 / 12) * 1000 }]);
     const view = selectGameView(state, env);
     const [report] = view.reports;
     expect(report).toMatchObject({ kind: 'PANEL', reviewPending: true });

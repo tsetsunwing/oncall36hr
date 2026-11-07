@@ -1,1 +1,62 @@
-[]
+[
+  {
+    "id": "MEAL",
+    "durationSeconds": 1800,
+    "gainPercent": 15,
+    "requires": "MEAL_WINDOW",
+    "cooldownSeconds": 0,
+    "rule": "SELF_CARE_MEAL",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "平衡佔位值"
+  },
+  {
+    "id": "NAP",
+    "durationSeconds": 1200,
+    "gainPercent": 10,
+    "requires": "NONE",
+    "cooldownSeconds": 14400,
+    "rule": "SELF_CARE_NAP",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "平衡佔位值"
+  },
+  {
+    "id": "TOILET",
+    "durationSeconds": 300,
+    "gainPercent": 0.5,
+    "requires": "NONE",
+    "cooldownSeconds": 3600,
+    "rule": "SELF_CARE_BREAK",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "平衡佔位值"
+  },
+  {
+    "id": "WATER",
+    "durationSeconds": 120,
+    "gainPercent": 0.5,
+    "requires": "NONE",
+    "cooldownSeconds": 1800,
+    "rule": "SELF_CARE_BREAK",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "平衡佔位值"
+  },
+  {
+    "id": "PHONE_CHAT",
+    "durationSeconds": 600,
+    "gainPercent": 1,
+    "requires": "NONE",
+    "cooldownSeconds": 7200,
+    "rule": "SELF_CARE_BREAK",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "平衡佔位值"
+  },
+  {
+    "id": "MUSIC",
+    "durationSeconds": 600,
+    "gainPercent": 1.5,
+    "requires": "NONE",
+    "cooldownSeconds": 5400,
+    "rule": "SELF_CARE_BREAK",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "平衡佔位值"
+  }
+]

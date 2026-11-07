@@ -404,6 +404,109 @@ export interface DeathView {
   bedReleased: boolean;
 }
 
+export type ModeCode = 'DAY' | 'NIGHT' | 'ONCALL';
+export type PhaseCode = 'REGULAR' | 'OVERTIME' | 'HANDOVER' | 'ENDED';
+export type EnergyLevelCode = 'NORMAL' | 'LOW' | 'VERY_LOW';
+export type RoundPhaseCode = 'LOADING' | 'ASKING' | 'GRADING' | 'REVEAL';
+export type RoundVerdictCode = 'CORRECT' | 'PARTIAL' | 'WRONG' | 'UNANSWERED';
+export type RoundCategoryCode = 'HISTORY' | 'PATHOLOGY' | 'PHARMACOLOGY';
+export type SelfCareCode = 'MEAL' | 'NAP' | 'TOILET' | 'WATER' | 'PHONE_CHAT' | 'MUSIC';
+export type SubscoreCode =
+  'CLINICAL_OUTCOME' | 'TIMELINESS' | 'SAFETY' | 'COMMUNICATION' | 'PRIORITISATION' | 'SELF_CARE';
+
+export interface RoundView {
+  /** 第幾次巡房（由 1 起） */
+  number: number;
+  /** 今個模式一共有幾次巡房 */
+  totalRounds: number;
+  position: number;
+  patientCount: number;
+  patient: { bed: number; name: string; age: number; sex: 'M' | 'F'; complaint: string };
+  category: RoundCategoryCode;
+  phase: RoundPhaseCode;
+  question: string | null;
+  hints: string[];
+  answer: string | null;
+  viaHint: boolean;
+  verdict: RoundVerdictCode | null;
+  seniorLine: string | null;
+  /** 揭曉階段先有：key facts 原文（T25）同玩家有冇答中 */
+  keyFacts: { id: string; text: string; matched: boolean }[] | null;
+  secondsLeft: number | null;
+  canAnswer: boolean;
+  maxChars: number;
+  canNext: boolean;
+  isLast: boolean;
+}
+
+export interface SelfCareActionView {
+  id: SelfCareCode;
+  durationSec: number;
+  gainPercent: number;
+  available: boolean;
+  /** 冷卻中剩餘秒數；唔需冷卻＝0 */
+  cooldownSec: number;
+  needsMealWindow: boolean;
+}
+
+export interface HandoverCandidateView {
+  patientId: string;
+  bed: number;
+  name: string;
+  level: AlarmLevel;
+  selected: boolean;
+}
+
+export interface SubscoreResultView {
+  id: SubscoreCode;
+  /** 原始加減總和（唔設總分、唔設加權） */
+  sum: number;
+  items: { rule: string; count: number; delta: number }[];
+}
+
+export interface ResultPatientView {
+  bed: number;
+  name: string;
+  outcome: 'DECEASED' | 'ALARM' | 'CAUTION' | 'STABLE';
+  mentioned: boolean;
+}
+
+export interface ResultView {
+  reason: 'NORMAL' | 'OVERTIME' | 'FAINT';
+  tags: ('OVERTIME' | 'FAINT')[];
+  forced: boolean;
+  atLabel: string;
+  overtimeSec: number;
+  subscores: SubscoreResultView[];
+  patients: ResultPatientView[];
+  rounds: { total: number; answered: number; correct: number };
+}
+
+export interface ShiftView {
+  shiftMode: ModeCode;
+  playerRank: 'HO' | 'MO' | 'RES';
+  difficulty: 'EASY' | 'MEDIUM' | 'HARD';
+  phase: PhaseCode;
+  segment: 'DAY' | 'NIGHT' | null;
+  /** 等 AI 回應期間遊戲時間自動暫停（C1） */
+  waitingForAi: boolean;
+  energy: { percent: number; level: EnergyLevelCode };
+  rounds: {
+    total: number;
+    completed: number;
+    nextAtLabel: string | null;
+    active: RoundView | null;
+  };
+  selfCare: {
+    active: { id: SelfCareCode; endsLabel: string; remainingSec: number } | null;
+    actions: SelfCareActionView[];
+    mealWindowOpen: boolean;
+  };
+  overtime: { remainingSec: number; deadlineLabel: string; canHandover: boolean } | null;
+  handover: { candidates: HandoverCandidateView[] } | null;
+  result: ResultView | null;
+}
+
 export interface GameView {
   clock: {
     label: string;
@@ -432,6 +535,7 @@ export interface GameView {
   notice: { kind: string; tone: 'info' | 'warn' | 'error' } | null;
   /** 多病人病房（M4）；舊式單一病人時為 null */
   ward: WardView | null;
+  shift: ShiftView;
 }
 
 /** UI 通過呢個介面嘅動作同 engine 溝通（UI 唔直接 import engine） */
@@ -462,4 +566,12 @@ export interface GameActions {
     callId: string | null;
   }) => void;
   completeDeathStep: (step: DeathStepCode) => void;
+  answerRound: (text: string, viaHint: boolean) => void;
+  passRound: () => void;
+  nextRound: () => void;
+  startSelfCare: (actionId: SelfCareCode) => void;
+  stopSelfCare: () => void;
+  beginHandover: () => void;
+  toggleHandover: (patientId: string) => void;
+  confirmHandover: () => void;
 }

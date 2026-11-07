@@ -1,6 +1,5 @@
 /** M3：spec §11 所有 order 種類都可以落；執行者（護士／下屬／玩家）；全部由 T4 驅動。 */
 import { describe, expect, it } from 'vitest';
-import { getConfig } from '@/content';
 import { ORDER_TYPES } from '@/content/schema/m2Tables';
 import { createEngine } from '../core/reducer';
 import type { GameState } from '../core/state';
@@ -9,6 +8,7 @@ import {
   advance,
   feed,
   params,
+  realConfig,
   realEngine,
   say,
   zeroNoiseTables,
@@ -90,7 +90,7 @@ describe('§11 全部 order 種類可落（T4）', () => {
   });
 
   it('下屬速度倍數（T14 暫定）影響完成時間；玩家／護士唔受影響', () => {
-    const config = getConfig();
+    const config = realConfig();
     const slow = createEngine(
       {
         ...config,

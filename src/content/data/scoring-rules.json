@@ -152,5 +152,95 @@
     "subscore": "COMMUNICATION",
     "delta": -1,
     "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "ROUND_CORRECT",
+    "subscore": "CLINICAL_OUTCOME",
+    "delta": 2,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "ROUND_CORRECT_HINTED",
+    "subscore": "CLINICAL_OUTCOME",
+    "delta": 1,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "ROUND_PARTIAL",
+    "subscore": "CLINICAL_OUTCOME",
+    "delta": 1,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "ROUND_WRONG",
+    "subscore": "CLINICAL_OUTCOME",
+    "delta": -1,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "ROUND_UNANSWERED",
+    "subscore": "CLINICAL_OUTCOME",
+    "delta": -1,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "OVERTIME_ENTERED",
+    "subscore": "TIMELINESS",
+    "delta": -2,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "OVERTIME_MINUTES",
+    "subscore": "TIMELINESS",
+    "delta": -1,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "HANDOVER_MENTION_NEEDED",
+    "subscore": "COMMUNICATION",
+    "delta": 2,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "HANDOVER_OMIT_NEEDED",
+    "subscore": "COMMUNICATION",
+    "delta": -2,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "HANDOVER_MENTION_STABLE",
+    "subscore": "COMMUNICATION",
+    "delta": 0,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "HANDOVER_FORCED",
+    "subscore": "COMMUNICATION",
+    "delta": -3,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "SELF_CARE_MEAL",
+    "subscore": "SELF_CARE",
+    "delta": 2,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "SELF_CARE_NAP",
+    "subscore": "SELF_CARE",
+    "delta": 1,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "SELF_CARE_BREAK",
+    "subscore": "SELF_CARE",
+    "delta": 0,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "FAINT",
+    "subscore": "SELF_CARE",
+    "delta": -3,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
   }
 ]

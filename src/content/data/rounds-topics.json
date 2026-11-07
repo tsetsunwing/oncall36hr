@@ -1,1 +1,728 @@
-[]
+[
+  {
+    "id": "pneumonia-history",
+    "diagnosisId": "pneumonia",
+    "category": "HISTORY",
+    "focus": "肺炎病人的病史重點：症狀、風險因素和過往病史",
+    "keyFacts": [
+      {
+        "id": "pneumonia-history-1",
+        "text": "典型症狀包括發燒、咳嗽、有痰和氣促，部分病人有胸膜炎性胸痛"
+      },
+      {
+        "id": "pneumonia-history-2",
+        "text": "長者可能只表現為神志混亂或食慾下降，不一定發燒"
+      },
+      {
+        "id": "pneumonia-history-3",
+        "text": "要問吸煙史、慢性肺病、免疫力低下，以及近期入院或使用抗生素"
+      }
+    ],
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "示意內容，教學用途；待臨床審核"
+  },
+  {
+    "id": "pneumonia-pathology",
+    "diagnosisId": "pneumonia",
+    "category": "PATHOLOGY",
+    "focus": "肺炎的病理機制",
+    "keyFacts": [
+      {
+        "id": "pneumonia-pathology-1",
+        "text": "病原體進入肺泡後引起炎症反應，肺泡內充滿滲出液"
+      },
+      {
+        "id": "pneumonia-pathology-2",
+        "text": "肺泡積液令氣體交換受損，導致缺氧"
+      },
+      {
+        "id": "pneumonia-pathology-3",
+        "text": "細菌性社區肺炎最常見的致病菌是肺炎鏈球菌"
+      }
+    ],
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "示意內容，教學用途；待臨床審核"
+  },
+  {
+    "id": "pneumonia-pharmacology",
+    "diagnosisId": "pneumonia",
+    "category": "PHARMACOLOGY",
+    "focus": "肺炎抗生素的選擇原則",
+    "keyFacts": [
+      {
+        "id": "pneumonia-pharmacology-1",
+        "text": "經驗性抗生素按社區或醫院獲得性、嚴重程度和當地耐藥情況選擇"
+      },
+      {
+        "id": "pneumonia-pharmacology-2",
+        "text": "用藥前要先確認病人有沒有青黴素過敏"
+      },
+      {
+        "id": "pneumonia-pharmacology-3",
+        "text": "盡早給予首劑抗生素，並按培養結果和臨床反應調整"
+      }
+    ],
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "示意內容，教學用途；待臨床審核"
+  },
+  {
+    "id": "sepsis-history",
+    "diagnosisId": "sepsis",
+    "category": "HISTORY",
+    "focus": "敗血症病人的病史重點",
+    "keyFacts": [
+      {
+        "id": "sepsis-history-1",
+        "text": "要追查感染源，例如呼吸道、泌尿道、皮膚軟組織和腹腔"
+      },
+      {
+        "id": "sepsis-history-2",
+        "text": "了解免疫力低下因素，例如糖尿病、化療或長期使用類固醇"
+      },
+      {
+        "id": "sepsis-history-3",
+        "text": "詢問近期手術、導管或入院史"
+      }
+    ],
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "示意內容，教學用途；待臨床審核"
+  },
+  {
+    "id": "sepsis-pathology",
+    "diagnosisId": "sepsis",
+    "category": "PATHOLOGY",
+    "focus": "敗血症的病理機制",
+    "keyFacts": [
+      {
+        "id": "sepsis-pathology-1",
+        "text": "敗血症是宿主對感染的失調反應，引致器官功能障礙"
+      },
+      {
+        "id": "sepsis-pathology-2",
+        "text": "血管擴張和毛細血管滲漏導致低血壓和組織灌注不足"
+      },
+      {
+        "id": "sepsis-pathology-3",
+        "text": "乳酸升高反映組織缺氧和灌注不足"
+      }
+    ],
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "示意內容，教學用途；待臨床審核"
+  },
+  {
+    "id": "sepsis-pharmacology",
+    "diagnosisId": "sepsis",
+    "category": "PHARMACOLOGY",
+    "focus": "敗血症的藥物處理",
+    "keyFacts": [
+      {
+        "id": "sepsis-pharmacology-1",
+        "text": "確診或高度懷疑後應盡早給予廣譜靜脈抗生素"
+      },
+      {
+        "id": "sepsis-pharmacology-2",
+        "text": "應先抽血培養再用抗生素，但不應因此嚴重延誤給藥"
+      },
+      {
+        "id": "sepsis-pharmacology-3",
+        "text": "低血壓先用晶體液補充容量，仍然低血壓才加血管收縮藥，例如 noradrenaline"
+      }
+    ],
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "示意內容，教學用途；待臨床審核"
+  },
+  {
+    "id": "cellulitis-history",
+    "diagnosisId": "cellulitis",
+    "category": "HISTORY",
+    "focus": "蜂窩組織炎的病史重點",
+    "keyFacts": [
+      {
+        "id": "cellulitis-history-1",
+        "text": "了解受感染部位出現了多久，紅腫熱痛有沒有擴散"
+      },
+      {
+        "id": "cellulitis-history-2",
+        "text": "追問皮膚破損、昆蟲咬傷、足癬或水腫等誘因"
+      },
+      {
+        "id": "cellulitis-history-3",
+        "text": "糖尿病、周邊血管病和免疫力低下是風險因素"
+      }
+    ],
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "示意內容，教學用途；待臨床審核"
+  },
+  {
+    "id": "cellulitis-pathology",
+    "diagnosisId": "cellulitis",
+    "category": "PATHOLOGY",
+    "focus": "蜂窩組織炎的病理機制",
+    "keyFacts": [
+      {
+        "id": "cellulitis-pathology-1",
+        "text": "蜂窩組織炎是真皮深層和皮下組織的細菌感染"
+      },
+      {
+        "id": "cellulitis-pathology-2",
+        "text": "最常見致病菌是鏈球菌和金黃色葡萄球菌"
+      },
+      {
+        "id": "cellulitis-pathology-3",
+        "text": "炎症令局部血管擴張和通透性增加，出現紅腫熱痛"
+      }
+    ],
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "示意內容，教學用途；待臨床審核"
+  },
+  {
+    "id": "cellulitis-pharmacology",
+    "diagnosisId": "cellulitis",
+    "category": "PHARMACOLOGY",
+    "focus": "蜂窩組織炎的抗生素選擇",
+    "keyFacts": [
+      {
+        "id": "cellulitis-pharmacology-1",
+        "text": "非化膿性蜂窩組織炎首選針對鏈球菌的抗生素，例如 penicillin 類或 cloxacillin"
+      },
+      {
+        "id": "cellulitis-pharmacology-2",
+        "text": "對青黴素過敏要改用其他類別，按醫院指引選擇"
+      },
+      {
+        "id": "cellulitis-pharmacology-3",
+        "text": "嚴重或有全身症狀的感染需要靜脈給藥，並抬高患肢輔助消腫"
+      }
+    ],
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "示意內容，教學用途；待臨床審核"
+  },
+  {
+    "id": "uti-history",
+    "diagnosisId": "uti",
+    "category": "HISTORY",
+    "focus": "尿路感染的病史重點",
+    "keyFacts": [
+      {
+        "id": "uti-history-1",
+        "text": "典型症狀是小便痛、頻尿、急尿和下腹痛"
+      },
+      {
+        "id": "uti-history-2",
+        "text": "要問有沒有發燒、腰痛或嘔吐，以分辨有沒有上尿路感染"
+      },
+      {
+        "id": "uti-history-3",
+        "text": "了解糖尿病、導尿管、尿路結石和過往尿路感染"
+      }
+    ],
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "示意內容，教學用途；待臨床審核"
+  },
+  {
+    "id": "uti-pathology",
+    "diagnosisId": "uti",
+    "category": "PATHOLOGY",
+    "focus": "尿路感染的病理機制",
+    "keyFacts": [
+      {
+        "id": "uti-pathology-1",
+        "text": "尿路感染多數由腸道細菌經尿道上行引起，最常見是大腸桿菌"
+      },
+      {
+        "id": "uti-pathology-2",
+        "text": "女性尿道較短，所以較易感染"
+      },
+      {
+        "id": "uti-pathology-3",
+        "text": "感染上行至腎盂會引致腎盂腎炎，有機會導致敗血症"
+      }
+    ],
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "示意內容，教學用途；待臨床審核"
+  },
+  {
+    "id": "uti-pharmacology",
+    "diagnosisId": "uti",
+    "category": "PHARMACOLOGY",
+    "focus": "尿路感染的抗生素選擇",
+    "keyFacts": [
+      {
+        "id": "uti-pharmacology-1",
+        "text": "抗生素按嚴重程度、過敏史和當地耐藥情況選擇"
+      },
+      {
+        "id": "uti-pharmacology-2",
+        "text": "使用抗生素前先留尿液培養"
+      },
+      {
+        "id": "uti-pharmacology-3",
+        "text": "要留意腎功能，必要時調整藥物劑量"
+      }
+    ],
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "示意內容，教學用途；待臨床審核"
+  },
+  {
+    "id": "copd-history",
+    "diagnosisId": "copd",
+    "category": "HISTORY",
+    "focus": "慢性阻塞性肺病的病史重點",
+    "keyFacts": [
+      {
+        "id": "copd-history-1",
+        "text": "最重要的風險因素是長期吸煙"
+      },
+      {
+        "id": "copd-history-2",
+        "text": "慢性咳嗽、有痰和活動時氣促是典型症狀"
+      },
+      {
+        "id": "copd-history-3",
+        "text": "了解急性加重次數、吸入劑使用和家中氧氣使用"
+      }
+    ],
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "示意內容，教學用途；待臨床審核"
+  },
+  {
+    "id": "copd-pathology",
+    "diagnosisId": "copd",
+    "category": "PATHOLOGY",
+    "focus": "慢性阻塞性肺病的病理機制",
+    "keyFacts": [
+      {
+        "id": "copd-pathology-1",
+        "text": "慢性阻塞性肺病是氣道氣流受阻而且不完全可逆的疾病"
+      },
+      {
+        "id": "copd-pathology-2",
+        "text": "包括慢性支氣管炎和肺氣腫"
+      },
+      {
+        "id": "copd-pathology-3",
+        "text": "急性加重多數由感染誘發，令氣道炎症和痰液增加"
+      }
+    ],
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "示意內容，教學用途；待臨床審核"
+  },
+  {
+    "id": "copd-pharmacology",
+    "diagnosisId": "copd",
+    "category": "PHARMACOLOGY",
+    "focus": "慢性阻塞性肺病急性加重的藥物處理",
+    "keyFacts": [
+      {
+        "id": "copd-pharmacology-1",
+        "text": "急性發作用短效支氣管擴張劑，例如 salbutamol"
+      },
+      {
+        "id": "copd-pharmacology-2",
+        "text": "全身性類固醇可縮短急性加重的復原時間"
+      },
+      {
+        "id": "copd-pharmacology-3",
+        "text": "給氧要控制目標血氧飽和度，避免過量氧氣引致二氧化碳瀦留"
+      }
+    ],
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "示意內容，教學用途；待臨床審核"
+  },
+  {
+    "id": "hypertension-history",
+    "diagnosisId": "hypertension",
+    "category": "HISTORY",
+    "focus": "高血壓的病史重點",
+    "keyFacts": [
+      {
+        "id": "hypertension-history-1",
+        "text": "了解高血壓病程、家族史、現有降壓藥物和服藥依從性"
+      },
+      {
+        "id": "hypertension-history-2",
+        "text": "詢問頭痛、視力模糊、胸痛等靶器官受損症狀"
+      },
+      {
+        "id": "hypertension-history-3",
+        "text": "了解鹽份攝入、飲酒、吸煙和其他心血管風險因素"
+      }
+    ],
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "示意內容，教學用途；待臨床審核"
+  },
+  {
+    "id": "hypertension-pathology",
+    "diagnosisId": "hypertension",
+    "category": "PATHOLOGY",
+    "focus": "高血壓的病理影響",
+    "keyFacts": [
+      {
+        "id": "hypertension-pathology-1",
+        "text": "長期高血壓令血管壁受壓，加速動脈硬化"
+      },
+      {
+        "id": "hypertension-pathology-2",
+        "text": "靶器官包括心、腦、腎和眼底"
+      },
+      {
+        "id": "hypertension-pathology-3",
+        "text": "血壓長期偏高會增加中風、心臟衰竭和腎衰竭的風險"
+      }
+    ],
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "示意內容，教學用途；待臨床審核"
+  },
+  {
+    "id": "hypertension-pharmacology",
+    "diagnosisId": "hypertension",
+    "category": "PHARMACOLOGY",
+    "focus": "降壓藥物",
+    "keyFacts": [
+      {
+        "id": "hypertension-pharmacology-1",
+        "text": "常用降壓藥包括 ACE inhibitor、ARB、calcium channel blocker、thiazide 和 beta blocker"
+      },
+      {
+        "id": "hypertension-pharmacology-2",
+        "text": "ACE inhibitor 常見副作用是乾咳，需要監察血鉀和腎功能"
+      },
+      {
+        "id": "hypertension-pharmacology-3",
+        "text": "選藥要按合併症和禁忌症，例如懷孕不可以用 ACE inhibitor"
+      }
+    ],
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "示意內容，教學用途；待臨床審核"
+  },
+  {
+    "id": "heart-failure-history",
+    "diagnosisId": "heart-failure",
+    "category": "HISTORY",
+    "focus": "心臟衰竭的病史重點",
+    "keyFacts": [
+      {
+        "id": "heart-failure-history-1",
+        "text": "典型症狀是氣促、夜間陣發性呼吸困難、要墊高枕頭睡覺和雙腳水腫"
+      },
+      {
+        "id": "heart-failure-history-2",
+        "text": "了解誘因，例如心肌缺血、心律不正、停藥或感染"
+      },
+      {
+        "id": "heart-failure-history-3",
+        "text": "了解水分和鹽份攝入，以及體重變化"
+      }
+    ],
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "示意內容，教學用途；待臨床審核"
+  },
+  {
+    "id": "heart-failure-pathology",
+    "diagnosisId": "heart-failure",
+    "category": "PATHOLOGY",
+    "focus": "心臟衰竭的病理機制",
+    "keyFacts": [
+      {
+        "id": "heart-failure-pathology-1",
+        "text": "心臟泵血功能下降，令心輸出量不足和血液回流積聚"
+      },
+      {
+        "id": "heart-failure-pathology-2",
+        "text": "左心衰竭引致肺水腫，右心衰竭引致周邊水腫"
+      },
+      {
+        "id": "heart-failure-pathology-3",
+        "text": "身體代償機制，例如腎素血管緊張素系統活化，長遠會加重心臟衰竭"
+      }
+    ],
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "示意內容，教學用途；待臨床審核"
+  },
+  {
+    "id": "heart-failure-pharmacology",
+    "diagnosisId": "heart-failure",
+    "category": "PHARMACOLOGY",
+    "focus": "心臟衰竭的藥物處理",
+    "keyFacts": [
+      {
+        "id": "heart-failure-pharmacology-1",
+        "text": "急性肺水腫用 furosemide 等利尿劑減輕容量負荷"
+      },
+      {
+        "id": "heart-failure-pharmacology-2",
+        "text": "長期藥物包括 ACE inhibitor 或 ARB、beta blocker 和 MRA"
+      },
+      {
+        "id": "heart-failure-pharmacology-3",
+        "text": "使用利尿劑要監察電解質和腎功能"
+      }
+    ],
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "示意內容，教學用途；待臨床審核"
+  },
+  {
+    "id": "gi-bleed-history",
+    "diagnosisId": "gi-bleed",
+    "category": "HISTORY",
+    "focus": "上消化道出血的病史重點",
+    "keyFacts": [
+      {
+        "id": "gi-bleed-history-1",
+        "text": "了解黑便、嘔血或咖啡渣樣嘔吐物的出現時間和份量"
+      },
+      {
+        "id": "gi-bleed-history-2",
+        "text": "詢問 NSAID、aspirin、抗凝血藥、飲酒，以及消化性潰瘍或肝病病史"
+      },
+      {
+        "id": "gi-bleed-history-3",
+        "text": "留意頭暈、暈厥等低血容症狀"
+      }
+    ],
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "示意內容，教學用途；待臨床審核"
+  },
+  {
+    "id": "gi-bleed-pathology",
+    "diagnosisId": "gi-bleed",
+    "category": "PATHOLOGY",
+    "focus": "上消化道出血的病理",
+    "keyFacts": [
+      {
+        "id": "gi-bleed-pathology-1",
+        "text": "上消化道出血常見原因包括消化性潰瘍、靜脈曲張和糜爛性胃炎"
+      },
+      {
+        "id": "gi-bleed-pathology-2",
+        "text": "失血令血容量下降，可導致低血壓和休克"
+      },
+      {
+        "id": "gi-bleed-pathology-3",
+        "text": "幽門螺旋桿菌和 NSAID 是潰瘍的主要成因"
+      }
+    ],
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "示意內容，教學用途；待臨床審核"
+  },
+  {
+    "id": "gi-bleed-pharmacology",
+    "diagnosisId": "gi-bleed",
+    "category": "PHARMACOLOGY",
+    "focus": "上消化道出血的藥物處理",
+    "keyFacts": [
+      {
+        "id": "gi-bleed-pharmacology-1",
+        "text": "靜脈注射 proton pump inhibitor 用於抑制胃酸、穩定血塊"
+      },
+      {
+        "id": "gi-bleed-pharmacology-2",
+        "text": "要停用或調整 NSAID、抗血小板藥和抗凝血藥"
+      },
+      {
+        "id": "gi-bleed-pharmacology-3",
+        "text": "懷疑靜脈曲張出血會使用 terlipressin 或 octreotide，並預防性使用抗生素"
+      }
+    ],
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "示意內容，教學用途；待臨床審核"
+  },
+  {
+    "id": "pe-history",
+    "diagnosisId": "pe",
+    "category": "HISTORY",
+    "focus": "肺栓塞的病史重點",
+    "keyFacts": [
+      {
+        "id": "pe-history-1",
+        "text": "典型症狀是突發氣促和胸膜炎性胸痛，部分病人有咳血"
+      },
+      {
+        "id": "pe-history-2",
+        "text": "了解深靜脈血栓風險：近期手術、長期臥床、癌症、長途飛行和避孕藥"
+      },
+      {
+        "id": "pe-history-3",
+        "text": "詢問單邊腳腫痛和過往血栓病史"
+      }
+    ],
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "示意內容，教學用途；待臨床審核"
+  },
+  {
+    "id": "pe-pathology",
+    "diagnosisId": "pe",
+    "category": "PATHOLOGY",
+    "focus": "肺栓塞的病理機制",
+    "keyFacts": [
+      {
+        "id": "pe-pathology-1",
+        "text": "血栓（多數來自下肢深靜脈）隨血流堵塞肺動脈"
+      },
+      {
+        "id": "pe-pathology-2",
+        "text": "通氣灌注不匹配導致缺氧"
+      },
+      {
+        "id": "pe-pathology-3",
+        "text": "大面積栓塞令右心壓力增加，可以引致右心衰竭和休克"
+      }
+    ],
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "示意內容，教學用途；待臨床審核"
+  },
+  {
+    "id": "pe-pharmacology",
+    "diagnosisId": "pe",
+    "category": "PHARMACOLOGY",
+    "focus": "肺栓塞的藥物處理",
+    "keyFacts": [
+      {
+        "id": "pe-pharmacology-1",
+        "text": "確診或高度懷疑後盡早給予抗凝血藥，例如 LMWH 或 DOAC"
+      },
+      {
+        "id": "pe-pharmacology-2",
+        "text": "血流動力學不穩定的大面積栓塞可以考慮溶栓治療"
+      },
+      {
+        "id": "pe-pharmacology-3",
+        "text": "使用抗凝血藥前要評估出血風險和腎功能"
+      }
+    ],
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "示意內容，教學用途；待臨床審核"
+  },
+  {
+    "id": "acs-history",
+    "diagnosisId": "acs",
+    "category": "HISTORY",
+    "focus": "急性冠狀動脈綜合症的病史重點",
+    "keyFacts": [
+      {
+        "id": "acs-history-1",
+        "text": "典型症狀是壓迫性胸痛，可放射至左臂或下頷，伴隨冷汗和噁心"
+      },
+      {
+        "id": "acs-history-2",
+        "text": "了解風險因素：高血壓、糖尿病、高血脂、吸煙和家族史"
+      },
+      {
+        "id": "acs-history-3",
+        "text": "追問症狀開始時間，以及有沒有過往心臟病或介入治療"
+      }
+    ],
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "示意內容，教學用途；待臨床審核"
+  },
+  {
+    "id": "acs-pathology",
+    "diagnosisId": "acs",
+    "category": "PATHOLOGY",
+    "focus": "急性冠狀動脈綜合症的病理機制",
+    "keyFacts": [
+      {
+        "id": "acs-pathology-1",
+        "text": "動脈粥樣硬化斑塊破裂，引發血小板聚集和血栓形成"
+      },
+      {
+        "id": "acs-pathology-2",
+        "text": "冠狀動脈阻塞令心肌缺血，嚴重或持續會導致心肌壞死"
+      },
+      {
+        "id": "acs-pathology-3",
+        "text": "STEMI 代表冠狀動脈完全阻塞，心電圖出現 ST 段上升"
+      }
+    ],
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "示意內容，教學用途；待臨床審核"
+  },
+  {
+    "id": "acs-pharmacology",
+    "diagnosisId": "acs",
+    "category": "PHARMACOLOGY",
+    "focus": "急性冠狀動脈綜合症的抗血小板藥物",
+    "keyFacts": [
+      {
+        "id": "acs-pharmacology-1",
+        "text": "雙重抗血小板治療包括 aspirin 加 ADP 受體抑制劑，例如 clopidogrel 或 ticagrelor"
+      },
+      {
+        "id": "acs-pharmacology-2",
+        "text": "ADP 受體抑制劑阻止血小板聚集"
+      },
+      {
+        "id": "acs-pharmacology-3",
+        "text": "使用前要評估出血風險和過敏史"
+      }
+    ],
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "示意內容，教學用途；待臨床審核"
+  },
+  {
+    "id": "end-stage-malignancy-history",
+    "diagnosisId": "end-stage-malignancy",
+    "category": "HISTORY",
+    "focus": "末期惡性腫瘤的病史重點",
+    "keyFacts": [
+      {
+        "id": "end-stage-malignancy-history-1",
+        "text": "了解原發腫瘤、擴散部位和已接受的治療"
+      },
+      {
+        "id": "end-stage-malignancy-history-2",
+        "text": "了解病人和家屬對病情的認知和治療目標，包括 DNR 意願"
+      },
+      {
+        "id": "end-stage-malignancy-history-3",
+        "text": "評估症狀負擔，例如痛楚、氣促、噁心和食慾"
+      }
+    ],
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "示意內容，教學用途；待臨床審核"
+  },
+  {
+    "id": "end-stage-malignancy-pathology",
+    "diagnosisId": "end-stage-malignancy",
+    "category": "PATHOLOGY",
+    "focus": "末期惡性腫瘤的病理特徵",
+    "keyFacts": [
+      {
+        "id": "end-stage-malignancy-pathology-1",
+        "text": "惡性腫瘤細胞不受控制地增生，並可以經血液或淋巴擴散"
+      },
+      {
+        "id": "end-stage-malignancy-pathology-2",
+        "text": "晚期病人常有惡病質，包括體重下降和肌肉流失"
+      },
+      {
+        "id": "end-stage-malignancy-pathology-3",
+        "text": "腫瘤可引致高鈣血症、骨轉移痛楚或器官功能衰竭"
+      }
+    ],
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "示意內容，教學用途；待臨床審核"
+  },
+  {
+    "id": "end-stage-malignancy-pharmacology",
+    "diagnosisId": "end-stage-malignancy",
+    "category": "PHARMACOLOGY",
+    "focus": "末期惡性腫瘤的症狀控制",
+    "keyFacts": [
+      {
+        "id": "end-stage-malignancy-pharmacology-1",
+        "text": "痛楚按階梯式止痛原則處理，嚴重痛楚可以用嗎啡等 opioid"
+      },
+      {
+        "id": "end-stage-malignancy-pharmacology-2",
+        "text": "使用 opioid 要同時預防便秘，並監察呼吸和鎮靜程度"
+      },
+      {
+        "id": "end-stage-malignancy-pharmacology-3",
+        "text": "安寧緩和照顧以舒適為先，按症狀調整藥物和劑量"
+      }
+    ],
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "示意內容，教學用途；待臨床審核"
+  }
+]

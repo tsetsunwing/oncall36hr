@@ -12,10 +12,11 @@ import { patientSchema } from '../case/patient';
 import { chatThreadSchema } from '../chat/chatTypes';
 import { actionLogEntrySchema } from '../log/actionLog';
 import { orderSchema } from '../orders/orderTypes';
+import { emptyShift, shiftSchema } from '../shift/shiftState';
 import { emptyWard, wardStateSchema } from '../ward/wardTypes';
 import type { EngineConfig } from './config';
 
-export const CURRENT_SCHEMA = 6;
+export const CURRENT_SCHEMA = 7;
 
 export const MODES = ['DAY', 'NIGHT', 'ONCALL'] as const;
 export const DIFFICULTIES = ['EASY', 'MEDIUM', 'HARD'] as const;
@@ -87,6 +88,8 @@ export const gameStateSchema = z
     death: deathSchema.nullable(),
     /** M5：分數 ledger（只增不減；回顧由此重建） */
     scoreLedger: z.array(ledgerEntrySchema),
+    /** M6：巡房、精力、自我照顧、超時同交更結局 */
+    shift: shiftSchema,
   })
   .strict();
 
@@ -143,5 +146,6 @@ export function createInitialState(params: NewGameParams, config: EngineConfig):
     resus: null,
     death: null,
     scoreLedger: [],
+    shift: emptyShift(),
   };
 }

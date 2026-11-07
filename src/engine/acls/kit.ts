@@ -1,5 +1,4 @@
 /** ACLS／死亡流程測試用嘅小工具：用真 content 表同真 engine，按指令字串落 order。 */
-import { getConfig } from '@/content';
 import { gameSecondsPerRealMs } from '../core/clock';
 import type { Effect } from '../core/events';
 import type { Engine } from '../core/reducer';
@@ -11,12 +10,13 @@ import {
   feed,
   intentEvent,
   params,
+  realConfig,
   realEngine,
   say,
   type Run,
 } from '../test/realEngine';
 
-export const config = getConfig();
+export const config = realConfig();
 
 export type AiMode = 'ignore' | 'cheerful';
 

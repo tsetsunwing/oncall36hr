@@ -2,6 +2,8 @@
  * 存檔 schema 遷移鏈。`migrations[n]` 負責把 schema n 嘅 raw state 升到 n + 1。
  * 未來每次改 GameState 形狀：CURRENT_SCHEMA + 1，並喺度加一個函數（implementation-plan §12.1、T-L）。
  */
+import { hashString } from '../core/rng';
+
 export type RawState = Record<string, unknown>;
 export type Migration = (raw: RawState) => RawState;
 export type MigrationRegistry = Readonly<Record<number, Migration>>;
@@ -111,12 +113,35 @@ function migrateV5toV6(raw: RawState): RawState {
   };
 }
 
+/**
+ * schema 6 → 7（M6）：加入 shift 狀態同 rounds RNG 分流。
+ * 舊存檔冇 M6 時間線事件（巡房、交更、精力），載入後只作為連續遊玩，唔會補排。
+ */
+function migrateV6toV7(raw: RawState): RawState {
+  const rng = (raw.rng ?? {}) as Record<string, unknown>;
+  const seed = typeof raw.seed === 'string' ? raw.seed : '';
+  return {
+    ...raw,
+    rng: { ...rng, rounds: hashString(`${seed}\u0000rounds`) },
+    shift: {
+      rounds: { started: 0, completed: 0, active: null, history: [] },
+      mealsTaken: [],
+      energy: { percent: 100, lastNudgeAt: null },
+      selfCare: { active: null, lastEndedAt: {} },
+      overtime: { enteredAt: null, workInFlight: false },
+      handover: { selected: [] },
+      ending: null,
+    },
+  };
+}
+
 export const migrations: MigrationRegistry = {
   1: migrateV1toV2,
   2: migrateV2toV3,
   3: migrateV3toV4,
   4: migrateV4toV5,
   5: migrateV5toV6,
+  6: migrateV6toV7,
 };
 
 export type MigrateResult =

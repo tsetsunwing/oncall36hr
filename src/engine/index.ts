@@ -200,3 +200,58 @@ export type {
   SubordinateRow,
   WardLayoutRow,
 } from './case/tables';
+export {
+  ENERGY_TICK_EVENT,
+  OVERTIME_DEADLINE_EVENT,
+  SHIFT_END_EVENT,
+  SHIFT_MODULE,
+  shiftIntent,
+  shiftModule,
+} from './shift/shiftModule';
+export {
+  ENDING_REASONS,
+  ROUND_PHASES,
+  ROUND_VERDICTS,
+  SELF_CARE_ID_LIST,
+  emptyShift,
+  shiftSchema,
+  type Ending,
+  type EndingReasonId,
+  type RoundActive,
+  type RoundCurrent,
+  type RoundPhase,
+  type RoundResult,
+  type RoundVerdict,
+  type ShiftState,
+} from './shift/shiftState';
+export {
+  activeMeal,
+  mealNodes,
+  overtimeEndOf,
+  regularSecondsOf,
+  roundTimes,
+  segmentAt,
+  segmentsOf,
+  startHourOf,
+  type MealNode,
+  type Segment,
+  type SegmentKind,
+  type TimelineConfig,
+} from './shift/timeline';
+export { energyLevel, energyModel, type EnergyLevel } from './shift/energy';
+export { patientNeedsHandover, workInFlight } from './shift/handover';
+export {
+  HINT_COUNT,
+  ROUNDS_GRADE_KIND,
+  ROUNDS_QUESTION_KIND,
+  roundTextOk,
+  topicById,
+} from './shift/rounds';
+export {
+  mealWindowFor,
+  selfCareAvailable,
+  selfCareCooldownLeft,
+  selfCareRow,
+} from './shift/selfCare';
+export { interruptsSuppressed, overtimeFrozen, roundInProgress } from './shift/suppress';
+export type { EnergyModelRow, RoundTopicRow, SelfCareRow } from './case/tables';

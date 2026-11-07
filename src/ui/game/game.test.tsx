@@ -31,6 +31,14 @@ function makeActions() {
     familyOption: vi.fn(),
     familySay: vi.fn(),
     startDeathCall: vi.fn(),
+    answerRound: vi.fn(),
+    passRound: vi.fn(),
+    nextRound: vi.fn(),
+    startSelfCare: vi.fn(),
+    stopSelfCare: vi.fn(),
+    beginHandover: vi.fn(),
+    toggleHandover: vi.fn(),
+    confirmHandover: vi.fn(),
   } satisfies GameActions;
 }
 

@@ -4,7 +4,8 @@ import { createEngine, type EngineEvent, type GameState } from '@/engine';
 import { formatClock } from './clock';
 import { selectGameView, type ViewEnv } from './gameView';
 
-const config = getConfig();
+const baseConfig = getConfig();
+const config = { ...baseConfig, clock: { ...baseConfig.clock, pauseWhileAiPending: false } };
 const tables = getContent().tables;
 const engine = createEngine(config, { tables });
 const env: ViewEnv = { tables, config };

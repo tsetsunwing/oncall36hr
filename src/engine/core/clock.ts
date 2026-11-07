@@ -7,12 +7,15 @@ import type { EngineConfig } from './config';
 import type { Effect } from './events';
 import type { GameState } from './state';
 
-/** 每真實毫秒推進幾多遊戲秒；暫停時為 0 */
+/** 每真實毫秒推進幾多遊戲秒；暫停、等 AI 回覆、交班／結束階段時為 0 */
 export function gameSecondsPerRealMs(
   config: EngineConfig,
-  state: Pick<GameState, 'clock' | 'paused'>,
+  state: Pick<GameState, 'clock' | 'paused' | 'pendingAi'>,
 ): number {
   if (state.paused) return 0;
+  if (state.clock.phase === 'HANDOVER' || state.clock.phase === 'ENDED') return 0;
+  // C1：等 AI 回覆期間遊戲時鐘自動暫停
+  if (config.clock.pauseWhileAiPending && state.pendingAi.length > 0) return 0;
   const baseAt1x = 60 / (config.clock.realSecondsPerGameMinuteAt1x * 1000);
   // CPR 期間有效速率固定為 1 倍嘅 cprSlowFactor，無視玩家倍速（S-3 A）
   const multiplier = state.clock.cprSlow ? config.clock.cprSlowFactor : state.clock.speed;
