@@ -23,7 +23,7 @@ async function openGame(page: Page, model: string, seed = 'e2e-bedside') {
 
 async function pauseGame(page: Page) {
   const toggle = page.getByTestId('pause-toggle');
-  if ((await toggle.textContent()) === ui.game.pause) await toggle.click();
+  if ((await toggle.getAttribute('aria-label')) === ui.game.pause) await toggle.click();
 }
 
 async function openSidePanel(page: Page) {

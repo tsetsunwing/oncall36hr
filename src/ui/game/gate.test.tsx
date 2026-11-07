@@ -36,6 +36,7 @@ function makeActions() {
     beginHandover: vi.fn(),
     toggleHandover: vi.fn(),
     confirmHandover: vi.fn(),
+    saveManual: vi.fn(),
   } satisfies GameActions;
 }
 
@@ -121,8 +122,8 @@ describe('LogPanel：報告同執行者', () => {
       />,
     );
     const table = screen.getByRole('table', { name: ui.game.reports.tableCaption('CBC') });
-    expect(within(table).getAllByRole('columnheader')).toHaveLength(3);
-    expect(within(table).getByText('18.0 ×10⁹/L').closest('td')).toHaveTextContent(
+    expect(within(table).getAllByRole('columnheader')).toHaveLength(4);
+    expect(within(table).getByText('18.0 ×10⁹/L').closest('tr')).toHaveTextContent(
       ui.game.reports.flag.H ?? '',
     );
     expect(screen.getByText(ui.game.reports.pending)).toBeInTheDocument();

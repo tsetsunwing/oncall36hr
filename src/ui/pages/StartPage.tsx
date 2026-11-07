@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { ui } from '@/i18n';
-import type { Settings } from '@/storage';
+import type { SaveSlotView, Settings } from '@/storage';
 import type { StartGate } from '@/view';
+import { SaveLibrary } from '../saves/SaveLibrary';
 
 export type SetupRank = 'HO' | 'MO' | 'RES';
 export type SetupDifficulty = 'EASY' | 'MEDIUM' | 'HARD';
@@ -18,6 +19,12 @@ export interface StartPageProps {
   onStart: (choice: StartChoice) => void;
   settings?: Settings;
   onSettingsChange?: (settings: Settings) => void;
+  slots?: SaveSlotView[];
+  saveMessage?: string | null;
+  onContinue?: (id: string) => void;
+  onDelete?: (id: string) => void;
+  onExport?: (id: string) => void;
+  onImport?: (slot: number, json: string) => void;
 }
 
 const missingMessage = {
@@ -78,7 +85,18 @@ function ChoiceGroup<T extends string>({
   );
 }
 
-export function StartPage({ gate, onStart, settings, onSettingsChange }: StartPageProps) {
+export function StartPage({
+  gate,
+  onStart,
+  settings,
+  onSettingsChange,
+  slots,
+  saveMessage = null,
+  onContinue,
+  onDelete,
+  onExport,
+  onImport,
+}: StartPageProps) {
   const s = ui.shift.setup;
   const [rank, setRank] = useState<SetupRank>('MO');
   const [difficulty, setDifficulty] = useState<SetupDifficulty>('MEDIUM');
@@ -216,6 +234,16 @@ export function StartPage({ gate, onStart, settings, onSettingsChange }: StartPa
           )}
         </aside>
       </div>
+      {slots && onContinue && onDelete && onExport && onImport ? (
+        <SaveLibrary
+          slots={slots}
+          message={saveMessage}
+          onContinue={onContinue}
+          onDelete={onDelete}
+          onExport={onExport}
+          onImport={onImport}
+        />
+      ) : null}
     </section>
   );
 }

@@ -9,6 +9,8 @@ export interface LogPanelProps {
   actions: GameActions;
   open: boolean;
   onClose: () => void;
+  /** 手機抽屜：labs 只顯示報告，log 顯示 order 與記錄。桌面版仍顯示全部。 */
+  focus?: 'all' | 'log' | 'labs';
 }
 
 function etaText(order: OrderRowView): string | null {
@@ -75,17 +77,23 @@ function ReportItem({ report }: { report: ReportView }) {
               <th scope="col">{r.item}</th>
               <th scope="col">{r.value}</th>
               <th scope="col">{r.reference}</th>
+              <th scope="col">{r.mark}</th>
             </tr>
           </thead>
           <tbody>
             {report.items.map((item) => (
               <tr key={item.label} data-flag={item.flag ?? ''}>
                 <th scope="row">{item.label}</th>
-                <td>
-                  {item.valueText}
-                  {item.flag ? <span className="report-flag">{r.flag[item.flag]}</span> : null}
-                </td>
+                <td className={item.flag ? 'value-flagged' : undefined}>{item.valueText}</td>
                 <td>{item.refText}</td>
+                <td>
+                  {item.flag ? (
+                    <span className="flag" data-flag={item.flag}>
+                      {item.flag}
+                      <span className="visually-hidden">{r.flag[item.flag]}</span>
+                    </span>
+                  ) : null}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -128,7 +136,15 @@ function LogItem({ row }: { row: ActionRowView }) {
   );
 }
 
-export function LogPanel({ orders, reports = [], log, actions, open, onClose }: LogPanelProps) {
+export function LogPanel({
+  orders,
+  reports = [],
+  log,
+  actions,
+  open,
+  onClose,
+  focus = 'all',
+}: LogPanelProps) {
   const l = ui.game.log;
   const [scope, setScope] = useState<'all' | 'patient'>('patient');
   const rows = scope === 'all' ? log.all : log.patient;
@@ -136,13 +152,14 @@ export function LogPanel({ orders, reports = [], log, actions, open, onClose }: 
     <aside
       className="side-panel"
       data-open={open}
-      aria-labelledby="orders-heading"
+      data-focus={focus}
+      aria-labelledby={focus === 'labs' ? 'reports-heading' : 'orders-heading'}
       data-testid="side-panel"
     >
       <button type="button" className="btn btn-small side-close" onClick={onClose}>
         {l.close}
       </button>
-      <section aria-labelledby="orders-heading">
+      <section aria-labelledby="orders-heading" data-panel="orders">
         <h2 id="orders-heading">{ui.game.orders.heading}</h2>
         {orders.length === 0 ? (
           <p className="hint">{ui.game.orders.empty}</p>
@@ -154,7 +171,7 @@ export function LogPanel({ orders, reports = [], log, actions, open, onClose }: 
           </ul>
         )}
       </section>
-      <section aria-labelledby="reports-heading" data-testid="reports">
+      <section aria-labelledby="reports-heading" data-testid="reports" data-panel="reports">
         <h2 id="reports-heading">{ui.game.reports.heading}</h2>
         {reports.length === 0 ? (
           <p className="hint">{ui.game.reports.empty}</p>
@@ -166,7 +183,7 @@ export function LogPanel({ orders, reports = [], log, actions, open, onClose }: 
           </ul>
         )}
       </section>
-      <section aria-labelledby="log-heading">
+      <section aria-labelledby="log-heading" data-panel="log">
         <h2 id="log-heading">{l.heading}</h2>
         <div className="scope" role="group" aria-label={l.scopeLabel}>
           <button

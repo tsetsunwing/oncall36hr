@@ -37,6 +37,7 @@ function makeActions() {
     sendCall: vi.fn(),
     discardCall: vi.fn(),
     delegate: vi.fn(),
+    saveManual: vi.fn(),
   } satisfies GameActions;
 }
 

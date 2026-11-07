@@ -223,7 +223,25 @@ export function SettingsPage({ initial, onSave, onTestConnection }: SettingsPage
 
       <section aria-labelledby="shortcuts-heading">
         <h2 id="shortcuts-heading">{ui.settings.shortcutsHeading}</h2>
-        <p>{ui.settings.shortcutsPending}</p>
+        <table className="shortcut-table" data-testid="shortcut-table">
+          <caption className="visually-hidden">{ui.settings.shortcutsHeading}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{ui.settings.shortcutKey}</th>
+              <th scope="col">{ui.settings.shortcutAction}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {ui.settings.shortcutRows.map((row) => (
+              <tr key={row.id}>
+                <td>
+                  <kbd>{row.keys}</kbd>
+                </td>
+                <td>{row.action}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </section>
 
       <section aria-labelledby="disclaimer-heading">

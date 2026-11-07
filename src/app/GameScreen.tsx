@@ -1,11 +1,14 @@
-import { useEffect, useMemo, useSyncExternalStore } from 'react';
+import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { createAiGateway, type DevProxy } from '@/ai';
 import { getConfig, getContent } from '@/content';
+import { ui } from '@/i18n';
+import type { GameState } from '@/engine';
 import type { Settings } from '@/storage';
 import { GamePage } from '@/ui';
 import { createGameSession, type GameSession } from './gameSession';
 import { createLazySaveService } from './lazySaves';
 import { hashParams, navigate } from './router';
+import { trackSaves } from './saveFlush';
 
 export interface GameScreenProps {
   settings: Settings;
@@ -44,11 +47,13 @@ function pickConfig() {
     Number.isFinite(rate) && rate > 0
       ? { ...base, phone: { ...base.phone, baseCallsPerHour: Math.min(Math.round(rate), 120) } }
       : base;
-  if (!Number.isFinite(realSec) || realSec < 0.005 || realSec > 60) return withCalls;
-  return {
-    ...withCalls,
-    clock: { ...withCalls.clock, realSecondsPerGameMinuteAt1x: realSec },
-  };
+  const withClock =
+    Number.isFinite(realSec) && realSec >= 0.005 && realSec <= 60
+      ? { ...withCalls, clock: { ...withCalls.clock, realSecondsPerGameMinuteAt1x: realSec } }
+      : withCalls;
+  const aiTimeout = Number(params.get('aitimeout'));
+  if (!Number.isFinite(aiTimeout) || aiTimeout < 50 || aiTimeout > 60_000) return withClock;
+  return { ...withClock, ai: { ...withClock.ai, requestTimeoutMs: aiTimeout } };
 }
 
 function pickSeed(): string {
@@ -68,11 +73,58 @@ function pickCase():
   return wardCase ? { wardCaseId: wardCase.id } : {};
 }
 
-export function GameScreen({ settings, devProxy }: GameScreenProps) {
+type Boot =
+  | { kind: 'loading' }
+  | { kind: 'new' }
+  | { kind: 'ready'; state: GameState; migrated: boolean }
+  | { kind: 'error'; code: string };
+
+function useBoot(): Boot {
+  const slot = hashParams(window.location.hash).get('slot');
+  const [boot, setBoot] = useState<Boot>(slot ? { kind: 'loading' } : { kind: 'new' });
+  useEffect(() => {
+    if (!slot) return;
+    let cancel = false;
+    void createLazySaveService()
+      .load(slot)
+      .then((result) => {
+        if (cancel) return;
+        if (result.ok)
+          setBoot({ kind: 'ready', state: result.state, migrated: result.migratedFrom !== null });
+        else setBoot({ kind: 'error', code: result.error });
+      });
+    return () => {
+      cancel = true;
+    };
+  }, [slot]);
+  return boot;
+}
+
+function SaveLoadError({ code }: { code: string }) {
+  const text = ui.saves.errors[code] ?? ui.saves.errors.UNKNOWN;
+  return (
+    <section className="page" aria-labelledby="save-error-heading" data-testid="save-load-error">
+      <h1 id="save-error-heading">{ui.saves.loadFailed}</h1>
+      <p role="alert">{text}</p>
+      <p>{ui.saves.loadFailedBody}</p>
+      <a className="button-link" href="#/">
+        {ui.game.backToStart}
+      </a>
+    </section>
+  );
+}
+
+function LiveGame({
+  settings,
+  devProxy,
+  initialState,
+  migrated,
+}: GameScreenProps & { initialState?: GameState; migrated: boolean }) {
   const session: GameSession = useMemo(
-    () =>
-      createGameSession({
-        config: pickConfig(),
+    () => {
+      const config = pickConfig();
+      return createGameSession({
+        config,
         tables: getContent().tables,
         params: {
           seed: pickSeed(),
@@ -80,10 +132,15 @@ export function GameScreen({ settings, devProxy }: GameScreenProps) {
           ...pickCase(),
           nurseConfirmHighRisk: settings.nurseConfirmHighRisk,
         },
-        gateway: createAiGateway(settings, devProxy ? { proxy: devProxy } : {}),
+        gateway: createAiGateway(settings, {
+          timeoutMs: config.ai.requestTimeoutMs,
+          ...(devProxy ? { proxy: devProxy } : {}),
+        }),
         saves: createLazySaveService(),
+        ...(initialState ? { initialState } : {}),
         onSaveError: () => undefined,
-      }),
+      });
+    },
     // 一局遊戲只在進入畫面時建立；中途改設定不會換局
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
@@ -93,17 +150,46 @@ export function GameScreen({ settings, devProxy }: GameScreenProps) {
     session.start();
     return () => {
       session.stop();
+      trackSaves(session.flush());
     };
   }, [session]);
 
   const view = useSyncExternalStore(session.subscribe, session.getSnapshot);
   return (
-    <GamePage
-      view={view}
-      actions={session.actions}
-      onExit={() => {
-        navigate('start');
-      }}
+    <>
+      {migrated ? (
+        <p className="notice notice-info" role="status" data-testid="save-migrated">
+          {ui.saves.migrated}
+        </p>
+      ) : null}
+      <GamePage
+        view={view}
+        actions={session.actions}
+        onExit={() => {
+          trackSaves(session.flush());
+          navigate('start');
+        }}
+      />
+    </>
+  );
+}
+
+export function GameScreen({ settings, devProxy }: GameScreenProps) {
+  const boot = useBoot();
+  if (boot.kind === 'loading') {
+    return (
+      <p className="hint" data-testid="save-loading">
+        {ui.saves.loading}
+      </p>
+    );
+  }
+  if (boot.kind === 'error') return <SaveLoadError code={boot.code} />;
+  return (
+    <LiveGame
+      settings={settings}
+      devProxy={devProxy}
+      migrated={boot.kind === 'ready' && boot.migrated}
+      {...(boot.kind === 'ready' ? { initialState: boot.state } : {})}
     />
   );
 }

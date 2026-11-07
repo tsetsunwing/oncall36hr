@@ -17,6 +17,8 @@ export interface PhonePanelProps {
   actions: GameActions;
   currentPatientId: string | null;
   onDelegateCall: (callId: string) => void;
+  /** phone 隱藏家屬；family 只顯示家屬。預設全部，供既有測試使用。 */
+  scope?: 'all' | 'phone' | 'family';
 }
 
 function lineText(line: CallLineView): string {
@@ -336,7 +338,13 @@ function Ladder({
   );
 }
 
-export function PhonePanel({ ward, actions, currentPatientId, onDelegateCall }: PhonePanelProps) {
+export function PhonePanel({
+  ward,
+  actions,
+  currentPatientId,
+  onDelegateCall,
+  scope = 'all',
+}: PhonePanelProps) {
   const p = ui.game.ward.phone;
   const e = ui.game.ward.escalate;
   const phone: PhoneView = ward.phone;
@@ -358,15 +366,22 @@ export function PhonePanel({ ward, actions, currentPatientId, onDelegateCall }: 
     if (phone.focusCallId) setSelected(phone.focusCallId);
   }
 
+  const visibleCalls = phone.calls.filter((c) => {
+    // 引擎正在聚焦的通話（例如死亡流程的家屬電話）要留在目前分頁，唔好被範圍濾走。
+    if (phone.focusCallId !== null && c.id === phone.focusCallId) return true;
+    if (scope === 'family') return c.tag === 'FAMILY';
+    if (scope === 'phone') return c.tag !== 'FAMILY';
+    return true;
+  });
   const call =
-    phone.calls.find((c) => c.id === selected) ??
-    phone.calls.find((c) => c.id === phone.focusCallId) ??
-    phone.calls.find((c) => c.status === 'RINGING') ??
-    phone.calls[0] ??
+    visibleCalls.find((c) => c.id === selected) ??
+    visibleCalls.find((c) => c.id === phone.focusCallId) ??
+    visibleCalls.find((c) => c.status === 'RINGING') ??
+    visibleCalls[0] ??
     null;
   const steps = phone.ladders[patientId] ?? [];
 
-  if (phone.draft) {
+  if (phone.draft && scope !== 'family') {
     return (
       <div className="phone-panel" data-testid="phone-panel">
         <SbarPanel draft={phone.draft} playerRank={ward.playerRank} actions={actions} />
@@ -379,13 +394,13 @@ export function PhonePanel({ ward, actions, currentPatientId, onDelegateCall }: 
       <div className="phone-columns">
         <section aria-labelledby="call-list-heading" className="call-list-col">
           <h3 id="call-list-heading">{p.listLabel}</h3>
-          {phone.calls.length === 0 ? (
+          {visibleCalls.length === 0 ? (
             <p className="muted" data-testid="call-empty">
-              {p.empty}
+              {scope === 'family' ? p.emptyFamily : p.empty}
             </p>
           ) : (
             <ul className="call-list" data-testid="call-list">
-              {phone.calls.map((c) => (
+              {visibleCalls.map((c) => (
                 <li key={c.id}>
                   <button
                     type="button"
@@ -425,53 +440,55 @@ export function PhonePanel({ ward, actions, currentPatientId, onDelegateCall }: 
           {call ? (
             <CallDetail call={call} actions={actions} onDelegateCall={onDelegateCall} />
           ) : null}
-          <div className="escalate">
-            <h3>{e.heading}</h3>
-            <p className="muted">{e.hint}</p>
-            <div className="field">
-              <label htmlFor="escalate-patient">{e.patientLabel}</label>
-              <select
-                id="escalate-patient"
-                data-testid="escalate-patient"
-                value={patientId}
-                onChange={(event) => {
-                  setPatientId(event.target.value);
-                }}
-              >
-                <option value="">{e.patientNone}</option>
-                {occupied.map((b) => (
-                  <option key={b.bed} value={b.patientId ?? ''}>
-                    {`${ui.game.ward.bedLabel(b.bed)} ${b.name ?? ''}`}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <Ladder
-              steps={steps}
-              playerRank={ward.playerRank}
-              disabled={patientId === ''}
-              onCall={(rank) => {
-                actions.prepareCall(patientId, { kind: 'RANK', rank });
-              }}
-            />
-            <h4>{e.deptHeading}</h4>
-            <div className="dept-buttons" role="group" aria-label={e.deptHeading}>
-              {phone.depts.map((d) => (
-                <button
-                  key={d.id}
-                  type="button"
-                  className="btn btn-small"
-                  disabled={patientId === ''}
-                  data-testid={`call-dept-${d.id}`}
-                  onClick={() => {
-                    actions.prepareCall(patientId, { kind: 'DEPT', deptId: d.id });
+          {scope === 'family' ? null : (
+            <div className="escalate">
+              <h3>{e.heading}</h3>
+              <p className="muted">{e.hint}</p>
+              <div className="field">
+                <label htmlFor="escalate-patient">{e.patientLabel}</label>
+                <select
+                  id="escalate-patient"
+                  data-testid="escalate-patient"
+                  value={patientId}
+                  onChange={(event) => {
+                    setPatientId(event.target.value);
                   }}
                 >
-                  {e.deptCall(d.label)}
-                </button>
-              ))}
+                  <option value="">{e.patientNone}</option>
+                  {occupied.map((b) => (
+                    <option key={b.bed} value={b.patientId ?? ''}>
+                      {`${ui.game.ward.bedLabel(b.bed)} ${b.name ?? ''}`}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <Ladder
+                steps={steps}
+                playerRank={ward.playerRank}
+                disabled={patientId === ''}
+                onCall={(rank) => {
+                  actions.prepareCall(patientId, { kind: 'RANK', rank });
+                }}
+              />
+              <h4>{e.deptHeading}</h4>
+              <div className="dept-buttons" role="group" aria-label={e.deptHeading}>
+                {phone.depts.map((d) => (
+                  <button
+                    key={d.id}
+                    type="button"
+                    className="btn btn-small"
+                    disabled={patientId === ''}
+                    data-testid={`call-dept-${d.id}`}
+                    onClick={() => {
+                      actions.prepareCall(patientId, { kind: 'DEPT', deptId: d.id });
+                    }}
+                  >
+                    {e.deptCall(d.label)}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </section>
       </div>
     </div>

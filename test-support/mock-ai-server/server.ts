@@ -12,6 +12,8 @@ import { CONTRACT_MODES, contractReply, parseRequest, type ContractMode } from '
  *   mock-429           HTTP 429
  *   mock-slow          延遲 slowMs 後先回
  *   mock-hang          永不回應（測逾時）
+ *   mock-delay-ok      契約請求延遲 slowMs 後回有效 JSON（測等 AI 時時鐘暫停）
+ *   mock-slow-twice    頭兩次拖延至客戶端逾時，第三次回有效契約（測玩家重試）
  *   mock-bad-json      回 200 但 body 唔係合法 JSON
  *
  * 契約請求（order.parse／dialogue.turn／gate.pharmacy／gate.nurse／gate.danger／consult.assess／
@@ -160,6 +162,24 @@ export async function startMockServer(options: MockServerOptions = {}): Promise<
         }
         if (model === 'mock-hang') {
           hanging.add(res);
+          return;
+        }
+        if (model === 'mock-delay-ok') {
+          await new Promise((resolve) => setTimeout(resolve, slowMs));
+          const delayed = contractReply(contract, 'ok');
+          if (delayed !== null) sendJson(res, 200, completion(model, delayed));
+          return;
+        }
+        if (model === 'mock-slow-twice' && attempt <= 2) {
+          hanging.add(res);
+          await new Promise((resolve) => setTimeout(resolve, 8_000));
+          hanging.delete(res);
+          if (!res.writableEnded) res.destroy();
+          return;
+        }
+        if (model === 'mock-slow-twice') {
+          const recovered = contractReply(contract, 'ok');
+          if (recovered !== null) sendJson(res, 200, completion(model, recovered));
           return;
         }
         const effective: ContractMode = (CONTRACT_MODES as readonly string[]).includes(mode)

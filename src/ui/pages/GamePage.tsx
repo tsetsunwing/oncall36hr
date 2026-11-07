@@ -1,7 +1,10 @@
 import { useState } from 'react';
+import { getConfig } from '@/content';
 import { ui } from '@/i18n';
 import type { GameActions, GameView } from '@/view';
 import { AiFailureBanner } from '../game/AiFailureBanner';
+import { useGameHotkeys } from '../game/useGameHotkeys';
+import type { ShortcutCommand } from '../game/shortcuts';
 import { ChatPanel } from '../game/ChatPanel';
 import { ClockBar } from '../game/ClockBar';
 import { DeathFlowPanel } from '../game/DeathFlowPanel';
@@ -22,11 +25,48 @@ export interface GamePageProps {
   onExit?: () => void;
 }
 
+function stepSpeed(view: GameView, actions: GameActions, direction: -1 | 1) {
+  const speeds = view.clock.speeds.filter((speed) => speed > 0);
+  const index = view.clock.paused ? -1 : speeds.indexOf(view.clock.speed);
+  if (index < 0 && direction < 0) return;
+  const next = speeds[Math.min(speeds.length - 1, Math.max(0, index + direction))];
+  if (next !== undefined) actions.setSpeed(next);
+}
+
 export function GamePage({ view, actions, onExit }: GamePageProps) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selfCareOpen, setSelfCareOpen] = useState(false);
   const [reviewOpen, setReviewOpen] = useState(false);
+  const [saveOpen, setSaveOpen] = useState(false);
+  const [saveNote, setSaveNote] = useState<string | null>(null);
   const g = ui.game;
+  const manualSlots = getConfig().saves.manualSlots;
+
+  function leave() {
+    onExit?.();
+  }
+
+  function pauseAndLeave() {
+    if (!view.clock.paused) actions.togglePause();
+    leave();
+  }
+
+  useGameHotkeys((command: ShortcutCommand) => {
+    if (view.shift.result) return;
+    if (command === 'pause') actions.togglePause();
+    else if (command === 'speed-down') stepSpeed(view, actions, -1);
+    else if (command === 'speed-up') stepSpeed(view, actions, 1);
+    else if (command === 'close') {
+      setSelfCareOpen(false);
+      setSaveOpen(false);
+      if (!view.ward) setDrawerOpen(false);
+    } else if (!view.ward && (command === 'focus-input' || command === 'tab-chat')) {
+      document.getElementById('chat-input')?.focus();
+    } else if (!view.ward && command === 'log') {
+      setDrawerOpen(true);
+    }
+    window.dispatchEvent(new CustomEvent('dandu-command', { detail: command }));
+  });
   const { shift } = view;
   if (shift.result) {
     return (
@@ -64,8 +104,18 @@ export function GamePage({ view, actions, onExit }: GamePageProps) {
       <h1 id="game-heading" className="visually-hidden">
         {g.heading}
       </h1>
-      <ClockBar clock={view.clock} shift={shift} actions={actions} />
-      {view.aiFailure ? <AiFailureBanner failure={view.aiFailure} actions={actions} /> : null}
+      <ClockBar
+        clock={view.clock}
+        shift={shift}
+        actions={actions}
+        ringing={view.ward?.phone.ringing ?? 0}
+        onOpenPhone={() => {
+          window.dispatchEvent(new CustomEvent('dandu-command', { detail: 'tab-phone' }));
+        }}
+      />
+      {view.aiFailure ? (
+        <AiFailureBanner failure={view.aiFailure} actions={actions} onLeave={leave} />
+      ) : null}
       {shift.overtime ? <OvertimeBanner overtime={shift.overtime} actions={actions} /> : null}
       {shift.rounds.active ? <RoundPanel round={shift.rounds.active} actions={actions} /> : null}
       {shift.handover ? (
@@ -121,6 +171,70 @@ export function GamePage({ view, actions, onExit }: GamePageProps) {
       )}
       {shift.handover ? null : (
         <div className="selfcare-wrap">
+          <button
+            type="button"
+            className="btn"
+            aria-expanded={saveOpen}
+            aria-controls="save-dialog"
+            data-testid="open-save"
+            onClick={() => {
+              setSaveOpen(true);
+            }}
+          >
+            {ui.saves.open}
+          </button>
+          {saveOpen ? (
+            <div
+              id="save-dialog"
+              className="save-dialog"
+              role="dialog"
+              aria-labelledby="save-heading"
+              data-testid="save-dialog"
+            >
+              <h2 id="save-heading">{ui.saves.heading}</h2>
+              <p className="hint">{ui.saves.manualHint}</p>
+              <div className="save-slot-buttons" role="group" aria-label={ui.saves.heading}>
+                {Array.from({ length: manualSlots }, (_, index) => index + 1).map((slot) => (
+                  <button
+                    key={slot}
+                    type="button"
+                    className="btn"
+                    data-testid={`save-slot-${String(slot)}`}
+                    onClick={() => {
+                      actions.saveManual(slot);
+                      setSaveNote(ui.saves.saved(slot));
+                    }}
+                  >
+                    {ui.saves.slot(slot)}
+                  </button>
+                ))}
+              </div>
+              {saveNote ? (
+                <p className="notice notice-info" role="status" data-testid="save-note">
+                  {saveNote}
+                </p>
+              ) : null}
+              <div className="save-dialog-actions">
+                <button
+                  type="button"
+                  className="btn"
+                  data-testid="pause-leave"
+                  onClick={pauseAndLeave}
+                >
+                  {ui.saves.pauseLeave}
+                </button>
+                <button
+                  type="button"
+                  className="btn"
+                  onClick={() => {
+                    setSaveOpen(false);
+                  }}
+                >
+                  {ui.saves.close}
+                </button>
+              </div>
+            </div>
+          ) : null}
           <button
             type="button"
             className="btn"

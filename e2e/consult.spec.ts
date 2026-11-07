@@ -23,7 +23,11 @@ async function openWard(page: Page, query: string, model = 'mock-ok') {
     { baseUrl: MOCK_BASE_URL, mockModel: model },
   );
   await page.goto(`/#/game?${query}`);
-  await expect(page.getByTestId('floor-plan')).toBeVisible();
+  const plan = page.getByTestId('floor-plan');
+  if (!(await plan.isVisible())) await page.getByTestId('open-beds').click();
+  await expect(plan).toBeVisible();
+  const close = page.getByTestId('close-beds');
+  if (await close.isVisible()) await close.click();
 }
 
 async function shot(page: Page, name: string) {

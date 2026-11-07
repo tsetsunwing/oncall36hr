@@ -662,4 +662,6 @@ export interface GameActions {
   beginHandover: () => void;
   toggleHandover: (patientId: string) => void;
   confirmHandover: () => void;
+  /** 寫入手動槽位（1 起）。無效槽位由 engine 拒絕。 */
+  saveManual: (slot: number) => void;
 }

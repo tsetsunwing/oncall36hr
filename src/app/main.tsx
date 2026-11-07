@@ -4,6 +4,7 @@ import { ContentValidationError, getContent } from '@/content';
 import { ui } from '@/i18n';
 import { App } from './App';
 import './styles.css';
+import './v2.css';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) throw new Error('找不到 #root');

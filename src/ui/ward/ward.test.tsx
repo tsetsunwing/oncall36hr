@@ -36,6 +36,7 @@ function makeActions() {
     beginHandover: vi.fn(),
     toggleHandover: vi.fn(),
     confirmHandover: vi.fn(),
+    saveManual: vi.fn(),
   } satisfies GameActions;
 }
 

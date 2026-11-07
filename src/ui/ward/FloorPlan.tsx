@@ -5,6 +5,8 @@ export interface FloorPlanProps {
   ward: WardView;
   actions: GameActions;
   onOpenPhone: () => void;
+  onExpand?: () => void;
+  onClose?: () => void;
   compact?: boolean;
 }
 
@@ -18,6 +20,7 @@ function BedButton({ bed, actions }: { bed: BedView; actions: GameActions }) {
       className="bed"
       data-testid={`bed-${String(bed.bed)}`}
       data-level={occupied ? bed.level : 'EMPTY'}
+      data-band={occupied ? (bed.mewsBandId ?? 'LOW') : 'EMPTY'}
       data-here={bed.here}
       aria-pressed={bed.here}
       onClick={() => {
@@ -27,12 +30,15 @@ function BedButton({ bed, actions }: { bed: BedView; actions: GameActions }) {
       <span className="bed-no">{bed.bed}</span>
       {occupied ? (
         <>
+          <span className="mews-badge" data-band={bed.mewsBandId ?? 'LOW'}>
+            <span className="visually-hidden">{w.mewsShort(bed.mewsScore ?? 0)}</span>
+            <span aria-hidden="true">{bed.mewsScore ?? 0}</span>
+          </span>
           <span className="bed-name">{bed.name}</span>
           <span className="bed-meta">
             {bed.age}
             {w.sex[bed.sex ?? 'M']}
           </span>
-          <span className="bed-mews">{w.mewsShort(bed.mewsScore ?? 0)}</span>
           <span className="bed-level">{w.level[bed.level]}</span>
           {bed.newAdmission ? <span className="bed-tag">{w.newAdmission}</span> : null}
         </>
@@ -44,7 +50,14 @@ function BedButton({ bed, actions }: { bed: BedView; actions: GameActions }) {
   );
 }
 
-export function FloorPlan({ ward, actions, onOpenPhone, compact = false }: FloorPlanProps) {
+export function FloorPlan({
+  ward,
+  actions,
+  onOpenPhone,
+  onExpand,
+  onClose,
+  compact = false,
+}: FloorPlanProps) {
   const w = ui.game.ward;
   const upper = ward.beds.filter((b) => b.row <= 1);
   const lower = ward.beds.filter((b) => b.row >= 2);
@@ -56,8 +69,28 @@ export function FloorPlan({ ward, actions, onOpenPhone, compact = false }: Floor
       data-testid="floor-plan"
     >
       <header className="floor-plan-head">
-        <h2 id="floor-plan-heading">{w.planHeading}</h2>
+        <h2 id="floor-plan-heading">{compact ? w.miniHeading : w.planHeading}</h2>
+        {onExpand ? (
+          <button
+            type="button"
+            className="btn btn-small expand-plan"
+            data-testid="open-floorplan"
+            onClick={onExpand}
+          >
+            {w.expandPlan}
+          </button>
+        ) : null}
         <p className="floor-plan-hint">{w.planHint}</p>
+        {onClose ? (
+          <button
+            type="button"
+            className="btn btn-small beds-close"
+            data-testid="close-beds"
+            onClick={onClose}
+          >
+            {ui.mobile.close}
+          </button>
+        ) : null}
       </header>
       {ward.movingToBed !== null ? (
         <p className="floor-plan-walking" role="status" data-testid="walking">
@@ -88,7 +121,7 @@ export function FloorPlan({ ward, actions, onOpenPhone, compact = false }: Floor
             data-testid="landmark-phone"
             onClick={onOpenPhone}
           >
-            <span>{w.phoneLandmark}</span>
+            <span>{ward.phone.ringing > 0 ? w.incoming : w.phoneLandmark}</span>
             {ward.phone.ringing > 0 ? (
               <span className="landmark-sub">{w.phone.ringing(ward.phone.ringing)}</span>
             ) : null}
@@ -105,10 +138,14 @@ export function FloorPlan({ ward, actions, onOpenPhone, compact = false }: Floor
       <footer className="floor-plan-foot">
         <span data-testid="occupancy">{w.occupancy(ward.occupied, ward.total)}</span>
         <ul className="legend" aria-label={w.legendMews}>
-          <li data-level="NORMAL">{w.legend.NORMAL}</li>
-          <li data-level="CAUTION">{w.legend.CAUTION}</li>
-          <li data-level="ALARM">{w.legend.ALARM}</li>
-          <li data-level="EMPTY">{w.legend.EMPTY}</li>
+          <li>
+            <b>MEWS</b>
+          </li>
+          <li data-band="LOW">{w.bands.LOW}</li>
+          <li data-band="MID">{w.bands.MID}</li>
+          <li data-band="HIGH">{w.bands.HIGH}</li>
+          <li data-band="CRITICAL">{w.bands.CRITICAL}</li>
+          <li data-band="EMPTY">{w.empty}</li>
         </ul>
       </footer>
     </section>

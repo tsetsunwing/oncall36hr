@@ -97,6 +97,7 @@ export function ChatPanel({ chat, chips, gates = [], notice, actions }: ChatPane
       choose(active);
     } else if (event.key === 'Escape') {
       event.preventDefault();
+      event.stopPropagation();
       setDismissed(true);
     }
   }
@@ -152,21 +153,6 @@ export function ChatPanel({ chat, chips, gates = [], notice, actions }: ChatPane
       </div>
 
       <GatePanel gates={gates} actions={actions} />
-
-      <div className="chips" role="group" aria-label={c.quickGroup}>
-        {chips.map((chip) => (
-          <button
-            key={chip.id}
-            type="button"
-            className="chip"
-            onClick={() => {
-              submit(chip.text);
-            }}
-          >
-            {chip.label}
-          </button>
-        ))}
-      </div>
 
       <p className="chat-notice" role="status" data-testid="chat-notice">
         {notice ? (ui.game.notice[notice.kind] ?? ui.game.notice.fallback) : ''}
@@ -225,6 +211,20 @@ export function ChatPanel({ chat, chips, gates = [], notice, actions }: ChatPane
           {c.send}
         </button>
       </form>
+      <div className="chips" role="group" aria-label={c.quickGroup}>
+        {chips.map((chip) => (
+          <button
+            key={chip.id}
+            type="button"
+            className="chip"
+            onClick={() => {
+              submit(chip.text);
+            }}
+          >
+            {chip.label}
+          </button>
+        ))}
+      </div>
     </section>
   );
 }

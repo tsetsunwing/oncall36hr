@@ -19,6 +19,7 @@ export const shiftUi = {
     level: { NORMAL: '正常', LOW: '精力低', VERY_LOW: '精力極低' } as Record<string, string>,
     percent: (value: number) => `${String(Math.round(value))}%`,
     nudge: '建議稍作休息',
+    restShort: '建議小休',
   },
   rounds: {
     heading: '巡房',

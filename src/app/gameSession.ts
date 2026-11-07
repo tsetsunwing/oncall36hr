@@ -20,6 +20,7 @@ import {
   type Engine,
 } from '@/engine';
 import { selectGameView, type GameActions, type GameView, type ViewEnv } from '@/view';
+import { trackSaves } from './saveFlush';
 import { createGameRuntime, type GameRuntime } from './runtime';
 import type { SaveService } from './saveService';
 
@@ -50,6 +51,8 @@ export interface GameSession {
   stop: () => void;
   /** 等所有 in-flight AI 請求同存檔完成（測試用） */
   settled: () => Promise<void>;
+  /** 等已排隊的存檔寫完 */
+  flush: () => Promise<void>;
 }
 
 const browserTimer: TimerApi = {
@@ -73,6 +76,7 @@ export function createGameSession(options: GameSessionOptions): GameSession {
   let timerId: number | null = null;
   let lastTickAt = 0;
   let resent = false;
+  let unbindHide = (): void => undefined;
 
   function sendAiRequest(request: { reqId: string; kind: string; context: JsonValue }): void {
     const task = options.gateway
@@ -250,7 +254,40 @@ export function createGameSession(options: GameSessionOptions): GameSession {
     confirmHandover() {
       dispatch({ type: 'PLAYER_INTENT', intent: shiftIntent('HANDOVER_CONFIRM') });
     },
+    saveManual(slot) {
+      dispatch({ type: 'PLAYER_INTENT', intent: { type: 'SAVE_GAME', slot } });
+    },
   };
+
+  function saveBecauseHidden(): void {
+    const pending = options.saves.save(runtime.getState(), { kind: 'AUTO' }).then(
+      () => undefined,
+      () => undefined,
+    );
+    trackSaves(pending);
+  }
+
+  function bindHideSave(): () => void {
+    if (typeof document === 'undefined' || typeof window === 'undefined') return () => undefined;
+    let guard = false;
+    const onHide = () => {
+      if (document.visibilityState === 'hidden') onPageHide();
+    };
+    const onPageHide = () => {
+      if (guard) return;
+      guard = true;
+      queueMicrotask(() => {
+        guard = false;
+      });
+      saveBecauseHidden();
+    };
+    document.addEventListener('visibilitychange', onHide);
+    window.addEventListener('pagehide', onPageHide);
+    return () => {
+      document.removeEventListener('visibilitychange', onHide);
+      window.removeEventListener('pagehide', onPageHide);
+    };
+  }
 
   return {
     subscribe(listener) {
@@ -274,9 +311,12 @@ export function createGameSession(options: GameSessionOptions): GameSession {
         }
       }
       timerId = timer.setInterval(tick, options.config.ui.tickIntervalMs);
+      unbindHide = bindHideSave();
     },
     stop() {
       stopped = true;
+      unbindHide();
+      unbindHide = () => undefined;
       if (timerId !== null) timer.clearInterval(timerId);
       timerId = null;
     },
@@ -284,5 +324,6 @@ export function createGameSession(options: GameSessionOptions): GameSession {
       while (inflight.size > 0) await Promise.all([...inflight]);
       await runtime.flushSaves();
     },
+    flush: () => runtime.flushSaves(),
   };
 }

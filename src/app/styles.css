@@ -363,7 +363,7 @@ main.wide {
   gap: 0.75rem;
 }
 
-@media (min-width: 1000px) {
+.frame-desktop {
   .game-grid {
     grid-template-columns: minmax(380px, 1.05fr) minmax(340px, 1fr) minmax(280px, 340px);
     align-items: start;
@@ -484,7 +484,7 @@ main.wide {
   gap: 0.5rem;
 }
 
-@media (min-width: 1500px) {
+.frame-desktop {
   .monitor-body {
     grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
   }
@@ -872,7 +872,7 @@ main.wide {
   width: 100%;
 }
 
-@media (max-width: 999px) {
+.frame-mobile {
   .waveform {
     height: 3.5rem;
   }
@@ -1050,7 +1050,7 @@ main.wide {
   gap: 0.75rem;
 }
 
-@media (min-width: 1000px) {
+.frame-desktop {
   .ward-grid {
     grid-template-columns: minmax(340px, 1fr) minmax(400px, 1.25fr) minmax(280px, 340px);
     align-items: start;
@@ -1340,7 +1340,7 @@ button.landmark {
   gap: 0.75rem;
 }
 
-@media (min-width: 1000px) {
+.frame-desktop {
   .phone-columns {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
@@ -1628,7 +1628,7 @@ textarea {
   gap: 1rem;
 }
 
-@media (min-width: 720px) {
+.frame-desktop {
   .delegation-body {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
   }
@@ -1808,7 +1808,7 @@ main:has(.page.setup) {
   gap: 1rem;
 }
 
-@media (min-width: 1000px) {
+.frame-desktop {
   .setup-grid {
     grid-template-columns: minmax(0, 1.8fr) minmax(280px, 1fr);
     align-items: start;
@@ -2072,7 +2072,7 @@ main:has(.page.setup) {
   gap: 0.75rem;
 }
 
-@media (min-width: 1000px) {
+.frame-desktop {
   .result-grid {
     grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
     align-items: start;
@@ -2249,4 +2249,157 @@ main:has(.page.setup) {
 
 .round-patient .badge {
   margin-left: 0.5rem;
+}
+
+/* ---------- M8：手機直向、存檔、快速鍵。警報仍然只係靜態顏色，冇動畫。 ---------- */
+.mobile-tools,
+.beds-close {
+  display: none;
+}
+
+.shortcut-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.shortcut-table th,
+.shortcut-table td {
+  padding: 0.35rem 0.5rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.shortcut-table kbd {
+  font-family: inherit;
+  font-weight: 700;
+}
+
+.save-library,
+.save-dialog {
+  padding: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.save-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 0.5rem 0;
+  padding: 0;
+  list-style: none;
+}
+
+.save-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.save-row-actions,
+.save-slot-buttons,
+.save-dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.save-dialog {
+  position: fixed;
+  z-index: 40;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  max-height: 80vh;
+  overflow: auto;
+  border-radius: 12px 12px 0 0;
+  box-shadow: 0 -6px 18px rgb(0 0 0 / 25%);
+}
+
+.frame-desktop {
+  .save-dialog {
+    top: 12vh;
+    right: 0;
+    bottom: auto;
+    left: 0;
+    width: min(36rem, 92vw);
+    max-height: 70vh;
+    margin-right: auto;
+    margin-left: auto;
+    border-radius: 12px;
+  }
+}
+
+.frame-mobile {
+  .mobile-tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .mobile-tools .btn {
+    flex: 1 1 5.5rem;
+  }
+
+  .ward-map-col {
+    display: none;
+  }
+
+  .ward-grid[data-beds='open'] .ward-map-col {
+    display: block;
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 30;
+    max-height: 85vh;
+    padding: 0.75rem;
+    overflow: auto;
+    background: var(--bg);
+    border-radius: 12px 12px 0 0;
+    box-shadow: 0 -6px 18px rgb(0 0 0 / 25%);
+  }
+
+  .beds-close {
+    display: inline-flex;
+    margin-bottom: 0.5rem;
+  }
+
+  .side-panel[data-focus='labs'] [data-panel='orders'],
+  .side-panel[data-focus='labs'] [data-panel='log'],
+  .side-panel[data-focus='log'] [data-panel='reports'] {
+    display: none;
+  }
+
+  .call-row,
+  .chip,
+  .tab,
+  input,
+  select,
+  textarea {
+    min-height: 44px;
+    font-size: 1rem;
+  }
+
+  .chat-form {
+    position: sticky;
+    bottom: 0;
+    z-index: 5;
+    padding-top: 0.35rem;
+    padding-bottom: max(0.35rem, env(safe-area-inset-bottom));
+    background: var(--surface);
+  }
+
+  .chat-input-wrap input {
+    scroll-margin-bottom: 40vh;
+  }
+
+  .plan-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }

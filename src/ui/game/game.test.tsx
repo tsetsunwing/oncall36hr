@@ -39,6 +39,7 @@ function makeActions() {
     beginHandover: vi.fn(),
     toggleHandover: vi.fn(),
     confirmHandover: vi.fn(),
+    saveManual: vi.fn(),
   } satisfies GameActions;
 }
 
@@ -79,7 +80,7 @@ describe('MonitorPanel：靜態顏色＋文字警報', () => {
 });
 
 describe('靜態警報：全 stylesheet 禁止閃爍／動畫', () => {
-  const css = readFileSync('src/app/styles.css', 'utf8');
+  const css = `${readFileSync('src/app/styles.css', 'utf8')}\n${readFileSync('src/app/v2.css', 'utf8')}`;
   it('冇 @keyframes／animation（除 reduced-motion 嘅 none）／blink', () => {
     expect(css).not.toMatch(/@keyframes/);
     expect(css.replace(/animation:\s*none\s*!important;/g, '')).not.toMatch(/animation\s*:/);
@@ -230,10 +231,19 @@ describe('AiFailureBanner', () => {
   it('role=alert，顯示原因；重試呼叫 retryAi', async () => {
     const user = userEvent.setup();
     const actions = makeActions();
-    render(<AiFailureBanner failure={{ reqId: 'r1', reason: 'TIMEOUT' }} actions={actions} />);
+    const onLeave = vi.fn();
+    render(
+      <AiFailureBanner
+        failure={{ reqId: 'r1', reason: 'TIMEOUT' }}
+        actions={actions}
+        onLeave={onLeave}
+      />,
+    );
     expect(screen.getByRole('alert')).toHaveTextContent(ui.game.aiFailure.reason.TIMEOUT ?? '');
     await user.click(screen.getByRole('button', { name: ui.game.aiFailure.retry }));
     expect(actions.retryAi).toHaveBeenCalledOnce();
+    await user.click(screen.getByTestId('ai-failure-leave'));
+    expect(onLeave).toHaveBeenCalledOnce();
   });
 });
 

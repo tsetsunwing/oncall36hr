@@ -69,14 +69,16 @@ export function MonitorPanel({ patient, monitor }: MonitorPanelProps) {
     >
       <header className="monitor-head">
         <h2 id="monitor-heading" className="monitor-title">
-          {ui.game.patient.bed(patient.bed)} · {patient.name}
+          Bed {patient.bed} · {patient.name}
           <span className="monitor-sub">
-            {ui.game.patient.summary(patient.age, patient.sex)} · {patient.complaint}
+            {patient.age}
+            {patient.sex} · {patient.complaint}
           </span>
         </h2>
         <p className="monitor-badges">
           <span className="badge" data-level={monitor.mews.level} data-testid="mews-badge">
-            {m.mews} {monitor.mews.score} · {band}
+            {m.mews} {monitor.mews.score}
+            <span className="visually-hidden"> · {band}</span>
           </span>
           <span className="monitor-rhythm" data-testid="rhythm">
             {m.rhythm}：{monitor.rhythmLabel}

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ui } from '@/i18n';
 import type { GameActions, GameView, WardView } from '@/view';
 import { ChatPanel } from '../game/ChatPanel';
@@ -7,8 +7,11 @@ import { DeathFlowPanel } from '../game/DeathFlowPanel';
 import { MonitorPanel } from '../game/MonitorPanel';
 import { ResusPanel } from '../game/ResusPanel';
 import { DelegationDialog } from '../ward/DelegationDialog';
+import { useFrame } from '../frame/PlayFrame';
+import { BedTable } from '../ward/BedTable';
 import { FloorPlan } from '../ward/FloorPlan';
 import { PhonePanel } from '../ward/PhonePanel';
+import { QueuePanel } from '../ward/QueuePanel';
 
 export interface WardGameProps {
   view: GameView;
@@ -16,13 +19,17 @@ export interface WardGameProps {
   actions: GameActions;
 }
 
-type Tab = 'chat' | 'phone';
+type Tab = 'chat' | 'phone' | 'family';
+type Drawer = 'log' | 'labs' | null;
 
 export function WardGame({ view, ward, actions }: WardGameProps) {
   const g = ui.game;
   const w = g.ward;
   const [tab, setTab] = useState<Tab>('chat');
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawer, setDrawer] = useState<Drawer>(null);
+  const [bedsOpen, setBedsOpen] = useState(false);
+  const [planOpen, setPlanOpen] = useState(false);
+  const frame = useFrame();
   const [delegationOpen, setDelegationOpen] = useState(false);
   const [delegationCall, setDelegationCall] = useState<string | null>(null);
 
@@ -31,18 +38,146 @@ export function WardGame({ view, ward, actions }: WardGameProps) {
     setDelegationOpen(true);
   }
 
+  useEffect(() => {
+    const onCommand = (event: Event) => {
+      const command = (event as CustomEvent<string>).detail;
+      if (command === 'tab-chat') setTab('chat');
+      if (command === 'tab-phone') setTab('phone');
+      if (command === 'tab-family') setTab('family');
+      if (command === 'beds') setBedsOpen(true);
+      if (command === 'log') setDrawer('log');
+      if (command === 'close') {
+        setDrawer(null);
+        setBedsOpen(false);
+        setPlanOpen(false);
+        setDelegationOpen(false);
+      }
+      if (command === 'focus-input') {
+        setTab('chat');
+        queueMicrotask(() => {
+          document.getElementById('chat-input')?.focus();
+        });
+      }
+    };
+    window.addEventListener('dandu-command', onCommand);
+    return () => window.removeEventListener('dandu-command', onCommand);
+  }, []);
+
   const atBed = view.patient !== null && view.monitor !== null && view.chat !== null;
-  return (
-    <div className="ward-grid" data-testid="ward-game">
-      <div className="ward-map-col">
+  const phoneRinging = ward.phone.calls.filter(
+    (call) => call.tag !== 'FAMILY' && call.status === 'RINGING',
+  ).length;
+  const familyRinging = ward.phone.calls.filter(
+    (call) => call.tag === 'FAMILY' && call.status === 'RINGING',
+  ).length;
+  const openPhone = () => {
+    setTab('phone');
+    setPlanOpen(false);
+  };
+  if (planOpen && frame === 'desktop') {
+    return (
+      <div className="plan-screen" data-testid="ward-game">
         <FloorPlan
           ward={ward}
           actions={actions}
-          compact={atBed}
-          onOpenPhone={() => {
-            setTab('phone');
+          compact={false}
+          onOpenPhone={openPhone}
+          onClose={() => {
+            setPlanOpen(false);
           }}
         />
+        <BedTable
+          ward={ward}
+          actions={{
+            ...actions,
+            goToBed: (bed) => {
+              actions.goToBed(bed);
+              setPlanOpen(false);
+            },
+          }}
+        />
+        <DelegationDialog
+          ward={ward}
+          actions={actions}
+          open={delegationOpen}
+          callId={delegationCall}
+          onClose={() => {
+            setDelegationOpen(false);
+          }}
+        />
+      </div>
+    );
+  }
+  return (
+    <div className="ward-grid" data-testid="ward-game" data-beds={bedsOpen ? 'open' : 'closed'}>
+      <div
+        className="mobile-tools"
+        role="group"
+        aria-label={ui.mobile.tools}
+        data-testid="mobile-tools"
+      >
+        <button
+          type="button"
+          className="btn"
+          data-testid="open-beds"
+          aria-expanded={bedsOpen}
+          aria-keyshortcuts="B"
+          onClick={() => {
+            setBedsOpen(true);
+          }}
+        >
+          {ui.mobile.beds}
+        </button>
+        <button
+          type="button"
+          className="btn"
+          data-testid="open-labs"
+          aria-expanded={drawer === 'labs'}
+          onClick={() => {
+            setDrawer('labs');
+          }}
+        >
+          {ui.mobile.labs}
+        </button>
+        <button
+          type="button"
+          className="btn"
+          data-testid="open-log"
+          aria-expanded={drawer === 'log'}
+          aria-keyshortcuts="L"
+          aria-label={g.log.open}
+          onClick={() => {
+            setDrawer('log');
+          }}
+        >
+          {ui.mobile.record}
+        </button>
+      </div>
+      <div className="ward-map-col">
+        <button
+          type="button"
+          className="btn beds-close"
+          data-testid="close-beds"
+          onClick={() => {
+            setBedsOpen(false);
+          }}
+        >
+          {ui.mobile.close}
+        </button>
+        <FloorPlan
+          ward={ward}
+          actions={actions}
+          compact={frame === 'desktop'}
+          onOpenPhone={openPhone}
+          {...(frame === 'desktop'
+            ? {
+                onExpand: () => {
+                  setPlanOpen(true);
+                },
+              }
+            : {})}
+        />
+        <QueuePanel ward={ward} reports={view.reports} shift={view.shift} />
       </div>
       <div className="ward-main">
         {atBed && view.patient && view.monitor ? (
@@ -84,6 +219,7 @@ export function WardGame({ view, ward, actions }: WardGameProps) {
               aria-controls="panel-chat"
               className="btn tab"
               data-testid="tab-chat"
+              aria-keyshortcuts="1"
               onClick={() => {
                 setTab('chat');
               }}
@@ -98,14 +234,35 @@ export function WardGame({ view, ward, actions }: WardGameProps) {
               aria-controls="panel-phone"
               className="btn tab"
               data-testid="tab-phone"
+              aria-keyshortcuts="2"
               onClick={() => {
                 setTab('phone');
               }}
             >
               {w.tabs.phone}
-              {ward.phone.ringing > 0 ? (
+              {phoneRinging > 0 ? (
                 <span className="tab-count" data-testid="phone-count">
-                  {ward.phone.ringing}
+                  {phoneRinging}
+                </span>
+              ) : null}
+            </button>
+            <button
+              type="button"
+              role="tab"
+              id="tab-family"
+              aria-selected={tab === 'family'}
+              aria-controls="panel-family"
+              className="btn tab"
+              data-testid="tab-family"
+              aria-keyshortcuts="3"
+              onClick={() => {
+                setTab('family');
+              }}
+            >
+              {w.tabs.family}
+              {familyRinging > 0 ? (
+                <span className="tab-count" data-testid="family-count">
+                  {familyRinging}
                 </span>
               ) : null}
             </button>
@@ -138,12 +295,17 @@ export function WardGame({ view, ward, actions }: WardGameProps) {
             )}
           </div>
         ) : (
-          <div role="tabpanel" id="panel-phone" aria-labelledby="tab-phone">
+          <div
+            role="tabpanel"
+            id={tab === 'family' ? 'panel-family' : 'panel-phone'}
+            aria-labelledby={tab === 'family' ? 'tab-family' : 'tab-phone'}
+          >
             <PhonePanel
               ward={ward}
               actions={actions}
               currentPatientId={view.patient?.id ?? null}
               onDelegateCall={openDelegation}
+              scope={tab === 'family' ? 'family' : 'phone'}
             />
           </div>
         )}
@@ -158,21 +320,12 @@ export function WardGame({ view, ward, actions }: WardGameProps) {
         reports={view.reports}
         log={view.actionLog}
         actions={actions}
-        open={drawerOpen}
+        open={drawer !== null}
+        focus={drawer === 'labs' ? 'labs' : 'log'}
         onClose={() => {
-          setDrawerOpen(false);
+          setDrawer(null);
         }}
       />
-      <button
-        type="button"
-        className="btn drawer-toggle"
-        aria-expanded={drawerOpen}
-        onClick={() => {
-          setDrawerOpen(true);
-        }}
-      >
-        {g.log.open}
-      </button>
       <DelegationDialog
         ward={ward}
         actions={actions}

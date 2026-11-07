@@ -140,3 +140,20 @@ describe('game runtime (effects → saves)', () => {
     expect(runtime.getState().paused?.by).toBe('player');
   });
 });
+
+describe('import keeps the previous slot when migration fails', () => {
+  it('rejects a newer schema without overwriting the manual slot', async () => {
+    const { saves } = await services();
+    const state = engine.init(newGame);
+    await saves.save(state, { kind: 'MANUAL', slot: 1 });
+    const before = await saves.exportSlot('manual-1');
+    expect(before.ok).toBe(true);
+    const imported = await saves.importManual(
+      1,
+      JSON.stringify({ format: 'dandu-save', appVersion: 'future', state: { schema: 999 } }),
+    );
+    expect(imported).toMatchObject({ ok: false, error: 'SCHEMA_TOO_NEW' });
+    const after = await saves.exportSlot('manual-1');
+    expect(after.ok && before.ok && after.payload).toBe(before.ok ? before.payload : '');
+  });
+});

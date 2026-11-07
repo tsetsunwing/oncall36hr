@@ -50,6 +50,14 @@ const saveFn = vi.fn<SaveService['save']>(() => Promise.resolve({} as never));
 const saves: SaveService = {
   save: (...args) => saveFn(...args),
   load: vi.fn(() => Promise.resolve({ ok: false, error: 'MISSING', message: '' } as never)),
+  list: vi.fn(() => Promise.resolve([])),
+  remove: vi.fn(() => Promise.resolve()),
+  exportSlot: vi.fn(() =>
+    Promise.resolve({ ok: false as const, error: 'MISSING' as const, message: '' }),
+  ),
+  importManual: vi.fn(() =>
+    Promise.resolve({ ok: false as const, error: 'INVALID_JSON' as const, message: '' }),
+  ),
 };
 
 function open(

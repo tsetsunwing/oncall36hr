@@ -23,7 +23,14 @@ async function openWard(page: Page, query: string) {
     { baseUrl: MOCK_BASE_URL },
   );
   await page.goto(`/#/game?${query}`);
-  await expect(page.getByTestId('floor-plan')).toBeVisible();
+  const plan = page.getByTestId('floor-plan');
+  if (!(await plan.isVisible())) await page.getByTestId('open-beds').click();
+  await expect(plan).toBeVisible();
+}
+
+async function closeBeds(page: Page) {
+  const close = page.getByTestId('close-beds');
+  if (await close.isVisible()) await close.click();
 }
 
 async function shot(page: Page, name: string) {
@@ -70,6 +77,7 @@ test.describe('M4 ward, phone and delegation', () => {
     page,
   }) => {
     await openWard(page, 'seed=e2e-phone&mode=NIGHT&difficulty=MEDIUM&rank=MO&callrate=60');
+    await closeBeds(page);
     await waitForCall(page);
     await page.getByTestId('pause-toggle').click();
     await expect(page.getByTestId('call-row').first()).toContainText(/.+/);
@@ -90,6 +98,7 @@ test.describe('M4 ward, phone and delegation', () => {
     page,
   }) => {
     await openWard(page, 'seed=e2e-sbar&mode=NIGHT&difficulty=MEDIUM&rank=HO');
+    await closeBeds(page);
     await page.getByTestId('tab-phone').click();
     await page.getByTestId('call-rank-RES').click();
     await expect(page.getByTestId('sbar-panel')).toBeVisible();
@@ -109,6 +118,7 @@ test.describe('M4 ward, phone and delegation', () => {
     page,
   }) => {
     await openWard(page, 'seed=e2e-delegate&mode=NIGHT&difficulty=MEDIUM&rank=MO');
+    await closeBeds(page);
     await page.getByTestId('open-delegation').click();
     const dialog = page.getByTestId('delegation-dialog');
     await expect(dialog).toBeVisible();

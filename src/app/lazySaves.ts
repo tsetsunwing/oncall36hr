@@ -15,5 +15,9 @@ export function createLazySaveService(): SaveService {
   return {
     save: async (state, target) => (await get()).save(state, target),
     load: async (slotId) => (await get()).load(slotId),
+    list: async () => (await get()).list(),
+    remove: async (slotId) => (await get()).remove(slotId),
+    exportSlot: async (slotId) => (await get()).exportSlot(slotId),
+    importManual: async (slot, json) => (await get()).importManual(slot, json),
   };
 }
