@@ -73,7 +73,11 @@ function pickTemplates(
   return cursor.shuffle('events', chosen);
 }
 
-export function generateWard(state: GameState, ctx: EngineContext): GameState {
+export function generateWard(
+  state: GameState,
+  ctx: EngineContext,
+  forcedCaseId?: string,
+): GameState {
   const { tables, config } = ctx;
   const profile = tables['difficulty-profiles'].find((p) => p.id === state.difficulty);
   if (!profile) return state;
@@ -95,6 +99,8 @@ export function generateWard(state: GameState, ctx: EngineContext): GameState {
     .slice(0, count)
     .sort((a, b) => a - b);
   const templates = pickTemplates(cursor, tables['case-templates'], occupied.length, ratio);
+  const forced = tables['case-templates'].find((t) => t.id === forcedCaseId);
+  if (forced && templates.length > 0) templates[0] = forced;
 
   let next: GameState = { ...state, rng: cursor.rng };
   occupied.forEach((bed, index) => {

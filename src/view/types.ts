@@ -168,7 +168,9 @@ export interface QuickChipView {
 }
 
 export type RankCode = 'HO' | 'MO' | 'RES' | 'AC' | 'COS';
-export type CallTagCode = 'NURSE' | 'JUNIOR' | 'LAB' | 'XRAY' | 'PHARMACY' | 'DEPT' | 'OUTGOING';
+export type CallTagCode =
+  'NURSE' | 'JUNIOR' | 'LAB' | 'XRAY' | 'PHARMACY' | 'DEPT' | 'OUTGOING' | 'FAMILY';
+export type CallPurposeCode = 'GENERAL' | 'DEATH_SENIOR' | 'DEATH_FAMILY' | 'ARREST';
 export type PriorityCode = 'ROUTINE' | 'URGENT' | 'EMERGENCY';
 export type CallResponseCode = 'GO_NOW' | 'LATER' | 'CONTINUE';
 export type DelegationTaskCode =
@@ -202,6 +204,32 @@ export interface CallLineView {
   timeLabel: string;
 }
 
+export interface FamilyCallView {
+  stage: 'OPENING' | 'FOLLOWUP';
+  informed: boolean;
+  /** 預設講法（T27）；engine 預先知道訊號，所以唔使 AI */
+  options: { id: string; label: string }[];
+  canSay: boolean;
+  maxChars: number;
+  turnsLeft: number;
+}
+
+/** 雙向對話（會診／上報／家屬）狀態；清晰度係 engine 按 SBAR 清單計出嚟 */
+export interface CallExchangeView {
+  phase: 'ASSESSING' | 'AWAITING_REPLY' | 'OPEN' | 'CLOSED';
+  /** 正等緊對方回覆（AI 措辭中） */
+  waiting: boolean;
+  /** SBAR 清晰度 0–3（家屬電話為 null） */
+  clarity: number | null;
+  /** 對方仍然想知道嘅項目（SBAR 清單 id） */
+  asks: string[];
+  canFollowUp: boolean;
+  followupsLeft: number;
+  followupMaxChars: number;
+  canHangUp: boolean;
+  family: FamilyCallView | null;
+}
+
 export interface CallRowView {
   id: string;
   direction: 'IN' | 'OUT';
@@ -226,6 +254,8 @@ export interface CallRowView {
   canDelegate: boolean;
   sbar: { S: string; B: string; A: string; R: string } | null;
   lines: CallLineView[];
+  purpose: CallPurposeCode;
+  exchange: CallExchangeView | null;
 }
 
 export interface LadderStepView {
@@ -245,6 +275,7 @@ export interface SbarDraftView {
   sbar: { S: string; B: string; A: string; R: string };
   maxChars: number;
   skips: RankCode[];
+  purpose: CallPurposeCode;
 }
 
 export interface DelegationItemView {
@@ -287,6 +318,8 @@ export interface PhoneView {
   ladders: Record<string, LadderStepView[]>;
   depts: { id: string; label: string }[];
   draft: SbarDraftView | null;
+  /** 仍然進行緊嘅外撥對話（自動聚焦） */
+  focusCallId: string | null;
 }
 
 export interface WardView {
@@ -347,6 +380,8 @@ export interface DeathStepView {
   completedLabel: string | null;
   /** 預填欄位（T23）；內容見 DeathView.prefill */
   fields: string[];
+  /** 病房模式：呢一步要透過電話完成 */
+  viaPhone: boolean;
 }
 
 export interface DeathView {
@@ -415,6 +450,11 @@ export interface GameActions {
   ) => void;
   sendCall: (sbar: { S: string; B: string; A: string; R: string }) => void;
   discardCall: () => void;
+  sendFollowup: (callId: string, text: string) => void;
+  endCall: (callId: string) => void;
+  familyOption: (callId: string, optionId: string) => void;
+  familySay: (callId: string, text: string) => void;
+  startDeathCall: (step: DeathStepCode) => void;
   delegate: (request: {
     task: DelegationTaskCode;
     itemId: string;

@@ -18,6 +18,11 @@ function makeActions() {
     insistOrder: vi.fn(),
     retryAi: vi.fn(),
     completeDeathStep: vi.fn(),
+    sendFollowup: vi.fn(),
+    endCall: vi.fn(),
+    familyOption: vi.fn(),
+    familySay: vi.fn(),
+    startDeathCall: vi.fn(),
     goToBed: vi.fn(),
     respondCall: vi.fn(),
     prepareCall: vi.fn(),
@@ -85,10 +90,34 @@ function deathView(over: Partial<DeathView> = {}): DeathView {
       resusSummary: { cycles: 3, shocks: 0, drugs: 2 },
     },
     steps: [
-      { step: 'CERTIFICATE', done: true, completedLabel: '23:45', fields: ['name', 'cause'] },
-      { step: 'NOTIFY_SENIOR', done: false, completedLabel: null, fields: ['seniorRank'] },
-      { step: 'PHONE_FAMILY', done: false, completedLabel: null, fields: ['name'] },
-      { step: 'RECORD', done: false, completedLabel: null, fields: ['resusSummary'] },
+      {
+        step: 'CERTIFICATE',
+        done: true,
+        completedLabel: '23:45',
+        fields: ['name', 'cause'],
+        viaPhone: false,
+      },
+      {
+        step: 'NOTIFY_SENIOR',
+        done: false,
+        completedLabel: null,
+        fields: ['seniorRank'],
+        viaPhone: false,
+      },
+      {
+        step: 'PHONE_FAMILY',
+        done: false,
+        completedLabel: null,
+        fields: ['name'],
+        viaPhone: false,
+      },
+      {
+        step: 'RECORD',
+        done: false,
+        completedLabel: null,
+        fields: ['resusSummary'],
+        viaPhone: false,
+      },
     ],
     delayCharges: 2,
     bedReleased: false,
@@ -157,6 +186,27 @@ describe('DeathFlowPanel', () => {
     await user.click(screen.getByTestId('death-confirm-NOTIFY_SENIOR'));
     expect(actions.completeDeathStep).toHaveBeenCalledWith('NOTIFY_SENIOR');
     expect(screen.getByText(ui.game.death.rank.RES!)).toBeInTheDocument();
+  });
+
+  it('病房模式：通知上一級同致電家屬改為開始電話，並轉去電話分頁', async () => {
+    const user = userEvent.setup();
+    const actions = makeActions();
+    const onOpenPhone = vi.fn();
+    const base = deathView();
+    const steps = base.steps.map((step) =>
+      step.step === 'NOTIFY_SENIOR' || step.step === 'PHONE_FAMILY'
+        ? { ...step, viaPhone: true }
+        : step,
+    );
+    render(
+      <DeathFlowPanel death={deathView({ steps })} actions={actions} onOpenPhone={onOpenPhone} />,
+    );
+    expect(screen.queryByTestId('death-confirm-NOTIFY_SENIOR')).not.toBeInTheDocument();
+    await user.click(screen.getByTestId('death-call-NOTIFY_SENIOR'));
+    expect(actions.startDeathCall).toHaveBeenCalledWith('NOTIFY_SENIOR');
+    await user.click(screen.getByTestId('death-call-PHONE_FAMILY'));
+    expect(actions.startDeathCall).toHaveBeenCalledWith('PHONE_FAMILY');
+    expect(onOpenPhone).toHaveBeenCalledTimes(2);
   });
 
   it('全部完成：顯示床位已釋放，冇確認掣', () => {

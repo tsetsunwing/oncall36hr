@@ -15,6 +15,7 @@ import {
 import type { ViewEnv } from './viewEnv';
 import type {
   BedView,
+  CallExchangeView,
   CallLineView,
   CallRowView,
   DelegationView,
@@ -112,6 +113,43 @@ function selectCall(
     canDelegate: delegable,
     sbar: call.sbar,
     lines: call.lines.map((line) => selectLine(line, clockLabel)),
+    purpose: call.purpose,
+    exchange: selectExchange(call, env),
+  };
+}
+
+function selectExchange(call: Call, env: ViewEnv): CallExchangeView | null {
+  const exchange = call.exchange;
+  if (!exchange) return null;
+  const open = exchange.phase === 'OPEN';
+  const consult = exchange.consult;
+  const family = exchange.family;
+  const scenario = env.tables['family-scenarios'][0];
+  const followupsLeft = consult
+    ? Math.max(0, env.config.consult.maxFollowups - consult.followups)
+    : 0;
+  return {
+    phase: exchange.phase,
+    waiting: exchange.phase === 'ASSESSING' || exchange.phase === 'AWAITING_REPLY',
+    clarity: consult?.clarity ?? null,
+    asks: consult ? [...consult.asks] : [],
+    canFollowUp: open && consult !== null && followupsLeft > 0,
+    followupsLeft,
+    followupMaxChars: env.config.consult.followupMaxChars,
+    canHangUp: open,
+    family:
+      family && scenario
+        ? {
+            stage: family.stage,
+            informed: family.informed,
+            options: open
+              ? scenario.stages[family.stage].map((o) => ({ id: o.id, label: o.label }))
+              : [],
+            canSay: open,
+            maxChars: env.config.consult.followupMaxChars,
+            turnsLeft: Math.max(0, env.config.family.maxTurns - family.turns),
+          }
+        : null,
   };
 }
 
@@ -137,6 +175,7 @@ function selectDraft(state: GameState, env: ViewEnv): SbarDraftView | null {
     sbar: { ...draft.sbar },
     maxChars: env.config.phone.sbarMaxChars,
     skips: draft.target.kind === 'RANK' ? skippedRanks(state, patient.id, draft.target.rank) : [],
+    purpose: draft.purpose,
   };
 }
 
@@ -161,6 +200,11 @@ function selectPhone(state: GameState, env: ViewEnv, clockLabel: ClockLabel): Ph
     ladders,
     depts: env.tables['consult-departments'].map((d) => ({ id: d.id, label: d.label })),
     draft: selectDraft(state, env),
+    focusCallId:
+      [...state.ward.calls]
+        .reverse()
+        .find((c) => c.direction === 'OUT' && c.exchange !== null && c.exchange.phase !== 'CLOSED')
+        ?.id ?? null,
   };
 }
 

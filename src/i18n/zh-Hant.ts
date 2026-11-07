@@ -221,10 +221,13 @@ export const ui = {
         seniorRank: '通知對象',
         resusSummary: '搶救摘要',
       },
-      rank: { MO: '醫生（MO）', RES: '駐院專科醫生（Resident）', CONSULTANT: '顧問醫生' } as Record<
+      rank: { MO: '醫生（MO）', RES: '駐院專科醫生（Resident）', AC: '副顧問醫生（AC）' } as Record<
         string,
         string
       >,
+      callSenior: '致電上一級',
+      callFamily: '致電家屬',
+      viaPhoneNote: '這一步要透過電話完成。',
       summary: (cycles: number, shocks: number, drugs: number) =>
         `${String(cycles)} 輪 rhythm check，${String(shocks)} 次電擊，${String(drugs)} 項藥物`,
       sex: { M: '男', F: '女' },

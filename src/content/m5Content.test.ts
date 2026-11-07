@@ -73,7 +73,7 @@ describe('M5 content：節律、ACLS、死亡流程', () => {
     expect(model && 'seniorByRank' in model ? model.seniorByRank : null).toEqual({
       HO: 'MO',
       MO: 'RES',
-      RES: 'CONSULTANT',
+      RES: 'AC',
     });
   });
 

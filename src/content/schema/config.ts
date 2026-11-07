@@ -165,6 +165,69 @@ export const configSchema = z
         transcriptLimit: z.number().int().positive(),
       })
       .strict(),
+    /** 會診／上報嘅 SBAR 清單：AI 只抽出玩家講咗邊啲項目，清晰度由 engine 按呢份清單計 */
+    consult: z
+      .object({
+        maxFollowups: z.number().int().min(0),
+        followupMaxChars: z.number().int().positive(),
+        maxQuotes: z.number().int().positive(),
+        deptQuestionDepth: z.number().int().min(0),
+        vitalTolerance: z
+          .object({
+            hr: positive,
+            sbp: positive,
+            dbp: positive,
+            spo2: positive,
+            rr: positive,
+            temp: positive,
+          })
+          .strict(),
+        items: z
+          .array(
+            z
+              .object({
+                id: z.string().min(1),
+                part: z.enum(['S', 'B', 'A', 'R']),
+                description: z.string().min(1),
+              })
+              .strict(),
+          )
+          .min(4),
+        partAnyOf: z
+          .object({
+            S: z.array(z.string().min(1)).min(1),
+            B: z.array(z.string().min(1)).min(1),
+            A: z.array(z.string().min(1)).min(1),
+            R: z.array(z.string().min(1)).min(1),
+          })
+          .strict(),
+        askOrder: z.array(z.string().min(1)),
+      })
+      .strict()
+      .superRefine((consult, ctx) => {
+        const ids = new Set(consult.items.map((i) => i.id));
+        if (ids.size !== consult.items.length) {
+          ctx.addIssue({ code: 'custom', path: ['items'], message: 'SBAR 項目 id 重複' });
+        }
+        const partOf = new Map(consult.items.map((i) => [i.id, i.part] as const));
+        for (const part of ['S', 'B', 'A', 'R'] as const) {
+          for (const id of consult.partAnyOf[part]) {
+            if (partOf.get(id) !== part) {
+              ctx.addIssue({
+                code: 'custom',
+                path: ['partAnyOf', part],
+                message: `${id} 唔屬於 ${part}`,
+              });
+            }
+          }
+        }
+        for (const id of consult.askOrder) {
+          if (!ids.has(id)) {
+            ctx.addIssue({ code: 'custom', path: ['askOrder'], message: `未知項目 ${id}` });
+          }
+        }
+      }),
+    family: z.object({ maxTurns: z.number().int().positive() }).strict(),
     ui: z
       .object({
         touchTargetMinPx: positive,

@@ -5,6 +5,7 @@ import { enqueue } from '../core/eventQueue';
 import type { Reduction } from '../core/events';
 import type { EngineContext } from '../core/module';
 import type { GameState } from '../core/state';
+import { resolveArrestCallsAtBed } from './arrestCall';
 import { zoneOfBed } from './nurses';
 
 export const PLAYER_ARRIVE_EVENT = 'PLAYER_ARRIVE';
@@ -85,7 +86,7 @@ export function arriveAt(state: GameState, bed: number | null, ctx: EngineContex
   if (bed === null) return next;
   const patientId = patientAtBed(next, bed);
   if (!patientId) return next;
-  next = enterVisit(next, patientId, ctx);
+  next = enterVisit(resolveArrestCallsAtBed(next, patientId), patientId, ctx);
   const tags = next.ward.tags[patientId];
   if (tags?.includes('ED_ADMISSION')) {
     next = {

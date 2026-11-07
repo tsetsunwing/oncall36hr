@@ -165,9 +165,43 @@ export const sbarPrefillSchema = z
   })
   .strict();
 
+/** 病人喺非床邊位置心臟停頓：護士打嚟嘅固定來電（M4b）；回應同普通來電一樣 */
+export const arrestAlertSchema = z
+  .object({
+    id,
+    kind: z.literal('ARREST_ALERT'),
+    text: z.string().min(1),
+    rearrestText: z.string().min(1),
+    responses: z
+      .object({
+        GO_NOW: callResponseEffectSchema,
+        LATER: callResponseEffectSchema,
+        CONTINUE: callResponseEffectSchema,
+        MISSED: callResponseEffectSchema,
+      })
+      .strict(),
+    reviewStatus,
+  })
+  .strict();
+
+/** 死亡通知上級用嘅 SBAR 預填（全部由 state 映射，唔係 AI） */
+export const deathSbarSchema = z
+  .object({
+    id,
+    kind: z.literal('DEATH_SBAR'),
+    S: z.string().min(1),
+    B: z.string().min(1),
+    A: z.string().min(1),
+    R: z.string().min(1),
+    reviewStatus,
+  })
+  .strict();
+
 export const callOrSbarSchema = z.discriminatedUnion('kind', [
   callTemplateSchema,
   sbarPrefillSchema,
+  arrestAlertSchema,
+  deathSbarSchema,
 ]);
 
 const bandRowSchema = z

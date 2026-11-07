@@ -97,11 +97,26 @@ function migrateV4toV5(raw: RawState): RawState {
   return { ...raw, resus: null, death: null, scoreLedger: [] };
 }
 
+/** schema 5 → 6（M4b）：電話加入 purpose／exchange；進行中嘅 SBAR 草稿作廢（缺起草時生命體徵） */
+function migrateV5toV6(raw: RawState): RawState {
+  const ward = (raw.ward ?? {}) as Record<string, unknown>;
+  const calls = Array.isArray(ward.calls) ? (ward.calls as Record<string, unknown>[]) : [];
+  return {
+    ...raw,
+    ward: {
+      ...ward,
+      draft: null,
+      calls: calls.map((call) => ({ ...call, purpose: 'GENERAL', exchange: null })),
+    },
+  };
+}
+
 export const migrations: MigrationRegistry = {
   1: migrateV1toV2,
   2: migrateV2toV3,
   3: migrateV3toV4,
   4: migrateV4toV5,
+  5: migrateV5toV6,
 };
 
 export type MigrateResult =

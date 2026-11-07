@@ -210,3 +210,92 @@ describe('ward ViewModel', () => {
     expect(draft?.sbar.S.length).toBeGreaterThan(0);
   });
 });
+
+describe('ward ViewModel：雙向通話（M4b）', () => {
+  const answer = (state: GameState, effects: Effect[], kind: string, payload: unknown) => {
+    const request = effects.flatMap((e) =>
+      e.type === 'AI_REQUEST' && e.kind === kind ? [e] : [],
+    )[0];
+    return run(state, [
+      { type: 'AI_RESULT', reqId: request?.reqId ?? '', payload: payload as never },
+    ]);
+  };
+
+  it('等緊 AI 時顯示 waiting；回覆後有追問時 OPEN、可補充、可掛線；clarity 係 engine 值', () => {
+    const base = engine.init(wardParams('x-1', 'MO'));
+    const patientId = Object.keys(base.patients)[0] ?? 'p1';
+    const { state } = run(base, [
+      ward('PREPARE_CALL', { patientId, target: { kind: 'RANK', rank: 'RES' } }),
+    ]);
+    const sbar = { ...state.ward.draft?.sbar, S: '氣促', B: '', A: '', R: '' };
+    const sent = run(state, [ward('SEND_CALL', { sbar })]);
+    let view = selectGameView(sent.state, env).ward?.phone;
+    expect(view?.focusCallId).not.toBeNull();
+    expect(view?.calls[0]?.exchange).toMatchObject({
+      phase: 'ASSESSING',
+      waiting: true,
+      canHangUp: false,
+    });
+
+    const assessed = answer(sent.state, sent.effects, 'consult.assess', {
+      parts: { S: ['S.PROBLEM'], B: [], A: [], R: [] },
+      quoted: [],
+      tone: 'NEUTRAL',
+    });
+    view = selectGameView(assessed.state, env).ward?.phone;
+    expect(view?.calls[0]?.exchange).toMatchObject({ phase: 'AWAITING_REPLY', clarity: 0 });
+
+    const speaker = (
+      assessed.effects.find(
+        (e) => e.type === 'AI_REQUEST' && e.kind === 'consult.reply',
+      ) as unknown as {
+        context: { local: { speakerId: string } };
+      }
+    ).context.local.speakerId;
+    const replied = answer(assessed.state, assessed.effects, 'consult.reply', {
+      lines: [{ speaker, text: '再講多啲。' }],
+    });
+    const exchange = selectGameView(replied.state, env).ward?.phone.calls[0]?.exchange;
+    expect(exchange).toMatchObject({
+      phase: 'OPEN',
+      waiting: false,
+      canFollowUp: true,
+      canHangUp: true,
+      followupsLeft: config.consult.maxFollowups,
+    });
+    expect(exchange?.asks.length).toBeGreaterThan(0);
+    expect(JSON.stringify(exchange)).not.toMatch(/vitalsRef|reqId|covered/);
+  });
+
+  it('家屬電話：開場四個預設講法；死亡步驟 viaPhone', () => {
+    const base = engine.init(wardParams('x-2', 'MO'));
+    const patientId = Object.keys(base.patients)[0] ?? 'p1';
+    const withDeath: GameState = {
+      ...base,
+      death: {
+        patientId,
+        diedAt: 0,
+        status: 'PENDING_PROCESS',
+        steps: { CERTIFICATE: null, NOTIFY_SENIOR: null, PHONE_FAMILY: null, RECORD: null },
+        seniorRank: 'RES',
+        delayCharges: 0,
+        completedAt: null,
+        summary: { cycles: 1, shocks: 0, drugs: 0 },
+      },
+    };
+    const started = run(withDeath, [ward('START_DEATH_CALL', { step: 'PHONE_FAMILY' })]).state;
+    const view = selectGameView(started, env);
+    const call = view.ward?.phone.calls[0];
+    expect(call?.tag).toBe('FAMILY');
+    expect(call?.purpose).toBe('DEATH_FAMILY');
+    expect(call?.exchange?.family?.options).toHaveLength(4);
+    expect(call?.exchange?.family?.canSay).toBe(true);
+    expect(call?.exchange?.clarity).toBeNull();
+    expect(view.death?.steps.map((s) => [s.step, s.viaPhone])).toEqual([
+      ['CERTIFICATE', false],
+      ['NOTIFY_SENIOR', true],
+      ['PHONE_FAMILY', true],
+      ['RECORD', false],
+    ]);
+  });
+});

@@ -69,4 +69,15 @@ export interface EngineConfig {
     sbarMaxChars: number;
     transcriptLimit: number;
   };
+  consult: {
+    maxFollowups: number;
+    followupMaxChars: number;
+    maxQuotes: number;
+    deptQuestionDepth: number;
+    vitalTolerance: Readonly<Record<'hr' | 'sbp' | 'dbp' | 'spo2' | 'rr' | 'temp', number>>;
+    items: readonly { id: string; part: 'S' | 'B' | 'A' | 'R'; description: string }[];
+    partAnyOf: Readonly<Record<'S' | 'B' | 'A' | 'R', readonly string[]>>;
+    askOrder: readonly string[];
+  };
+  family: { maxTurns: number };
 }

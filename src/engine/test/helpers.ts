@@ -59,6 +59,40 @@ export const testConfig: EngineConfig = {
     sbarMaxChars: 200,
     transcriptLimit: 40,
   },
+  consult: {
+    maxFollowups: 2,
+    followupMaxChars: 200,
+    maxQuotes: 8,
+    deptQuestionDepth: 1,
+    vitalTolerance: { hr: 10, sbp: 15, dbp: 10, spo2: 3, rr: 3, temp: 0.6 },
+    items: [
+      { id: 'S.PATIENT', part: 'S', description: 'Identifies which patient.' },
+      { id: 'S.PROBLEM', part: 'S', description: 'States the current problem.' },
+      { id: 'B.HISTORY', part: 'B', description: 'Gives the presenting complaint.' },
+      { id: 'B.ALLERGY', part: 'B', description: 'States the allergy status.' },
+      { id: 'B.TREATMENT', part: 'B', description: 'Says what has been done.' },
+      { id: 'A.VITALS', part: 'A', description: 'Quotes current vital signs.' },
+      { id: 'A.IMPRESSION', part: 'A', description: 'Gives own assessment.' },
+      { id: 'R.REQUEST', part: 'R', description: 'Makes a clear request.' },
+    ],
+    partAnyOf: {
+      S: ['S.PROBLEM'],
+      B: ['B.HISTORY', 'B.ALLERGY', 'B.TREATMENT'],
+      A: ['A.VITALS', 'A.IMPRESSION'],
+      R: ['R.REQUEST'],
+    },
+    askOrder: [
+      'R.REQUEST',
+      'S.PROBLEM',
+      'A.VITALS',
+      'B.ALLERGY',
+      'B.TREATMENT',
+      'A.IMPRESSION',
+      'B.HISTORY',
+      'S.PATIENT',
+    ],
+  },
+  family: { maxTurns: 3 },
 };
 
 export const newGame: NewGameParams = {

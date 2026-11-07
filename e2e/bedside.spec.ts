@@ -2,11 +2,12 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 import { ui } from '../src/i18n';
 
-const MOCK_BASE_URL = 'http://127.0.0.1:8787/v1';
+const MOCK_ORIGIN = `http://127.0.0.1:${process.env.MOCK_AI_PORT ?? '8787'}`;
+const MOCK_BASE_URL = `${MOCK_ORIGIN}/v1`;
 const SHOTS = process.env.M2_SHOTS;
 
 async function openGame(page: Page, model: string, seed = 'e2e-bedside') {
-  await page.request.post('http://127.0.0.1:8787/__reset');
+  await page.request.post(`${MOCK_ORIGIN}/__reset`);
   await page.addInitScript(
     ({ baseUrl, model: m }) => {
       localStorage.setItem(

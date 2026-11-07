@@ -1,7 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
-const APP_PORT = 4173;
-const MOCK_PORT = 8787;
+const APP_PORT = Number(process.env.APP_PORT ?? 4173);
+const MOCK_PORT = Number(process.env.MOCK_AI_PORT ?? 8787);
 
 export default defineConfig({
   testDir: './e2e',

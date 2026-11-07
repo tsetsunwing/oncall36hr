@@ -23,6 +23,11 @@ function makeActions() {
     discardCall: vi.fn(),
     delegate: vi.fn(),
     completeDeathStep: vi.fn(),
+    sendFollowup: vi.fn(),
+    endCall: vi.fn(),
+    familyOption: vi.fn(),
+    familySay: vi.fn(),
+    startDeathCall: vi.fn(),
   } satisfies GameActions;
 }
 
@@ -84,6 +89,8 @@ const call: CallRowView = {
   canDelegate: true,
   sbar: null,
   lines: [],
+  purpose: 'GENERAL',
+  exchange: null,
 };
 
 function ward(over: Partial<WardView> = {}): WardView {
@@ -108,6 +115,7 @@ function ward(over: Partial<WardView> = {}): WardView {
       },
       depts: [{ id: 'ICU', label: 'ICU' }],
       draft: null,
+      focusCallId: null,
     },
     delegation: {
       hasSubordinate: true,
@@ -206,6 +214,7 @@ describe('PhonePanel', () => {
       sbar: { S: 's', B: 'b', A: 'a', R: 'r' },
       maxChars: 200,
       skips: ['RES'],
+      purpose: 'GENERAL',
     };
     const base = ward();
     render(
@@ -229,6 +238,7 @@ describe('SbarPanel', () => {
     sbar: { S: '狀況', B: '背景', A: '評估', R: '建議' },
     maxChars: 200,
     skips: ['RES'],
+    purpose: 'GENERAL',
   };
 
   it('預填四段、越級警告、可編輯後傳送、或放棄', async () => {
@@ -317,5 +327,148 @@ describe('DelegationDialog', () => {
       patientId: null,
       callId: 'c1',
     });
+  });
+});
+
+describe('雙向通話（M4b）', () => {
+  const exchange = (over: Partial<NonNullable<CallRowView['exchange']>> = {}) => ({
+    phase: 'OPEN' as const,
+    waiting: false,
+    clarity: 2,
+    asks: ['A.VITALS'],
+    canFollowUp: true,
+    followupsLeft: 2,
+    followupMaxChars: 200,
+    canHangUp: true,
+    family: null,
+    ...over,
+  });
+  const outgoing = (over: Partial<CallRowView> = {}): CallRowView => ({
+    ...call,
+    id: 'k9',
+    direction: 'OUT',
+    tag: 'OUTGOING',
+    callerName: 'RES',
+    canRespond: false,
+    canDelegate: false,
+    status: 'DONE',
+    resolution: 'SENT',
+    text: '',
+    exchange: exchange(),
+    lines: [
+      {
+        speaker: 'CALLEE',
+        name: 'RES',
+        text: '你再講多啲：最新嘅生命表徵。',
+        code: null,
+        timeLabel: '02:11',
+      },
+    ],
+    ...over,
+  });
+  const withCall = (c: CallRowView): WardView => {
+    const base = ward();
+    return { ...base, phone: { ...base.phone, calls: [c], focusCallId: c.id } };
+  };
+
+  it('對方想知道嘅項目、清晰度、補充送出（逐字傳畀 engine）同掛線', async () => {
+    const actions = makeActions();
+    render(
+      <PhonePanel
+        ward={withCall(outgoing())}
+        actions={actions}
+        currentPatientId="p1"
+        onDelegateCall={vi.fn()}
+      />,
+    );
+    expect(screen.getByTestId('exchange-clarity')).toHaveAttribute('data-clarity', '2');
+    expect(screen.getByTestId('exchange-asks')).toHaveTextContent(
+      ui.game.ward.phone.exchange.ask['A.VITALS']!,
+    );
+    const send = screen.getByTestId('followup-send');
+    expect(send).toBeDisabled();
+    await userEvent.type(screen.getByTestId('followup-text'), '血氧 91');
+    await userEvent.click(send);
+    expect(actions.sendFollowup).toHaveBeenCalledWith('k9', '血氧 91');
+    await userEvent.click(screen.getByTestId('hang-up'));
+    expect(actions.endCall).toHaveBeenCalledWith('k9');
+  });
+
+  it('等緊對方回覆：status 區域宣告，唔可以補充或掛線', () => {
+    render(
+      <PhonePanel
+        ward={withCall(
+          outgoing({
+            exchange: exchange({
+              phase: 'AWAITING_REPLY',
+              waiting: true,
+              canFollowUp: false,
+              canHangUp: false,
+            }),
+          }),
+        )}
+        actions={makeActions()}
+        currentPatientId="p1"
+        onDelegateCall={vi.fn()}
+      />,
+    );
+    const status = screen.getByTestId('exchange-waiting');
+    expect(status).toHaveAttribute('aria-live', 'polite');
+    expect(status).toHaveTextContent(ui.game.ward.phone.exchange.waiting);
+    expect(screen.queryByTestId('followup-send')).toBeNull();
+    expect(screen.queryByTestId('hang-up')).toBeNull();
+  });
+
+  it('家屬電話：揀預設講法或自己輸入', async () => {
+    const actions = makeActions();
+    const family = outgoing({
+      tag: 'FAMILY',
+      purpose: 'DEATH_FAMILY',
+      exchange: exchange({
+        clarity: null,
+        asks: [],
+        canFollowUp: false,
+        family: {
+          stage: 'OPENING',
+          informed: false,
+          options: [
+            { id: 'direct', label: '直接告知病人已離世' },
+            { id: 'gentle', label: '先表達關心，再慢慢說明' },
+          ],
+          canSay: true,
+          maxChars: 200,
+          turnsLeft: 3,
+        },
+      }),
+    });
+    render(
+      <PhonePanel
+        ward={withCall(family)}
+        actions={actions}
+        currentPatientId="p1"
+        onDelegateCall={vi.fn()}
+      />,
+    );
+    await userEvent.click(screen.getByTestId('family-option-gentle'));
+    expect(actions.familyOption).toHaveBeenCalledWith('k9', 'gentle');
+    await userEvent.type(screen.getByTestId('family-say-text'), '我好遺憾');
+    await userEvent.click(screen.getByTestId('family-say'));
+    expect(actions.familySay).toHaveBeenCalledWith('k9', '我好遺憾');
+  });
+
+  it('通話結束後只顯示已結束', () => {
+    render(
+      <PhonePanel
+        ward={withCall(
+          outgoing({
+            exchange: exchange({ phase: 'CLOSED', canFollowUp: false, canHangUp: false, asks: [] }),
+          }),
+        )}
+        actions={makeActions()}
+        currentPatientId="p1"
+        onDelegateCall={vi.fn()}
+      />,
+    );
+    expect(screen.getByTestId('exchange-ended')).toBeInTheDocument();
   });
 });

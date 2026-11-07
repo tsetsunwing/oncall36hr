@@ -15,7 +15,7 @@ import { orderSchema } from '../orders/orderTypes';
 import { emptyWard, wardStateSchema } from '../ward/wardTypes';
 import type { EngineConfig } from './config';
 
-export const CURRENT_SCHEMA = 5;
+export const CURRENT_SCHEMA = 6;
 
 export const MODES = ['DAY', 'NIGHT', 'ONCALL'] as const;
 export const DIFFICULTIES = ['EASY', 'MEDIUM', 'HARD'] as const;
@@ -105,6 +105,8 @@ export interface NewGameParams {
   caseId?: string;
   /** M4：生成 20 床病房、電話同下屬；唔填＝舊式單一病人（p1，7 號床） */
   ward?: boolean;
+  /** 病房模式下，指定其中一個病人用呢個 case 模板（測試與預覽用）；未知 id 忽略 */
+  wardCaseId?: string;
 }
 
 export function createInitialState(params: NewGameParams, config: EngineConfig): GameState {

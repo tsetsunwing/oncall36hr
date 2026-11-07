@@ -3,7 +3,16 @@
  */
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
-import { checkDialogueText, contractFor, DIALOGUE_KIND, ORDER_PARSE_KIND } from '@/ai';
+import {
+  checkDialogueText,
+  CONSULT_ASSESS_KIND,
+  CONSULT_REPLY_KIND,
+  contractFor,
+  DIALOGUE_KIND,
+  FAMILY_ASSESS_KIND,
+  FAMILY_REPLY_KIND,
+  ORDER_PARSE_KIND,
+} from '@/ai';
 import { getConfig, getContent } from '@/content';
 import {
   createEngine,
@@ -209,5 +218,239 @@ describe('numeric guard：engine 同 ai 兩份規則一致', () => {
       { numRuns: 200 },
     );
     expect(leaksDiagnosis('肺炎', ['肺炎'])).toBe(true);
+  });
+});
+
+describe('M4b：consult／family 契約同 engine 一致', () => {
+  const wardEngine = engine;
+
+  function wardRun() {
+    const requests: Extract<Effect, { type: 'AI_REQUEST' }>[] = [];
+    let state: GameState = wardEngine.init({
+      seed: 'cross-ward',
+      mode: 'NIGHT',
+      difficulty: 'MEDIUM',
+      playerRank: 'MO',
+      ward: true,
+    });
+    const step = (event: EngineEvent) => {
+      const result = wardEngine.reduce(state, event);
+      state = result.state;
+      for (const effect of result.effects) if (effect.type === 'AI_REQUEST') requests.push(effect);
+    };
+    const ward = (name: string, payload: unknown) => {
+      step({
+        type: 'PLAYER_INTENT',
+        intent: { type: 'EXTENSION', module: 'ward', name, payload: payload as never },
+      });
+    };
+    const answer = (kind: string, payload: unknown) => {
+      const pending = [...state.pendingAi].reverse().find((p) => p.kind === kind);
+      if (!pending) throw new Error(`冇 ${kind} pending`);
+      step({ type: 'AI_RESULT', reqId: pending.reqId, payload: payload as never });
+    };
+    const setState = (next: GameState) => {
+      state = next;
+    };
+    return { requests, ward, answer, state: () => state, step, setState };
+  }
+
+  const speakerOf = (run: ReturnType<typeof wardRun>, kind: string) => {
+    const req = [...run.requests].reverse().find((r) => r.kind === kind);
+    return (req?.context as { local: { speakerId: string } }).local.speakerId;
+  };
+
+  it('engine 發出嘅四種新 context 全部通過各自契約嘅 prompt／local schema', () => {
+    const run = wardRun();
+    const patientId = Object.keys(run.state().patients)[0] ?? 'p1';
+    run.ward('PREPARE_CALL', { patientId, target: { kind: 'RANK', rank: 'RES' } });
+    const draft = run.state().ward.draft;
+    run.ward('SEND_CALL', { sbar: { ...draft?.sbar, R: '請過嚟睇下。' } });
+    run.answer(CONSULT_ASSESS_KIND, {
+      parts: { S: ['S.PROBLEM'], B: [], A: [], R: ['R.REQUEST'] },
+      quoted: [],
+      tone: 'NEUTRAL',
+    });
+    run.answer(CONSULT_REPLY_KIND, {
+      lines: [{ speaker: speakerOf(run, CONSULT_REPLY_KIND), text: '再講多啲。' }],
+    });
+    const callId = run.state().ward.calls.find((c) => c.direction === 'OUT')?.id ?? '';
+    run.ward('SEND_FOLLOWUP', { callId, text: '背景有高血壓' });
+
+    const state = run.state();
+    run.setState({
+      ...state,
+      death: {
+        patientId,
+        diedAt: state.clock.t,
+        status: 'PENDING_PROCESS',
+        steps: { CERTIFICATE: null, NOTIFY_SENIOR: null, PHONE_FAMILY: null, RECORD: null },
+        seniorRank: 'RES',
+        delayCharges: 0,
+        completedAt: null,
+        summary: { cycles: 2, shocks: 1, drugs: 1 },
+      },
+    });
+    run.ward('START_DEATH_CALL', { step: 'PHONE_FAMILY' });
+    const family = run.state().ward.calls.find((c) => c.purpose === 'DEATH_FAMILY')?.id ?? '';
+    run.ward('FAMILY_SAY', { callId: family, text: '我好遺憾，病人離世。' });
+    run.answer(FAMILY_ASSESS_KIND, { signals: ['STATES_DEATH', 'CONDOLENCE'] });
+
+    const kinds = new Set(run.requests.map((r) => r.kind));
+    for (const kind of [
+      CONSULT_ASSESS_KIND,
+      CONSULT_REPLY_KIND,
+      FAMILY_ASSESS_KIND,
+      FAMILY_REPLY_KIND,
+    ]) {
+      expect(kinds.has(kind), kind).toBe(true);
+    }
+    for (const request of run.requests) {
+      const contract = contractFor(request.kind);
+      const context = request.context as { prompt: unknown; local: unknown };
+      const prompt = contract?.promptSchema.safeParse(context.prompt);
+      const local = contract?.localSchema.safeParse(context.local);
+      expect(prompt?.success, `${request.kind} ${JSON.stringify(prompt?.error?.issues)}`).toBe(
+        true,
+      );
+      expect(local?.success, `${request.kind} ${JSON.stringify(local?.error?.issues)}`).toBe(true);
+    }
+    expect(speakerOf(run, FAMILY_REPLY_KIND)).toMatch(/^callee:/);
+  });
+
+  const assessCases: { name: string; payload: unknown }[] = [
+    {
+      name: '合法',
+      payload: {
+        parts: { S: ['S.PROBLEM'], B: [], A: [], R: ['R.REQUEST'] },
+        quoted: [{ key: 'spo2', value: 91 }],
+        tone: 'NEUTRAL',
+      },
+    },
+    {
+      name: '錯段',
+      payload: { parts: { S: ['R.REQUEST'], B: [], A: [], R: [] }, quoted: [], tone: 'NEUTRAL' },
+    },
+    {
+      name: '虛構數值',
+      payload: {
+        parts: { S: [], B: [], A: [], R: [] },
+        quoted: [{ key: 'spo2', value: 77 }],
+        tone: 'NEUTRAL',
+      },
+    },
+    {
+      name: '未知項目',
+      payload: { parts: { S: [], B: [], A: [], R: ['R.X'] }, quoted: [], tone: 'NEUTRAL' },
+    },
+    {
+      name: '空段落報覆蓋',
+      payload: { parts: { S: [], B: ['B.HISTORY'], A: [], R: [] }, quoted: [], tone: 'NEUTRAL' },
+    },
+  ];
+
+  it.each(assessCases)('consult.assess：ai guard 同 engine 判斷一致（$name）', ({ payload }) => {
+    const run = wardRun();
+    const patientId = Object.keys(run.state().patients)[0] ?? 'p1';
+    run.ward('PREPARE_CALL', { patientId, target: { kind: 'RANK', rank: 'RES' } });
+    const sbar = { S: '氣促', B: '', A: '', R: '請過嚟，血氧 91' };
+    run.ward('SEND_CALL', { sbar });
+    const request = run.requests.find((r) => r.kind === CONSULT_ASSESS_KIND);
+    const contract = contractFor(CONSULT_ASSESS_KIND);
+    const { prompt, local } = request?.context as { prompt: unknown; local: unknown };
+    const parsed = contract?.dataSchema.safeParse(payload);
+    const aiOk =
+      parsed?.success === true &&
+      contract?.guard(
+        parsed.data,
+        contract.promptSchema.parse(prompt),
+        contract.localSchema.parse(local),
+      ).issues.length === 0;
+    run.answer(CONSULT_ASSESS_KIND, payload);
+    const engineOk = run.state().paused?.by !== 'ai-failure';
+    expect(aiOk).toBe(engineOk);
+  });
+
+  it('family.assess：ai guard 同 engine 對矛盾訊號判斷一致', () => {
+    const contract = contractFor(FAMILY_ASSESS_KIND);
+    const combos = [
+      ['STATES_DEATH', 'CONDOLENCE'],
+      ['BLUNT_OR_COLD', 'CONDOLENCE'],
+      ['STATES_DEATH', 'HINTS_SERIOUS'],
+      ['CONDOLENCE', 'CONDOLENCE'],
+      ['HINTS_SERIOUS', 'JARGON'],
+      [
+        'STATES_DEATH',
+        'CONDOLENCE',
+        'OFFERS_SUPPORT',
+        'EXPLAINS_EVENTS',
+        'BLUNT_OR_COLD',
+        'JARGON',
+      ],
+    ];
+    for (const signals of combos) {
+      const run = wardRun();
+      const patientId = Object.keys(run.state().patients)[0] ?? 'p1';
+      const state = run.state();
+      run.setState({
+        ...state,
+        death: {
+          patientId,
+          diedAt: 0,
+          status: 'PENDING_PROCESS',
+          steps: { CERTIFICATE: null, NOTIFY_SENIOR: null, PHONE_FAMILY: null, RECORD: null },
+          seniorRank: 'RES',
+          delayCharges: 0,
+          completedAt: null,
+          summary: { cycles: 1, shocks: 0, drugs: 0 },
+        },
+      });
+      run.ward('START_DEATH_CALL', { step: 'PHONE_FAMILY' });
+      const callId = run.state().ward.calls.find((c) => c.purpose === 'DEATH_FAMILY')?.id ?? '';
+      run.ward('FAMILY_SAY', { callId, text: '我係醫生' });
+      const request = run.requests.find((r) => r.kind === FAMILY_ASSESS_KIND);
+      const { prompt, local } = request?.context as { prompt: unknown; local: unknown };
+      const parsed = contract?.dataSchema.safeParse({ signals });
+      const aiOk =
+        parsed?.success === true &&
+        contract?.guard(
+          parsed.data,
+          contract.promptSchema.parse(prompt),
+          contract.localSchema.parse(local),
+        ).issues.length === 0;
+      run.answer(FAMILY_ASSESS_KIND, { signals });
+      expect(aiOk, signals.join()).toBe(run.state().paused?.by !== 'ai-failure');
+    }
+  });
+
+  it('callee reply：對白文字兩邊判斷一致（裸數字、token、診斷、speaker）', () => {
+    const texts = [
+      '收到，我 {{consult.eta}} 內過嚟。',
+      '血氧 99',
+      '{{vital.secret}}',
+      '九十分鐘',
+      '好。',
+    ];
+    for (const text of texts) {
+      const run = wardRun();
+      const patientId = Object.keys(run.state().patients)[0] ?? 'p1';
+      run.ward('PREPARE_CALL', { patientId, target: { kind: 'RANK', rank: 'RES' } });
+      run.ward('SEND_CALL', { sbar: run.state().ward.draft?.sbar });
+      const request = run.requests.find((r) => r.kind === CONSULT_REPLY_KIND);
+      const contract = contractFor(CONSULT_REPLY_KIND);
+      const { prompt, local } = request?.context as {
+        prompt: unknown;
+        local: { speakerId: string };
+      };
+      const data = { lines: [{ speaker: local.speakerId, text }] };
+      const aiOk =
+        contract?.guard(
+          contract.dataSchema.parse(data),
+          contract.promptSchema.parse(prompt),
+          contract.localSchema.parse(local),
+        ).issues.length === 0;
+      run.answer(CONSULT_REPLY_KIND, data);
+      expect(aiOk, text).toBe(run.state().paused?.by !== 'ai-failure');
+    }
   });
 });

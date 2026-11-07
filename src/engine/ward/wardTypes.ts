@@ -15,7 +15,12 @@ export const CALL_TAGS = [
   'PHARMACY',
   'DEPT',
   'OUTGOING',
+  'FAMILY',
 ] as const;
+export const CALL_PURPOSES = ['GENERAL', 'DEATH_SENIOR', 'DEATH_FAMILY', 'ARREST'] as const;
+export type CallPurpose = (typeof CALL_PURPOSES)[number];
+export const TONES = ['POLITE', 'NEUTRAL', 'RUDE'] as const;
+export type Tone = (typeof TONES)[number];
 export const PRIORITIES = ['ROUTINE', 'URGENT', 'EMERGENCY'] as const;
 export const CALL_RESPONSES = ['GO_NOW', 'LATER', 'CONTINUE'] as const;
 export type CallResponse = (typeof CALL_RESPONSES)[number];
@@ -43,6 +48,59 @@ export const sbarSchema = z
   .strict();
 
 export type Sbar = z.infer<typeof sbarSchema>;
+
+const vitalsRefSchema = z
+  .object({
+    hr: z.number(),
+    sbp: z.number(),
+    dbp: z.number(),
+    spo2: z.number(),
+    rr: z.number(),
+    temp: z.number(),
+  })
+  .strict();
+
+/** 會診／上報嘅雙向對話狀態：clarity 由 engine 按 SBAR 清單計，AI 只抽出玩家講咗邊啲項目 */
+const consultExchangeSchema = z
+  .object({
+    covered: z.array(z.string()),
+    clarity: z.number().int().min(0).max(3),
+    inaccurate: z.boolean(),
+    tone: z.enum(TONES),
+    /** 對方仍然想知道嘅項目（SBAR 清單 id） */
+    asks: z.array(z.string()),
+    followups: z.number().int().min(0),
+    ruleApplied: z.enum(['GOOD', 'POOR']).nullable(),
+    vitalsRef: vitalsRefSchema,
+  })
+  .strict();
+
+const familyExchangeSchema = z
+  .object({
+    stage: z.enum(['OPENING', 'FOLLOWUP']),
+    turns: z.number().int().min(0),
+    informed: z.boolean(),
+    /** 已經計過分嘅規則 id，避免同一通電話重複扣／加 */
+    applied: z.array(z.string()),
+  })
+  .strict();
+
+export const EXCHANGE_PHASES = ['ASSESSING', 'AWAITING_REPLY', 'OPEN', 'CLOSED'] as const;
+
+export const exchangeSchema = z
+  .object({
+    phase: z.enum(EXCHANGE_PHASES),
+    /** 而家等緊嘅 AI 請求；結果返嚟時要同呢個 reqId 對得上先會套用 */
+    reqId: z.string().nullable(),
+    consult: consultExchangeSchema.nullable(),
+    family: familyExchangeSchema.nullable(),
+  })
+  .strict();
+
+export type Exchange = z.infer<typeof exchangeSchema>;
+export type ConsultExchange = z.infer<typeof consultExchangeSchema>;
+export type FamilyExchange = z.infer<typeof familyExchangeSchema>;
+export type VitalsRef = z.infer<typeof vitalsRefSchema>;
 
 const callTargetSchema = z.discriminatedUnion('kind', [
   z.object({ kind: z.literal('RANK'), rank: z.enum(RANKS) }).strict(),
@@ -73,6 +131,8 @@ export const callSchema = z
     sbar: sbarSchema.nullable(),
     outcome: z.string().nullable(),
     lines: z.array(callLineSchema),
+    purpose: z.enum(CALL_PURPOSES),
+    exchange: exchangeSchema.nullable(),
   })
   .strict();
 
@@ -118,6 +178,9 @@ const draftSchema = z
     target: callTargetSchema,
     sbar: sbarSchema,
     createdAt: z.number().int().min(0),
+    purpose: z.enum(CALL_PURPOSES),
+    /** 起草嗰刻嘅生命體徵：玩家覆述舊讀數唔應該被當成講錯 */
+    vitalsRef: vitalsRefSchema,
   })
   .strict();
 

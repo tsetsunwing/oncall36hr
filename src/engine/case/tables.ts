@@ -318,7 +318,24 @@ export interface SbarPrefillRow {
   noOrders: string;
 }
 
-export type CallTemplateTableRow = CallTemplateRow | SbarPrefillRow;
+export interface ArrestAlertRow {
+  id: string;
+  kind: 'ARREST_ALERT';
+  text: string;
+  rearrestText: string;
+  responses: Readonly<Record<'GO_NOW' | 'LATER' | 'CONTINUE' | 'MISSED', CallResponseEffect>>;
+}
+
+export interface DeathSbarRow {
+  id: string;
+  kind: 'DEATH_SBAR';
+  S: string;
+  B: string;
+  A: string;
+  R: string;
+}
+
+export type CallTemplateTableRow = CallTemplateRow | SbarPrefillRow | ArrestAlertRow | DeathSbarRow;
 
 export type ImpressionBand = 'WARM' | 'NEUTRAL' | 'COLD';
 
@@ -465,6 +482,46 @@ export interface DeathStepRow {
 
 export type DeathRow = DeathModelRow | DeathStepRow;
 
+export const FAMILY_SIGNAL_IDS = [
+  'STATES_DEATH',
+  'HINTS_SERIOUS',
+  'CONDOLENCE',
+  'OFFERS_SUPPORT',
+  'EXPLAINS_EVENTS',
+  'BLUNT_OR_COLD',
+  'JARGON',
+] as const;
+export type FamilySignal = (typeof FAMILY_SIGNAL_IDS)[number];
+export type FamilyReaction = 'CONFUSED' | 'SHOCK' | 'GRIEF' | 'ANGER';
+export type FamilyAsk = 'NONE' | 'WHAT_IS_WRONG' | 'WHAT_HAPPENED' | 'WHEN_CAN_VISIT';
+
+export interface FamilyOptionRow {
+  id: string;
+  label: string;
+  line: string;
+  signals: readonly FamilySignal[];
+}
+
+export interface FamilyScenarioRow {
+  id: string;
+  kind: 'SCENARIO';
+  topic: 'DEATH_NOTIFICATION';
+  calleeName: string;
+  pickup: string;
+  closing: string;
+  stages: { OPENING: readonly FamilyOptionRow[]; FOLLOWUP: readonly FamilyOptionRow[] };
+  reactions: readonly {
+    informed: boolean;
+    empathy: number;
+    reaction: FamilyReaction;
+    asks: FamilyAsk;
+  }[];
+  scoring: {
+    empathy: readonly [string | null, string | null, string | null];
+    clarity: readonly [string | null, string | null, string | null];
+  };
+}
+
 export interface EngineTables {
   'case-templates': readonly CaseTemplateRow[];
   'case-fsm': readonly CaseFsmRow[];
@@ -489,6 +546,7 @@ export interface EngineTables {
   'ward-layout': readonly WardLayoutRow[];
   'acls-transitions': readonly AclsRow[];
   'death-process': readonly DeathRow[];
+  'family-scenarios': readonly FamilyScenarioRow[];
 }
 
 export const EMPTY_TABLES: EngineTables = {
@@ -515,4 +573,5 @@ export const EMPTY_TABLES: EngineTables = {
   'ward-layout': [],
   'acls-transitions': [],
   'death-process': [],
+  'family-scenarios': [],
 };

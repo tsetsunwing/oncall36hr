@@ -4,6 +4,8 @@ import type { DeathStepView, DeathView, GameActions } from '@/view';
 export interface DeathFlowPanelProps {
   death: DeathView;
   actions: GameActions;
+  /** 病房模式：開始電話後轉到「電話」分頁 */
+  onOpenPhone?: () => void;
 }
 
 function fieldValue(field: string, death: DeathView, step: DeathStepView): string {
@@ -32,7 +34,7 @@ function fieldValue(field: string, death: DeathView, step: DeathStepView): strin
 /**
  * 死亡流程面板：四步按鈕確認（預填內容來自 case 資料）。全部完成前床位不釋放，並持續扣分。
  */
-export function DeathFlowPanel({ death, actions }: DeathFlowPanelProps) {
+export function DeathFlowPanel({ death, actions, onOpenPhone }: DeathFlowPanelProps) {
   const d = ui.game.death;
   const label = (field: string) => (d.field as Record<string, string>)[field] ?? field;
   return (
@@ -66,6 +68,18 @@ export function DeathFlowPanel({ death, actions }: DeathFlowPanelProps) {
                   {d.done}
                   {step.completedLabel ? ` · ${step.completedLabel}` : ''}
                 </span>
+              ) : step.viaPhone ? (
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  data-testid={`death-call-${step.step}`}
+                  onClick={() => {
+                    actions.startDeathCall(step.step);
+                    onOpenPhone?.();
+                  }}
+                >
+                  {step.step === 'NOTIFY_SENIOR' ? d.callSenior : d.callFamily}
+                </button>
               ) : (
                 <button
                   type="button"

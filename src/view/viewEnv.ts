@@ -10,6 +10,8 @@ export interface ViewEnv {
     chat: { playerTextMaxChars: number };
     gate: { pharmacyName: string };
     phone: { sbarMaxChars: number; transcriptLimit: number };
+    consult: { maxFollowups: number; followupMaxChars: number };
+    family: { maxTurns: number };
     staff: { rankImpression: { start: number } };
     ui: { monitor: { sweepSeconds: number; targetFps: number } };
   };

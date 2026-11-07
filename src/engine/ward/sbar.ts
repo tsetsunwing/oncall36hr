@@ -1,7 +1,7 @@
 /** SBAR 預填：全部由 state 同 T17 SBAR_PREFILL 模板生成，唔係 AI 文字（S-7） */
 import { abnormalOf, patientTokens, vitalTokens } from '../chat/dialogue';
 import { renderTemplate } from '../chat/tokens';
-import type { SbarPrefillRow } from '../case/tables';
+import type { DeathSbarRow, SbarPrefillRow } from '../case/tables';
 import type { EngineContext } from '../core/module';
 import type { GameState } from '../core/state';
 import { composeOrderLabel } from '../orders/label';
@@ -14,12 +14,12 @@ export function sbarPrefillRow(ctx: EngineContext): SbarPrefillRow | undefined {
   return undefined;
 }
 
-export function buildSbarDraft(
+function sbarValues(
   state: GameState,
   patientId: string,
   target: CallTarget,
   ctx: EngineContext,
-): Sbar | undefined {
+): Record<string, string> | undefined {
   const prefill = sbarPrefillRow(ctx);
   const patient = state.patients[patientId];
   if (!prefill || !patient) return undefined;
@@ -37,7 +37,7 @@ export function buildSbarDraft(
       ),
     )
     .join('、');
-  const values: Record<string, string> = {
+  return {
     ...vitalTokens(patient, ctx.tables),
     ...patientTokens(patient),
     'patient.age': String(patient.demographics.age),
@@ -49,6 +49,17 @@ export function buildSbarDraft(
     'patient.abnormal': abnormal.length > 0 ? abnormal : prefill.noAbnormal,
     'target.request': target.kind === 'RANK' ? prefill.RByTarget.RANK : prefill.RByTarget.DEPT,
   };
+}
+
+export function buildSbarDraft(
+  state: GameState,
+  patientId: string,
+  target: CallTarget,
+  ctx: EngineContext,
+): Sbar | undefined {
+  const prefill = sbarPrefillRow(ctx);
+  const values = sbarValues(state, patientId, target, ctx);
+  if (!prefill || !values) return undefined;
   return {
     S: renderTemplate(prefill.S, values),
     B: renderTemplate(prefill.B, values),
@@ -57,8 +68,30 @@ export function buildSbarDraft(
   };
 }
 
-/** 清晰度 0–3：四段齊全＝3；每缺一段降一級；至多得一段＝0 */
-export function sbarClarity(sbar: Sbar): number {
-  const filled = [sbar.S, sbar.B, sbar.A, sbar.R].filter((part) => part.trim().length > 0).length;
-  return Math.max(0, filled - 1);
+/** 死亡後通知上一級：用 T17 DEATH_SBAR 預填，死因同搶救摘要全部由 case／死亡狀態映射 */
+export function buildDeathSbarDraft(
+  state: GameState,
+  patientId: string,
+  target: CallTarget,
+  ctx: EngineContext,
+): Sbar | undefined {
+  const row = ctx.tables['call-templates'].find((r): r is DeathSbarRow => r.kind === 'DEATH_SBAR');
+  const base = sbarValues(state, patientId, target, ctx);
+  const death = state.death;
+  const patient = state.patients[patientId];
+  if (!row || !base || death?.patientId !== patientId || !patient) return undefined;
+  const template = ctx.tables['case-templates'].find((c) => c.id === patient.hidden.caseTemplateId);
+  const values: Record<string, string> = {
+    ...base,
+    'death.cause': template?.deathCause ?? '',
+    'death.cycles': String(death.summary.cycles),
+    'death.shocks': String(death.summary.shocks),
+    'death.drugs': String(death.summary.drugs),
+  };
+  return {
+    S: renderTemplate(row.S, values),
+    B: renderTemplate(row.B, values),
+    A: renderTemplate(row.A, values),
+    R: renderTemplate(row.R, values),
+  };
 }

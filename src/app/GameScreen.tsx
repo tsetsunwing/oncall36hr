@@ -47,11 +47,16 @@ function pickSeed(): string {
   return fromUrl && fromUrl.length > 0 ? fromUrl : `night-${String(Date.now())}`;
 }
 
-/** 開發／測試用：`#/game?case=<template id>` 指定單一病人病例（未知 id 忽略；指定病例時強制單一病人模式） */
-function pickCase(): { caseId: string; ward: false } | Record<string, never> {
-  const requested = hashParams(window.location.hash).get('case');
-  const found = getContent().tables['case-templates'].find((c) => c.id === requested);
-  return found ? { caseId: found.id, ward: false } : {};
+/** 開發／測試用：`#/game?case=<template id>` 指定單一病人病例（未知 id 忽略；指定病例時強制單一病人模式）；`#/game?wardcase=<id>` 則病房模式內有一個病人用該模板 */
+function pickCase():
+  { caseId: string; ward: false } | { wardCaseId: string } | Record<string, never> {
+  const params = hashParams(window.location.hash);
+  const templates = getContent().tables['case-templates'];
+  const requested = params.get('case');
+  const found = templates.find((c) => c.id === requested);
+  if (found) return { caseId: found.id, ward: false };
+  const wardCase = templates.find((c) => c.id === params.get('wardcase'));
+  return wardCase ? { wardCaseId: wardCase.id } : {};
 }
 
 export function GameScreen({ settings, devProxy }: GameScreenProps) {

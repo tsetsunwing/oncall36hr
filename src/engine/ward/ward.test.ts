@@ -3,7 +3,7 @@ import { getConfig } from '@/content';
 import { enqueue } from '../core/eventQueue';
 import type { EngineEvent } from '../core/events';
 import type { GameState, NewGameParams } from '../core/state';
-import { advance, feed, intentEvent, realEngine } from '../test/realEngine';
+import { advance, aiRequests, feed, intentEvent, realEngine } from '../test/realEngine';
 import { plannedCallCount, shiftSeconds } from './generate';
 import type { Call, DelegationTaskId, Rank } from './wardTypes';
 
@@ -52,6 +52,8 @@ function injectCall(
     sbar: null,
     outcome: null,
     lines: [],
+    purpose: 'GENERAL',
+    exchange: null,
     ...overrides,
   };
   return {
@@ -400,8 +402,15 @@ describe('步步上報（S-3）', () => {
 
   it('SBAR 段落被清空令清晰度下降，被叫方唔肯到床邊', () => {
     let state = prepare(engine.init(wardParams('esc-6', 'MO')), 'RES');
-    state = feed(engine, state, [
-      ward('SEND_CALL', { sbar: { S: '', B: '', A: '', R: '' } }),
+    const sent = feed(engine, state, [ward('SEND_CALL', { sbar: { S: '', B: '', A: '', R: '' } })]);
+    const request = aiRequests(sent.effects).find((r) => r.kind === 'consult.assess');
+    expect(request).toBeDefined();
+    state = feed(engine, sent.state, [
+      {
+        type: 'AI_RESULT',
+        reqId: request?.reqId ?? '',
+        payload: { parts: { S: [], B: [], A: [], R: [] }, quoted: [], tone: 'NEUTRAL' },
+      },
     ]).state;
     const out = state.ward.calls.find((c) => c.direction === 'OUT');
     expect(out?.outcome).toBe('REFUSE');
@@ -667,5 +676,17 @@ describe('確定性', () => {
       return JSON.stringify(advance(engine, state, 36000).state);
     };
     expect(run()).toBe(run());
+  });
+});
+
+describe('wardCaseId：指定一個病人用某個 case 模板', () => {
+  it('病房有指定模板嘅病人；未知 id 忽略；同 seed 決定性', () => {
+    const forced = engine.init({ ...wardParams('forced'), wardCaseId: 'terminal-01' });
+    const templates = Object.values(forced.patients).map((p) => p.hidden.caseTemplateId);
+    expect(templates).toContain('terminal-01');
+    const again = engine.init({ ...wardParams('forced'), wardCaseId: 'terminal-01' });
+    expect(JSON.stringify(again)).toBe(JSON.stringify(forced));
+    const unknown = engine.init({ ...wardParams('forced'), wardCaseId: 'no-such' });
+    expect(Object.keys(unknown.patients)).toEqual(Object.keys(forced.patients));
   });
 });

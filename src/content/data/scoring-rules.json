@@ -112,5 +112,45 @@
     "subscore": "TIMELINESS",
     "delta": -1,
     "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "SBAR_INACCURATE",
+    "subscore": "COMMUNICATION",
+    "delta": -2,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "SBAR_RUDE",
+    "subscore": "COMMUNICATION",
+    "delta": -2,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "impression": {
+      "target": "CALLEE",
+      "delta": -4
+    }
+  },
+  {
+    "id": "FAMILY_EMPATHIC",
+    "subscore": "COMMUNICATION",
+    "delta": 2,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "FAMILY_COLD",
+    "subscore": "COMMUNICATION",
+    "delta": -3,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "FAMILY_CLEAR",
+    "subscore": "COMMUNICATION",
+    "delta": 1,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "FAMILY_VAGUE",
+    "subscore": "COMMUNICATION",
+    "delta": -1,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
   }
 ]

@@ -1,1 +1,102 @@
-[]
+[
+  {
+    "id": "family.death-notification",
+    "kind": "SCENARIO",
+    "topic": "DEATH_NOTIFICATION",
+    "calleeName": "家屬",
+    "pickup": "喂？邊位呀？",
+    "closing": "好，我明白，我稍後返嚟醫院。多謝你。",
+    "stages": {
+      "OPENING": [
+        {
+          "id": "direct",
+          "label": "直接告知病人已離世",
+          "line": "我係值班醫生。{{patient.name}}搶救無效，已經離世，我真係好遺憾。",
+          "signals": ["STATES_DEATH", "CONDOLENCE"]
+        },
+        {
+          "id": "gentle",
+          "label": "先表達關心，再慢慢說明",
+          "line": "唔好意思咁夜打擾你，我要同你講個壞消息。{{patient.name}}今晚我哋盡力搶救，但係佢最後都走咗，我真係好難過，你而家方唔方便聽我講多幾句？",
+          "signals": ["STATES_DEATH", "CONDOLENCE", "EXPLAINS_EVENTS", "OFFERS_SUPPORT"]
+        },
+        {
+          "id": "vague",
+          "label": "只請家屬盡快回醫院",
+          "line": "{{patient.name}}情況唔係幾好，你可唔可以盡快嚟醫院一趟？",
+          "signals": ["HINTS_SERIOUS"]
+        },
+        {
+          "id": "cold",
+          "label": "簡短告知並要求辦手續",
+          "line": "{{patient.name}}死咗，你嚟醫院認人同簽文件。",
+          "signals": ["STATES_DEATH", "BLUNT_OR_COLD"]
+        }
+      ],
+      "FOLLOWUP": [
+        {
+          "id": "explain",
+          "label": "簡單說明搶救經過",
+          "line": "我哋即時做咗 CPR 同 defibrillation，用盡所有方法，但係佢個心始終冇返嚟。",
+          "signals": ["EXPLAINS_EVENTS"]
+        },
+        {
+          "id": "visit",
+          "label": "安排家屬見最後一面",
+          "line": "你返到嚟醫院，護士會安排你見佢最後一面，唔使急，慢慢嚟。",
+          "signals": ["OFFERS_SUPPORT", "CONDOLENCE"]
+        },
+        {
+          "id": "brush-off",
+          "label": "請家屬自行處理手續",
+          "line": "之後啲手續你自己問櫃檯啦，我仲有好多嘢做。",
+          "signals": ["BLUNT_OR_COLD"]
+        }
+      ]
+    },
+    "reactions": [
+      {
+        "informed": false,
+        "empathy": 0,
+        "reaction": "CONFUSED",
+        "asks": "WHAT_IS_WRONG"
+      },
+      {
+        "informed": false,
+        "empathy": 1,
+        "reaction": "CONFUSED",
+        "asks": "WHAT_IS_WRONG"
+      },
+      {
+        "informed": false,
+        "empathy": 2,
+        "reaction": "CONFUSED",
+        "asks": "WHAT_IS_WRONG"
+      },
+      {
+        "informed": true,
+        "empathy": 0,
+        "reaction": "ANGER",
+        "asks": "WHAT_HAPPENED"
+      },
+      {
+        "informed": true,
+        "empathy": 1,
+        "reaction": "SHOCK",
+        "asks": "WHAT_HAPPENED"
+      },
+      {
+        "informed": true,
+        "empathy": 2,
+        "reaction": "GRIEF",
+        "asks": "WHEN_CAN_VISIT"
+      }
+    ],
+    "scoring": {
+      "empathy": ["FAMILY_COLD", null, "FAMILY_EMPATHIC"],
+      "clarity": ["FAMILY_VAGUE", "FAMILY_VAGUE", "FAMILY_CLEAR"]
+    },
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位內容：措辭、反應同分值未經臨床／溝通審核（implementation-plan R6）。"
+  }
+]

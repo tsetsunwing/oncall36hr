@@ -218,6 +218,12 @@ const REQUIRED_RULES: readonly string[] = [
   'CONSULT_POOR',
   'DELEGATION_FAILED',
   'CALL_DELEGATED_OK',
+  'SBAR_INACCURATE',
+  'SBAR_RUDE',
+  'FAMILY_EMPATHIC',
+  'FAMILY_COLD',
+  'FAMILY_CLEAR',
+  'FAMILY_VAGUE',
 ];
 
 function validateWardRefs(
@@ -233,7 +239,7 @@ function validateWardRefs(
   }
 
   tables['call-templates'].forEach((row, i) => {
-    if (row.kind !== 'CALL') return;
+    if (row.kind !== 'CALL' && row.kind !== 'ARREST_ALERT') return;
     for (const [response, effect] of Object.entries(row.responses)) {
       for (const event of effect.events) {
         if (!ruleIds.has(event)) {
@@ -245,6 +251,7 @@ function validateWardRefs(
         }
       }
     }
+    if (row.kind !== 'CALL') return;
     for (const dept of row.deptPool ?? []) {
       if (!deptIds.has(dept)) {
         add('call-templates', `${String(i)}.deptPool`, `未知 consult-departments：${dept}`);
@@ -259,6 +266,16 @@ function validateWardRefs(
       `必須剛好一個 SBAR_PREFILL 模板（現有 ${String(prefills.length)}）`,
     );
   }
+
+  const singleton = (kind: 'ARREST_ALERT' | 'DEATH_SBAR') => {
+    const count = tables['call-templates'].filter((r) => r.kind === kind).length;
+    if (tables['call-templates'].length > 0 && count !== 1) {
+      add('call-templates', kind, `必須剛好一個 ${kind} 模板（現有 ${String(count)}）`);
+    }
+  };
+  singleton('ARREST_ALERT');
+  singleton('DEATH_SBAR');
+  validateFamilyRefs(tables, ruleIds, add);
 
   tables['delegation-results'].forEach((row, i) => {
     row.items.forEach((item, j) => {
@@ -436,4 +453,41 @@ function validateAcls(
       if (count !== 1) add('death-process', '(根)', `步驟 ${step} 必須有且只有一列`);
     }
   }
+}
+
+function validateFamilyRefs(
+  tables: Tables,
+  ruleIds: ReadonlySet<string>,
+  add: (table: string, path: string, message: string) => void,
+) {
+  const scenarios = tables['family-scenarios'];
+  if (scenarios.length === 0) return;
+  scenarios.forEach((row, i) => {
+    const at = (path: string) => `${String(i)}.${path}`;
+    for (const stage of ['OPENING', 'FOLLOWUP'] as const) {
+      const ids = row.stages[stage].map((o) => o.id);
+      if (new Set(ids).size !== ids.length) {
+        add('family-scenarios', at(`stages.${stage}`), '選項 id 重複');
+      }
+    }
+    for (const group of ['empathy', 'clarity'] as const) {
+      for (const ruleId of row.scoring[group]) {
+        if (ruleId !== null && !ruleIds.has(ruleId)) {
+          add('family-scenarios', at(`scoring.${group}`), `未知 scoring-rules：${ruleId}`);
+        }
+      }
+    }
+    for (const informed of [false, true]) {
+      for (const empathy of [0, 1, 2]) {
+        const hits = row.reactions.filter((r) => r.informed === informed && r.empathy === empathy);
+        if (hits.length !== 1) {
+          add(
+            'family-scenarios',
+            at('reactions'),
+            `informed=${String(informed)}、empathy=${String(empathy)} 必須剛好一行（現有 ${String(hits.length)}）`,
+          );
+        }
+      }
+    }
+  });
 }

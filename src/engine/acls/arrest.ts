@@ -15,6 +15,7 @@ import { rngChance } from '../core/rng';
 import type { GameState } from '../core/state';
 import { logEvent } from '../log/log';
 import { addLedger } from '../score/ledger';
+import { raiseArrestCall } from '../ward/arrestCall';
 import {
   aclsModelOf,
   aclsRhythmRowOf,
@@ -218,7 +219,11 @@ export function beginArrest(
     rhythmTokens(rhythm, rhythmId),
     ctx,
   );
-  return { state: spoke.state, effects: [...interrupted.effects, ...spoke.effects] };
+  const called = raiseArrestCall(spoke.state, patientId, options.rearrest, ctx);
+  return {
+    state: called.state,
+    effects: [...interrupted.effects, ...spoke.effects, ...called.effects],
+  };
 }
 
 export function startOrResumeCpr(

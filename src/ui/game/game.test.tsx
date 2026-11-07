@@ -26,6 +26,11 @@ function makeActions() {
     discardCall: vi.fn(),
     delegate: vi.fn(),
     completeDeathStep: vi.fn(),
+    sendFollowup: vi.fn(),
+    endCall: vi.fn(),
+    familyOption: vi.fn(),
+    familySay: vi.fn(),
+    startDeathCall: vi.fn(),
   } satisfies GameActions;
 }
 

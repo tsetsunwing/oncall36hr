@@ -9,71 +9,39 @@ import type {
   CallResponseEffect,
   CallTemplateRow,
   CaseTemplateRow,
-  ConsultDepartmentRow,
   Priority,
 } from '../case/tables';
-import { enqueue } from '../core/eventQueue';
-import type { Effect, Reduction } from '../core/events';
+import type { Reduction } from '../core/events';
 import type { EngineContext } from '../core/module';
 import type { GameState } from '../core/state';
+import {
+  callTemplates,
+  CALL_EXPIRE_EVENT,
+  CALL_RING_AGAIN_EVENT,
+  findCall,
+  notice,
+  putCall,
+  responsesOf,
+  scheduleCallEvent,
+} from './callStore';
 import { bedsOf } from './generate';
 import { addPatientFlag, moveTo, patientAtBed } from './movement';
 import { nurseForBed } from './nurses';
 import { RngCursor } from './rngCursor';
-import { sbarClarity } from './sbar';
-import { applyRule, impressionBand, impressionOf } from './scoring';
+import { applyRule } from './scoring';
 import { buildChat } from './generateChat';
-import {
-  RANKS,
-  type Call,
-  type CallLine,
-  type CallResponse,
-  type CallTarget,
-  type Rank,
-  type Sbar,
-} from './wardTypes';
+import { type Call, type CallLine, type CallResponse, type Rank } from './wardTypes';
 
-export const CALL_EXPIRE_EVENT = 'CALL_EXPIRE';
-export const CALL_RING_AGAIN_EVENT = 'CALL_RING_AGAIN';
-export const CONSULT_ARRIVAL_EVENT = 'CONSULT_ARRIVAL';
-export const CALL_EVENT_PRIORITY = 20;
+export {
+  CALL_EVENT_PRIORITY,
+  CALL_EXPIRE_EVENT,
+  CALL_RING_AGAIN_EVENT,
+  CONSULT_ARRIVAL_EVENT,
+  callTemplates,
+  findCall,
+} from './callStore';
 
-const notice = (
-  kind: Extract<Effect, { type: 'NOTICE' }>['kind'],
-  tone: 'info' | 'warn' = 'warn',
-): Effect => ({
-  type: 'NOTICE',
-  kind,
-  tone,
-});
-
-export function callTemplates(ctx: EngineContext): CallTemplateRow[] {
-  return ctx.tables['call-templates'].filter((r): r is CallTemplateRow => r.kind === 'CALL');
-}
-
-function putCall(state: GameState, call: Call): GameState {
-  const exists = state.ward.calls.some((c) => c.id === call.id);
-  return {
-    ...state,
-    ward: {
-      ...state.ward,
-      calls: exists
-        ? state.ward.calls.map((c) => (c.id === call.id ? call : c))
-        : [...state.ward.calls, call],
-    },
-  };
-}
-
-export function findCall(state: GameState, callId: string): Call | undefined {
-  return state.ward.calls.find((c) => c.id === callId);
-}
-
-function schedule(state: GameState, time: number, kind: string, payload: Record<string, string>) {
-  return {
-    ...state,
-    scheduler: enqueue(state.scheduler, { time, priority: CALL_EVENT_PRIORITY, kind, payload }),
-  };
-}
+const schedule = scheduleCallEvent;
 
 function worstPatientId(state: GameState): string | null {
   let best: string | null = null;
@@ -249,6 +217,8 @@ export function handleCallArrival(state: GameState, ctx: EngineContext): Reducti
       : null,
     outcome: null,
     lines: [line],
+    purpose: 'GENERAL',
+    exchange: null,
   };
   next = {
     ...next,
@@ -301,8 +271,8 @@ export function respondToCall(
   if (call.status !== 'RINGING' && call.status !== 'DEFERRED') {
     return { state, effects: [notice('CALL_NOT_ACTIVE')] };
   }
-  const row = callTemplates(ctx).find((r) => r.id === call.templateId);
-  if (!row) return { state, effects: [] };
+  const responses = responsesOf(ctx, call.templateId);
+  if (!responses) return { state, effects: [] };
   const t = state.clock.t;
   const playerLine: CallLine = {
     t,
@@ -318,7 +288,7 @@ export function respondToCall(
       return missCall(state, { ...call, lines: [...call.lines, playerLine] }, ctx);
     }
     const ringAgainAt = t + ctx.config.phone.laterDelaySec;
-    let next = applyResponseEffect(state, call, row.responses.LATER, ctx);
+    let next = applyResponseEffect(state, call, responses.LATER, ctx);
     next = putCall(next, {
       ...call,
       status: 'DEFERRED',
@@ -331,7 +301,7 @@ export function respondToCall(
     return { state: next, effects: [] };
   }
 
-  const effect = row.responses[response];
+  const effect = responses[response];
   let next = applyResponseEffect(state, call, effect, ctx);
   next = putCall(next, {
     ...call,
@@ -348,9 +318,9 @@ export function respondToCall(
 }
 
 export function missCall(state: GameState, call: Call, ctx: EngineContext): Reduction {
-  const row = callTemplates(ctx).find((r) => r.id === call.templateId);
+  const responses = responsesOf(ctx, call.templateId);
   let next = state;
-  if (row) next = applyResponseEffect(next, call, row.responses.MISSED, ctx);
+  if (responses) next = applyResponseEffect(next, call, responses.MISSED, ctx);
   next = putCall(next, {
     ...call,
     status: 'MISSED',
@@ -386,221 +356,4 @@ export function handleRingAgain(state: GameState, callId: string, ctx: EngineCon
     ctx,
   );
   return { state: next, effects: [notice('CALL_RINGING', 'info')] };
-}
-
-// ---------- 上報（步步上報＋SBAR）同會診 ----------
-
-const RANK_ORDER = RANKS;
-
-/** 玩家以上嘅職級（可以致電） */
-export function reachableRanks(playerRank: string): Rank[] {
-  const index = RANK_ORDER.indexOf(playerRank as Rank);
-  return index < 0 ? [] : RANK_ORDER.slice(index + 1);
-}
-
-export function skippedRanks(state: GameState, patientId: string, target: Rank): Rank[] {
-  const start = RANK_ORDER.indexOf(state.playerRank);
-  const end = RANK_ORDER.indexOf(target);
-  const contacted = state.ward.contacts[patientId] ?? [];
-  return RANK_ORDER.slice(start + 1, end).filter((rank) => !contacted.includes(rank));
-}
-
-export function urgencyOf(state: GameState, patientId: string, ctx: EngineContext): Priority {
-  const patient = state.patients[patientId];
-  const bands = ctx.tables.mews[0]?.bands ?? [];
-  const index = bands.findIndex((b) => b.id === patient?.visible.mews.band);
-  if (index >= 3) return 'EMERGENCY';
-  if (index === 2) return 'URGENT';
-  return 'ROUTINE';
-}
-
-function deptOf(ctx: EngineContext, deptId: string): ConsultDepartmentRow | undefined {
-  return ctx.tables['consult-departments'].find((d) => d.id === deptId);
-}
-
-export function targetValid(state: GameState, target: CallTarget, ctx: EngineContext): boolean {
-  if (target.kind === 'RANK') return reachableRanks(state.playerRank).includes(target.rank);
-  return deptOf(ctx, target.deptId) !== undefined;
-}
-
-export function sendEscalation(state: GameState, sbar: Sbar, ctx: EngineContext): Reduction {
-  const draft = state.ward.draft;
-  if (!draft) return { state, effects: [notice('SBAR_INVALID')] };
-  const max = ctx.config.phone.sbarMaxChars;
-  if ([sbar.S, sbar.B, sbar.A, sbar.R].some((part) => part.length > max)) {
-    return { state, effects: [notice('SBAR_INVALID')] };
-  }
-  const { patientId, target } = draft;
-  const patient = state.patients[patientId];
-  if (!patient || !targetValid(state, target, ctx)) {
-    return { state, effects: [notice('CALL_TARGET_INVALID')] };
-  }
-
-  const t = state.clock.t;
-  const clarity = sbarClarity(sbar);
-  const id = `k${String(state.ward.counters.call + 1)}`;
-  let next: GameState = {
-    ...state,
-    ward: {
-      ...state.ward,
-      draft: null,
-      counters: { ...state.ward.counters, call: state.ward.counters.call + 1 },
-    },
-  };
-  const lines: CallLine[] = (['S', 'B', 'A', 'R'] as const).map((key) => ({
-    t,
-    speaker: 'PLAYER',
-    name: key,
-    template: sbar[key],
-    tokenValues: {},
-  }));
-  const effects: Effect[] = [];
-  let outcome: string;
-  let calleeName = '';
-  let calleeRank: Rank | null = null;
-  let arrivalDelay: number | null = null;
-
-  if (target.kind === 'RANK') {
-    calleeRank = target.rank;
-    calleeName = target.rank;
-    const skipped = skippedRanks(next, patientId, target.rank);
-    next = applyRule(
-      next,
-      skipped.length > 0 ? 'ESCALATION_SKIPPED_LEVEL' : 'ESCALATION_STEP_OK',
-      ctx,
-      { skipped, callId: id, patientId },
-    );
-    const contacted = next.ward.contacts[patientId] ?? [];
-    next = {
-      ...next,
-      ward: {
-        ...next.ward,
-        contacts: {
-          ...next.ward.contacts,
-          [patientId]: contacted.includes(target.rank) ? contacted : [...contacted, target.rank],
-        },
-      },
-    };
-    const behaviour = ctx.tables['rank-behaviour'].find((r) => r.id === target.rank);
-    const band = impressionBand(impressionOf(next, target.rank, ctx), ctx);
-    const rule = behaviour?.bands[band];
-    if (!rule) {
-      outcome = 'REFUSE';
-    } else if (clarity >= rule.bedsideMinClarity) {
-      outcome = 'BEDSIDE';
-      arrivalDelay = rule.reactionSec;
-    } else if (clarity >= rule.adviceMinClarity) {
-      outcome = 'ADVICE';
-    } else {
-      outcome = 'REFUSE';
-    }
-  } else {
-    const dept = deptOf(ctx, target.deptId);
-    calleeName = dept?.label ?? '';
-    if (!dept || clarity < dept.acceptMinClarity) {
-      outcome = 'REFUSE';
-    } else if (dept.kind === 'ICU' && dept.icu) {
-      outcome = 'ICU_ASSESS';
-      arrivalDelay = dept.icu.assessSec;
-    } else {
-      const urgency = urgencyOf(next, patientId, ctx);
-      if (dept.bedsideByUrgency[urgency] === 'BEDSIDE') {
-        outcome = 'BEDSIDE';
-        arrivalDelay = dept.reactionSec.BEDSIDE;
-      } else {
-        outcome = 'ADVICE';
-      }
-    }
-  }
-
-  if (clarity >= 3) {
-    next = applyRule(next, target.kind === 'RANK' ? 'SBAR_GOOD' : 'CONSULT_GOOD', ctx, {
-      callee: calleeRank,
-      callId: id,
-      patientId,
-    });
-  } else if (clarity <= 1) {
-    next = applyRule(next, target.kind === 'RANK' ? 'SBAR_POOR' : 'CONSULT_POOR', ctx, {
-      callee: calleeRank,
-      callId: id,
-      patientId,
-    });
-  }
-  if (outcome === 'ADVICE' && target.kind === 'RANK') {
-    next = addPatientFlag(next, patientId, 'senior.advised');
-  } else if (outcome === 'ADVICE') {
-    next = addPatientFlag(next, patientId, 'dept.advised');
-  }
-  if (outcome === 'REFUSE') effects.push(notice('CONSULT_REFUSED'));
-
-  const call: Call = {
-    id,
-    templateId: 'OUTGOING',
-    direction: 'OUT',
-    tag: 'OUTGOING',
-    priority: urgencyOf(next, patientId, ctx),
-    callerName: calleeName,
-    callerRank: calleeRank,
-    patientId,
-    deptId: target.kind === 'DEPT' ? target.deptId : null,
-    target,
-    status: 'DONE',
-    resolution: 'SENT',
-    arrivedAt: t,
-    expiresAt: t,
-    ringAgainAt: null,
-    defers: 0,
-    delegable: false,
-    sbar,
-    outcome,
-    lines: [
-      ...lines,
-      { t, speaker: 'CALLEE', name: calleeName, template: `@CALLEE_${outcome}`, tokenValues: {} },
-    ],
-  };
-  next = putCall(next, call);
-  if (arrivalDelay !== null) {
-    next = schedule(next, t + arrivalDelay, CONSULT_ARRIVAL_EVENT, { callId: id });
-  }
-  return { state: next, effects };
-}
-
-/** 被叫方到達床邊（或 ICU 評估完成） */
-export function handleConsultArrival(
-  state: GameState,
-  callId: string,
-  ctx: EngineContext,
-): Reduction {
-  const call = findCall(state, callId);
-  if (call?.direction !== 'OUT' || !call.patientId || !call.target) return { state, effects: [] };
-  const patient = state.patients[call.patientId];
-  if (!patient) return { state, effects: [] };
-  const t = state.clock.t;
-  let outcome = call.outcome ?? 'BEDSIDE';
-  let next = state;
-  if (outcome === 'ICU_ASSESS') {
-    const dept = call.deptId ? deptOf(ctx, call.deptId) : undefined;
-    const mewsMin = dept?.icu?.mewsMin ?? Number.POSITIVE_INFINITY;
-    outcome = patient.visible.mews.score >= mewsMin ? 'ICU_ACCEPT' : 'ICU_DECLINE';
-    if (outcome === 'ICU_ACCEPT') next = addPatientFlag(next, patient.id, 'icu.accepted');
-  } else if (call.target.kind === 'RANK') {
-    next = addPatientFlag(next, patient.id, 'senior.reviewed');
-  } else {
-    next = addPatientFlag(next, patient.id, 'dept.reviewed');
-  }
-  next = putCall(next, {
-    ...call,
-    outcome,
-    lines: [
-      ...call.lines,
-      {
-        t,
-        speaker: 'CALLEE',
-        name: call.callerName,
-        template: `@ARRIVED_${outcome}`,
-        tokenValues: {},
-      },
-    ],
-  });
-  return { state: next, effects: [notice('CONSULT_ARRIVED', 'info')] };
 }

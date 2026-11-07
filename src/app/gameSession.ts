@@ -196,6 +196,21 @@ export function createGameSession(options: GameSessionOptions): GameSession {
     discardCall() {
       wardIntent('DISCARD_CALL', {});
     },
+    sendFollowup(callId, text) {
+      wardIntent('SEND_FOLLOWUP', { callId, text });
+    },
+    endCall(callId) {
+      wardIntent('END_CALL', { callId });
+    },
+    familyOption(callId, optionId) {
+      wardIntent('FAMILY_OPTION', { callId, optionId });
+    },
+    familySay(callId, text) {
+      wardIntent('FAMILY_SAY', { callId, text });
+    },
+    startDeathCall(step) {
+      wardIntent('START_DEATH_CALL', { step });
+    },
     delegate(request) {
       wardIntent('DELEGATE', request);
     },

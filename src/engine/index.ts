@@ -176,7 +176,7 @@ export {
 export { wardModule } from './ward/wardModule';
 export { subordinateOrderModule } from './ward/delegation';
 export { nurseForBed } from './ward/nurses';
-export { reachableRanks, skippedRanks } from './ward/calls';
+export { reachableRanks, skippedRanks } from './ward/consult';
 export { plannedCallCount, shiftSeconds } from './ward/generate';
 export {
   CALL_RESPONSES,

@@ -60,10 +60,10 @@ describe('死亡流程', () => {
     expect(JSON.stringify(s.state.death)).toBe(snapshot);
   });
 
-  it('通知對象 ＝ 上一級（HO→MO、MO→RES、RES→CONSULTANT）', () => {
+  it('通知對象 ＝ 上一級（HO→MO、MO→RES、RES→AC）', () => {
     expect(died('d-ho', 'HO').state.death?.seniorRank).toBe('MO');
     expect(died('d-mo', 'MO').state.death?.seniorRank).toBe('RES');
-    expect(died('d-res', 'RES').state.death?.seniorRank).toBe('CONSULTANT');
+    expect(died('d-res', 'RES').state.death?.seniorRank).toBe('AC');
   });
 
   it('同 seed 同流程完全一樣（確定性）', () => {

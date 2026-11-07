@@ -3,6 +3,7 @@ import { dialogue, ui } from '@/i18n';
 import type {
   CallLineView,
   CallRowView,
+  FamilyCallView,
   GameActions,
   LadderStepView,
   PhoneView,
@@ -51,6 +52,144 @@ export function CallTranscript({ lines, testId }: { lines: CallLineView[]; testI
   );
 }
 
+function ExchangePane({ call, actions }: { call: CallRowView; actions: GameActions }) {
+  const x = ui.game.ward.phone.exchange;
+  const f = ui.game.ward.phone.family;
+  const exchange = call.exchange;
+  const [followup, setFollowup] = useState('');
+  const [say, setSay] = useState('');
+  if (!exchange) return null;
+  const family: FamilyCallView | null = exchange.family;
+  return (
+    <div className="exchange" data-testid="exchange" data-phase={exchange.phase}>
+      <p
+        className="exchange-status"
+        role="status"
+        aria-live="polite"
+        data-testid="exchange-waiting"
+      >
+        {exchange.waiting ? x.waiting : ''}
+      </p>
+      {exchange.clarity !== null ? (
+        <p data-testid="exchange-clarity" data-clarity={exchange.clarity}>
+          {x.clarityLabel}：{x.clarity[exchange.clarity] ?? ''}
+        </p>
+      ) : null}
+      {exchange.phase === 'OPEN' && exchange.asks.length > 0 ? (
+        <div data-testid="exchange-asks">
+          <p>{x.asksHeading}</p>
+          <ul>
+            {exchange.asks.map((id) => (
+              <li key={id} data-ask={id}>
+                {x.ask[id] ?? id}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+      {exchange.canFollowUp ? (
+        <div className="field exchange-followup">
+          <label htmlFor={`followup-${call.id}`}>{x.followupLabel}</label>
+          <textarea
+            id={`followup-${call.id}`}
+            data-testid="followup-text"
+            rows={3}
+            maxLength={exchange.followupMaxChars}
+            value={followup}
+            onChange={(event) => {
+              setFollowup(event.target.value);
+            }}
+          />
+          <div className="call-actions">
+            <button
+              type="button"
+              className="btn btn-primary"
+              data-testid="followup-send"
+              disabled={followup.trim().length === 0}
+              onClick={() => {
+                actions.sendFollowup(call.id, followup);
+                setFollowup('');
+              }}
+            >
+              {x.followupSend}
+            </button>
+            <span className="muted">{x.followupsLeft(exchange.followupsLeft)}</span>
+          </div>
+        </div>
+      ) : null}
+      {family?.canSay ? (
+        <div className="exchange-family" data-testid="family-controls" data-stage={family.stage}>
+          <p>{family.stage === 'OPENING' ? f.openingHeading : f.followupHeading}</p>
+          <div className="call-actions" role="group" aria-label={f.openingHeading}>
+            {family.options.map((option) => (
+              <button
+                key={option.id}
+                type="button"
+                className="btn"
+                data-testid={`family-option-${option.id}`}
+                onClick={() => {
+                  actions.familyOption(call.id, option.id);
+                }}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+          <div className="field">
+            <label htmlFor={`family-say-${call.id}`}>{f.sayLabel}</label>
+            <textarea
+              id={`family-say-${call.id}`}
+              data-testid="family-say-text"
+              rows={2}
+              maxLength={family.maxChars}
+              value={say}
+              onChange={(event) => {
+                setSay(event.target.value);
+              }}
+            />
+            <div className="call-actions">
+              <button
+                type="button"
+                className="btn btn-primary"
+                data-testid="family-say"
+                disabled={say.trim().length === 0}
+                onClick={() => {
+                  actions.familySay(call.id, say);
+                  setSay('');
+                }}
+              >
+                {f.say}
+              </button>
+              <span className="muted">{f.turnsLeft(family.turnsLeft)}</span>
+            </div>
+          </div>
+        </div>
+      ) : null}
+      {family?.informed ? (
+        <p className="muted" data-testid="family-informed">
+          {f.informed}
+        </p>
+      ) : null}
+      {exchange.canHangUp ? (
+        <button
+          type="button"
+          className="btn"
+          data-testid="hang-up"
+          onClick={() => {
+            actions.endCall(call.id);
+          }}
+        >
+          {x.hangUp}
+        </button>
+      ) : exchange.phase === 'CLOSED' ? (
+        <p className="muted" data-testid="exchange-ended">
+          {x.ended}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
 function CallDetail({
   call,
   actions,
@@ -74,6 +213,11 @@ function CallDetail({
           {p.status[call.status]}
         </span>
       </p>
+      {call.purpose !== 'GENERAL' ? (
+        <p className="muted" data-testid="call-purpose">
+          {p.purpose[call.purpose] ?? ''}
+        </p>
+      ) : null}
       <p className="call-from">
         {call.callerName.length > 0 ? `${p.callerLabel}：${call.callerName}` : p.tag[call.tag]}
         {call.bed !== null ? ` ${p.bed(call.bed)} ${call.patientName ?? ''}` : ''}
@@ -89,7 +233,8 @@ function CallDetail({
           ))}
         </dl>
       ) : null}
-      <CallTranscript lines={call.lines} />
+      <CallTranscript lines={call.lines} testId="call-lines" />
+      <ExchangePane key={call.id} call={call} actions={actions} />
       {call.canRespond ? (
         <div className="call-actions" role="group" aria-label={p.respondGroup}>
           <button
@@ -207,8 +352,15 @@ export function PhonePanel({ ward, actions, currentPatientId, onDelegateCall }: 
     if (currentPatientId) setPatientId(currentPatientId);
   }
 
+  const [prevFocus, setPrevFocus] = useState(phone.focusCallId);
+  if (prevFocus !== phone.focusCallId) {
+    setPrevFocus(phone.focusCallId);
+    if (phone.focusCallId) setSelected(phone.focusCallId);
+  }
+
   const call =
     phone.calls.find((c) => c.id === selected) ??
+    phone.calls.find((c) => c.id === phone.focusCallId) ??
     phone.calls.find((c) => c.status === 'RINGING') ??
     phone.calls[0] ??
     null;
@@ -259,7 +411,9 @@ export function PhonePanel({ ward, actions, currentPatientId, onDelegateCall }: 
                     <span className="call-row-text" lang="yue-Hant-HK">
                       {c.direction === 'IN'
                         ? c.text
-                        : `${p.tag.OUTGOING}：${c.deptLabel ?? c.callerName}`}
+                        : c.tag === 'FAMILY'
+                          ? `${p.tag.FAMILY}：${c.patientName ?? ''}`
+                          : `${p.tag.OUTGOING}：${c.deptLabel ?? c.callerName}`}
                     </span>
                   </button>
                 </li>

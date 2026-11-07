@@ -112,6 +112,7 @@ export function selectDeath(
         done: completedAt !== null,
         completedLabel: completedAt === null ? null : clockLabel(completedAt),
         fields: [...(rows.find((r) => r.step === step)?.fields ?? [])],
+        viaPhone: state.ward.enabled && (step === 'NOTIFY_SENIOR' || step === 'PHONE_FAMILY'),
       };
     }),
     delayCharges: death.delayCharges,

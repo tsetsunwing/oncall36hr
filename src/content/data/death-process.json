@@ -8,7 +8,7 @@
     "seniorByRank": {
       "HO": "MO",
       "MO": "RES",
-      "RES": "CONSULTANT"
+      "RES": "AC"
     },
     "scoring": {
       "death": {

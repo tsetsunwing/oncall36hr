@@ -16,6 +16,10 @@ export const deathModule: EngineModule = {
         ? payload.step
         : undefined;
     if (!isDeathStep(step)) return { state, effects: [] };
+    const viaPhone = step === 'NOTIFY_SENIOR' || step === 'PHONE_FAMILY';
+    if (viaPhone && state.ward.enabled) {
+      return { state, effects: [{ type: 'NOTICE', kind: 'DEATH_STEP_VIA_PHONE', tone: 'warn' }] };
+    }
     return completeDeathStep(state, step);
   },
 

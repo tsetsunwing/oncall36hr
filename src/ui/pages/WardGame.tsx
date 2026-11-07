@@ -65,7 +65,15 @@ export function WardGame({ view, ward, actions }: WardGameProps) {
             actions={actions}
           />
         ) : null}
-        {view.death ? <DeathFlowPanel death={view.death} actions={actions} /> : null}
+        {view.death ? (
+          <DeathFlowPanel
+            death={view.death}
+            actions={actions}
+            onOpenPhone={() => {
+              setTab('phone');
+            }}
+          />
+        ) : null}
         <div className="ward-toolbar">
           <div className="tabs" role="tablist" aria-label={w.tabs.label}>
             <button

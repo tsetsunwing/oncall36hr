@@ -428,5 +428,43 @@
     "noAllergy": "沒有已知過敏",
     "noOrders": "暫時沒有",
     "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "ARREST_ALERT",
+    "kind": "ARREST_ALERT",
+    "text": "醫生！{{patient.bed}} 床{{patient.name}}冇反應、冇脈搏，我哋已經開始壓胸，你即刻過嚟！",
+    "rearrestText": "醫生！{{patient.bed}} 床{{patient.name}}心跳再次停咗，我哋已經繼續壓胸，你即刻過嚟！",
+    "responses": {
+      "GO_NOW": {
+        "events": ["CALL_GO_NOW"],
+        "setFlags": [],
+        "goToBed": true
+      },
+      "LATER": {
+        "events": ["CALL_LATER"],
+        "setFlags": [],
+        "goToBed": false
+      },
+      "CONTINUE": {
+        "events": ["CALL_CONTINUE"],
+        "setFlags": ["unattended_call"],
+        "goToBed": false
+      },
+      "MISSED": {
+        "events": ["CALL_MISSED"],
+        "setFlags": ["unattended_call"],
+        "goToBed": false
+      }
+    },
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "DEATH_SBAR",
+    "kind": "DEATH_SBAR",
+    "S": "{{patient.bed}} 床{{patient.name}}，{{patient.age}}{{patient.sex}}，剛才宣佈死亡，我依足程序通知你。",
+    "B": "死因（暫定）：{{death.cause}}。過敏：{{patient.allergies}}。",
+    "A": "搶救經過：{{death.cycles}} 輪 rhythm check、{{death.shocks}} 次電擊、{{death.drugs}} 項藥物，最終未能恢復心跳。",
+    "R": "請你知悉，並指示是否有其他跟進。我會繼續完成死亡證明同通知家屬。",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
   }
 ]
