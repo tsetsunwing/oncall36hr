@@ -34,9 +34,11 @@ describe('content loader', () => {
     'energy-config',
     'self-care-actions',
     'endings',
+    'scoring-model',
+    'required-actions',
   ] as const;
 
-  it('accepts the shipped bundle: M2–M6 and M4b tables are filled, every later table is still an empty array', () => {
+  it('accepts the shipped bundle: M2–M7 and M4b tables are filled, every later table is still an empty array', () => {
     const content = getContent();
     expect(Object.keys(content.tables)).toHaveLength(TABLE_NAMES.length);
     for (const name of TABLE_NAMES) {

@@ -28,7 +28,7 @@ import { bedsOf } from './generate';
 import { addPatientFlag, moveTo, patientAtBed } from './movement';
 import { nurseForBed } from './nurses';
 import { RngCursor } from './rngCursor';
-import { applyRule } from './scoring';
+import { applyRule } from '../score/scoring';
 import { buildChat } from './generateChat';
 import { type Call, type CallLine, type CallResponse, type Rank } from './wardTypes';
 
@@ -250,6 +250,7 @@ function applyResponseEffect(
       callId: call.id,
       patientId: call.patientId,
       caller: call.callerRank,
+      evidence: `call:${call.id}`,
     });
   }
   if (call.patientId) {

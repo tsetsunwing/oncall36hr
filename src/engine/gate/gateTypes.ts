@@ -32,7 +32,12 @@ const reviewSchema = z
     concerns: z.array(concernSchema),
     /** 只有藥房會打分；只供回顧（spec §15、§19.2），遊戲中唔顯示 */
     safety: z
-      .object({ score: z.number().int().min(0).max(10), rationale: z.string() })
+      .object({
+        score: z.number().int().min(0).max(10),
+        /** 含 {{token}}；數值由 tokenValues 凍結（AI 唔可以直接寫數字） */
+        rationale: z.string(),
+        tokenValues: z.record(z.string(), z.string()),
+      })
       .strict()
       .nullable(),
   })
@@ -49,6 +54,7 @@ export const gateRecordSchema = z
         level: z.enum(['LOW', 'MID', 'HIGH']),
         category: z.enum(CONCERN_CATEGORIES),
         rationale: z.string(),
+        tokenValues: z.record(z.string(), z.string()),
       })
       .strict()
       .nullable(),

@@ -10,7 +10,7 @@ import type { EngineContext } from '../core/module';
 import type { Reduction } from '../core/events';
 import type { GameState } from '../core/state';
 import { logEvent } from '../log/log';
-import { addLedger } from '../score/ledger';
+import { applyRule } from '../score/scoring';
 
 export const DEATH_DELAY_EVENT = 'DEATH_DELAY_TICK';
 export const DEATH_EVENT_PRIORITY = 20;
@@ -54,12 +54,7 @@ export function beginDeath(state: GameState, patientId: string, ctx: EngineConte
     },
   };
   next = logEvent(next, { patientId, reasonCode: 'DEATH_PRONOUNCED' });
-  next = addLedger(next, {
-    category: 'CLINICAL_OUTCOME',
-    code: 'PATIENT_DEATH',
-    delta: model.scoring.death.delta,
-    patientId,
-  });
+  next = applyRule(next, 'PATIENT_DEATH', ctx, { patientId, evidence: `death:${patientId}` });
   next = scheduleDelay(next, t + model.delayIntervalSec);
   return narrate(
     next,
@@ -111,11 +106,9 @@ export function handleDeathDelay(state: GameState, ctx: EngineContext, at: numbe
     ...state,
     death: { ...death, delayCharges: death.delayCharges + 1 },
   };
-  next = addLedger(next, {
-    category: 'CLINICAL_OUTCOME',
-    code: 'DEATH_PROCESS_DELAY',
-    delta: model.scoring.delay.delta,
+  next = applyRule(next, 'DEATH_PROCESS_DELAY', ctx, {
     patientId: death.patientId,
+    evidence: `death:${death.patientId}`,
   });
   return { state: scheduleDelay(next, at + model.delayIntervalSec), effects: [] };
 }

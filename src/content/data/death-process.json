@@ -9,14 +9,6 @@
       "HO": "MO",
       "MO": "RES",
       "RES": "AC"
-    },
-    "scoring": {
-      "death": {
-        "delta": -10
-      },
-      "delay": {
-        "delta": -1
-      }
     }
   },
   {

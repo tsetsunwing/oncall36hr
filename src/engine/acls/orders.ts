@@ -9,7 +9,7 @@ import { beginDeath } from '../death/death';
 import { logEvent } from '../log/log';
 import { composeOrderLabel } from '../orders/label';
 import type { Order } from '../orders/orderTypes';
-import { addLedger } from '../score/ledger';
+import { applyRule } from '../score/scoring';
 import {
   deliverShock,
   giveDrug,
@@ -50,11 +50,9 @@ function recordCauseOrders(
     ) {
       working = { ...working, treatedCauses: [...working.treatedCauses, cause.id] };
       if (working.causeIds.includes(cause.id) && model) {
-        next = addLedger(next, {
-          category: 'CLINICAL_OUTCOME',
-          code: 'CAUSE_TREATED',
-          delta: model.scoring.causeTreated.delta,
+        next = applyRule(next, 'CAUSE_TREATED', ctx, {
           patientId: working.patientId,
+          evidence: `order:${order.id}`,
         });
         next = logEvent(next, { patientId: working.patientId, reasonCode: 'CAUSE_TREATED' });
       }

@@ -101,11 +101,9 @@ export const aclsModelRowSchema = z
       .strict(),
     scoring: z
       .object({
-        timeToCpr: z.object({ graceSec: nonNegative, delta: z.number() }).strict(),
-        timeToFirstShock: z.object({ graceSec: nonNegative, delta: z.number() }).strict(),
-        cycleGap: z.object({ graceSec: nonNegative, delta: z.number() }).strict(),
-        causeTreated: z.object({ delta: z.number() }).strict(),
-        rosc: z.object({ delta: z.number() }).strict(),
+        timeToCpr: z.object({ graceSec: nonNegative }).strict(),
+        timeToFirstShock: z.object({ graceSec: nonNegative }).strict(),
+        cycleGap: z.object({ graceSec: nonNegative }).strict(),
       })
       .strict(),
   })
@@ -153,12 +151,6 @@ export const deathModelRowSchema = z
     delayIntervalSec: z.number().int().positive(),
     /** 「通知上一級」：按玩家職級決定固定目標（S16 A） */
     seniorByRank: z.object({ HO: id, MO: id, RES: id }).strict(),
-    scoring: z
-      .object({
-        death: z.object({ delta: z.number() }).strict(),
-        delay: z.object({ delta: z.number() }).strict(),
-      })
-      .strict(),
   })
   .strict();
 

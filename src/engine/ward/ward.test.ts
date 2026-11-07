@@ -234,7 +234,7 @@ describe('三種來電回應有後果', () => {
     const callId = state.ward.calls[0]?.id ?? '';
     const run = feed(engine, state, [ward('RESPOND_CALL', { callId, response: 'GO_NOW' })]);
     expect(run.state.ward.calls[0]?.status).toBe('DONE');
-    expect(run.state.ward.ledger.map((l) => l.rule)).toContain('CALL_GO_NOW');
+    expect(run.state.scoreLedger.map((l) => l.rule)).toContain('CALL_GO_NOW');
     const arrived =
       run.state.ward.location.bed === target.bed || run.state.ward.location.movingTo === target.bed;
     expect(arrived).toBe(true);
@@ -248,7 +248,7 @@ describe('三種來電回應有後果', () => {
     const callId = state.ward.calls[0]?.id ?? '';
     let run = feed(engine, state, [ward('RESPOND_CALL', { callId, response: 'LATER' })]);
     expect(run.state.ward.calls[0]).toMatchObject({ status: 'DEFERRED', defers: 1 });
-    expect(run.state.ward.ledger.map((l) => l.rule)).toContain('CALL_LATER');
+    expect(run.state.scoreLedger.map((l) => l.rule)).toContain('CALL_LATER');
     run = advance(engine, run.state, config.phone.laterDelaySec + 1);
     expect(run.state.ward.calls[0]?.status).toBe('RINGING');
     for (let i = 0; i < config.phone.maxDefers; i++) {
@@ -266,7 +266,7 @@ describe('三種來電回應有後果', () => {
     const callId = state.ward.calls[0]?.id ?? '';
     const run = feed(engine, state, [ward('RESPOND_CALL', { callId, response: 'CONTINUE' })]);
     expect(run.state.ward.calls[0]?.status).toBe('DONE');
-    expect(run.state.ward.ledger.map((l) => l.rule)).toContain('CALL_CONTINUE');
+    expect(run.state.scoreLedger.map((l) => l.rule)).toContain('CALL_CONTINUE');
     expect(run.state.patients[target.id]?.hidden.fsm.flags).toContain('unattended_call');
   });
 
@@ -292,7 +292,7 @@ describe('三種來電回應有後果', () => {
     const before = state.ward.impressions.HO ?? 0;
     const run = advance(engine, state, 10);
     expect(run.state.ward.calls[0]?.status).toBe('MISSED');
-    expect(run.state.ward.ledger.map((l) => l.rule)).toContain('CALL_MISSED_JUNIOR');
+    expect(run.state.scoreLedger.map((l) => l.rule)).toContain('CALL_MISSED_JUNIOR');
     expect(run.state.ward.impressions.HO ?? 0).toBeLessThan(before);
     expect(run.state.patients[target.id]?.hidden.fsm.flags).toContain('unattended_call');
   });
@@ -345,7 +345,7 @@ describe('步步上報（S-3）', () => {
     state = feed(engine, state, [
       ward('SEND_CALL', { sbar: state.ward.draft?.sbar ?? { S: '', B: '', A: '', R: '' } }),
     ]).state;
-    const rules = state.ward.ledger.map((l) => l.rule);
+    const rules = state.scoreLedger.map((l) => l.rule);
     expect(rules).toContain('ESCALATION_STEP_OK');
     expect(rules).not.toContain('ESCALATION_SKIPPED_LEVEL');
   });
@@ -357,7 +357,7 @@ describe('步步上報（S-3）', () => {
     const state = feed(engine, prepared, [
       ward('SEND_CALL', { sbar: prepared.ward.draft?.sbar ?? { S: '', B: '', A: '', R: '' } }),
     ]).state;
-    expect(state.ward.ledger.map((l) => l.rule)).toContain('ESCALATION_SKIPPED_LEVEL');
+    expect(state.scoreLedger.map((l) => l.rule)).toContain('ESCALATION_SKIPPED_LEVEL');
     expect(rankOf(state, 'RES')).toBeLessThan(resBefore);
     const skipRule = engine.tables['scoring-rules'].find(
       (r) => r.id === 'ESCALATION_SKIPPED_LEVEL',
@@ -370,7 +370,7 @@ describe('步步上報（S-3）', () => {
     let state = engine.init(wardParams('esc-3', 'MO'));
     state = escalate(prepare(state, 'RES'), 'RES');
     state = escalate(prepare(state, 'AC'), 'AC');
-    expect(state.ward.ledger.map((l) => l.rule)).not.toContain('ESCALATION_SKIPPED_LEVEL');
+    expect(state.scoreLedger.map((l) => l.rule)).not.toContain('ESCALATION_SKIPPED_LEVEL');
   });
 
   it('越兩級：兩個被越過嘅職級都下降（HO 直接叫 COS）', () => {
@@ -413,7 +413,7 @@ describe('步步上報（S-3）', () => {
     ]).state;
     const out = state.ward.calls.find((c) => c.direction === 'OUT');
     expect(out?.outcome).toBe('REFUSE');
-    expect(state.ward.ledger.map((l) => l.rule)).toContain('SBAR_POOR');
+    expect(state.scoreLedger.map((l) => l.rule)).toContain('SBAR_POOR');
   });
 
   it('清晰 SBAR：上級到床邊，病人記錄有 senior.reviewed', () => {
@@ -425,7 +425,7 @@ describe('步步上報（S-3）', () => {
     expect(state.ward.calls.find((c) => c.direction === 'OUT')?.outcome).toBe('BEDSIDE');
     state = advance(engine, state, 1500).state;
     expect(state.patients[patientId]?.hidden.fsm.flags).toContain('senior.reviewed');
-    expect(state.ward.ledger.map((l) => l.rule)).toContain('SBAR_GOOD');
+    expect(state.scoreLedger.map((l) => l.rule)).toContain('SBAR_GOOD');
   });
 
   it('其他專科會診（雙向）：外撥 Cardiology；ICU 按 MEWS 接收或拒絕', () => {
@@ -568,7 +568,7 @@ describe('委派（S-1、S-4）', () => {
       const done = advance(engine, run.state, 1200).state;
       expect(done.orders[task.orderId ?? '']?.status).toBe('FAILED');
       expect(done.ward.tasks[0]?.status).toBe('FAILED');
-      expect(done.ward.ledger.map((l) => l.rule)).toContain('DELEGATION_FAILED');
+      expect(done.scoreLedger.map((l) => l.rule)).toContain('DELEGATION_FAILED');
     }
     expect(found).toBe(true);
   });

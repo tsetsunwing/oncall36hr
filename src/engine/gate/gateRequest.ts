@@ -191,6 +191,7 @@ export function requestDanger(
       patient: patientFacts(state, patient, order, ctx),
       concerns,
       concernCategories: [...CONCERN_CATEGORIES],
+      allowedTokens: [...GATE_TOKENS],
     },
     local: { orderId: order.id, patientId: patient.id },
   } satisfies JsonValue;

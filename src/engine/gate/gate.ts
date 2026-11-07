@@ -23,9 +23,13 @@ import {
   GATE_DANGER_KIND,
   GATE_NURSE_KIND,
   GATE_PHARMACY_KIND,
+  GATE_TOKENS,
   gateTokens,
   requestDanger,
 } from './gateRequest';
+import { scoreOrderCommitted } from '../score/requiredOrders';
+import { scoreConsequence, scoreRelease } from './gateScoring';
+import { EMPTY_REVIEW_TEXT, guardReviewText } from './reviewText';
 import type { GateRecord, GateReview, GateRole } from './gateTypes';
 
 export const CONSEQUENCE_ONSET_EVENT_KIND = 'CONSEQUENCE_ONSET';
@@ -90,6 +94,8 @@ function releaseOrder(
   };
   let next = scheduleCompletion(setOrder(state, released), released);
   next = updateOrderLog(next, order.id, { reasonCode: null });
+  next = scoreRelease(next, released, gate, ctx);
+  next = scoreOrderCommitted(next, released, ctx);
 
   const patient = next.patients[order.patientId];
   const effects: Effect[] = [];
@@ -178,7 +184,13 @@ function applyReview(
             local.role === 'PHARMACY' && review.safety
               ? {
                   score: review.safety.score,
-                  rationale: review.safety.rationale.slice(0, 400),
+                  ...guardReviewText(
+                    review.safety.rationale,
+                    allowed,
+                    local.frozenTokens,
+                    local.denyTerms,
+                    ctx.config.chat.maxLineChars * 2,
+                  ),
                 }
               : null,
         }
@@ -256,7 +268,8 @@ function applyConsequenceEffect(state: GameState, order: Order, ctx: EngineConte
       },
     },
   };
-  return logEvent(next, { patientId: patient.id, reasonCode: GATE_ADVERSE_EVENT_CODE });
+  const scored = scoreConsequence(next, order, danger.level, danger.category, ctx);
+  return logEvent(scored, { patientId: patient.id, reasonCode: GATE_ADVERSE_EVENT_CODE });
 }
 
 function handleDangerResult(
@@ -275,6 +288,21 @@ function handleDangerResult(
   }
 
   const { danger, category, rationale } = parsed.data;
+  const patient = state.patients[order.patientId];
+  const row = catalogRow(ctx, order);
+  const caseTemplate = patient
+    ? ctx.tables['case-templates'].find((c) => c.id === patient.hidden.caseTemplateId)
+    : undefined;
+  const dangerText =
+    patient && row
+      ? guardReviewText(
+          rationale,
+          new Set(GATE_TOKENS),
+          gateTokens(patient, order, row, ctx),
+          caseTemplate?.diagnosisTerms ?? [],
+          ctx.config.chat.maxLineChars * 2,
+        )
+      : EMPTY_REVIEW_TEXT;
   const level = consequenceRow(ctx, category)?.levels[danger];
   const hit = level ? gate.roll.value < level.p : false;
   const mode = level?.mode ?? 'REVIEW_ONLY';
@@ -286,7 +314,7 @@ function handleDangerResult(
   }
   const rated: GateRecord = {
     ...gate,
-    danger: { level: danger, category, rationale: rationale.slice(0, 400) },
+    danger: { level: danger, category, ...dangerText },
     rolled: { hit, mode, p: level?.p ?? 0, delaySec },
   };
   const withDanger: Order = { ...order, gate: rated };

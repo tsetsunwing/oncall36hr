@@ -242,5 +242,167 @@
     "subscore": "SELF_CARE",
     "delta": -3,
     "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "TIME_TO_CPR",
+    "subscore": "TIMELINESS",
+    "delta": -3,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "TIME_TO_FIRST_SHOCK",
+    "subscore": "TIMELINESS",
+    "delta": -3,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "CYCLE_GAP",
+    "subscore": "TIMELINESS",
+    "delta": -1,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "CAUSE_TREATED",
+    "subscore": "CLINICAL_OUTCOME",
+    "delta": 2,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "ROSC",
+    "subscore": "CLINICAL_OUTCOME",
+    "delta": 5,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "PATIENT_DEATH",
+    "subscore": "CLINICAL_OUTCOME",
+    "delta": -10,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "DEATH_PROCESS_DELAY",
+    "subscore": "CLINICAL_OUTCOME",
+    "delta": -1,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "SHOCK_INAPPROPRIATE",
+    "subscore": "SAFETY",
+    "delta": -2,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "SHOCK_WRONG_ENERGY",
+    "subscore": "SAFETY",
+    "delta": -1,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "ACLS_DRUG_WRONG_DOSE",
+    "subscore": "SAFETY",
+    "delta": -2,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "GATE_OBJECTION_HEEDED",
+    "subscore": "SAFETY",
+    "delta": 1,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "GATE_INSISTED_CONFIRM",
+    "subscore": "SAFETY",
+    "delta": -1,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "GATE_INSISTED_OBJECT",
+    "subscore": "SAFETY",
+    "delta": -2,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "GATE_CONSEQUENCE_LOW",
+    "subscore": "SAFETY",
+    "delta": -1,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "GATE_CONSEQUENCE_MID",
+    "subscore": "SAFETY",
+    "delta": -3,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "GATE_CONSEQUENCE_HIGH",
+    "subscore": "SAFETY",
+    "delta": -5,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "PHARMACY_SAFETY_GOOD",
+    "subscore": "SAFETY",
+    "delta": 1,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "PHARMACY_SAFETY_FAIR",
+    "subscore": "SAFETY",
+    "delta": 0,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "PHARMACY_SAFETY_POOR",
+    "subscore": "SAFETY",
+    "delta": -2,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "REQUIRED_ORDER_ON_TIME",
+    "subscore": "TIMELINESS",
+    "delta": 1,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "REQUIRED_ORDER_LATE",
+    "subscore": "TIMELINESS",
+    "delta": -1,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "REQUIRED_ORDER_MISSED",
+    "subscore": "TIMELINESS",
+    "delta": -2,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "PRIORITY_MOST_URGENT_FIRST",
+    "subscore": "PRIORITISATION",
+    "delta": 1,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "PRIORITY_LOWER_FIRST",
+    "subscore": "PRIORITISATION",
+    "delta": -2,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "SELF_CARE_MEAL_MISSED",
+    "subscore": "SELF_CARE",
+    "delta": -1,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "SELF_CARE_ENERGY_LOW_AT_END",
+    "subscore": "SELF_CARE",
+    "delta": -1,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "SELF_CARE_ENERGY_VERY_LOW_AT_END",
+    "subscore": "SELF_CARE",
+    "delta": -2,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
   }
 ]

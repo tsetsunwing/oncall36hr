@@ -126,6 +126,17 @@ function reviewGuard(data: GateReviewData, prompt: GateReviewPrompt, local: Gate
       }
     }
   });
+  if (data.safety && data.safety.rationale.trim().length > 0) {
+    const bad = checkDialogueText(data.safety.rationale, {
+      ...rules,
+      maxChars: rules.maxChars * 2,
+    });
+    if (bad.some((i) => i === 'BARE_NUMBER' || i === 'UNKNOWN_TOKEN' || i === 'MALFORMED_TOKEN')) {
+      issues.push(
+        'safety.rationale: never write digits or spelled-out numbers; use a {{token}} from allowedTokens, or keep it short without any number.',
+      );
+    }
+  }
   return { issues };
 }
 
@@ -154,6 +165,7 @@ export const gateDangerPromptSchema = z.object({
   patient: patientFactsSchema,
   concerns: z.array(z.object({ by: z.enum(['PHARMACY', 'NURSE']), category: z.enum(CATEGORIES) })),
   concernCategories: z.array(z.enum(CATEGORIES)),
+  allowedTokens: z.array(z.string()),
 });
 
 export const gateDangerLocalSchema = z.object({ orderId: z.string(), patientId: z.string() });
@@ -180,6 +192,16 @@ export const gateDangerContract: Contract<GateDangerPrompt, GateDangerLocal, Gat
     const issues: string[] = [];
     if (!prompt.concernCategories.includes(data.category)) {
       issues.push('category must be one of concernCategories.');
+    }
+    const bad = checkDialogueText(data.rationale, {
+      allowedTokens: new Set(prompt.allowedTokens),
+      denyTerms: [],
+      maxChars: 400,
+    }).filter((i) => i !== 'EMPTY');
+    if (bad.length > 0) {
+      issues.push(
+        'rationale: no digits or spelled-out numbers; only {{token}} from allowedTokens.',
+      );
     }
     return { issues };
   },

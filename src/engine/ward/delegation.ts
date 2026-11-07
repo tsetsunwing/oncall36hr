@@ -15,7 +15,7 @@ import { NO_PARAMS } from '../orders/orders';
 import { findCall, missCall } from './calls';
 import { addTask, delegationRow, rollSubordinate, subIsBusy } from './subRoll';
 import { addPatientFlag } from './movement';
-import { applyRule } from './scoring';
+import { applyRule } from '../score/scoring';
 import type { DelegationTaskId, WardTask } from './wardTypes';
 
 export const DELEGATION_COMPLETE_EVENT = 'DELEGATION_COMPLETE';
@@ -136,6 +136,8 @@ function failTask(state: GameState, task: WardTask, ctx: EngineContext): Reducti
   next = applyRule(next, 'DELEGATION_FAILED', ctx, {
     callId: task.callId,
     patientId: task.patientId,
+    evidence: `task:${task.id}`,
+    facts: { task: task.task, mode: task.mode },
   });
   next = logEvent(next, { patientId: task.patientId, reasonCode: code });
   return { state: next, effects: [notice('DELEGATE_FAILED')] };
@@ -175,6 +177,7 @@ function finishTask(state: GameState, task: WardTask, ctx: EngineContext): Reduc
     next = applyRule(next, 'CALL_DELEGATED_OK', ctx, {
       callId: task.callId,
       patientId: task.patientId,
+      evidence: `task:${task.id}`,
     });
     next = {
       ...next,

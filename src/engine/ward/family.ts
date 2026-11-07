@@ -23,7 +23,7 @@ import type { GameState, PendingAiRequest } from '../core/state';
 import { completeDeathStep } from '../death/death';
 import { applyCalleeLines, FAMILY_REPLY_KIND, requestCalleeReply } from './callReply';
 import { findCall, notice, playerTemplate, putCall } from './callStore';
-import { applyRule } from './scoring';
+import { applyRule } from '../score/scoring';
 import type { Call, CallLine, Exchange, FamilyExchange } from './wardTypes';
 
 export const FAMILY_ASSESS_KIND = 'family.assess';
@@ -229,7 +229,7 @@ function resolveTurn(
   const informedNow = family.informed || signals.includes('STATES_DEATH');
   const clarity = clarityOfSignals(signals);
   const empathy = empathyOfSignals(signals);
-  const targets = { callId, patientId: patient.id };
+  const targets = { callId, patientId: patient.id, evidence: `call:${callId}` };
 
   let next = state;
   const applied = [...family.applied];

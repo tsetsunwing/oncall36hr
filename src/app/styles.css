@@ -2095,23 +2095,152 @@ main:has(.page.setup) {
   padding-left: 1.1rem;
 }
 
-.result-sum {
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
+.result-card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
 }
 
-.result-sum[data-level='NORMAL'] {
+.grade-label {
+  font-size: 1.1rem;
+  white-space: nowrap;
+}
+
+.grade-label[data-grade='EXCELLENT'],
+.grade-label[data-grade='GOOD'] {
   color: var(--ok-text);
 }
 
-.result-sum[data-level='ALARM'] {
+.grade-label[data-grade='FAIR'] {
+  color: #6b4500;
+}
+
+.grade-label[data-grade='NEEDS_IMPROVEMENT'] {
   color: var(--error-text);
 }
 
-.result-sum[data-level='CAUTION'] {
-  color: #6b4500;
+.grade-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.3rem;
+  margin: 0.4rem 0 0.6rem;
+}
+
+.grade-seg {
+  height: 0.55rem;
+  border-radius: 999px;
+  background: #e2e2dc;
+}
+
+.grade-bar[data-grade='EXCELLENT'] .grade-seg[data-filled='true'],
+.grade-bar[data-grade='GOOD'] .grade-seg[data-filled='true'] {
+  background: #2f8f5b;
+}
+
+.grade-bar[data-grade='FAIR'] .grade-seg[data-filled='true'] {
+  background: #d9a521;
+}
+
+.grade-bar[data-grade='NEEDS_IMPROVEMENT'] .grade-seg[data-filled='true'] {
+  background: #c0504d;
+}
+
+.result-reason {
+  margin: 0.25rem 0 0;
+  font-size: 0.95rem;
+}
+
+.result-preview {
+  margin-top: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+}
+
+.result-preview ul {
+  margin: 0.25rem 0 0;
+  padding-left: 1.1rem;
+}
+
+.result-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.review {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.review h3 {
+  margin: 0.75rem 0 0.25rem;
+  font-size: 1rem;
+}
+
+.review-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+}
+
+.review-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.5rem 0;
+}
+
+.review-filter .btn[aria-pressed='true'] {
+  background: var(--accent);
+  color: var(--accent-text);
+}
+
+.review-scroll {
+  overflow-x: auto;
+}
+
+.review-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.review-table th,
+.review-table td {
+  padding: 0.3rem 0.5rem;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--border);
+}
+
+.review-table .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.review-table td:first-child {
+  white-space: nowrap;
+}
+
+.review-table tr[data-kind='SCORE'] td {
+  color: var(--muted);
+}
+
+.review-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.review-list li {
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
 }
 
 .result-side > * + * {

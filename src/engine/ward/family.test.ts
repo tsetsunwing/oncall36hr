@@ -53,7 +53,7 @@ const answer = (run: Run, kind: string, payload: unknown): Run => {
 };
 
 const failed = (state: GameState) => state.paused?.by === 'ai-failure';
-const rules = (state: GameState) => state.ward.ledger.map((l) => l.rule);
+const rules = (state: GameState) => state.scoreLedger.map((l) => l.rule);
 
 describe('死亡流程：通知上一級係真電話', () => {
   it('病房模式下按鈕式確認被拒絕；要由電話完成', () => {

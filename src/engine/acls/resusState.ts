@@ -115,18 +115,3 @@ export const deathSchema = z
 
 export type Death = z.infer<typeof deathSchema>;
 export { DEATH_STEP_IDS };
-
-export const LEDGER_CATEGORIES = ['TIMELINESS', 'CLINICAL_OUTCOME'] as const;
-
-export const ledgerEntrySchema = z
-  .object({
-    id: z.string().min(1),
-    t: time,
-    category: z.enum(LEDGER_CATEGORIES),
-    code: z.string().min(1),
-    delta: z.number(),
-    patientId: z.string().nullable(),
-  })
-  .strict();
-
-export type LedgerEntry = z.infer<typeof ledgerEntrySchema>;

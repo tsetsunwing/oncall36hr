@@ -2,8 +2,9 @@
 import type { Effect, Reduction } from '../core/events';
 import type { EngineContext } from '../core/module';
 import type { GameState } from '../core/state';
-import { applyRule } from '../ward/scoring';
+import { applyRule } from '../score/scoring';
 import { noticeEffect, withShift } from './common';
+import { scoreAtEnd } from './endScoring';
 import type { Ending } from './shiftState';
 
 const ORDER_IN_FLIGHT = ['PENDING_PARSE', 'GATED', 'QUEUED', 'RUNNING'];
@@ -48,7 +49,7 @@ function finish(
   rules: readonly string[],
   extra: Effect[],
 ): Reduction {
-  let next = state;
+  let next = scoreAtEnd(state, ctx, ending.reason);
   for (const rule of rules) next = applyRule(next, rule, ctx);
   next = withShift(next, {
     ending,

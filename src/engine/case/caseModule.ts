@@ -8,6 +8,8 @@ import { enqueue } from '../core/eventQueue';
 import type { EngineContext, EngineModule } from '../core/module';
 import type { GameState, NewGameParams } from '../core/state';
 import { logEvent } from '../log/log';
+import { trackBandUrgency } from '../score/priority';
+import { scoreStateExit } from '../score/requiredOrders';
 import { evaluateFsm } from './fsm';
 import { computeMews } from './mews';
 import type { Patient } from './patient';
@@ -85,6 +87,9 @@ function applySample(
   });
   const fsmState = evaluated.patient.hidden.fsm.state;
   let working: GameState = { ...state, rng: evaluated.rng };
+  if (fsmState !== patient.hidden.fsm.state) {
+    working = scoreStateExit(working, patient, ctx, t);
+  }
   const effects: Effect[] = [];
 
   const arrestDef = fsm.states[fsmState]?.arrest;
@@ -293,6 +298,7 @@ export const caseModule: EngineModule = {
         },
       };
     }
+    next = trackBandUrgency(next, patient.id, ctx);
     next = scheduleSample(next, patient.id, t + sampleIntervalSec(ctx, applied.alert));
     return { state: next, effects };
   },

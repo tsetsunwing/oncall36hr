@@ -13,7 +13,7 @@ import type { EngineContext } from '../core/module';
 import { rngInt } from '../core/rng';
 import type { GameState, PendingAiRequest } from '../core/state';
 import { hasBareNumber } from '../chat/tokens';
-import { applyRule } from '../ward/scoring';
+import { applyRule } from '../score/scoring';
 import { none, noticeEffect, reject, withShift } from './common';
 import { stopSelfCare } from './selfCare';
 import type { RoundActive, RoundCurrent, RoundVerdict } from './shiftState';
@@ -265,7 +265,11 @@ function reveal(
       { patientId: current.patientId, topicId: current.topicId, verdict, viaHint },
     ],
   });
-  next = applyRule(next, RULE_BY_VERDICT(verdict, viaHint), ctx, { patientId: current.patientId });
+  next = applyRule(next, RULE_BY_VERDICT(verdict, viaHint), ctx, {
+    patientId: current.patientId,
+    evidence: `round:${String(active.number)}`,
+    facts: { topicId: current.topicId, round: active.number },
+  });
   next = schedule(next, next.clock.t + ctx.config.rounds.revealSeconds, {
     number: active.number,
     cursor: active.cursor,

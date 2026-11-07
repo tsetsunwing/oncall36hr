@@ -84,8 +84,32 @@ export {
   type RoscInputs,
 } from './acls/model';
 export { postRoscBundleDone } from './acls/arrest';
-export type { Death, LedgerEntry, Resus } from './acls/resusState';
-export { addLedger, ledgerTotal } from './score/ledger';
+export type { Death, Resus } from './acls/resusState';
+export { SUBSCORE_IDS, type LedgerEntry, type SubscoreCode } from './score/ledgerTypes';
+export { applyRule, ledgerRules, subscoreSum } from './score/scoring';
+export {
+  gradeOf,
+  summariseRun,
+  worseGrade,
+  type DeathSummary,
+  type RunSummary,
+  type SubscoreSummary,
+} from './score/grading';
+export {
+  buildReview,
+  WHAT_IF_RULES,
+  type DeathReviewItem,
+  type GuidelineItem,
+  type GuidelineStatus,
+  type ReviewData,
+  type ReviewEntry,
+  type ReviewPatientRef,
+  type SafetyReasonItem,
+  type TimelineItem,
+  type TimelineKind,
+  type WhatIfItem,
+} from './review/review';
+export type { Grade } from './case/tables';
 export { beginCprSlow, endCprSlow, interruptSpeed } from './core/clock';
 export { gateModule } from './gate/gate';
 export { resultsModule } from './results/results';

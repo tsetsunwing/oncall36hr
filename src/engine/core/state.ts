@@ -7,16 +7,18 @@ import { z } from 'zod';
 import { eventQueueSchema, type EventQueue } from './eventQueue';
 import { createEventQueue, enqueue } from './eventQueue';
 import { createRngState, rngStateSchema } from './rng';
-import { deathSchema, ledgerEntrySchema, resusSchema } from '../acls/resusState';
+import { deathSchema, resusSchema } from '../acls/resusState';
 import { patientSchema } from '../case/patient';
 import { chatThreadSchema } from '../chat/chatTypes';
 import { actionLogEntrySchema } from '../log/actionLog';
 import { orderSchema } from '../orders/orderTypes';
+import { ledgerEntrySchema } from '../score/ledgerTypes';
+import { emptyPriority, prioritySchema } from '../score/priorityState';
 import { emptyShift, shiftSchema } from '../shift/shiftState';
 import { emptyWard, wardStateSchema } from '../ward/wardTypes';
 import type { EngineConfig } from './config';
 
-export const CURRENT_SCHEMA = 7;
+export const CURRENT_SCHEMA = 8;
 
 export const MODES = ['DAY', 'NIGHT', 'ONCALL'] as const;
 export const DIFFICULTIES = ['EASY', 'MEDIUM', 'HARD'] as const;
@@ -86,10 +88,12 @@ export const gameStateSchema = z
     resus: resusSchema.nullable(),
     /** M5：死亡流程；病人未死為 null。流程完成前床位不釋放 */
     death: deathSchema.nullable(),
-    /** M5：分數 ledger（只增不減；回顧由此重建） */
+    /** M7：唯一計分 ledger（六分項共用、只增不減；回顧由此加 action log 重建） */
     scoreLedger: z.array(ledgerEntrySchema),
     /** M6：巡房、精力、自我照顧、超時同交更結局 */
     shift: shiftSchema,
+    /** M7：優先次序追蹤（最近一次處理每個病人嘅時刻） */
+    priority: prioritySchema,
   })
   .strict();
 
@@ -147,5 +151,6 @@ export function createInitialState(params: NewGameParams, config: EngineConfig):
     death: null,
     scoreLedger: [],
     shift: emptyShift(),
+    priority: emptyPriority(),
   };
 }

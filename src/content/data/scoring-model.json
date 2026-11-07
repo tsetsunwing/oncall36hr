@@ -1,0 +1,50 @@
+[
+  {
+    "id": "MODEL",
+    "grading": {
+      "CLINICAL_OUTCOME": {
+        "excellentMin": 10,
+        "goodMin": 0,
+        "fairMin": -8
+      },
+      "TIMELINESS": {
+        "excellentMin": 4,
+        "goodMin": -2,
+        "fairMin": -8
+      },
+      "SAFETY": {
+        "excellentMin": 3,
+        "goodMin": -1,
+        "fairMin": -5
+      },
+      "COMMUNICATION": {
+        "excellentMin": 8,
+        "goodMin": 0,
+        "fairMin": -6
+      },
+      "PRIORITISATION": {
+        "excellentMin": 3,
+        "goodMin": -1,
+        "fairMin": -5
+      },
+      "SELF_CARE": {
+        "excellentMin": 3,
+        "goodMin": 0,
+        "fairMin": -3
+      }
+    },
+    "deathCap": {
+      "oneDeathCap": "FAIR",
+      "needsImprovementFraction": 0.25
+    },
+    "safetyScore": {
+      "goodMin": 8,
+      "poorMax": 4
+    },
+    "priority": {
+      "graceSec": 300
+    },
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：評級門檻、死亡降級比例、AI 安全分級、優先次序時間窗全部未有來源，未經臨床審核，唔代表真實標準（spec §19.1 未決；implementation-plan R6、R13）。"
+  }
+]

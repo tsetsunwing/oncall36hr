@@ -22,6 +22,7 @@ import { deathModule } from '../death/deathModule';
 import { gateModule } from '../gate/gate';
 import { ordersModule } from '../orders/orders';
 import { resultsModule } from '../results/results';
+import { priorityModule } from '../score/priority';
 import { shiftModule } from '../shift/shiftModule';
 import { subordinateOrderModule } from '../ward/delegation';
 import { wardModule } from '../ward/wardModule';
@@ -38,6 +39,7 @@ export const defaultModules: readonly EngineModule[] = [
   aclsModule,
   deathModule,
   bedsideModule,
+  priorityModule,
 ];
 
 export { requestAi };

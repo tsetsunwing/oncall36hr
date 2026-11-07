@@ -37,7 +37,7 @@ import {
   scheduleCallEvent,
 } from './callStore';
 import { addPatientFlag } from './movement';
-import { applyRule, impressionBand, impressionOf } from './scoring';
+import { applyRule, impressionBand, impressionOf } from '../score/scoring';
 import {
   RANKS,
   sbarSchema,
@@ -269,7 +269,13 @@ export function sendEscalation(state: GameState, sbar: Sbar, ctx: EngineContext)
       next,
       skipped.length > 0 ? 'ESCALATION_SKIPPED_LEVEL' : 'ESCALATION_STEP_OK',
       ctx,
-      { skipped, callId: id, patientId },
+      {
+        skipped,
+        callId: id,
+        patientId,
+        evidence: `call:${id}`,
+        facts: { callee: target.rank, skipped: skipped.join(',') },
+      },
     );
     const contacted = next.ward.contacts[patientId] ?? [];
     next = {
@@ -585,7 +591,13 @@ function resolveInitial(
   const clarity = clarityOf(ctx, assessment.covered, inaccurate);
   const decision = decide(state, call, clarity, ctx);
   const effects: Effect[] = [];
-  const ruleTargets = { callee: decision.calleeRank, callId, patientId };
+  const ruleTargets = {
+    callee: decision.calleeRank,
+    callId,
+    patientId,
+    evidence: `call:${callId}`,
+    facts: { clarity },
+  };
 
   let next = state;
   let ruleApplied: ConsultExchange['ruleApplied'] = null;
@@ -636,7 +648,13 @@ function resolveFollowup(
     isInaccurate(ctx, state, patientId, previous.vitalsRef, assessment.quoted);
   const clarity = clarityOf(ctx, covered, inaccurate);
   const decision = decide(state, call, clarity, ctx);
-  const ruleTargets = { callee: decision.calleeRank, callId, patientId };
+  const ruleTargets = {
+    callee: decision.calleeRank,
+    callId,
+    patientId,
+    evidence: `call:${callId}`,
+    facts: { clarity },
+  };
 
   let next = state;
   if (inaccurate && !previous.inaccurate)

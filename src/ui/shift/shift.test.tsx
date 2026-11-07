@@ -2,13 +2,14 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { ui } from '@/i18n';
-import type { GameActions, ResultView, RoundView, ShiftView } from '@/view';
+import type { GameActions, RoundView, ShiftView } from '@/view';
 import { StartPage } from '../pages/StartPage';
 import { ClockBar } from '../game/ClockBar';
 import { clock } from '../game/fixtures';
 import { HandoverPanel } from './HandoverPanel';
 import { OvertimeBanner } from './OvertimeBanner';
 import { ResultPage } from './ResultPage';
+import { resultFixture } from './resultFixtures';
 import { RoundPanel } from './RoundPanel';
 import { SelfCarePanel } from './SelfCarePanel';
 
@@ -251,40 +252,32 @@ describe('超時與交更', () => {
   });
 });
 
-const result = (over: Partial<ResultView> = {}): ResultView => ({
-  reason: 'OVERTIME',
-  tags: ['OVERTIME'],
-  forced: true,
-  atLabel: '20:00',
-  overtimeSec: 7200,
-  subscores: [
-    { id: 'CLINICAL_OUTCOME', sum: 3, items: [{ rule: 'ROUND_CORRECT', count: 2, delta: 4 }] },
-    { id: 'TIMELINESS', sum: -2, items: [{ rule: 'OVERTIME_ENTERED', count: 1, delta: -2 }] },
-    { id: 'SAFETY', sum: 0, items: [] },
-    { id: 'COMMUNICATION', sum: 0, items: [] },
-    { id: 'PRIORITISATION', sum: 0, items: [] },
-    { id: 'SELF_CARE', sum: -3, items: [{ rule: 'FAINT', count: 1, delta: -3 }] },
-  ],
-  patients: [
-    { bed: 2, name: '張婆婆', outcome: 'STABLE', mentioned: false },
-    { bed: 7, name: '李大文', outcome: 'DECEASED', mentioned: false },
-  ],
-  rounds: { total: 8, answered: 6, correct: 4 },
-  ...over,
-});
-
 describe('ResultPage', () => {
-  it('超時：只顯示超時標籤；六個分項各自列出原始加總，冇總分', async () => {
+  it('超時：只顯示超時標籤；六個分項各自評級，冇總分、冇分數', async () => {
     const onBack = vi.fn();
-    render(<ResultPage shift={shift({ phase: 'ENDED' })} result={result()} onBack={onBack} />);
+    render(
+      <ResultPage
+        shift={shift({ phase: 'ENDED' })}
+        result={resultFixture()}
+        onBack={onBack}
+        onReview={vi.fn()}
+      />,
+    );
     expect(screen.getByTestId('result-tag')).toHaveTextContent(ui.shift.result.tag.OVERTIME ?? '');
     expect(screen.getByText(ui.shift.result.noTotal)).toBeInTheDocument();
-    expect(screen.getByTestId('subscore-sum-TIMELINESS')).toHaveTextContent('-2');
-    expect(screen.getByTestId('subscore-sum-CLINICAL_OUTCOME')).toHaveTextContent('+3');
+    expect(screen.getByTestId('grade-TIMELINESS')).toHaveTextContent(
+      ui.shift.result.grade.FAIR ?? '',
+    );
+    expect(screen.getByTestId('grade-SELF_CARE')).toHaveTextContent(
+      ui.shift.result.grade.NEEDS_IMPROVEMENT ?? '',
+    );
     expect(screen.getAllByRole('article')).toHaveLength(6);
+    expect(screen.queryByText(/總分|倍數/u, { selector: 'h2, strong' })).toBeNull();
+    expect(screen.getByTestId('capped-by-death')).toBeInTheDocument();
     expect(screen.getByTestId('result-patient-7')).toHaveTextContent(
       ui.shift.result.outcome.DECEASED ?? '',
     );
+    expect(screen.getByTestId('done-best')).toHaveTextContent(ui.shift.result.doneBestTag);
     await userEvent.click(screen.getByTestId('result-back'));
     expect(onBack).toHaveBeenCalledOnce();
   });
@@ -293,7 +286,7 @@ describe('ResultPage', () => {
     render(
       <ResultPage
         shift={shift({ phase: 'ENDED' })}
-        result={result({ reason: 'FAINT', tags: ['FAINT'], overtimeSec: 0 })}
+        result={resultFixture({ reason: 'FAINT', tags: ['FAINT'], overtimeSec: 0 })}
         onBack={vi.fn()}
       />,
     );

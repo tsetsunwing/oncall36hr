@@ -162,6 +162,14 @@ describe('更次 ViewModel', () => {
     ]);
     const json = JSON.stringify(shift.result);
     expect(json).not.toContain('"totalScore"');
+    expect(json).not.toMatch(/"(totalScore|multiplier|sum)"/u);
+    for (const sub of shift.result?.subscores ?? []) {
+      expect(['EXCELLENT', 'GOOD', 'FAIR', 'NEEDS_IMPROVEMENT']).toContain(sub.grade);
+    }
+    const review = shift.result?.review;
+    expect(review?.table.map((t) => t.id)).toEqual(shift.result?.subscores.map((s) => s.id));
+    expect(review?.timeline.length).toBeGreaterThan(0);
+    expect(review?.timeline.every((item) => /^\d{2}:\d{2}$/u.test(item.timeLabel))).toBe(true);
   });
 
   it('暈倒：結局只得 FAINT 標籤，冇超時分項', () => {

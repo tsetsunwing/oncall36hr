@@ -357,8 +357,14 @@ function gateReview(prompt: Record<string, unknown>, mode: ContractMode): string
     : { verdict: 'OK', concerns: [] };
   if (p.role === 'PHARMACY') {
     data.safety = hit
-      ? { score: 2, rationale: 'Allergy class overlap with documented allergy.' }
-      : { score: 9, rationale: 'No concern found from the given data.' };
+      ? {
+          score: 2,
+          rationale: '病人的藥物過敏紀錄與 {{order.drug}} 屬同一類別，存在交叉過敏風險。',
+        }
+      : {
+          score: 9,
+          rationale: '根據現有資料，{{order.label}} 與病人的過敏紀錄及現行藥物沒有明顯衝突。',
+        };
   }
   if (mode === 'gate-bad-line' && hit) {
     data.concerns = [{ category: 'DOSE_HIGH', line: '呢個劑量太高，要減到 500 mg。' }];
@@ -378,7 +384,7 @@ function gateDanger(prompt: Record<string, unknown>, mode: ContractMode): string
   return envelope('gate.danger', {
     danger,
     category,
-    rationale: 'Mock rating for tests.',
+    rationale: '依據把關者提出的關注類別，評估 {{order.label}} 的風險程度。',
   });
 }
 

@@ -12,6 +12,7 @@ import type { Effect, NoticeKind, Reduction } from '../core/events';
 import type { EngineContext, EngineModule } from '../core/module';
 import type { GameState } from '../core/state';
 import type { OrderCatalogRow } from '../case/tables';
+import { scoreObjectionHeeded } from '../gate/gateScoring';
 import { updateOrderLog } from '../log/log';
 import { scheduleResultReport } from '../results/results';
 import { composeOrderLabel } from './label';
@@ -189,7 +190,8 @@ export const ordersModule: EngineModule = {
       if (!order) return reject(state, 'ORDER_UNKNOWN');
       const row = ctx.tables['order-catalog'].find((r) => r.id === order.catalogId);
       if (!isCancellable(order, row)) return reject(state, 'ORDER_NOT_CANCELLABLE');
-      return { state: cancelOrderState(state, order, 'CANCELLED_BY_PLAYER'), effects: [] };
+      const heeded = scoreObjectionHeeded(state, order, ctx);
+      return { state: cancelOrderState(heeded, order, 'CANCELLED_BY_PLAYER'), effects: [] };
     }
     return undefined;
   },

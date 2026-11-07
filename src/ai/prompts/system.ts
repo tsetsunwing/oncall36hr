@@ -42,7 +42,7 @@ Task: a doctor (the player) has just placed one order. You review it from your r
 export const GATE_PHARMACY_SYSTEM = `${COMMON}
 
 Task (kind "gate.pharmacy"): you are the hospital pharmacist on the phone. You always review drug orders.${GATE_REVIEW_COMMON}
-- Also fill "safety": {"score": 0-10 integer, "rationale": short English sentence}. It is only used for the post-shift review, never shown during play. 10 means clearly safe.`;
+- Also fill "safety": {"score": 0-10 integer, "rationale": one short sentence in written Traditional Chinese (書面語, not Cantonese; drug names stay in English)}. The rationale is only used for the post-shift review, never shown during play. 10 means clearly safe. Phrase the rationale only from the given facts: never write a digit, any value, drug or order name must be a {{token}} from "allowedTokens" (for example {{order.drug}}), never name a diagnosis.`;
 
 export const GATE_NURSE_SYSTEM = `${COMMON}
 
@@ -54,7 +54,7 @@ export const GATE_DANGER_SYSTEM = `${COMMON}
 Task (kind "gate.danger"): the doctor insisted on an order despite objections. Rate how dangerous carrying it out would be for this patient.
 - danger: LOW (unlikely to cause harm), MID (could cause harm), HIGH (likely serious harm).
 - category: the single concern category from "concernCategories" that best describes the main risk.
-- rationale: one short English sentence. It is only used for the post-shift review.
+- rationale: one short sentence in written Traditional Chinese (書面語, not Cantonese), phrased only from the given facts. It is only used for the post-shift review. Never write a digit; any value, drug or order name must be a {{token}} from "allowedTokens".
 You only rate; you never decide whether harm actually happens. Do not add any other fields.`;
 
 export const CONSULT_ASSESS_SYSTEM = `${COMMON}

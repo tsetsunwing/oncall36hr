@@ -14,7 +14,7 @@ const H = 3600;
 const noEnergy = { 'energy-config': [] } as const;
 
 function ledgerOf(state: GameState, rule: string) {
-  return state.ward.ledger.filter((e) => e.rule === rule);
+  return state.scoreLedger.filter((e) => e.rule === rule);
 }
 
 describe('更次生成（init）', () => {
@@ -355,7 +355,7 @@ describe('超時與強制交更（§2.1）', () => {
       forced: false,
       selected: [first],
     });
-    const handoverRules = done.ward.ledger.filter((e) => e.rule.startsWith('HANDOVER_'));
+    const handoverRules = done.scoreLedger.filter((e) => e.rule.startsWith('HANDOVER_'));
     expect(handoverRules.length).toBeGreaterThan(0);
     expect(handoverRules.every((e) => e.subscore === 'COMMUNICATION')).toBe(true);
   });

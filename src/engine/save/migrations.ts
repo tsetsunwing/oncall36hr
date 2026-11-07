@@ -135,6 +135,71 @@ function migrateV6toV7(raw: RawState): RawState {
   };
 }
 
+/**
+ * schema 7 → 8（M7）：M4 嘅 ward.ledger 同 M5 嘅 scoreLedger 合併成唯一 scoreLedger（按時間排序、重新編號）；
+ * 加入優先次序追蹤。舊存檔嘅分項名稱本身已經一致，只需要改欄位名。
+ */
+function migrateV7toV8(raw: RawState): RawState {
+  const ward = (raw.ward ?? {}) as Record<string, unknown>;
+  const { ledger: wardLedger, ...wardRest } = ward;
+  const fromWard = (Array.isArray(wardLedger) ? wardLedger : []).map(
+    (e: Record<string, unknown>) => ({
+      t: e.t,
+      subscore: e.subscore,
+      rule: e.rule,
+      delta: e.delta,
+      patientId: e.patientId ?? null,
+      callId: e.callId ?? null,
+      evidenceRef: null,
+      facts: {},
+    }),
+  );
+  const fromScore = (Array.isArray(raw.scoreLedger) ? raw.scoreLedger : []).map(
+    (e: Record<string, unknown>) => ({
+      t: e.t,
+      subscore: e.category,
+      rule: e.code,
+      delta: e.delta,
+      patientId: e.patientId ?? null,
+      callId: null,
+      evidenceRef: null,
+      facts: {},
+    }),
+  );
+  const merged = [...fromWard, ...fromScore]
+    .map((entry, index) => ({ entry, index }))
+    .sort((a, b) => Number(a.entry.t) - Number(b.entry.t) || a.index - b.index)
+    .map(({ entry }, index) => ({ ...entry, id: `sc${String(index + 1)}` }));
+  const orders = (raw.orders ?? {}) as Record<string, Record<string, unknown> | undefined>;
+  const migratedOrders = Object.fromEntries(
+    Object.entries(orders).map(([id, order]) => {
+      const gate = order?.gate as Record<string, unknown> | null | undefined;
+      if (!order || !gate) return [id, order];
+      const reviews = (Array.isArray(gate.reviews) ? gate.reviews : []).map(
+        (review: Record<string, unknown>) => {
+          const safety = review.safety as Record<string, unknown> | null | undefined;
+          return safety ? { ...review, safety: { ...safety, tokenValues: {} } } : review;
+        },
+      );
+      const danger = gate.danger as Record<string, unknown> | null | undefined;
+      return [
+        id,
+        {
+          ...order,
+          gate: { ...gate, reviews, danger: danger ? { ...danger, tokenValues: {} } : danger },
+        },
+      ];
+    }),
+  );
+  return {
+    ...raw,
+    orders: migratedOrders,
+    ward: wardRest,
+    scoreLedger: merged,
+    priority: { lastAttended: {}, urgency: {} },
+  };
+}
+
 export const migrations: MigrationRegistry = {
   1: migrateV1toV2,
   2: migrateV2toV3,
@@ -142,6 +207,7 @@ export const migrations: MigrationRegistry = {
   4: migrateV4toV5,
   5: migrateV5toV6,
   6: migrateV6toV7,
+  7: migrateV7toV8,
 };
 
 export type MigrateResult =

@@ -294,22 +294,13 @@
     },
     "scoring": {
       "timeToCpr": {
-        "graceSec": 60,
-        "delta": -3
+        "graceSec": 60
       },
       "timeToFirstShock": {
-        "graceSec": 120,
-        "delta": -3
+        "graceSec": 120
       },
       "cycleGap": {
-        "graceSec": 30,
-        "delta": -1
-      },
-      "causeTreated": {
-        "delta": 2
-      },
-      "rosc": {
-        "delta": 5
+        "graceSec": 30
       }
     }
   },

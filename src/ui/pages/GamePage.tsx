@@ -12,6 +12,7 @@ import { ResusPanel } from '../game/ResusPanel';
 import { HandoverPanel } from '../shift/HandoverPanel';
 import { OvertimeBanner } from '../shift/OvertimeBanner';
 import { ResultPage } from '../shift/ResultPage';
+import { ReviewPage } from '../shift/ReviewPage';
 import { RoundPanel } from '../shift/RoundPanel';
 import { SelfCarePanel } from '../shift/SelfCarePanel';
 
@@ -24,6 +25,7 @@ export interface GamePageProps {
 export function GamePage({ view, actions, onExit }: GamePageProps) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selfCareOpen, setSelfCareOpen] = useState(false);
+  const [reviewOpen, setReviewOpen] = useState(false);
   const g = ui.game;
   const { shift } = view;
   if (shift.result) {
@@ -32,13 +34,28 @@ export function GamePage({ view, actions, onExit }: GamePageProps) {
         <h1 id="game-heading" className="visually-hidden">
           {g.heading}
         </h1>
-        <ResultPage
-          shift={shift}
-          result={shift.result}
-          onBack={() => {
-            onExit?.();
-          }}
-        />
+        {reviewOpen ? (
+          <ReviewPage
+            result={shift.result}
+            onBack={() => {
+              setReviewOpen(false);
+            }}
+            onHome={() => {
+              onExit?.();
+            }}
+          />
+        ) : (
+          <ResultPage
+            shift={shift}
+            result={shift.result}
+            onReview={() => {
+              setReviewOpen(true);
+            }}
+            onBack={() => {
+              onExit?.();
+            }}
+          />
+        )}
       </section>
     );
   }

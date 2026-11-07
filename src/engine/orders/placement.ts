@@ -17,6 +17,7 @@ import { ackBeatsFor } from './ack';
 import { chooseExecutor, executorDurationSec, executorRef } from './executors';
 import type { Order } from './orderTypes';
 import { registerOrder } from './orders';
+import { scoreOrderCommitted } from '../score/requiredOrders';
 import { recordSubordinateOrder, rollSubordinate, taskKindOfCatalog } from '../ward/subRoll';
 
 export const ORDER_AWAITING_GATE_CODE = 'AWAITING_GATE';
@@ -111,7 +112,9 @@ export function placeCatalogOrder(state: GameState, input: PlaceInput, ctx: Engi
     resultText: null,
     nurseNote: null,
   });
-  if (roles.length === 0) return { state: next, order: base, effects: [] };
+  if (roles.length === 0) {
+    return { state: scoreOrderCommitted(next, base, ctx), order: base, effects: [] };
+  }
 
   const effects: Effect[] = [];
   const reviews: GateReview[] = [];

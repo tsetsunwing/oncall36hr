@@ -436,12 +436,11 @@ export interface AclsModelRow {
     rearrestPerMissing: number;
     rearrestRhythms: readonly WeightedRhythm[];
   };
+  /** 只剩時間窗；分值同分項全部喺 scoring-rules（唯一 ledger） */
   scoring: {
-    timeToCpr: { graceSec: number; delta: number };
-    timeToFirstShock: { graceSec: number; delta: number };
-    cycleGap: { graceSec: number; delta: number };
-    causeTreated: { delta: number };
-    rosc: { delta: number };
+    timeToCpr: { graceSec: number };
+    timeToFirstShock: { graceSec: number };
+    cycleGap: { graceSec: number };
   };
 }
 
@@ -468,7 +467,6 @@ export interface DeathModelRow {
   note: string;
   delayIntervalSec: number;
   seniorByRank: Readonly<Record<'HO' | 'MO' | 'RES', string>>;
-  scoring: { death: { delta: number }; delay: { delta: number } };
 }
 
 export interface DeathStepRow {
@@ -564,6 +562,37 @@ export interface EndingTagRow {
   reason: EndingReason;
 }
 
+export type Grade = 'EXCELLENT' | 'GOOD' | 'FAIR' | 'NEEDS_IMPROVEMENT';
+
+export interface GradingThresholds {
+  excellentMin: number;
+  goodMin: number;
+  fairMin: number;
+}
+
+export interface ScoringModelRow {
+  id: 'MODEL';
+  grading: Readonly<Record<SubscoreId, GradingThresholds>>;
+  deathCap: { oneDeathCap: Grade; needsImprovementFraction: number };
+  safetyScore: { goodMin: number; poorMax: number };
+  priority: { graceSec: number };
+  reviewStatus: ReviewStatus;
+  note: string;
+}
+
+export interface RequiredActionRow {
+  id: string;
+  fsmId: string;
+  state: string;
+  flag: string;
+  label: string;
+  catalogIds: readonly string[];
+  windowSec: number;
+  guideline: { title: string; text: string; source: string };
+  reviewStatus: ReviewStatus;
+  note: string;
+}
+
 export interface EngineTables {
   'case-templates': readonly CaseTemplateRow[];
   'case-fsm': readonly CaseFsmRow[];
@@ -593,6 +622,8 @@ export interface EngineTables {
   'energy-config': readonly EnergyModelRow[];
   'self-care-actions': readonly SelfCareRow[];
   endings: readonly EndingTagRow[];
+  'scoring-model': readonly ScoringModelRow[];
+  'required-actions': readonly RequiredActionRow[];
 }
 
 export const EMPTY_TABLES: EngineTables = {
@@ -624,4 +655,6 @@ export const EMPTY_TABLES: EngineTables = {
   'energy-config': [],
   'self-care-actions': [],
   endings: [],
+  'scoring-model': [],
+  'required-actions': [],
 };

@@ -13,7 +13,7 @@ import type { GameState } from '../core/state';
 import { CONSEQUENCE_ONSET_EVENT_KIND } from '../gate/gate';
 import { CALL_EXPIRE_EVENT, CALL_RING_AGAIN_EVENT, CONSULT_ARRIVAL_EVENT } from '../ward/calls';
 import { CALL_ARRIVAL_EVENT } from '../ward/generate';
-import { applyRule } from '../ward/scoring';
+import { applyRule } from '../score/scoring';
 import { none, noticeEffect, reject, SHIFT_MODULE, withShift } from './common';
 import { actionCostOf, applyDecay, energyModel, shouldNudge } from './energy';
 import { confirmHandover, faint, forceOvertimeEnd, workInFlight } from './handover';

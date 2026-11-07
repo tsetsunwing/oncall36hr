@@ -1,0 +1,338 @@
+[
+  {
+    "id": "req.pna-sepsis-01.deteriorating.oxygen.on",
+    "fsmId": "pna-sepsis-01",
+    "state": "DETERIORATING",
+    "flag": "oxygen.on",
+    "label": "Oxygen",
+    "catalogIds": ["oxygen.nrb", "oxygen.nasal"],
+    "windowSec": 1800,
+    "guideline": {
+      "title": "缺氧：及早給氧",
+      "text": "一般原則：氣促或血氧偏低時盡早給氧並重新評估；目標血氧同裝置以本院指引為準。",
+      "source": "待核實（未經臨床審核）"
+    },
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位時間窗，未經臨床審核。"
+  },
+  {
+    "id": "req.pna-sepsis-01.deteriorating.abx.iv",
+    "fsmId": "pna-sepsis-01",
+    "state": "DETERIORATING",
+    "flag": "abx.iv",
+    "label": "IV antibiotics",
+    "catalogIds": ["drug.ceftriaxone", "drug.augmentin"],
+    "windowSec": 3600,
+    "guideline": {
+      "title": "感染：及早使用靜脈抗生素",
+      "text": "一般原則：懷疑嚴重感染或敗血症時，盡早在抽血培養後使用合適嘅靜脈抗生素；實際時限以本院指引為準。",
+      "source": "待核實（未經臨床審核）"
+    },
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位時間窗，未經臨床審核。"
+  },
+  {
+    "id": "req.pna-sepsis-01.deteriorating.fluid.bolus",
+    "fsmId": "pna-sepsis-01",
+    "state": "DETERIORATING",
+    "flag": "fluid.bolus",
+    "label": "IV fluid bolus",
+    "catalogIds": ["fluid.ns500"],
+    "windowSec": 3600,
+    "guideline": {
+      "title": "低血壓：及早補液",
+      "text": "一般原則：低血壓或灌注不足時盡早靜脈補液並重新評估；用量以本院指引為準。",
+      "source": "待核實（未經臨床審核）"
+    },
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位時間窗，未經臨床審核。"
+  },
+  {
+    "id": "req.pna-sepsis-01.septic_shock.abx.iv",
+    "fsmId": "pna-sepsis-01",
+    "state": "SEPTIC_SHOCK",
+    "flag": "abx.iv",
+    "label": "IV antibiotics",
+    "catalogIds": ["drug.ceftriaxone", "drug.augmentin"],
+    "windowSec": 1800,
+    "guideline": {
+      "title": "感染：及早使用靜脈抗生素",
+      "text": "一般原則：懷疑嚴重感染或敗血症時，盡早在抽血培養後使用合適嘅靜脈抗生素；實際時限以本院指引為準。",
+      "source": "待核實（未經臨床審核）"
+    },
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位時間窗，未經臨床審核。"
+  },
+  {
+    "id": "req.pna-sepsis-01.septic_shock.fluid.bolus",
+    "fsmId": "pna-sepsis-01",
+    "state": "SEPTIC_SHOCK",
+    "flag": "fluid.bolus",
+    "label": "IV fluid bolus",
+    "catalogIds": ["fluid.ns500"],
+    "windowSec": 1800,
+    "guideline": {
+      "title": "低血壓：及早補液",
+      "text": "一般原則：低血壓或灌注不足時盡早靜脈補液並重新評估；用量以本院指引為準。",
+      "source": "待核實（未經臨床審核）"
+    },
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位時間窗，未經臨床審核。"
+  },
+  {
+    "id": "req.pna-sepsis-01.post_rosc.oxygen.on",
+    "fsmId": "pna-sepsis-01",
+    "state": "POST_ROSC",
+    "flag": "oxygen.on",
+    "label": "Oxygen",
+    "catalogIds": ["oxygen.nrb", "oxygen.nasal"],
+    "windowSec": 1800,
+    "guideline": {
+      "title": "缺氧：及早給氧",
+      "text": "一般原則：氣促或血氧偏低時盡早給氧並重新評估；目標血氧同裝置以本院指引為準。",
+      "source": "待核實（未經臨床審核）"
+    },
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位時間窗，未經臨床審核。"
+  },
+  {
+    "id": "req.acs-vf-01.post_rosc.oxygen.on",
+    "fsmId": "acs-vf-01",
+    "state": "POST_ROSC",
+    "flag": "oxygen.on",
+    "label": "Oxygen",
+    "catalogIds": ["oxygen.nrb", "oxygen.nasal"],
+    "windowSec": 1800,
+    "guideline": {
+      "title": "缺氧：及早給氧",
+      "text": "一般原則：氣促或血氧偏低時盡早給氧並重新評估；目標血氧同裝置以本院指引為準。",
+      "source": "待核實（未經臨床審核）"
+    },
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位時間窗，未經臨床審核。"
+  },
+  {
+    "id": "req.cell-01.stabilising.abx.iv",
+    "fsmId": "cell-01",
+    "state": "STABILISING",
+    "flag": "abx.iv",
+    "label": "IV antibiotics",
+    "catalogIds": ["drug.ceftriaxone", "drug.augmentin"],
+    "windowSec": 10800,
+    "guideline": {
+      "title": "感染：及早使用靜脈抗生素",
+      "text": "一般原則：懷疑嚴重感染或敗血症時，盡早在抽血培養後使用合適嘅靜脈抗生素；實際時限以本院指引為準。",
+      "source": "待核實（未經臨床審核）"
+    },
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位時間窗，未經臨床審核。"
+  },
+  {
+    "id": "req.cell-01.deteriorating.abx.iv",
+    "fsmId": "cell-01",
+    "state": "DETERIORATING",
+    "flag": "abx.iv",
+    "label": "IV antibiotics",
+    "catalogIds": ["drug.ceftriaxone", "drug.augmentin"],
+    "windowSec": 1800,
+    "guideline": {
+      "title": "感染：及早使用靜脈抗生素",
+      "text": "一般原則：懷疑嚴重感染或敗血症時，盡早在抽血培養後使用合適嘅靜脈抗生素；實際時限以本院指引為準。",
+      "source": "待核實（未經臨床審核）"
+    },
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位時間窗，未經臨床審核。"
+  },
+  {
+    "id": "req.uti-01.stabilising.abx.iv",
+    "fsmId": "uti-01",
+    "state": "STABILISING",
+    "flag": "abx.iv",
+    "label": "IV antibiotics",
+    "catalogIds": ["drug.ceftriaxone", "drug.augmentin"],
+    "windowSec": 10800,
+    "guideline": {
+      "title": "感染：及早使用靜脈抗生素",
+      "text": "一般原則：懷疑嚴重感染或敗血症時，盡早在抽血培養後使用合適嘅靜脈抗生素；實際時限以本院指引為準。",
+      "source": "待核實（未經臨床審核）"
+    },
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位時間窗，未經臨床審核。"
+  },
+  {
+    "id": "req.uti-01.deteriorating.abx.iv",
+    "fsmId": "uti-01",
+    "state": "DETERIORATING",
+    "flag": "abx.iv",
+    "label": "IV antibiotics",
+    "catalogIds": ["drug.ceftriaxone", "drug.augmentin"],
+    "windowSec": 1800,
+    "guideline": {
+      "title": "感染：及早使用靜脈抗生素",
+      "text": "一般原則：懷疑嚴重感染或敗血症時，盡早在抽血培養後使用合適嘅靜脈抗生素；實際時限以本院指引為準。",
+      "source": "待核實（未經臨床審核）"
+    },
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位時間窗，未經臨床審核。"
+  },
+  {
+    "id": "req.copd-01.stabilising.oxygen.on",
+    "fsmId": "copd-01",
+    "state": "STABILISING",
+    "flag": "oxygen.on",
+    "label": "Oxygen",
+    "catalogIds": ["oxygen.nrb", "oxygen.nasal"],
+    "windowSec": 10800,
+    "guideline": {
+      "title": "缺氧：及早給氧",
+      "text": "一般原則：氣促或血氧偏低時盡早給氧並重新評估；目標血氧同裝置以本院指引為準。",
+      "source": "待核實（未經臨床審核）"
+    },
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位時間窗，未經臨床審核。"
+  },
+  {
+    "id": "req.copd-01.deteriorating.oxygen.on",
+    "fsmId": "copd-01",
+    "state": "DETERIORATING",
+    "flag": "oxygen.on",
+    "label": "Oxygen",
+    "catalogIds": ["oxygen.nrb", "oxygen.nasal"],
+    "windowSec": 1800,
+    "guideline": {
+      "title": "缺氧：及早給氧",
+      "text": "一般原則：氣促或血氧偏低時盡早給氧並重新評估；目標血氧同裝置以本院指引為準。",
+      "source": "待核實（未經臨床審核）"
+    },
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位時間窗，未經臨床審核。"
+  },
+  {
+    "id": "req.htn-01.stabilising.monitoring.vitals",
+    "fsmId": "htn-01",
+    "state": "STABILISING",
+    "flag": "monitoring.vitals",
+    "label": "Vital signs monitoring",
+    "catalogIds": ["monitor.vitals.q15"],
+    "windowSec": 10800,
+    "guideline": {
+      "title": "病情不穩：加強監測",
+      "text": "一般原則：病情有惡化跡象時增加生命體徵監測頻率；頻率以本院指引為準。",
+      "source": "待核實（未經臨床審核）"
+    },
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位時間窗，未經臨床審核。"
+  },
+  {
+    "id": "req.htn-01.deteriorating.monitoring.vitals",
+    "fsmId": "htn-01",
+    "state": "DETERIORATING",
+    "flag": "monitoring.vitals",
+    "label": "Vital signs monitoring",
+    "catalogIds": ["monitor.vitals.q15"],
+    "windowSec": 1800,
+    "guideline": {
+      "title": "病情不穩：加強監測",
+      "text": "一般原則：病情有惡化跡象時增加生命體徵監測頻率；頻率以本院指引為準。",
+      "source": "待核實（未經臨床審核）"
+    },
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位時間窗，未經臨床審核。"
+  },
+  {
+    "id": "req.hf-01.stabilising.oxygen.on",
+    "fsmId": "hf-01",
+    "state": "STABILISING",
+    "flag": "oxygen.on",
+    "label": "Oxygen",
+    "catalogIds": ["oxygen.nrb", "oxygen.nasal"],
+    "windowSec": 3600,
+    "guideline": {
+      "title": "缺氧：及早給氧",
+      "text": "一般原則：氣促或血氧偏低時盡早給氧並重新評估；目標血氧同裝置以本院指引為準。",
+      "source": "待核實（未經臨床審核）"
+    },
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位時間窗，未經臨床審核。"
+  },
+  {
+    "id": "req.hf-01.deteriorating.oxygen.on",
+    "fsmId": "hf-01",
+    "state": "DETERIORATING",
+    "flag": "oxygen.on",
+    "label": "Oxygen",
+    "catalogIds": ["oxygen.nrb", "oxygen.nasal"],
+    "windowSec": 1800,
+    "guideline": {
+      "title": "缺氧：及早給氧",
+      "text": "一般原則：氣促或血氧偏低時盡早給氧並重新評估；目標血氧同裝置以本院指引為準。",
+      "source": "待核實（未經臨床審核）"
+    },
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位時間窗，未經臨床審核。"
+  },
+  {
+    "id": "req.pe-01.stabilising.oxygen.on",
+    "fsmId": "pe-01",
+    "state": "STABILISING",
+    "flag": "oxygen.on",
+    "label": "Oxygen",
+    "catalogIds": ["oxygen.nrb", "oxygen.nasal"],
+    "windowSec": 3600,
+    "guideline": {
+      "title": "缺氧：及早給氧",
+      "text": "一般原則：氣促或血氧偏低時盡早給氧並重新評估；目標血氧同裝置以本院指引為準。",
+      "source": "待核實（未經臨床審核）"
+    },
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位時間窗，未經臨床審核。"
+  },
+  {
+    "id": "req.pe-01.deteriorating.oxygen.on",
+    "fsmId": "pe-01",
+    "state": "DETERIORATING",
+    "flag": "oxygen.on",
+    "label": "Oxygen",
+    "catalogIds": ["oxygen.nrb", "oxygen.nasal"],
+    "windowSec": 1800,
+    "guideline": {
+      "title": "缺氧：及早給氧",
+      "text": "一般原則：氣促或血氧偏低時盡早給氧並重新評估；目標血氧同裝置以本院指引為準。",
+      "source": "待核實（未經臨床審核）"
+    },
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位時間窗，未經臨床審核。"
+  },
+  {
+    "id": "req.ugib-01.stabilising.fluid.bolus",
+    "fsmId": "ugib-01",
+    "state": "STABILISING",
+    "flag": "fluid.bolus",
+    "label": "IV fluid bolus",
+    "catalogIds": ["fluid.ns500"],
+    "windowSec": 3600,
+    "guideline": {
+      "title": "低血壓：及早補液",
+      "text": "一般原則：低血壓或灌注不足時盡早靜脈補液並重新評估；用量以本院指引為準。",
+      "source": "待核實（未經臨床審核）"
+    },
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位時間窗，未經臨床審核。"
+  },
+  {
+    "id": "req.ugib-01.deteriorating.fluid.bolus",
+    "fsmId": "ugib-01",
+    "state": "DETERIORATING",
+    "flag": "fluid.bolus",
+    "label": "IV fluid bolus",
+    "catalogIds": ["fluid.ns500"],
+    "windowSec": 1800,
+    "guideline": {
+      "title": "低血壓：及早補液",
+      "text": "一般原則：低血壓或灌注不足時盡早靜脈補液並重新評估；用量以本院指引為準。",
+      "source": "待核實（未經臨床審核）"
+    },
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位時間窗，未經臨床審核。"
+  }
+]

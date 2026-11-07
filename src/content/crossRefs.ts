@@ -207,6 +207,7 @@ export function validateCrossReferences(tables: Tables): ContentIssue[] {
   validateWardRefs(tables, add);
   validateAcls(tables, add);
   validateShift(tables, add);
+  validateScoring(tables, add);
 
   return issues;
 }
@@ -562,5 +563,72 @@ function validateShift(
   }
   endings.forEach((row, i) => {
     if (row.tag !== row.reason) add('endings', `${String(i)}.tag`, '標籤必須同原因一致');
+  });
+}
+
+const M7_REQUIRED_RULES: readonly string[] = [
+  'TIME_TO_CPR',
+  'TIME_TO_FIRST_SHOCK',
+  'CYCLE_GAP',
+  'CAUSE_TREATED',
+  'ROSC',
+  'PATIENT_DEATH',
+  'DEATH_PROCESS_DELAY',
+  'SHOCK_INAPPROPRIATE',
+  'SHOCK_WRONG_ENERGY',
+  'ACLS_DRUG_WRONG_DOSE',
+  'GATE_OBJECTION_HEEDED',
+  'GATE_INSISTED_CONFIRM',
+  'GATE_INSISTED_OBJECT',
+  'GATE_CONSEQUENCE_LOW',
+  'GATE_CONSEQUENCE_MID',
+  'GATE_CONSEQUENCE_HIGH',
+  'PHARMACY_SAFETY_GOOD',
+  'PHARMACY_SAFETY_FAIR',
+  'PHARMACY_SAFETY_POOR',
+  'REQUIRED_ORDER_ON_TIME',
+  'REQUIRED_ORDER_LATE',
+  'REQUIRED_ORDER_MISSED',
+  'PRIORITY_MOST_URGENT_FIRST',
+  'PRIORITY_LOWER_FIRST',
+  'SELF_CARE_MEAL_MISSED',
+  'SELF_CARE_ENERGY_LOW_AT_END',
+  'SELF_CARE_ENERGY_VERY_LOW_AT_END',
+];
+
+function validateScoring(
+  tables: Tables,
+  add: (table: string, path: string, message: string) => void,
+) {
+  const model = tables['scoring-model'];
+  const required = tables['required-actions'];
+  if (tables['scoring-rules'].length === 0 && model.length + required.length === 0) return;
+  const ruleIds = new Set(tables['scoring-rules'].map((r) => r.id));
+  for (const rule of M7_REQUIRED_RULES) {
+    if (!ruleIds.has(rule)) add('scoring-rules', rule, `缺少 M7 必需規則：${rule}`);
+  }
+  if (model.length !== 1) add('scoring-model', '(根)', '必須有且只有一列 MODEL');
+
+  const fsmById = new Map(tables['case-fsm'].map((f) => [f.id, f]));
+  const catalog = new Map(tables['order-catalog'].map((r) => [r.id, r]));
+  required.forEach((row, i) => {
+    const fsm = fsmById.get(row.fsmId);
+    if (!fsm) {
+      add('required-actions', `${String(i)}.fsmId`, `未知 case-fsm：${row.fsmId}`);
+    } else if (!(row.state in fsm.states)) {
+      add('required-actions', `${String(i)}.state`, `case-fsm ${row.fsmId} 冇狀態 ${row.state}`);
+    }
+    for (const catalogId of row.catalogIds) {
+      const entry = catalog.get(catalogId);
+      if (!entry) {
+        add('required-actions', `${String(i)}.catalogIds`, `未知 order-catalog：${catalogId}`);
+      } else if (!entry.setsFlags.includes(row.flag)) {
+        add(
+          'required-actions',
+          `${String(i)}.catalogIds`,
+          `order ${catalogId} 唔會設定 flag ${row.flag}`,
+        );
+      }
+    }
   });
 }

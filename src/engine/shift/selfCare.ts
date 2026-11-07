@@ -9,7 +9,7 @@ import type { EngineContext } from '../core/module';
 import type { GameState } from '../core/state';
 import { leaveVisit } from '../ward/movement';
 import { patientAtBed } from '../ward/movement';
-import { applyRule } from '../ward/scoring';
+import { applyRule } from '../score/scoring';
 import { none, reject, round2, withShift } from './common';
 import { changeEnergy } from './energy';
 import { activeMeal, type TimelineConfig } from './timeline';

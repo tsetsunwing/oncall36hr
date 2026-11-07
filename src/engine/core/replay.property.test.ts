@@ -133,39 +133,71 @@ describe('clock and pause invariants', () => {
     );
   });
 
+  const pausedInvariant = (seed: string, events: readonly EngineEvent[], duration: number) => {
+    const e = makeEngine({ modules });
+    const base = replay(e, e.init({ ...newGame, seed }), events).state;
+    const place = intent({
+      type: 'PLACE_ORDER',
+      patientId: 'px',
+      catalogId: 'c',
+      durationSec: duration + 60,
+    });
+    const running = replay(e, { ...base, paused: null }, [place]);
+    const accepted = running.state.counters.order > base.counters.order;
+    const kinds = running.effects.flatMap((f) => (f.type === 'NOTICE' ? [f.kind] : []));
+    // 隨機 tick 可能令更次走到巡房／超時凍結／交更／完結：M6 規則會乾淨拒絕新 order（一個 NOTICE、state 不變）。
+    // 能否接受只取決於 state（時鐘階段同巡房），所以兩邊都按 state 斷言，唔靠運氣。
+    const phase = base.clock.phase;
+    const roundActive = base.shift.rounds.active !== null;
+    const expectedKind =
+      phase === 'OVERTIME'
+        ? 'OVERTIME_FROZEN'
+        : phase === 'HANDOVER' || phase === 'ENDED'
+          ? 'SHIFT_NOT_ACTIVE'
+          : roundActive
+            ? 'ROUND_ACTIVE'
+            : null;
+    expect(accepted).toBe(expectedKind === null);
+    if (expectedKind !== null) {
+      expect(kinds).toEqual([expectedKind]);
+      expect(running.state).toEqual({ ...base, paused: null });
+      return;
+    }
+    const newId = `o${String(running.state.counters.order)}`;
+    const paused = replay(e, running.state, [intent({ type: 'PAUSE' })]).state;
+    expect(paused.paused).not.toBeNull();
+
+    const blocked = replay(e, paused, [
+      intent({ type: 'PLACE_ORDER', patientId: 'py', catalogId: 'c', durationSec: duration }),
+    ]);
+    expect(blocked.state).toEqual(paused);
+
+    const cancelled = replay(e, paused, [intent({ type: 'CANCEL_ORDER', orderId: newId })]);
+    expect(cancelled.state.orders[newId]?.status).toBe('CANCELLED');
+    expect(cancelled.state.paused).toEqual(paused.paused);
+  };
+
   it('while paused, PLACE_ORDER never changes state, and CANCEL_ORDER of a running order always succeeds', () => {
-    fc.assert(
-      fc.property(
-        seedArb,
-        eventsArb,
-        fc.integer({ min: 0, max: 3600 }),
-        (seed, events, duration) => {
-          const e = makeEngine({ modules });
-          const base = replay(e, e.init({ ...newGame, seed }), events).state;
-          const running = replay(e, { ...base, paused: null }, [
-            intent({
-              type: 'PLACE_ORDER',
-              patientId: 'px',
-              catalogId: 'c',
-              durationSec: duration + 60,
-            }),
-          ]);
-          const newId = `o${String(running.state.counters.order)}`;
-          const paused = replay(e, running.state, [intent({ type: 'PAUSE' })]).state;
-          expect(paused.paused).not.toBeNull();
+    fc.assert(fc.property(seedArb, eventsArb, fc.integer({ min: 0, max: 3600 }), pausedInvariant), {
+      numRuns: 200,
+    });
+  });
 
-          const blocked = replay(e, paused, [
-            intent({ type: 'PLACE_ORDER', patientId: 'py', catalogId: 'c', durationSec: duration }),
-          ]);
-          expect(blocked.state).toEqual(paused);
+  const REGRESSIONS: readonly { name: string; ticks: number[]; phase: string }[] = [
+    { name: '越過常規時間進入超時凍結', ticks: [58028, 67910, 123424, 170638], phase: 'OVERTIME' },
+    {
+      name: '連超時窗口都走完、更次已完結',
+      ticks: [116411, 174517, 44598, 144474],
+      phase: 'ENDED',
+    },
+  ];
 
-          const cancelled = replay(e, paused, [intent({ type: 'CANCEL_ORDER', orderId: newId })]);
-          expect(cancelled.state.orders[newId]?.status).toBe('CANCELLED');
-          expect(cancelled.state.paused).toEqual(paused.paused);
-        },
-      ),
-      { numRuns: 200 },
-    );
+  it.each(REGRESSIONS)('regression：$name 時落單被乾淨拒絕而唔係靜默失敗', ({ ticks, phase }) => {
+    const events: EngineEvent[] = [intent({ type: 'SET_SPEED', speed: 4 }), ...ticks.map(tick)];
+    const e = makeEngine({ modules });
+    const base = replay(e, e.init({ ...newGame, seed: '' }), events).state;
+    expect(base.clock.phase).toBe(phase);
+    pausedInvariant('', events, 0);
   });
 });
 

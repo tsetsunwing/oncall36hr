@@ -1,5 +1,5 @@
 /**
- * Ward 狀態（M4）：位置、電話、下屬、印象、委派、計分流水。
+ * Ward 狀態（M4）：位置、電話、下屬、印象、委派。
  * `sub.level` 係隱藏資歷（B7）：只准 engine 讀，永遠唔可以進入 view 或 AI context。
  */
 import { z } from 'zod';
@@ -159,19 +159,6 @@ export const taskSchema = z
 
 export type WardTask = z.infer<typeof taskSchema>;
 
-export const ledgerEntrySchema = z
-  .object({
-    t: z.number().int().min(0),
-    rule: z.string().min(1),
-    subscore: z.string().min(1),
-    delta: z.number(),
-    callId: z.string().nullable(),
-    patientId: z.string().nullable(),
-  })
-  .strict();
-
-export type LedgerEntry = z.infer<typeof ledgerEntrySchema>;
-
 const draftSchema = z
   .object({
     patientId: z.string().min(1),
@@ -211,7 +198,6 @@ export const wardStateSchema = z
     contacts: z.record(z.string(), z.array(z.enum(RANKS))),
     draft: draftSchema.nullable(),
     tasks: z.array(taskSchema),
-    ledger: z.array(ledgerEntrySchema),
     tags: z.record(z.string(), z.array(z.string())),
     plannedCalls: z.number().int().min(0),
     counters: z.object({ call: z.number().int().min(0), task: z.number().int().min(0) }).strict(),
@@ -230,7 +216,6 @@ export const emptyWard = (): WardState => ({
   contacts: {},
   draft: null,
   tasks: [],
-  ledger: [],
   tags: {},
   plannedCalls: 0,
   counters: { call: 0, task: 0 },

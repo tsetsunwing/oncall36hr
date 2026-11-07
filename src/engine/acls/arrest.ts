@@ -14,7 +14,7 @@ import type { EngineContext } from '../core/module';
 import { rngChance } from '../core/rng';
 import type { GameState } from '../core/state';
 import { logEvent } from '../log/log';
-import { addLedger } from '../score/ledger';
+import { applyRule } from '../score/scoring';
 import { raiseArrestCall } from '../ward/arrestCall';
 import {
   aclsModelOf,
@@ -263,11 +263,10 @@ export function startOrResumeCpr(
     reasonCode: first ? 'CPR_STARTED' : 'CPR_RESUMED',
   });
   if (first && t - started.onsetAt > model.scoring.timeToCpr.graceSec) {
-    next = addLedger(next, {
-      category: 'TIMELINESS',
-      code: 'TIME_TO_CPR',
-      delta: model.scoring.timeToCpr.delta,
+    next = applyRule(next, 'TIME_TO_CPR', ctx, {
       patientId: started.patientId,
+      evidence: `resus:${String(started.episode)}`,
+      facts: { delaySec: t - started.onsetAt, graceSec: model.scoring.timeToCpr.graceSec },
     });
   }
   return narrate(
@@ -402,11 +401,9 @@ function achieveRosc(state: GameState, resus: Resus, ctx: EngineContext): Step {
     }),
   };
   next = logEvent(next, { patientId: patient.id, reasonCode: 'ROSC' });
-  next = addLedger(next, {
-    category: 'CLINICAL_OUTCOME',
-    code: 'ROSC',
-    delta: model.scoring.rosc.delta,
+  next = applyRule(next, 'ROSC', ctx, {
     patientId: patient.id,
+    evidence: `resus:${String(roscResus.episode)}`,
   });
   const released = endCprSlow(next, ctx.config);
   const spoke = narrate(
@@ -433,11 +430,13 @@ export function performRhythmCheck(
   if (working.cpr.state === 'ACTIVE') {
     const cycleDueAt = (working.cpr.cycleStartedAt ?? t) + ctx.config.acls.cycleSeconds;
     if (t - durationSec > cycleDueAt + model.scoring.cycleGap.graceSec) {
-      next = addLedger(next, {
-        category: 'TIMELINESS',
-        code: 'CYCLE_GAP',
-        delta: model.scoring.cycleGap.delta,
+      next = applyRule(next, 'CYCLE_GAP', ctx, {
         patientId: working.patientId,
+        evidence: `resus:${String(working.episode)}`,
+        facts: {
+          delaySec: t - durationSec - cycleDueAt,
+          graceSec: model.scoring.cycleGap.graceSec,
+        },
       });
     }
     working = {
@@ -500,17 +499,33 @@ export function deliverShock(
     patientId: working.patientId,
     reasonCode: shockable ? 'SHOCK_DELIVERED' : 'SHOCK_ON_NON_SHOCKABLE',
   });
+  const resusRef = `resus:${String(working.episode)}`;
+  if (!shockable) {
+    next = applyRule(next, 'SHOCK_INAPPROPRIATE', ctx, {
+      patientId: working.patientId,
+      evidence: resusRef,
+      facts: { rhythm: resus.rhythm },
+    });
+  } else if (!energyInRange(energyJ, model)) {
+    next = applyRule(next, 'SHOCK_WRONG_ENERGY', ctx, {
+      patientId: working.patientId,
+      evidence: resusRef,
+      facts: { energyJ },
+    });
+  }
   if (
     shockable &&
     accrued.firstShockAt === null &&
     accrued.firstShockableAt !== null &&
     t - accrued.firstShockableAt > model.scoring.timeToFirstShock.graceSec
   ) {
-    next = addLedger(next, {
-      category: 'TIMELINESS',
-      code: 'TIME_TO_FIRST_SHOCK',
-      delta: model.scoring.timeToFirstShock.delta,
+    next = applyRule(next, 'TIME_TO_FIRST_SHOCK', ctx, {
       patientId: working.patientId,
+      evidence: `resus:${String(working.episode)}`,
+      facts: {
+        delaySec: t - accrued.firstShockableAt,
+        graceSec: model.scoring.timeToFirstShock.graceSec,
+      },
     });
   }
 
@@ -559,10 +574,17 @@ export function giveDrug(
     drugs: [...resus.drugs, given],
     cycle: { ...resus.cycle, drugs: [...resus.cycle.drugs, given] },
   };
-  const next = logEvent(setResus(state, working), {
+  let next = logEvent(setResus(state, working), {
     patientId: working.patientId,
     reasonCode: 'DRUG_GIVEN',
   });
+  if (!given.doseOk) {
+    next = applyRule(next, 'ACLS_DRUG_WRONG_DOSE', ctx, {
+      patientId: working.patientId,
+      evidence: `resus:${String(working.episode)}`,
+      facts: { formularyId: given.formularyId },
+    });
+  }
   return narrate(
     next,
     working.patientId,

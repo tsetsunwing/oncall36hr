@@ -457,10 +457,16 @@ export interface HandoverCandidateView {
   selected: boolean;
 }
 
+export type GradeCode = 'EXCELLENT' | 'GOOD' | 'FAIR' | 'NEEDS_IMPROVEMENT';
+
 export interface SubscoreResultView {
   id: SubscoreCode;
-  /** 原始加減總和（唔設總分、唔設加權） */
-  sum: number;
+  /** 評級由 T22b 門檻決定；冇總分、冇加權（spec §17） */
+  grade: GradeCode;
+  /** 該分項有幾多條記錄（0＝本局沒有相關事件） */
+  entries: number;
+  /** 死亡令「臨床結果」降級 */
+  cappedByDeath: boolean;
   items: { rule: string; count: number; delta: number }[];
 }
 
@@ -469,6 +475,85 @@ export interface ResultPatientView {
   name: string;
   outcome: 'DECEASED' | 'ALARM' | 'CAUTION' | 'STABLE';
   mentioned: boolean;
+  /** 不可挽回嘅病人死亡：結局照降級，但提示「已盡力」（Q94 D） */
+  doneBest: boolean;
+}
+
+export type TimelineKindCode = 'ORDER' | 'EVENT' | 'CALL' | 'SCORE';
+
+export interface ReviewPatientLabel {
+  bed: number | null;
+  name: string | null;
+}
+
+export interface ReviewEntryView extends ReviewPatientLabel {
+  id: string;
+  timeLabel: string;
+  rule: string;
+  delta: number;
+  evidence: string | null;
+}
+
+export interface ReviewTimelineView extends ReviewPatientLabel {
+  key: string;
+  timeLabel: string;
+  kind: TimelineKindCode;
+  code: string;
+  label: string | null;
+  detail: string | null;
+  delta: number | null;
+  subscore: SubscoreCode | null;
+}
+
+export interface ReviewWhatIfView extends ReviewPatientLabel {
+  id: string;
+  label: string | null;
+  timeLabel: string;
+  rule: string;
+  facts: Record<string, number | string>;
+}
+
+export interface ReviewGuidelineView extends ReviewPatientLabel {
+  id: string;
+  label: string;
+  status: 'ON_TIME' | 'LATE' | 'MISSED';
+  windowMin: number;
+  delayMin: number;
+  title: string;
+  text: string;
+  source: string;
+  pendingReview: boolean;
+}
+
+export interface ReviewSafetyView extends ReviewPatientLabel {
+  orderId: string;
+  timeLabel: string;
+  orderLabel: string;
+  outcome: 'RELEASED' | 'CANCELLED' | 'OPEN';
+  concerns: { by: 'PHARMACY' | 'NURSE'; category: string; verdict: string }[];
+  insistCount: number;
+  aiScore: number | null;
+  aiReason: string | null;
+  danger: {
+    level: 'LOW' | 'MID' | 'HIGH';
+    category: string;
+    reason: string | null;
+    hit: boolean | null;
+  } | null;
+  rules: string[];
+}
+
+export interface ReviewView {
+  table: { id: SubscoreCode; grade: GradeCode; rows: ReviewEntryView[] }[];
+  timeline: ReviewTimelineView[];
+  whatIf: ReviewWhatIfView[];
+  guidelines: ReviewGuidelineView[];
+  safety: ReviewSafetyView[];
+  deaths: (ReviewPatientLabel & {
+    timeLabel: string;
+    doneBest: boolean;
+    processComplete: boolean;
+  })[];
 }
 
 export interface ResultView {
@@ -480,6 +565,9 @@ export interface ResultView {
   subscores: SubscoreResultView[];
   patients: ResultPatientView[];
   rounds: { total: number; answered: number; correct: number };
+  /** 有不可挽回嘅死亡：回顧提示「已盡力」 */
+  doneBest: boolean;
+  review: ReviewView;
 }
 
 export interface ShiftView {

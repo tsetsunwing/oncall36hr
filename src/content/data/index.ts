@@ -22,6 +22,8 @@ import rankComplexity from './rank-complexity.json';
 import results from './results.json';
 import rhythms from './rhythms.json';
 import roundsTopics from './rounds-topics.json';
+import requiredActions from './required-actions.json';
+import scoringModel from './scoring-model.json';
 import scoringRules from './scoring-rules.json';
 import selfCareActions from './self-care-actions.json';
 import subordinates from './subordinates.json';
@@ -58,6 +60,8 @@ export const rawContent: RawContent = {
     results: results,
     rhythms: rhythms,
     'rounds-topics': roundsTopics,
+    'required-actions': requiredActions,
+    'scoring-model': scoringModel,
     'scoring-rules': scoringRules,
     'self-care-actions': selfCareActions,
     subordinates: subordinates,

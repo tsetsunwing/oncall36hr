@@ -64,7 +64,7 @@ const replyOf = (run: Run, text: string): Run => {
   return answer(run, 'consult.reply', { lines: [{ speaker, text }] });
 };
 
-const rules = (state: GameState) => state.ward.ledger.map((l) => l.rule);
+const rules = (state: GameState) => state.scoreLedger.map((l) => l.rule);
 const failed = (state: GameState) => state.paused?.by === 'ai-failure';
 
 const send = (state: GameState, sbar: Record<string, string>): Run =>
