@@ -17,7 +17,7 @@ import { ackBeatsFor } from './ack';
 import { chooseExecutor, executorDurationSec, executorRef } from './executors';
 import type { Order } from './orderTypes';
 import { registerOrder } from './orders';
-import { recordSubordinateOrder, rollSubordinate, taskKindOfCatalog } from '../ward/delegation';
+import { recordSubordinateOrder, rollSubordinate, taskKindOfCatalog } from '../ward/subRoll';
 
 export const ORDER_AWAITING_GATE_CODE = 'AWAITING_GATE';
 

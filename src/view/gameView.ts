@@ -15,7 +15,7 @@ import {
   type MewsComponentKey,
   type Patient,
 } from '@/engine';
-import { formatClock, type ShiftClockConfig } from './clock';
+import { formatClock } from './clock';
 import type {
   ActionRowView,
   AlarmLevel,
@@ -33,20 +33,9 @@ import type {
 } from './types';
 import { parseWave, plethAmplitude } from './waveform';
 import { selectWard } from './wardView';
+import type { ViewEnv } from './viewEnv';
 
-export interface ViewEnv {
-  tables: EngineTables;
-  config: ShiftClockConfig & {
-    clock: { speeds: readonly number[] };
-    chat: { playerTextMaxChars: number };
-    gate: { pharmacyName: string };
-    phone: { sbarMaxChars: number; transcriptLimit: number };
-    staff: { rankImpression: { start: number } };
-    ui: { monitor: { sweepSeconds: number; targetFps: number } };
-  };
-  aiFailureReason?: string | null;
-  notice?: GameView['notice'];
-}
+export type { ViewEnv };
 
 function alertLevel(score: number, mews: EngineTables['mews'][number] | undefined): AlarmLevel {
   if (!mews || score <= 0) return 'NORMAL';

@@ -12,7 +12,7 @@ import {
   type GameState,
   type Rank,
 } from '@/engine';
-import type { ViewEnv } from './gameView';
+import type { ViewEnv } from './viewEnv';
 import type {
   BedView,
   CallLineView,
