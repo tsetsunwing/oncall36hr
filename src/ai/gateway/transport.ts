@@ -179,10 +179,16 @@ export function completionTarget(baseUrl: string): string {
   return value;
 }
 
-/** 供應商錯誤正文。去掉可能混入的 key，並截短。 */
+function errorRecord(body: unknown): { error?: unknown; message?: unknown } | undefined {
+  if (Array.isArray(body)) return errorRecord(body[0]);
+  if (!body || typeof body !== 'object') return undefined;
+  return body;
+}
+
+/** 供應商錯誤正文。去掉可能混入的 key，並截短。Gemini 有時把錯誤包成陣列。 */
 export function providerErrorDetail(body: unknown): string {
-  if (!body || typeof body !== 'object') return '';
-  const record = body as { error?: unknown; message?: unknown };
+  const record = errorRecord(body);
+  if (!record) return '';
   const error = record.error;
   let text = '';
   if (typeof error === 'string') text = error;
@@ -200,7 +206,8 @@ export function providerErrorDetail(body: unknown): string {
 export function isApiKeyRejection(status: number, body: unknown): boolean {
   if (status === 401 || status === 403) return true;
   if (status !== 400) return false;
-  return /incorrect api key|invalid api key|invalid x-api-key|authentication/i.test(
+  // Gemini 的 OpenAI 相容層用 400 表示鑰匙問題，不是路徑或欄位錯誤。
+  return /incorrect api key|invalid api key|please pass a valid api key|invalid x-api-key|missing or invalid authorization|authentication/i.test(
     providerErrorDetail(body),
   );
 }

@@ -11,7 +11,7 @@ import { AiSettingsFields } from './AiSettingsFields';
 
 export type ConnectionOutcome =
   | { kind: 'ok'; jsonMode: boolean }
-  | { kind: 'auth'; status: number; detail?: string }
+  | { kind: 'auth'; status: number; detail?: string; url?: string }
   | { kind: 'http'; status: number; detail?: string; url?: string }
   | { kind: 'unavailable-model'; model: string; available: string[] }
   | { kind: 'format' }
@@ -27,6 +27,10 @@ export interface SettingsPageProps {
 type TestState =
   { phase: 'idle' } | { phase: 'running' } | { phase: 'done'; message: string; ok: boolean };
 
+function requested(url: string | undefined): string {
+  return url ? `${ui.settings.testResult.requested}${url}。` : '';
+}
+
 function describeOutcome(outcome: ConnectionOutcome): { message: string; ok: boolean } {
   const t = ui.settings.testResult;
   switch (outcome.kind) {
@@ -34,16 +38,14 @@ function describeOutcome(outcome: ConnectionOutcome): { message: string; ok: boo
       return { message: outcome.jsonMode ? t.ok : t.okNonJson, ok: true };
     case 'auth':
       return {
-        message: outcome.detail
-          ? `${t.auth}（HTTP ${outcome.status}）${outcome.detail}`
-          : `${t.auth}（HTTP ${outcome.status}）`,
+        message: `${t.auth}（HTTP ${outcome.status}）${requested(outcome.url)}${outcome.detail ?? ''}`,
         ok: false,
       };
-    case 'http': {
-      const where = outcome.url ? `${t.requested}${outcome.url}。` : '';
-      const detail = outcome.detail ?? '';
-      return { message: `${t.http}${outcome.status}。${where}${detail}`, ok: false };
-    }
+    case 'http':
+      return {
+        message: `${t.http}${outcome.status}。${requested(outcome.url)}${outcome.detail ?? ''}`,
+        ok: false,
+      };
     case 'unavailable-model':
       return {
         message: `${t.modelMissing}${outcome.model}。${outcome.available.slice(0, 8).join('、')}`,

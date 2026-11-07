@@ -36,7 +36,8 @@ export interface ProviderSpec {
 const grokThinking = ['low', 'medium', 'high', 'xhigh'] as const;
 const grok45Thinking = ['low', 'medium', 'high'] as const;
 const geminiArgonThinking = ['low', 'medium', 'high'] as const;
-const geminiFlashThinking = ['minimal', 'low', 'medium', 'high'] as const;
+/** 相容層實測拒收 minimal（400）。Gemini 3 也不能用 none 關掉思考。 */
+const geminiFlashThinking = ['low', 'medium', 'high'] as const;
 const openaiFull = ['none', 'low', 'medium', 'high', 'xhigh', 'max'] as const;
 const openaiNoNone = ['low', 'medium', 'high', 'xhigh', 'max'] as const;
 const claudeEffort = ['low', 'medium', 'high', 'xhigh', 'max'] as const;

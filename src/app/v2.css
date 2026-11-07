@@ -1399,6 +1399,11 @@ tr[data-flag='H'] .value-flagged {
   margin-top: 0;
 }
 
+.play-stage .notice {
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
 .play-stage .notice-blocked {
   color: var(--text);
   background: #fffaf0;

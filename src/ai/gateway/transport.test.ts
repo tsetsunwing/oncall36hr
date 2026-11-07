@@ -166,6 +166,16 @@ describe('pasted console endpoints', () => {
     expect(sent).toEqual(['https://api.x.ai/v1/chat/completions']);
   });
 
+  it('reads a Gemini array error about the API key', () => {
+    expect(
+      providerErrorDetail([
+        {
+          error: { code: 400, message: 'Please pass a valid API key', status: 'INVALID_ARGUMENT' },
+        },
+      ]),
+    ).toBe('Please pass a valid API key');
+  });
+
   it('reads an xAI error without keeping a key', () => {
     const detail = providerErrorDetail({
       code: 'not-found',

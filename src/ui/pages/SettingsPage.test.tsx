@@ -106,6 +106,21 @@ describe('SettingsPage', () => {
     expect(result).toHaveTextContent(text);
   });
 
+  it('shows the full Gemini request URL instead of a clipped prefix', async () => {
+    const url = 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions';
+    const { user } = setup({
+      kind: 'auth',
+      status: 400,
+      url,
+      detail: 'Please pass a valid API key',
+    });
+    await user.type(screen.getByLabelText(ui.settings.apiKeyLabel), 'invalid-key-not-real');
+    await user.click(screen.getByRole('button', { name: ui.settings.testConnection }));
+    const result = await screen.findByTestId('connection-result');
+    expect(result.textContent).toContain(url);
+    expect(result.textContent).toContain('認證失敗');
+  });
+
   it('explains a Grok 404 when the key cannot use that model', async () => {
     const { user } = setup({
       kind: 'unavailable-model',

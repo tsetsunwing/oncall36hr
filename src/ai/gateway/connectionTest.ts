@@ -12,7 +12,7 @@ import type { AiEndpoint, TransportOptions } from './types';
 
 export type ConnectionTestResult =
   | { kind: 'ok'; jsonMode: boolean }
-  | { kind: 'auth'; status: number; detail?: string }
+  | { kind: 'auth'; status: number; detail?: string; url?: string }
   | { kind: 'http'; status: number; detail?: string; url?: string }
   | { kind: 'unavailable-model'; model: string; available: string[] }
   | { kind: 'format' }
@@ -50,7 +50,7 @@ function modelIds(body: unknown): string[] {
 function withDetail(status: number, body: unknown, url: string): ConnectionTestResult {
   const detail = providerErrorDetail(body);
   if (isApiKeyRejection(status, body)) {
-    return detail ? { kind: 'auth', status, detail } : { kind: 'auth', status };
+    return detail ? { kind: 'auth', status, detail, url } : { kind: 'auth', status, url };
   }
   return detail ? { kind: 'http', status, detail, url } : { kind: 'http', status, url };
 }
