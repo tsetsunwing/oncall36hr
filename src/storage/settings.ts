@@ -85,6 +85,7 @@ export function normalizeBaseUrl(value: string): string {
   }
   try {
     const url = new URL(text);
+    if (url.host === 'console.x.ai') return 'https://api.x.ai/v1';
     const bare = url.pathname === '' || url.pathname === '/';
     if (bare && (url.host === 'api.x.ai' || url.host === 'us.api.x.ai')) return `${url.origin}/v1`;
   } catch {

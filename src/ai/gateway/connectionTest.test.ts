@@ -2,7 +2,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { startMockServer, type MockServer } from '../../../test-support/mock-ai-server/server';
 import { testConnection } from './connectionTest';
-import { providerErrorDetail } from './transport';
 
 let mock: MockServer;
 
@@ -47,12 +46,13 @@ describe('testConnection against the mock OpenAI-compatible server', () => {
   });
 
   it('maps server errors to http', async () => {
-    expect(await testConnection(endpoint({ model: 'mock-5xx' }))).toEqual({
+    expect(await testConnection(endpoint({ model: 'mock-5xx' }))).toMatchObject({
       kind: 'http',
       status: 500,
       detail: 'Internal error',
+      url: expect.stringContaining('/chat/completions') as string,
     });
-    expect(await testConnection(endpoint({ model: 'mock-429' }))).toEqual({
+    expect(await testConnection(endpoint({ model: 'mock-429' }))).toMatchObject({
       kind: 'http',
       status: 429,
       detail: 'Rate limited',
@@ -101,18 +101,14 @@ describe('testConnection against the mock OpenAI-compatible server', () => {
     expect(calls[0]?.headers['x-ai-target-base-url']).toBe(mock.baseUrl);
   });
 
-  it('surfaces a Grok 404 body and collapses a pasted endpoint', async () => {
-    let url = '';
+  it('reports a Grok 404 against the models URL when the path does not exist', async () => {
+    const urls: string[] = [];
     const fetchImpl = ((input: string) => {
-      url = input;
+      urls.push(input);
       return Promise.resolve(
-        new Response(
-          JSON.stringify({
-            code: 'not-found',
-            error: 'The model grok-4.7 does not exist or your team does not have access to it.',
-          }),
-          { status: 404 },
-        ),
+        new Response(JSON.stringify({ error: 'The requested resource was not found.' }), {
+          status: 404,
+        }),
       );
     }) as typeof fetch;
     const result = await testConnection(
@@ -124,13 +120,38 @@ describe('testConnection against the mock OpenAI-compatible server', () => {
       },
       { fetchImpl, timeoutMs: 500 },
     );
-    expect(url).toBe('https://api.x.ai/v1/chat/completions');
-    expect(result).toEqual({
+    expect(urls).toEqual(['https://api.x.ai/v1/models']);
+    expect(result).toMatchObject({
       kind: 'http',
       status: 404,
-      detail: providerErrorDetail({
-        error: 'The model grok-4.7 does not exist or your team does not have access to it.',
-      }),
+      url: 'https://api.x.ai/v1/models',
+    });
+  });
+
+  it('names the models a Grok key can actually call', async () => {
+    const urls: string[] = [];
+    const fetchImpl = ((input: string) => {
+      urls.push(input);
+      return Promise.resolve(
+        new Response(JSON.stringify({ data: [{ id: 'grok-4.3' }, { id: 'grok-4.5' }] }), {
+          status: 200,
+        }),
+      );
+    }) as typeof fetch;
+    const result = await testConnection(
+      {
+        provider: 'grok',
+        baseUrl: 'https://api.x.ai/v1',
+        apiKey: 'xai-test',
+        model: 'grok-4.7',
+      },
+      { fetchImpl, timeoutMs: 500 },
+    );
+    expect(urls).toEqual(['https://api.x.ai/v1/models']);
+    expect(result).toEqual({
+      kind: 'unavailable-model',
+      model: 'grok-4.7',
+      available: ['grok-4.3', 'grok-4.5'],
     });
   });
 });

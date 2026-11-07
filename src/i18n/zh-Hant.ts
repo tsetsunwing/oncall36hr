@@ -337,6 +337,9 @@ export const ui = {
         '無法連線：請檢查網絡與 base URL；若供應商不允許瀏覽器直接連線（CORS），需要另行設置代理。',
       timeout: '連線逾時：供應商沒有在限期內回應。',
       http: '供應商回報錯誤，HTTP 狀態碼：',
+      requested: '請求地址：',
+      modelMissing:
+        '這條 API key 用不到所選模型，所以 xAI 回 404。遊戲沒有、也不需要自己的後端。這條 key 可用的模型：',
       format: '供應商回覆的格式不符合預期。',
       invalidConfig: '設定不完整，無法測試。',
     },

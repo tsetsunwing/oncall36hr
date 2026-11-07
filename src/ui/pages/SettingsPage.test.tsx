@@ -105,4 +105,18 @@ describe('SettingsPage', () => {
     expect(result).toHaveAttribute('data-ok', 'false');
     expect(result).toHaveTextContent(text);
   });
+
+  it('explains a Grok 404 when the key cannot use that model', async () => {
+    const { user } = setup({
+      kind: 'unavailable-model',
+      model: 'grok-4.7',
+      available: ['grok-4.3'],
+    });
+    await user.type(screen.getByLabelText(ui.settings.apiKeyLabel), 'xai-test');
+    await user.click(screen.getByRole('button', { name: ui.settings.testConnection }));
+    const result = await screen.findByTestId('connection-result');
+    expect(result).toHaveTextContent('沒有、也不需要自己的後端');
+    expect(result).toHaveTextContent('grok-4.7');
+    expect(result).toHaveTextContent('grok-4.3');
+  });
 });

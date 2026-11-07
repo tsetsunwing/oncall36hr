@@ -82,10 +82,11 @@ function claudeText(body: unknown): string {
     .join('');
 }
 
-async function postJson(
+async function sendJson(
   url: string,
+  method: 'GET' | 'POST',
   headers: Record<string, string>,
-  payload: unknown,
+  body: string | undefined,
   options: TransportOptions,
 ): Promise<TransportResult> {
   const doFetch = options.fetchImpl ?? globalThis.fetch.bind(globalThis);
@@ -97,23 +98,47 @@ async function postJson(
   }, options.timeoutMs);
   try {
     const response = await doFetch(url, {
-      method: 'POST',
+      method,
       headers,
-      body: JSON.stringify(payload),
+      ...(body === undefined ? {} : { body }),
       signal: controller.signal,
     });
-    let body: unknown = null;
+    let parsed: unknown = null;
     try {
-      body = await response.json();
+      parsed = await response.json();
     } catch {
-      body = null;
+      parsed = null;
     }
-    return { kind: 'response', status: response.status, body };
+    return { kind: 'response', status: response.status, body: parsed };
   } catch {
     return state.timedOut ? { kind: 'timeout' } : { kind: 'network' };
   } finally {
     clearTimeout(timer);
   }
+}
+
+function postJson(
+  url: string,
+  headers: Record<string, string>,
+  payload: unknown,
+  options: TransportOptions,
+): Promise<TransportResult> {
+  return sendJson(url, 'POST', headers, JSON.stringify(payload), options);
+}
+
+/** 用同一條 key 讀供應商的模型清單。key 只放在 Authorization，不入網址。 */
+export function authorizedGet(
+  url: string,
+  apiKey: string,
+  options: TransportOptions,
+): Promise<TransportResult> {
+  return sendJson(
+    url,
+    'GET',
+    { Authorization: `Bearer ${apiKey}`, Accept: 'application/json' },
+    undefined,
+    options,
+  );
 }
 
 const ENDPOINT_SUFFIXES = ['/chat/completions', '/messages', '/responses'] as const;
@@ -144,6 +169,7 @@ export function completionTarget(baseUrl: string): string {
   try {
     const url = new URL(value);
     const bareHost = url.pathname === '' || url.pathname === '/';
+    if (url.host === 'console.x.ai') return 'https://api.x.ai/v1';
     if (bareHost && (url.host === 'api.x.ai' || url.host === 'us.api.x.ai')) {
       return `${url.origin}/v1`;
     }

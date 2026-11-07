@@ -12,7 +12,8 @@ import { AiSettingsFields } from './AiSettingsFields';
 export type ConnectionOutcome =
   | { kind: 'ok'; jsonMode: boolean }
   | { kind: 'auth'; status: number; detail?: string }
-  | { kind: 'http'; status: number; detail?: string }
+  | { kind: 'http'; status: number; detail?: string; url?: string }
+  | { kind: 'unavailable-model'; model: string; available: string[] }
   | { kind: 'format' }
   | { kind: 'timeout' }
   | { kind: 'network' };
@@ -38,11 +39,14 @@ function describeOutcome(outcome: ConnectionOutcome): { message: string; ok: boo
           : `${t.auth}（HTTP ${outcome.status}）`,
         ok: false,
       };
-    case 'http':
+    case 'http': {
+      const where = outcome.url ? `${t.requested}${outcome.url}。` : '';
+      const detail = outcome.detail ?? '';
+      return { message: `${t.http}${outcome.status}。${where}${detail}`, ok: false };
+    }
+    case 'unavailable-model':
       return {
-        message: outcome.detail
-          ? `${t.http}${outcome.status}。${outcome.detail}`
-          : `${t.http}${outcome.status}`,
+        message: `${t.modelMissing}${outcome.model}。${outcome.available.slice(0, 8).join('、')}`,
         ok: false,
       };
     case 'format':
