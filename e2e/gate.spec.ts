@@ -6,7 +6,7 @@ const MOCK_ORIGIN = `http://127.0.0.1:${process.env.MOCK_AI_PORT ?? '8787'}`;
 const MOCK_BASE_URL = `${MOCK_ORIGIN}/v1`;
 const SHOTS = process.env.M3_SHOTS;
 
-async function openGame(page: Page, model: string, seed: string) {
+async function openGame(page: Page, model: string, seed: string, extraQuery = '') {
   await page.request.post(`${MOCK_ORIGIN}/__reset`);
   await page.addInitScript(
     ({ baseUrl, model: m }) => {
@@ -17,7 +17,7 @@ async function openGame(page: Page, model: string, seed: string) {
     },
     { baseUrl: MOCK_BASE_URL, model },
   );
-  await page.goto(`/#/game?seed=${seed}&ward=single`);
+  await page.goto(`/#/game?seed=${seed}&ward=single${extraQuery}`);
   await expect(page.getByTestId('monitor')).toBeVisible();
 }
 
@@ -105,7 +105,7 @@ test.describe('M3 order + gate flow', () => {
   test('lab order: report arrives after the table delay, with flags, reference ranges and the placeholder notice', async ({
     page,
   }) => {
-    await openGame(page, 'mock-ok', 'e2e-lab');
+    await openGame(page, 'mock-ok', 'e2e-lab', '&realsec=1');
     await page.getByRole('button', { name: ui.game.speedOption(4) }).click();
     await send(page, 'cbc');
     await openSidePanel(page);

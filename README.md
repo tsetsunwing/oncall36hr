@@ -33,3 +33,12 @@ Vite + React 18 + TypeScript（strict）純前端遊戲。目前進度：**M2 �
 - 病人組合、來電量（T12：+0／+10／+20%）、下屬可靠度與速度、職級反應全部由 `src/content/data/*.json` 與 `config.json` 驅動；engine 在 `src/engine/ward/`，介面在 `src/ui/ward/`。
 - 下屬能力（level）只存在於 engine 內，從不進入 view、介面或 AI context；玩家只能由實際表現判斷。
 - 電話對白與 SBAR 預填由 engine 以模板產生（M4 未新增 AI contract）；所有臨床／平衡數值均標 `PENDING_CLINICAL_REVIEW`。
+
+## M6 模式與時間線
+
+- 設定頁選職級（HO／MO／RES）、難度、模式（日更 08–18、夜更 18–08、On call 36 小時＝34 小時加 2 小時加班）同 API key；網址另有 `realsec=<1x 時每遊戲分鐘嘅真實秒數>`（0.005–60，只供 e2e／預覽加速）。
+- 時間：1 遊戲分鐘 ＝ 5 真實秒（1x，決定 C3）；等 AI 回應期間遊戲時鐘自動暫停（決定 C1，`config.clock.pauseWhileAiPending`）。
+- 查房：日更 09:00、14:00；On call 共四次（首日兩次＋翌日兩次）；夜更冇。查房由 AC 主持，期間冇來電、冇會診、冇護士呼叫、冇新急變；每位病人一條題目（病史／病理／藥理），AI 只出題同批改（`rounds.question`／`rounds.grade`），答案來源係 `rounds-topics` 表嘅 keyFacts。
+- 體力：固定數值由 `energy-config` 驅動（衰減、行動耗體力、低於 50% 護士提示休息）；六個自理動作（食飯需喺飯餐時段）。體力歸零即暈倒：強制交更，結局標籤只有「暈倒」。
+- 加班：2 小時窗口內 FSM 與生命表徵凍結，新工作被擋；到點強制交更，標籤「超時」。可提早手動交更，揀要交代／唔交代嘅病人（計分掛鉤 `HANDOVER_*` 規則）。
+- 存檔 schema 7（`migrateV6toV7` 加 `shift`、`rng.rounds`）。所有未有來源嘅數值標 `PENDING_CLINICAL_REVIEW`。
