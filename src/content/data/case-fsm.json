@@ -12,6 +12,15 @@
       },
       "STABILISING": {
         "trajectory": "pna.stabilising"
+      },
+      "ARREST_PEA": {
+        "trajectory": "acls.pulseless",
+        "arrest": {
+          "rhythm": "PULSELESS_ELECTRICAL_ACTIVITY"
+        }
+      },
+      "POST_ROSC": {
+        "trajectory": "acls.postrosc"
       }
     },
     "transitions": [
@@ -39,6 +48,97 @@
         "when": {
           "timeInStateSec": 1200,
           "flagsAll": ["abx.iv", "fluid.bolus"]
+        },
+        "p": 1
+      },
+      {
+        "from": "SEPTIC_SHOCK",
+        "to": "ARREST_PEA",
+        "when": {
+          "timeInStateSec": 3600,
+          "missingAny": ["abx.iv", "fluid.bolus"]
+        },
+        "p": 0.6
+      },
+      {
+        "from": "POST_ROSC",
+        "to": "STABILISING",
+        "when": {
+          "timeInStateSec": 1800,
+          "flagsAll": ["oxygen.on"]
+        },
+        "p": 1
+      }
+    ],
+    "postRoscState": "POST_ROSC"
+  },
+  {
+    "id": "acs-vf-01",
+    "initial": "CHEST_PAIN",
+    "salvageable": true,
+    "states": {
+      "CHEST_PAIN": {
+        "trajectory": "acs.chestpain"
+      },
+      "ARREST_VF": {
+        "trajectory": "acls.pulseless",
+        "arrest": {
+          "rhythm": "VENTRICULAR_FIBRILLATION"
+        }
+      },
+      "POST_ROSC": {
+        "trajectory": "acls.postrosc"
+      },
+      "STABILISING": {
+        "trajectory": "acs.stabilising"
+      }
+    },
+    "postRoscState": "POST_ROSC",
+    "transitions": [
+      {
+        "from": "CHEST_PAIN",
+        "to": "ARREST_VF",
+        "when": {
+          "timeInStateSec": 120
+        },
+        "p": 1
+      },
+      {
+        "from": "POST_ROSC",
+        "to": "STABILISING",
+        "when": {
+          "timeInStateSec": 1800,
+          "flagsAll": ["oxygen.on"]
+        },
+        "p": 1
+      }
+    ]
+  },
+  {
+    "id": "terminal-01",
+    "initial": "END_STAGE",
+    "salvageable": false,
+    "states": {
+      "END_STAGE": {
+        "trajectory": "terminal.decline"
+      },
+      "ARREST_ASYSTOLE": {
+        "trajectory": "acls.pulseless",
+        "arrest": {
+          "rhythm": "ASYSTOLE"
+        }
+      },
+      "POST_ROSC": {
+        "trajectory": "acls.postrosc"
+      }
+    },
+    "postRoscState": "POST_ROSC",
+    "transitions": [
+      {
+        "from": "END_STAGE",
+        "to": "ARREST_ASYSTOLE",
+        "when": {
+          "timeInStateSec": 120
         },
         "p": 1
       }

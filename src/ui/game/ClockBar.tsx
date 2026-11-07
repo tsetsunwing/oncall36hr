@@ -20,6 +20,11 @@ export function ClockBar({ clock, actions }: ClockBarProps) {
             {g.pausedBadge}
           </span>
         ) : null}
+        {clock.cprSlow ? (
+          <span className="badge" data-level="ALARM" data-testid="cpr-slow-badge">
+            {g.cprSlowBadge}
+          </span>
+        ) : null}
       </p>
       <div className="speed-group" role="group" aria-label={g.speedGroup}>
         <button
@@ -36,7 +41,9 @@ export function ClockBar({ clock, actions }: ClockBarProps) {
             key={speed}
             type="button"
             className="btn"
-            aria-pressed={!clock.paused && clock.speed === speed}
+            aria-pressed={!clock.paused && !clock.cprSlow && clock.speed === speed}
+            disabled={clock.cprSlow}
+            title={clock.cprSlow ? g.cprSlowNote : undefined}
             onClick={() => {
               actions.setSpeed(speed);
             }}

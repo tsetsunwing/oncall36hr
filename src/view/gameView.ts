@@ -31,6 +31,7 @@ import type {
   ReportView,
   VitalReadout,
 } from './types';
+import { selectDeath, selectResus } from './resusView';
 import { parseWave, plethAmplitude } from './waveform';
 import { selectWard } from './wardView';
 import type { ViewEnv } from './viewEnv';
@@ -51,6 +52,10 @@ function bandLevel(bandId: string, mews: EngineTables['mews'][number] | undefine
   return 'NORMAL';
 }
 
+function rhythmAlarmLevel(alarm: 'NONE' | 'CAUTION' | 'ALARM'): AlarmLevel {
+  return alarm === 'NONE' ? 'NORMAL' : alarm;
+}
+
 function readout(text: string, level: AlarmLevel, direction: Direction): VitalReadout {
   return { text, level, direction };
 }
@@ -69,20 +74,30 @@ export function selectMonitor(
     return { text: '', level, direction: abnormal.get(key) ?? null };
   };
   const rhythm = tables.rhythms.find((r) => r.id === patient.visible.rhythm);
+  const pulseless = rhythm ? !rhythm.pulse : false;
+  const dash = '—';
   const hr = component('hr');
   const sbp = component('sbp');
   const spo2 = component('spo2');
   const rr = component('rr');
   const temp = component('temp');
   return {
-    hr: { ...hr, text: String(v.hr) },
-    bp: { ...sbp, text: `${String(v.sbp)}/${String(v.dbp)}`, sbp: v.sbp, dbp: v.dbp },
-    map: readout(String(meanArterialPressure(v.sbp, v.dbp)), 'NORMAL', null),
-    spo2: { ...spo2, text: String(v.spo2) },
-    rr: { ...rr, text: String(v.rr) },
+    hr: { ...hr, text: pulseless ? dash : String(v.hr) },
+    bp: {
+      ...sbp,
+      text: pulseless ? dash : `${String(v.sbp)}/${String(v.dbp)}`,
+      sbp: v.sbp,
+      dbp: v.dbp,
+    },
+    map: readout(pulseless ? dash : String(meanArterialPressure(v.sbp, v.dbp)), 'NORMAL', null),
+    spo2: { ...spo2, text: pulseless ? dash : String(v.spo2) },
+    rr: { ...rr, text: pulseless ? dash : String(v.rr) },
     temp: { ...temp, text: v.temp.toFixed(1) },
     rhythmId: patient.visible.rhythm,
     rhythmLabel: rhythm?.label ?? patient.visible.rhythm,
+    rhythmAlarm: rhythm ? rhythmAlarmLevel(rhythm.alarm) : 'NORMAL',
+    pulseless,
+    waveRate: pulseless ? (rhythm?.electricalRate ?? 0) : v.hr,
     hrValue: v.hr,
     pulseAmplitude: plethAmplitude(v.sbp, v.dbp),
     wave: parseWave(rhythm?.wave),
@@ -313,6 +328,8 @@ export function selectGameView(state: GameState, env: ViewEnv): GameView {
       speeds: [...env.config.clock.speeds],
       paused: state.paused !== null,
       pausedBy: state.paused?.by ?? null,
+      cprSlow: state.clock.cprSlow,
+      effectiveSpeed: state.clock.cprSlow ? env.config.clock.cprSlowFactor : state.clock.speed,
     },
     patient: current ? selectPatient(current) : null,
     monitor: current ? selectMonitor(current, env, clockLabel) : null,
@@ -325,6 +342,8 @@ export function selectGameView(state: GameState, env: ViewEnv): GameView {
       patient: current ? actionLog.filter((r) => r.patientId === current.id) : [],
     },
     quickChips: selectQuickChips(env.tables),
+    resus: selectResus(state, env, clockLabel),
+    death: selectDeath(state, env, clockLabel),
     pendingAiCount: state.pendingAi.length,
     aiFailure: failedReq ? { reqId: failedReq, reason: env.aiFailureReason ?? null } : null,
     notice: env.notice ?? null,

@@ -3,7 +3,9 @@ import { ui } from '@/i18n';
 import type { GameActions, GameView, WardView } from '@/view';
 import { ChatPanel } from '../game/ChatPanel';
 import { LogPanel } from '../game/LogPanel';
+import { DeathFlowPanel } from '../game/DeathFlowPanel';
 import { MonitorPanel } from '../game/MonitorPanel';
+import { ResusPanel } from '../game/ResusPanel';
 import { DelegationDialog } from '../ward/DelegationDialog';
 import { FloorPlan } from '../ward/FloorPlan';
 import { PhonePanel } from '../ward/PhonePanel';
@@ -55,6 +57,15 @@ export function WardGame({ view, ward, actions }: WardGameProps) {
             <p>{w.notAtBed}</p>
           </section>
         )}
+        {atBed && view.patient && view.resus?.patientId === view.patient.id ? (
+          <ResusPanel
+            patientId={view.patient.id}
+            resus={view.resus}
+            chips={view.quickChips}
+            actions={actions}
+          />
+        ) : null}
+        {view.death ? <DeathFlowPanel death={view.death} actions={actions} /> : null}
         <div className="ward-toolbar">
           <div className="tabs" role="tablist" aria-label={w.tabs.label}>
             <button

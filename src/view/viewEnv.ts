@@ -5,7 +5,8 @@ import type { GameView } from './types';
 export interface ViewEnv {
   tables: EngineTables;
   config: ShiftClockConfig & {
-    clock: { speeds: readonly number[] };
+    clock: { speeds: readonly number[]; cprSlowFactor: number };
+    acls: { cycleSeconds: number; minCyclesBeforeStop: number };
     chat: { playerTextMaxChars: number };
     gate: { pharmacyName: string };
     phone: { sbarMaxChars: number; transcriptLimit: number };

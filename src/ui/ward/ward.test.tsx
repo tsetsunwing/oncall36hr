@@ -22,6 +22,7 @@ function makeActions() {
     sendCall: vi.fn(),
     discardCall: vi.fn(),
     delegate: vi.fn(),
+    completeDeathStep: vi.fn(),
   } satisfies GameActions;
 }
 

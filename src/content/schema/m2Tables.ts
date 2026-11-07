@@ -79,7 +79,17 @@ export const caseFsmSchema = z
   .object({
     id,
     initial: id,
-    states: z.record(id, z.object({ trajectory: id }).strict()),
+    states: z.record(
+      id,
+      z
+        .object({
+          trajectory: id,
+          /** M5：進入呢個狀態即心臟停頓，初始節律由呢度指定（必須係無脈搏 rhythm） */
+          arrest: z.object({ rhythm: id }).strict().optional(),
+        })
+        .strict(),
+    ),
+    postRoscState: id.optional(),
     transitions: z.array(
       z
         .object({
@@ -110,13 +120,18 @@ export const caseTemplateSchema = z
       .strict(),
     presentingComplaint: z.string().min(1),
     /** 病人組生成用：簡單／複雜個案（T12 比例、T13 職級複雜度）；冇寫＝複雜 */
-    complexity: z.enum(['SIMPLE', 'COMPLEX']).default('COMPLEX'),
+    /** SCENARIO：劇本式個案（例如心臟停頓），唔會被隨機病房生成揀中 */
+    complexity: z.enum(['SIMPLE', 'COMPLEX', 'SCENARIO']).default('COMPLEX'),
     allergies: z.array(id),
     diagnosisIds: z.array(id).min(1),
     /** 護士／病人對白唔可以講出嘅診斷詞（B6、numeric guard deny-list）；只留喺本機，唔送去 AI */
     diagnosisTerms: z.array(z.string().min(1)).min(1),
     /** 病人可以講嘅症狀（書面語提示，由 AI 譯成口語）；按 FSM 狀態 */
     symptomsByState: z.record(id, z.array(z.string().min(1))),
+    /** M5：心臟停頓時真正存在嘅可逆病因（H's and T's，T1）；對應 `reversible-causes` 表 id */
+    reversibleCauseIds: z.array(id).default([]),
+    /** M5：死亡證明預填嘅死因文字（虛構病例內容；死亡後先顯示） */
+    deathCause: z.string().min(1).default('心臟停頓（死因待確認）'),
   })
   .strict();
 
@@ -136,6 +151,7 @@ export const ORDER_TYPES = [
   'BLOOD_CULTURE',
   'CROSSMATCH',
   'PROCEDURE',
+  'RESUSCITATION',
 ] as const;
 
 export const EXECUTOR_KINDS = ['NURSE', 'SUBORDINATE', 'PLAYER'] as const;
@@ -148,6 +164,9 @@ export const SUNK_EFFECT_RULES = ['DISCARD', 'KEEP_PARTIAL'] as const;
  * 把關：`pharmacyGate` 藥房永遠把關；`nurseGate` 只喺護士可提醒（非新入職）時先會發出請求。
  * `sunkEffectRule`：取消時已投入部分嘅處理（DISCARD＝效果全部撤回；KEEP_PARTIAL＝按已完成比例保留）。
  */
+export const ACLS_ACTIONS = ['CPR_START', 'RHYTHM_CHECK', 'DEFIB', 'DRUG', 'TERMINATE'] as const;
+export type AclsAction = (typeof ACLS_ACTIONS)[number];
+
 export const orderCatalogEntrySchema = z
   .object({
     id,
@@ -164,6 +183,11 @@ export const orderCatalogEntrySchema = z
     sunkEffectRule: z.enum(SUNK_EFFECT_RULES),
     pharmacyGate: z.boolean(),
     nurseGate: z.enum(['ALWAYS', 'HIGH_RISK', 'NEVER']),
+    /** M5：搶救動作標記（由 engine acls 模組處理）；急救藥物同搶救 order 不經藥房／護士把關 */
+    acls: z
+      .object({ action: z.enum(ACLS_ACTIONS) })
+      .strict()
+      .optional(),
     reviewStatus: z.enum(REVIEW_STATUSES),
   })
   .strict();
@@ -208,7 +232,61 @@ const waveComponentSchema = z
   .object({ offsetSec: z.number(), widthSec: z.number().positive(), amplitude: z.number() })
   .strict();
 
-/** T8 rhythms（M2：只有竇性節律；全部 rhythm 屬 M5）。`family` 相同嘅 rhythm 會按 HR 範圍自動揀 */
+const plethSchema = z
+  .object({
+    delaySec: z.number().min(0),
+    riseSec: z.number().positive(),
+    fallSec: z.number().positive(),
+    notchSec: z.number().positive(),
+    notchAmplitude: z.number().min(0).max(1),
+  })
+  .strict();
+
+/**
+ * 波形參數（純表現層，唔入 state）：
+ * `sinus`＝逐拍重複嘅複合波（P／QRS／T 以 R 波頂點為 0），可加不規則週期同基線振盪（AF、flutter、傳導阻滯）；
+ * `fibrillation`＝連續正弦疊加（VF、torsades）；`flat`＝近乎直線（asystole）。
+ * `pleth` 為 null＝冇脈搏波（無脈搏節律）。
+ */
+const waveSchema = z.discriminatedUnion('kind', [
+  z
+    .object({
+      kind: z.literal('sinus'),
+      ecg: z.array(waveComponentSchema).min(1),
+      pleth: plethSchema.nullable(),
+      periodJitter: z.number().min(0).max(0.5).optional(),
+      baseline: z
+        .object({ freqHz: z.number().positive(), amplitude: z.number().min(0) })
+        .strict()
+        .optional(),
+    })
+    .strict(),
+  z
+    .object({
+      kind: z.literal('fibrillation'),
+      components: z
+        .array(z.object({ freqHz: z.number().positive(), amplitude: z.number().min(0) }).strict())
+        .min(1),
+      envelopeHz: z.number().positive().optional(),
+    })
+    .strict(),
+  z
+    .object({
+      kind: z.literal('flat'),
+      driftAmplitude: z.number().min(0),
+      driftFreqHz: z.number().positive(),
+    })
+    .strict(),
+]);
+
+export const RHYTHM_ALARMS = ['NONE', 'CAUTION', 'ALARM'] as const;
+
+/**
+ * T8 rhythms（M5：全部 rhythm）。`family` 相同嘅 rhythm 會按 HR 範圍自動揀；
+ * `pulse`＝false 嘅節律（VF、pVT、torsades、PEA、asystole）係心臟停頓節律；
+ * `electricalRate`：無脈搏節律嘅示意電活動速率（只用於畫波形，唔係 HR 讀數）；
+ * `alarm`：監測儀靜態警示等級（顏色＋文字，唔閃爍）。
+ */
 export const rhythmSchema = z
   .object({
     id,
@@ -217,24 +295,22 @@ export const rhythmSchema = z
     hrRange: z.tuple([z.number(), z.number()]),
     shockable: z.boolean(),
     pulse: z.boolean(),
-    wave: z
-      .object({
-        kind: z.literal('sinus'),
-        /** 以 R 波頂點為 0 嘅時間偏移（秒）；P、T 波於高心率時按週期壓縮 */
-        ecg: z.array(waveComponentSchema).min(1),
-        pleth: z
-          .object({
-            delaySec: z.number().min(0),
-            riseSec: z.number().positive(),
-            fallSec: z.number().positive(),
-            notchSec: z.number().positive(),
-            notchAmplitude: z.number().min(0).max(1),
-          })
-          .strict(),
-      })
-      .strict(),
+    alarm: z.enum(RHYTHM_ALARMS),
+    electricalRate: z.number().min(0),
+    wave: waveSchema,
   })
-  .strict();
+  .strict()
+  .superRefine((row, ctx) => {
+    if (row.shockable && row.pulse) {
+      ctx.addIssue({ code: 'custom', message: 'shockable 節律必須係無脈搏節律（pulse=false）' });
+    }
+    if (!row.pulse && row.wave.kind === 'sinus' && row.wave.pleth !== null) {
+      ctx.addIssue({ code: 'custom', message: '無脈搏節律唔可以有 pleth 波形' });
+    }
+    if (row.pulse && row.wave.kind !== 'sinus') {
+      ctx.addIssue({ code: 'custom', message: '有脈搏節律必須用 sinus 類波形' });
+    }
+  });
 
 const mewsRangeSchema = z
   .object({

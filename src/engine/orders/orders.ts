@@ -4,6 +4,7 @@
  * 由 order-catalog（T4）驅動；完成時套用 flags、凍結結果文字、等護士匯報；
  * 化驗／影像完成後按 T7 排程報告（results 模組）；把關由 gate 模組處理，放行後先排程完成。
  */
+import { applyAclsOrder } from '../acls/orders';
 import { abnormalOf, patientTokens, queueDialogue, vitalTokens, type Beat } from '../chat/dialogue';
 import { extractTokens, renderTemplate } from '../chat/tokens';
 import { enqueue, removeWhere } from '../core/eventQueue';
@@ -105,6 +106,10 @@ export function completeOrder(state: GameState, order: Order, ctx: EngineContext
     hidden: { ...patient.hidden, fsm: { ...patient.hidden.fsm, flags } },
   };
   next = { ...next, patients: { ...next.patients, [patient.id]: withFlags } };
+
+  const acls = applyAclsOrder(next, order, row, ctx);
+  next = acls.state;
+  effects.push(...acls.effects);
 
   if (row.resultId) {
     next = scheduleResultReport(next, order.id, withFlags.hidden.fsm.state, row, ctx);

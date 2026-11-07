@@ -19,7 +19,8 @@
         "byState": {
           "DETERIORATING": 15.2,
           "SEPTIC_SHOCK": 22.4,
-          "STABILISING": 13.1
+          "STABILISING": 13.1,
+          "*": 22.4
         }
       },
       {
@@ -47,7 +48,8 @@
         "byState": {
           "DETERIORATING": 210,
           "SEPTIC_SHOCK": 110,
-          "STABILISING": 190
+          "STABILISING": 190,
+          "*": 110
         }
       }
     ],
@@ -73,7 +75,8 @@
         "byState": {
           "DETERIORATING": 137,
           "SEPTIC_SHOCK": 134,
-          "STABILISING": 137
+          "STABILISING": 137,
+          "*": 134
         }
       },
       {
@@ -88,7 +91,8 @@
         "byState": {
           "DETERIORATING": 4.2,
           "SEPTIC_SHOCK": 5.3,
-          "STABILISING": 4.3
+          "STABILISING": 4.3,
+          "*": 5.3
         }
       },
       {
@@ -103,7 +107,8 @@
         "byState": {
           "DETERIORATING": 8.4,
           "SEPTIC_SHOCK": 14.2,
-          "STABILISING": 9.0
+          "STABILISING": 9.0,
+          "*": 14.2
         }
       },
       {
@@ -118,7 +123,8 @@
         "byState": {
           "DETERIORATING": 118,
           "SEPTIC_SHOCK": 186,
-          "STABILISING": 125
+          "STABILISING": 125,
+          "*": 186
         }
       }
     ],
@@ -144,7 +150,8 @@
         "byState": {
           "DETERIORATING": 6,
           "SEPTIC_SHOCK": 38,
-          "STABILISING": 12
+          "STABILISING": 12,
+          "*": 38
         }
       }
     ],
@@ -170,7 +177,8 @@
         "byState": {
           "DETERIORATING": 7.43,
           "SEPTIC_SHOCK": 7.28,
-          "STABILISING": 7.41
+          "STABILISING": 7.41,
+          "*": 7.28
         }
       },
       {
@@ -185,7 +193,8 @@
         "byState": {
           "DETERIORATING": 4.4,
           "SEPTIC_SHOCK": 3.9,
-          "STABILISING": 4.9
+          "STABILISING": 4.9,
+          "*": 3.9
         }
       },
       {
@@ -200,7 +209,8 @@
         "byState": {
           "DETERIORATING": 8.6,
           "SEPTIC_SHOCK": 7.2,
-          "STABILISING": 9.8
+          "STABILISING": 9.8,
+          "*": 7.2
         }
       },
       {
@@ -215,7 +225,8 @@
         "byState": {
           "DETERIORATING": 22.5,
           "SEPTIC_SHOCK": 16,
-          "STABILISING": 23
+          "STABILISING": 23,
+          "*": 16
         }
       },
       {
@@ -230,7 +241,8 @@
         "byState": {
           "DETERIORATING": 2.4,
           "SEPTIC_SHOCK": 4.8,
-          "STABILISING": 1.6
+          "STABILISING": 1.6,
+          "*": 4.8
         }
       }
     ],
@@ -327,6 +339,21 @@
       "*": {
         "text": "Cross-match completed: compatible blood available.",
         "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.pocus",
+    "kind": "REPORT",
+    "label": "POCUS",
+    "reportDelaySec": 0,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "POCUS: cardiac activity consistent with {{rhythm.label}}; no further findings reported in this placeholder.",
+        "abnormal": true
       }
     }
   }

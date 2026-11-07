@@ -12,7 +12,7 @@ import type {
   JsonValue,
   NewGameParams,
 } from '@/engine';
-import { createEngine, type Engine } from '@/engine';
+import { COMPLETE_STEP_INTENT, createEngine, DEATH_MODULE, type Engine } from '@/engine';
 import { selectGameView, type GameActions, type GameView, type ViewEnv } from '@/view';
 import { createGameRuntime, type GameRuntime } from './runtime';
 import type { SaveService } from './saveService';
@@ -133,7 +133,10 @@ export function createGameSession(options: GameSessionOptions): GameSession {
       after.actionLog === before.actionLog &&
       after.ward === before.ward &&
       after.pendingAi === before.pendingAi &&
-      after.paused === before.paused;
+      after.paused === before.paused &&
+      after.resus === before.resus &&
+      after.death === before.death &&
+      after.clock.cprSlow === before.clock.cprSlow;
     if (!unchanged) publish();
   }
 
@@ -161,6 +164,17 @@ export function createGameSession(options: GameSessionOptions): GameSession {
     },
     insistOrder(orderId) {
       dispatch({ type: 'PLAYER_INTENT', intent: { type: 'INSIST_ORDER', orderId } });
+    },
+    completeDeathStep(step) {
+      dispatch({
+        type: 'PLAYER_INTENT',
+        intent: {
+          type: 'EXTENSION',
+          module: DEATH_MODULE,
+          name: COMPLETE_STEP_INTENT,
+          payload: { step },
+        },
+      });
     },
     retryAi() {
       const paused = runtime.getState().paused;

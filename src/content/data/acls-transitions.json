@@ -1,1 +1,396 @@
-[]
+[
+  {
+    "id": "acls.rhythm.vf",
+    "kind": "RHYTHM",
+    "rhythm": "VENTRICULAR_FIBRILLATION",
+    "trajectory": "acls.pulseless",
+    "rocBaseP": 0.3,
+    "ifNoShock": [
+      {
+        "rhythm": "VENTRICULAR_FIBRILLATION",
+        "w": 0.7
+      },
+      {
+        "rhythm": "ASYSTOLE",
+        "w": 0.3
+      }
+    ],
+    "ifShocked": [
+      {
+        "rhythm": "VENTRICULAR_FIBRILLATION",
+        "w": 0.6
+      },
+      {
+        "rhythm": "PULSELESS_ELECTRICAL_ACTIVITY",
+        "w": 0.2
+      },
+      {
+        "rhythm": "ASYSTOLE",
+        "w": 0.2
+      }
+    ],
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。"
+  },
+  {
+    "id": "acls.rhythm.pvt",
+    "kind": "RHYTHM",
+    "rhythm": "PULSELESS_VT",
+    "trajectory": "acls.pulseless",
+    "rocBaseP": 0.3,
+    "ifNoShock": [
+      {
+        "rhythm": "PULSELESS_VT",
+        "w": 0.6
+      },
+      {
+        "rhythm": "VENTRICULAR_FIBRILLATION",
+        "w": 0.3
+      },
+      {
+        "rhythm": "ASYSTOLE",
+        "w": 0.1
+      }
+    ],
+    "ifShocked": [
+      {
+        "rhythm": "PULSELESS_VT",
+        "w": 0.5
+      },
+      {
+        "rhythm": "VENTRICULAR_FIBRILLATION",
+        "w": 0.2
+      },
+      {
+        "rhythm": "PULSELESS_ELECTRICAL_ACTIVITY",
+        "w": 0.2
+      },
+      {
+        "rhythm": "ASYSTOLE",
+        "w": 0.1
+      }
+    ],
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。"
+  },
+  {
+    "id": "acls.rhythm.torsades",
+    "kind": "RHYTHM",
+    "rhythm": "TORSADES_DE_POINTES",
+    "trajectory": "acls.pulseless",
+    "rocBaseP": 0.3,
+    "ifNoShock": [
+      {
+        "rhythm": "TORSADES_DE_POINTES",
+        "w": 0.6
+      },
+      {
+        "rhythm": "VENTRICULAR_FIBRILLATION",
+        "w": 0.3
+      },
+      {
+        "rhythm": "ASYSTOLE",
+        "w": 0.1
+      }
+    ],
+    "ifShocked": [
+      {
+        "rhythm": "TORSADES_DE_POINTES",
+        "w": 0.5
+      },
+      {
+        "rhythm": "VENTRICULAR_FIBRILLATION",
+        "w": 0.2
+      },
+      {
+        "rhythm": "PULSELESS_ELECTRICAL_ACTIVITY",
+        "w": 0.2
+      },
+      {
+        "rhythm": "ASYSTOLE",
+        "w": 0.1
+      }
+    ],
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。"
+  },
+  {
+    "id": "acls.rhythm.pea",
+    "kind": "RHYTHM",
+    "rhythm": "PULSELESS_ELECTRICAL_ACTIVITY",
+    "trajectory": "acls.pulseless",
+    "rocBaseP": 0.1,
+    "ifNoShock": [
+      {
+        "rhythm": "PULSELESS_ELECTRICAL_ACTIVITY",
+        "w": 0.7
+      },
+      {
+        "rhythm": "ASYSTOLE",
+        "w": 0.3
+      }
+    ],
+    "ifShocked": [
+      {
+        "rhythm": "PULSELESS_ELECTRICAL_ACTIVITY",
+        "w": 0.7
+      },
+      {
+        "rhythm": "ASYSTOLE",
+        "w": 0.3
+      }
+    ],
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。"
+  },
+  {
+    "id": "acls.rhythm.asystole",
+    "kind": "RHYTHM",
+    "rhythm": "ASYSTOLE",
+    "trajectory": "acls.pulseless",
+    "rocBaseP": 0.05,
+    "ifNoShock": [
+      {
+        "rhythm": "ASYSTOLE",
+        "w": 1
+      }
+    ],
+    "ifShocked": [
+      {
+        "rhythm": "ASYSTOLE",
+        "w": 1
+      }
+    ],
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。"
+  },
+  {
+    "id": "acls.model",
+    "kind": "MODEL",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "ROSC 機率模型參數：除 defaultEnergyJ=200 同 adrenaline 1 mg（spec §9.3 快捷詞示例）外，全部係遊戲平衡佔位值，未經臨床審核。",
+    "rosc": {
+      "min": 0,
+      "max": 0.85
+    },
+    "noFlow": {
+      "graceSec": 60,
+      "penaltyPerMin": 0.08,
+      "cap": 0.4
+    },
+    "handsOff": {
+      "graceSec": 10,
+      "penaltyPer10Sec": 0.03,
+      "cap": 0.3
+    },
+    "duration": {
+      "penaltyPerCycle": 0.03,
+      "cap": 0.25
+    },
+    "shock": {
+      "defaultEnergyJ": 200,
+      "minEnergyJ": 120,
+      "maxEnergyJ": 360,
+      "appropriateBonus": 0.25,
+      "missedPenalty": 0.25,
+      "inappropriatePenalty": 0.15,
+      "wrongEnergyPenalty": 0.1,
+      "delayGraceSec": 120,
+      "delayPenaltyPerMin": 0.05,
+      "delayCap": 0.25
+    },
+    "drugs": [
+      {
+        "formularyId": "adrenaline",
+        "dose": {
+          "value": 1,
+          "unit": "mg"
+        },
+        "needsShockable": false,
+        "minShocksBefore": 2,
+        "bonus": 0.08,
+        "wrongDosePenalty": 0.1
+      },
+      {
+        "formularyId": "amiodarone",
+        "dose": {
+          "value": 300,
+          "unit": "mg"
+        },
+        "needsShockable": true,
+        "minShocksBefore": 3,
+        "bonus": 0.06,
+        "wrongDosePenalty": 0.08
+      }
+    ],
+    "causes": {
+      "treatedBonus": 0.2,
+      "cap": 0.4
+    },
+    "airway": {
+      "flag": "airway.secured",
+      "bonus": 0.03
+    },
+    "unsalvageableCap": 0,
+    "afterRosc": [
+      {
+        "rhythm": "SINUS_TACHYCARDIA",
+        "w": 0.7
+      },
+      {
+        "rhythm": "ATRIAL_FIBRILLATION",
+        "w": 0.2
+      },
+      {
+        "rhythm": "JUNCTIONAL_RHYTHM",
+        "w": 0.1
+      }
+    ],
+    "postRosc": {
+      "windowSec": 900,
+      "bundle": [
+        {
+          "id": "oxygen",
+          "label": "氧氣",
+          "catalogIds": ["oxygen.nrb", "oxygen.nasal", "proc.intubation"]
+        },
+        {
+          "id": "ecg",
+          "label": "12-lead ECG",
+          "catalogIds": ["ecg.12lead"]
+        },
+        {
+          "id": "abg",
+          "label": "ABG",
+          "catalogIds": ["lab.abg"]
+        },
+        {
+          "id": "cxr",
+          "label": "胸 X 光",
+          "catalogIds": ["img.cxr"]
+        },
+        {
+          "id": "monitor",
+          "label": "持續監測",
+          "catalogIds": ["monitor.vitals.q15", "monitor.spo2"]
+        }
+      ],
+      "rearrestBaseP": 0.05,
+      "rearrestPerMissing": 0.08,
+      "rearrestRhythms": [
+        {
+          "rhythm": "VENTRICULAR_FIBRILLATION",
+          "w": 0.4
+        },
+        {
+          "rhythm": "PULSELESS_ELECTRICAL_ACTIVITY",
+          "w": 0.4
+        },
+        {
+          "rhythm": "ASYSTOLE",
+          "w": 0.2
+        }
+      ]
+    },
+    "scoring": {
+      "timeToCpr": {
+        "graceSec": 60,
+        "delta": -3
+      },
+      "timeToFirstShock": {
+        "graceSec": 120,
+        "delta": -3
+      },
+      "cycleGap": {
+        "graceSec": 30,
+        "delta": -1
+      },
+      "causeTreated": {
+        "delta": 2
+      },
+      "rosc": {
+        "delta": 5
+      }
+    }
+  },
+  {
+    "id": "cause.hypoxia",
+    "kind": "CAUSE",
+    "label": "Hypoxia",
+    "group": "H",
+    "checkCatalogIds": ["lab.abg"],
+    "treatCatalogIds": ["oxygen.nrb", "proc.intubation"],
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "可逆病因處理 order 對應表為佔位內容，未經臨床審核。"
+  },
+  {
+    "id": "cause.hypovolaemia",
+    "kind": "CAUSE",
+    "label": "Hypovolaemia",
+    "group": "H",
+    "checkCatalogIds": ["img.pocus", "lab.cbc"],
+    "treatCatalogIds": ["fluid.ns500"],
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "可逆病因處理 order 對應表為佔位內容，未經臨床審核。"
+  },
+  {
+    "id": "cause.metabolic",
+    "kind": "CAUSE",
+    "label": "Hyper-/hypokalaemia、acidosis",
+    "group": "H",
+    "checkCatalogIds": ["lab.rft", "lab.abg"],
+    "treatCatalogIds": ["drug.calcium"],
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "可逆病因處理 order 對應表為佔位內容，未經臨床審核。"
+  },
+  {
+    "id": "cause.hypothermia",
+    "kind": "CAUSE",
+    "label": "Hypothermia",
+    "group": "H",
+    "checkCatalogIds": [],
+    "treatCatalogIds": ["proc.rewarm"],
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "可逆病因處理 order 對應表為佔位內容，未經臨床審核。"
+  },
+  {
+    "id": "cause.tension-pneumothorax",
+    "kind": "CAUSE",
+    "label": "Tension pneumothorax",
+    "group": "T",
+    "checkCatalogIds": ["img.cxr", "img.pocus"],
+    "treatCatalogIds": ["proc.decompression", "proc.chesttube"],
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "可逆病因處理 order 對應表為佔位內容，未經臨床審核。"
+  },
+  {
+    "id": "cause.tamponade",
+    "kind": "CAUSE",
+    "label": "Cardiac tamponade",
+    "group": "T",
+    "checkCatalogIds": ["img.pocus"],
+    "treatCatalogIds": ["proc.pericardiocentesis"],
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "可逆病因處理 order 對應表為佔位內容，未經臨床審核。"
+  },
+  {
+    "id": "cause.toxins",
+    "kind": "CAUSE",
+    "label": "Toxins",
+    "group": "T",
+    "checkCatalogIds": ["lab.abg"],
+    "treatCatalogIds": ["drug.naloxone"],
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "可逆病因處理 order 對應表為佔位內容，未經臨床審核。"
+  },
+  {
+    "id": "cause.thrombosis",
+    "kind": "CAUSE",
+    "label": "Thrombosis（冠狀動脈／肺）",
+    "group": "T",
+    "checkCatalogIds": ["ecg.12lead", "lab.troponin", "img.pocus"],
+    "treatCatalogIds": ["drug.alteplase"],
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "可逆病因處理 order 對應表為佔位內容，未經臨床審核。"
+  }
+]

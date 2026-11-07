@@ -10,8 +10,10 @@ export const testConfig: EngineConfig = {
     speeds: [0, 1, 2, 4],
     defaultSpeed: 1,
     cprSlowFactor: 0.5,
+    speedAfterCpr: 1,
     speedAfterInterrupt: 1,
   },
+  acls: { cycleSeconds: 120, minCyclesBeforeStop: 3 },
   saves: { manualSlots: 5, autoSaveEveryGameMinutes: 30 },
   vitals: {
     sampleIntervalSeconds: 60,

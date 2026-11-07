@@ -37,8 +37,11 @@ interface Speaker {
 interface Beat {
   type: string;
   speaker: 'NURSE' | 'PATIENT' | 'PHARMACY';
-  labelToken?: string;
+  labelToken?: string | null;
   executor?: string | null;
+  action?: string;
+  rearrest?: boolean;
+  shockable?: boolean;
   abnormal?: boolean | unknown[];
   tokens?: string[];
   symptoms?: string[];
@@ -246,6 +249,46 @@ function dialogue(prompt: Record<string, unknown>, mode: ContractMode): string {
           beat.reason === 'UNSUPPORTED'
             ? '呢樣我做唔到，可以講第二個安排嗎？'
             : '唔好意思，我未聽清楚，可唔可以再講一次？';
+        break;
+      case 'ARREST_ANNOUNCED':
+        text = beat.rearrest
+          ? '醫生！病人心跳再次停咗，monitor 顯示 {{rhythm.label}}！'
+          : '醫生！{{patient.bed}} 號床病人冇反應、冇脈搏，monitor 顯示 {{rhythm.label}}！';
+        break;
+      case 'ACLS_CYCLE_DUE':
+        text = '醫生，呢輪 CPR 做完喇，要唔要 check rhythm？而家係 {{rhythm.label}}。';
+        break;
+      case 'ACLS_ACTION_DONE': {
+        const label = beat.labelToken ? `{{${beat.labelToken}}}` : '';
+        text =
+          beat.action === 'CPR_STARTED'
+            ? `開始壓胸喇。${label}`
+            : beat.action === 'CPR_RESUMED'
+              ? `繼續壓胸。${label}`
+              : beat.action === 'CPR_ALREADY_RUNNING'
+                ? '我哋已經喺度壓緊胸。'
+                : beat.action === 'SHOCK_DELIVERED'
+                  ? `電擊完成，即刻繼續壓胸。${label}`
+                  : `藥已經推咗：${label}`;
+        break;
+      }
+      case 'ACLS_RHYTHM_REPORTED':
+        text = beat.shockable
+          ? 'Rhythm 係 {{rhythm.label}}，可以電擊。'
+          : 'Rhythm 係 {{rhythm.label}}，唔可以電擊。';
+        break;
+      case 'ACLS_ROSC':
+        text = '有脈搏返嚟喇！';
+        break;
+      case 'ACLS_STOP_REFUSED':
+        text =
+          '醫生，而家先完成咗 {{acls.cycles}} 輪，最少要 {{acls.minCycles}} 輪先可以停，要繼續嗎？';
+        break;
+      case 'ACLS_NOT_APPLICABLE':
+        text = `醫生，病人而家唔係心臟停頓，{{${beat.labelToken ?? ''}}} 我暫時唔做。`;
+        break;
+      case 'DEATH_PRONOUNCED':
+        text = '{{patient.name}} 已經宣佈死亡，麻煩你跟返死亡流程。';
         break;
       default:
         text = '好，明白。';

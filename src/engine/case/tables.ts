@@ -29,7 +29,9 @@ export interface FsmTransitionWhen {
 export interface CaseFsmRow {
   id: string;
   initial: string;
-  states: Readonly<Record<string, { trajectory: string }>>;
+  states: Readonly<Record<string, { trajectory: string; arrest?: { rhythm: string } | undefined }>>;
+  /** M5：ROSC 後 FSM 跳去嘅狀態（有 arrest 狀態嘅 FSM 必須提供） */
+  postRoscState?: string | undefined;
   transitions: readonly { from: string; to: string; when: FsmTransitionWhen; p: number }[];
   salvageable: boolean;
 }
@@ -38,13 +40,15 @@ export interface CaseTemplateRow {
   id: string;
   fsmId: string;
   bed: number;
-  complexity: 'SIMPLE' | 'COMPLEX';
+  complexity: 'SIMPLE' | 'COMPLEX' | 'SCENARIO';
   demographics: { name: string; age: number; sex: 'M' | 'F'; code: 'FULL' | 'DNR' };
   presentingComplaint: string;
   allergies: readonly string[];
   diagnosisIds: readonly string[];
   diagnosisTerms: readonly string[];
   symptomsByState: Readonly<Record<string, readonly string[]>>;
+  reversibleCauseIds: readonly string[];
+  deathCause: string;
 }
 
 export type OrderType =
@@ -61,7 +65,8 @@ export type OrderType =
   | 'ABG'
   | 'BLOOD_CULTURE'
   | 'CROSSMATCH'
-  | 'PROCEDURE';
+  | 'PROCEDURE'
+  | 'RESUSCITATION';
 
 export type ExecutorKind = 'NURSE' | 'SUBORDINATE' | 'PLAYER';
 export type ReviewStatus = 'PENDING_CLINICAL_REVIEW' | 'REVIEWED';
@@ -81,8 +86,11 @@ export interface OrderCatalogRow {
   sunkEffectRule: 'DISCARD' | 'KEEP_PARTIAL';
   pharmacyGate: boolean;
   nurseGate: 'ALWAYS' | 'HIGH_RISK' | 'NEVER';
+  acls?: { action: AclsAction } | undefined;
   reviewStatus: ReviewStatus;
 }
+
+export type AclsAction = 'CPR_START' | 'RHYTHM_CHECK' | 'DEFIB' | 'DRUG' | 'TERMINATE';
 
 export interface FormularyRow {
   id: string;
@@ -115,6 +123,8 @@ export interface RhythmRow {
   hrRange: readonly [number, number];
   shockable: boolean;
   pulse: boolean;
+  alarm: MewsAlert;
+  electricalRate: number;
   wave: unknown;
 }
 
@@ -350,6 +360,111 @@ export type WardLayoutRow =
   | { id: string; kind: 'LANDMARK'; landmark: string }
   | { id: string; kind: 'WALK'; sameZoneSec: number; crossZoneSec: number };
 
+export interface WeightedRhythm {
+  rhythm: string;
+  w: number;
+}
+
+export interface AclsRhythmRow {
+  id: string;
+  kind: 'RHYTHM';
+  rhythm: string;
+  trajectory: string;
+  rocBaseP: number;
+  ifNoShock: readonly WeightedRhythm[];
+  ifShocked: readonly WeightedRhythm[];
+  reviewStatus: ReviewStatus;
+  note: string;
+}
+
+export interface AclsDrugRule {
+  formularyId: string;
+  dose: { value: number; unit: string };
+  needsShockable: boolean;
+  minShocksBefore: number;
+  bonus: number;
+  wrongDosePenalty: number;
+}
+
+export interface AclsModelRow {
+  id: string;
+  kind: 'MODEL';
+  reviewStatus: ReviewStatus;
+  note: string;
+  rosc: { min: number; max: number };
+  noFlow: { graceSec: number; penaltyPerMin: number; cap: number };
+  handsOff: { graceSec: number; penaltyPer10Sec: number; cap: number };
+  duration: { penaltyPerCycle: number; cap: number };
+  shock: {
+    defaultEnergyJ: number;
+    minEnergyJ: number;
+    maxEnergyJ: number;
+    appropriateBonus: number;
+    missedPenalty: number;
+    inappropriatePenalty: number;
+    wrongEnergyPenalty: number;
+    delayGraceSec: number;
+    delayPenaltyPerMin: number;
+    delayCap: number;
+  };
+  drugs: readonly AclsDrugRule[];
+  causes: { treatedBonus: number; cap: number };
+  airway: { flag: string; bonus: number };
+  unsalvageableCap: number;
+  afterRosc: readonly WeightedRhythm[];
+  postRosc: {
+    windowSec: number;
+    bundle: readonly { id: string; label: string; catalogIds: readonly string[] }[];
+    rearrestBaseP: number;
+    rearrestPerMissing: number;
+    rearrestRhythms: readonly WeightedRhythm[];
+  };
+  scoring: {
+    timeToCpr: { graceSec: number; delta: number };
+    timeToFirstShock: { graceSec: number; delta: number };
+    cycleGap: { graceSec: number; delta: number };
+    causeTreated: { delta: number };
+    rosc: { delta: number };
+  };
+}
+
+export interface AclsCauseRow {
+  id: string;
+  kind: 'CAUSE';
+  label: string;
+  group: 'H' | 'T';
+  checkCatalogIds: readonly string[];
+  treatCatalogIds: readonly string[];
+  reviewStatus: ReviewStatus;
+  note: string;
+}
+
+export type AclsRow = AclsRhythmRow | AclsModelRow | AclsCauseRow;
+
+export const DEATH_STEP_IDS = ['CERTIFICATE', 'NOTIFY_SENIOR', 'PHONE_FAMILY', 'RECORD'] as const;
+export type DeathStepId = (typeof DEATH_STEP_IDS)[number];
+
+export interface DeathModelRow {
+  id: string;
+  kind: 'MODEL';
+  reviewStatus: ReviewStatus;
+  note: string;
+  delayIntervalSec: number;
+  seniorByRank: Readonly<Record<'HO' | 'MO' | 'RES', string>>;
+  scoring: { death: { delta: number }; delay: { delta: number } };
+}
+
+export interface DeathStepRow {
+  id: string;
+  kind: 'STEP';
+  step: DeathStepId;
+  fields: readonly string[];
+  reviewStatus: ReviewStatus;
+  note: string;
+}
+
+export type DeathRow = DeathModelRow | DeathStepRow;
+
 export interface EngineTables {
   'case-templates': readonly CaseTemplateRow[];
   'case-fsm': readonly CaseFsmRow[];
@@ -372,6 +487,8 @@ export interface EngineTables {
   'consult-departments': readonly ConsultDepartmentRow[];
   'scoring-rules': readonly ScoringRuleRow[];
   'ward-layout': readonly WardLayoutRow[];
+  'acls-transitions': readonly AclsRow[];
+  'death-process': readonly DeathRow[];
 }
 
 export const EMPTY_TABLES: EngineTables = {
@@ -396,4 +513,6 @@ export const EMPTY_TABLES: EngineTables = {
   'consult-departments': [],
   'scoring-rules': [],
   'ward-layout': [],
+  'acls-transitions': [],
+  'death-process': [],
 };

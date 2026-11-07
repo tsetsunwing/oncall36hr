@@ -23,10 +23,11 @@ import {
   subordinateSchema,
   wardLayoutSchema,
 } from './m4Tables';
+import { aclsTransitionSchema, deathProcessSchema } from './m5Tables';
 
 /**
  * implementation-plan §5：T1–T29 為陣列型內容表（T30 config 另有 schema）。
- * M2 收緊咗 T1、T2、T3、T4、T5、T6、T8、T10、T14、T26；M3 收緊 T4／T5／T6 並加 T7、T11；M4 收緊 T12、T13、T15、T16、T17、T18、T22（子集）、T24、T28；其餘表只驗證「存在、為陣列、每筆有唯一字串 id」，
+ * M2 收緊咗 T1、T2、T3、T4、T5、T6、T8、T10、T14、T26；M3 收緊 T4／T5／T6 並加 T7、T11；M5 收緊 T9、T23；M4 收緊 T12、T13、T15、T16、T17、T18、T22（子集）、T24、T28；其餘表只驗證「存在、為陣列、每筆有唯一字串 id」，
  * 於對應 milestone 逐張收緊。
  */
 export const TABLE_NAMES = [
@@ -77,7 +78,7 @@ export const tableSchemas = {
   'order-effects': z.array(orderEffectSchema),
   results: z.array(resultSchema),
   rhythms: z.array(rhythmSchema),
-  'acls-transitions': looseRecords,
+  'acls-transitions': z.array(aclsTransitionSchema),
   mews: z.array(mewsSchema),
   consequences: z.array(consequenceSchema),
   'difficulty-profiles': z.array(difficultyProfileSchema),
@@ -91,7 +92,7 @@ export const tableSchemas = {
   'energy-config': looseRecords,
   'self-care-actions': looseRecords,
   'scoring-rules': z.array(scoringRuleSchema),
-  'death-process': looseRecords,
+  'death-process': z.array(deathProcessSchema),
   'consult-departments': z.array(consultDepartmentSchema),
   'rounds-topics': looseRecords,
   'quick-words': z.array(quickWordSchema),

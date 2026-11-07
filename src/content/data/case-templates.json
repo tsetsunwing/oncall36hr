@@ -25,9 +25,13 @@
     "symptomsByState": {
       "DETERIORATING": ["氣促", "發冷", "咳嗽有痰"],
       "SEPTIC_SHOCK": ["頭暈", "氣促", "乏力，說話困難"],
-      "STABILISING": ["感覺好轉", "仍然有少許咳嗽"]
+      "STABILISING": ["感覺好轉", "仍然有少許咳嗽"],
+      "ARREST_PEA": [],
+      "POST_ROSC": []
     },
-    "complexity": "COMPLEX"
+    "complexity": "COMPLEX",
+    "reversibleCauseIds": ["cause.hypoxia", "cause.hypovolaemia"],
+    "deathCause": "敗血性休克並發心臟停頓（肺部感染）"
   },
   {
     "id": "cell-01",
@@ -376,5 +380,71 @@
       "DETERIORATING": ["氣促", "心跳快"],
       "SEPTIC_SHOCK": ["好喘", "頭暈"]
     }
+  },
+  {
+    "id": "acs-vf-01",
+    "fsmId": "acs-vf-01",
+    "bed": 7,
+    "demographics": {
+      "name": "陳大文",
+      "age": 58,
+      "sex": "M",
+      "code": "FULL"
+    },
+    "presentingComplaint": "胸口翳痛、出冷汗",
+    "allergies": [],
+    "diagnosisIds": ["acs"],
+    "diagnosisTerms": [
+      "心肌梗塞",
+      "心梗",
+      "myocardial infarction",
+      "MI",
+      "STEMI",
+      "NSTEMI",
+      "ACS",
+      "acute coronary",
+      "冠心病"
+    ],
+    "symptomsByState": {
+      "CHEST_PAIN": ["胸口翳痛", "出冷汗"],
+      "ARREST_VF": [],
+      "POST_ROSC": [],
+      "STABILISING": ["胸口仍然有少少痛"]
+    },
+    "reversibleCauseIds": ["cause.thrombosis"],
+    "deathCause": "急性冠狀動脈綜合症引致心室顫動，心臟停頓",
+    "complexity": "SCENARIO"
+  },
+  {
+    "id": "terminal-01",
+    "fsmId": "terminal-01",
+    "bed": 7,
+    "demographics": {
+      "name": "阮美玲",
+      "age": 86,
+      "sex": "F",
+      "code": "FULL"
+    },
+    "presentingComplaint": "末期病患、精神轉差",
+    "allergies": [],
+    "diagnosisIds": ["end-stage-malignancy"],
+    "diagnosisTerms": [
+      "癌症",
+      "癌",
+      "末期",
+      "cancer",
+      "malignancy",
+      "metastasis",
+      "轉移",
+      "terminal"
+    ],
+    "symptomsByState": {
+      "END_STAGE": ["神志模糊", "乏力"],
+      "ARREST_ASYSTOLE": [],
+      "POST_ROSC": []
+    },
+    "reversibleCauseIds": [],
+    "deathCause": "末期疾病惡化引致心臟停頓",
+    "complexity": "SCENARIO"
   }
 ]

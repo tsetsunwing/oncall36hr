@@ -46,5 +46,77 @@
     "allergyClasses": [],
     "typicalDose": null,
     "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "adrenaline",
+    "label": "Adrenaline",
+    "aliases": ["adrenaline", "epinephrine", "adr", "epi"],
+    "catalogId": "drug.adrenaline",
+    "units": ["mg"],
+    "routes": ["IV", "IO"],
+    "drugClass": "Catecholamine",
+    "allergyClasses": [],
+    "typicalDose": null,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "amiodarone",
+    "label": "Amiodarone",
+    "aliases": ["amiodarone"],
+    "catalogId": "drug.amiodarone",
+    "units": ["mg"],
+    "routes": ["IV"],
+    "drugClass": "Antiarrhythmic",
+    "allergyClasses": [],
+    "typicalDose": null,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "calcium-gluconate",
+    "label": "Calcium gluconate",
+    "aliases": ["calcium gluconate", "calcium"],
+    "catalogId": "drug.calcium",
+    "units": ["ml", "mmol"],
+    "routes": ["IV"],
+    "drugClass": "Electrolyte",
+    "allergyClasses": [],
+    "typicalDose": null,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "naloxone",
+    "label": "Naloxone",
+    "aliases": ["naloxone"],
+    "catalogId": "drug.naloxone",
+    "units": ["mg"],
+    "routes": ["IV"],
+    "drugClass": "Opioid antagonist",
+    "allergyClasses": [],
+    "typicalDose": null,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "alteplase",
+    "label": "Alteplase",
+    "aliases": ["alteplase"],
+    "catalogId": "drug.alteplase",
+    "units": ["mg"],
+    "routes": ["IV"],
+    "drugClass": "Thrombolytic",
+    "allergyClasses": [],
+    "typicalDose": null,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "defibrillation",
+    "label": "Defibrillation",
+    "aliases": ["defib", "defibrillate", "defibrillation", "shock"],
+    "catalogId": "acls.defib",
+    "units": ["J"],
+    "routes": ["biphasic"],
+    "drugClass": "Energy delivery",
+    "allergyClasses": [],
+    "typicalDose": null,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
   }
 ]

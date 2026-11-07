@@ -42,7 +42,9 @@
         "notchSec": 0.22,
         "notchAmplitude": 0.3
       }
-    }
+    },
+    "alarm": "NONE",
+    "electricalRate": 0
   },
   {
     "id": "SINUS_RHYTHM",
@@ -87,7 +89,9 @@
         "notchSec": 0.22,
         "notchAmplitude": 0.3
       }
-    }
+    },
+    "alarm": "NONE",
+    "electricalRate": 0
   },
   {
     "id": "SINUS_TACHYCARDIA",
@@ -132,6 +136,410 @@
         "notchSec": 0.22,
         "notchAmplitude": 0.3
       }
+    },
+    "alarm": "NONE",
+    "electricalRate": 0
+  },
+  {
+    "id": "ATRIAL_FIBRILLATION",
+    "label": "Atrial Fibrillation (AF)",
+    "family": "AF",
+    "hrRange": [0, 1000],
+    "shockable": false,
+    "pulse": true,
+    "alarm": "CAUTION",
+    "electricalRate": 0,
+    "wave": {
+      "kind": "sinus",
+      "ecg": [
+        {
+          "offsetSec": 0,
+          "widthSec": 0.012,
+          "amplitude": 1.0
+        },
+        {
+          "offsetSec": -0.03,
+          "widthSec": 0.01,
+          "amplitude": -0.12
+        },
+        {
+          "offsetSec": 0.03,
+          "widthSec": 0.012,
+          "amplitude": -0.2
+        },
+        {
+          "offsetSec": 0.24,
+          "widthSec": 0.05,
+          "amplitude": 0.28
+        }
+      ],
+      "pleth": {
+        "delaySec": 0.18,
+        "riseSec": 0.12,
+        "fallSec": 0.28,
+        "notchSec": 0.22,
+        "notchAmplitude": 0.3
+      },
+      "periodJitter": 0.28,
+      "baseline": {
+        "freqHz": 6.5,
+        "amplitude": 0.07
+      }
+    }
+  },
+  {
+    "id": "ATRIAL_FLUTTER",
+    "label": "Atrial Flutter",
+    "family": "FLUTTER",
+    "hrRange": [0, 1000],
+    "shockable": false,
+    "pulse": true,
+    "alarm": "CAUTION",
+    "electricalRate": 0,
+    "wave": {
+      "kind": "sinus",
+      "ecg": [
+        {
+          "offsetSec": 0,
+          "widthSec": 0.012,
+          "amplitude": 1.0
+        },
+        {
+          "offsetSec": -0.03,
+          "widthSec": 0.01,
+          "amplitude": -0.1
+        },
+        {
+          "offsetSec": 0.03,
+          "widthSec": 0.012,
+          "amplitude": -0.18
+        },
+        {
+          "offsetSec": 0.24,
+          "widthSec": 0.05,
+          "amplitude": 0.2
+        }
+      ],
+      "pleth": {
+        "delaySec": 0.18,
+        "riseSec": 0.12,
+        "fallSec": 0.28,
+        "notchSec": 0.22,
+        "notchAmplitude": 0.3
+      },
+      "baseline": {
+        "freqHz": 5,
+        "amplitude": 0.16
+      }
+    }
+  },
+  {
+    "id": "SVT",
+    "label": "Supraventricular Tachycardia (SVT)",
+    "family": "SVT",
+    "hrRange": [0, 1000],
+    "shockable": false,
+    "pulse": true,
+    "alarm": "ALARM",
+    "electricalRate": 0,
+    "wave": {
+      "kind": "sinus",
+      "ecg": [
+        {
+          "offsetSec": 0,
+          "widthSec": 0.011,
+          "amplitude": 0.95
+        },
+        {
+          "offsetSec": -0.025,
+          "widthSec": 0.009,
+          "amplitude": -0.1
+        },
+        {
+          "offsetSec": 0.025,
+          "widthSec": 0.011,
+          "amplitude": -0.18
+        },
+        {
+          "offsetSec": 0.16,
+          "widthSec": 0.04,
+          "amplitude": 0.2
+        }
+      ],
+      "pleth": {
+        "delaySec": 0.18,
+        "riseSec": 0.12,
+        "fallSec": 0.18,
+        "notchSec": 0.22,
+        "notchAmplitude": 0.15
+      }
+    }
+  },
+  {
+    "id": "VENTRICULAR_TACHYCARDIA",
+    "label": "Ventricular Tachycardia (VT)",
+    "family": "VT",
+    "hrRange": [0, 1000],
+    "shockable": false,
+    "pulse": true,
+    "alarm": "ALARM",
+    "electricalRate": 0,
+    "wave": {
+      "kind": "sinus",
+      "ecg": [
+        {
+          "offsetSec": 0,
+          "widthSec": 0.05,
+          "amplitude": 1.0
+        },
+        {
+          "offsetSec": 0.13,
+          "widthSec": 0.07,
+          "amplitude": -0.55
+        }
+      ],
+      "pleth": {
+        "delaySec": 0.18,
+        "riseSec": 0.12,
+        "fallSec": 0.2,
+        "notchSec": 0.22,
+        "notchAmplitude": 0.1
+      }
+    }
+  },
+  {
+    "id": "COMPLETE_HEART_BLOCK",
+    "label": "Complete Heart Block",
+    "family": "CHB",
+    "hrRange": [0, 1000],
+    "shockable": false,
+    "pulse": true,
+    "alarm": "ALARM",
+    "electricalRate": 0,
+    "wave": {
+      "kind": "sinus",
+      "ecg": [
+        {
+          "offsetSec": 0,
+          "widthSec": 0.04,
+          "amplitude": 0.9
+        },
+        {
+          "offsetSec": 0.18,
+          "widthSec": 0.07,
+          "amplitude": -0.3
+        },
+        {
+          "offsetSec": 0.38,
+          "widthSec": 0.08,
+          "amplitude": 0.35
+        }
+      ],
+      "pleth": {
+        "delaySec": 0.18,
+        "riseSec": 0.12,
+        "fallSec": 0.28,
+        "notchSec": 0.22,
+        "notchAmplitude": 0.3
+      },
+      "baseline": {
+        "freqHz": 1.25,
+        "amplitude": 0.12
+      }
+    }
+  },
+  {
+    "id": "JUNCTIONAL_RHYTHM",
+    "label": "Junctional Rhythm",
+    "family": "JUNCTIONAL",
+    "hrRange": [0, 1000],
+    "shockable": false,
+    "pulse": true,
+    "alarm": "CAUTION",
+    "electricalRate": 0,
+    "wave": {
+      "kind": "sinus",
+      "ecg": [
+        {
+          "offsetSec": 0,
+          "widthSec": 0.012,
+          "amplitude": 1.0
+        },
+        {
+          "offsetSec": -0.06,
+          "widthSec": 0.012,
+          "amplitude": -0.12
+        },
+        {
+          "offsetSec": 0.03,
+          "widthSec": 0.012,
+          "amplitude": -0.2
+        },
+        {
+          "offsetSec": 0.26,
+          "widthSec": 0.05,
+          "amplitude": 0.3
+        }
+      ],
+      "pleth": {
+        "delaySec": 0.18,
+        "riseSec": 0.12,
+        "fallSec": 0.28,
+        "notchSec": 0.22,
+        "notchAmplitude": 0.3
+      }
+    }
+  },
+  {
+    "id": "IDIOVENTRICULAR_RHYTHM",
+    "label": "Idioventricular Rhythm",
+    "family": "IDIOVENTRICULAR",
+    "hrRange": [0, 1000],
+    "shockable": false,
+    "pulse": true,
+    "alarm": "ALARM",
+    "electricalRate": 0,
+    "wave": {
+      "kind": "sinus",
+      "ecg": [
+        {
+          "offsetSec": 0,
+          "widthSec": 0.055,
+          "amplitude": 0.95
+        },
+        {
+          "offsetSec": 0.2,
+          "widthSec": 0.08,
+          "amplitude": -0.4
+        }
+      ],
+      "pleth": {
+        "delaySec": 0.18,
+        "riseSec": 0.12,
+        "fallSec": 0.28,
+        "notchSec": 0.22,
+        "notchAmplitude": 0.3
+      }
+    }
+  },
+  {
+    "id": "VENTRICULAR_FIBRILLATION",
+    "label": "Ventricular Fibrillation (VF)",
+    "family": "VF",
+    "hrRange": [0, 1000],
+    "shockable": true,
+    "pulse": false,
+    "alarm": "ALARM",
+    "electricalRate": 0,
+    "wave": {
+      "kind": "fibrillation",
+      "components": [
+        {
+          "freqHz": 4.2,
+          "amplitude": 0.5
+        },
+        {
+          "freqHz": 6.8,
+          "amplitude": 0.35
+        },
+        {
+          "freqHz": 3.1,
+          "amplitude": 0.4
+        }
+      ],
+      "envelopeHz": 0.35
+    }
+  },
+  {
+    "id": "PULSELESS_VT",
+    "label": "Pulseless Ventricular Tachycardia (pVT)",
+    "family": "PVT",
+    "hrRange": [0, 1000],
+    "shockable": true,
+    "pulse": false,
+    "alarm": "ALARM",
+    "electricalRate": 190,
+    "wave": {
+      "kind": "sinus",
+      "ecg": [
+        {
+          "offsetSec": 0,
+          "widthSec": 0.05,
+          "amplitude": 1.0
+        },
+        {
+          "offsetSec": 0.13,
+          "widthSec": 0.07,
+          "amplitude": -0.55
+        }
+      ],
+      "pleth": null
+    }
+  },
+  {
+    "id": "TORSADES_DE_POINTES",
+    "label": "Torsades de Pointes",
+    "family": "TORSADES",
+    "hrRange": [0, 1000],
+    "shockable": true,
+    "pulse": false,
+    "alarm": "ALARM",
+    "electricalRate": 200,
+    "wave": {
+      "kind": "fibrillation",
+      "components": [
+        {
+          "freqHz": 5.2,
+          "amplitude": 0.9
+        }
+      ],
+      "envelopeHz": 0.6
+    }
+  },
+  {
+    "id": "PULSELESS_ELECTRICAL_ACTIVITY",
+    "label": "Pulseless Electrical Activity (PEA)",
+    "family": "PEA",
+    "hrRange": [0, 1000],
+    "shockable": false,
+    "pulse": false,
+    "alarm": "ALARM",
+    "electricalRate": 45,
+    "wave": {
+      "kind": "sinus",
+      "ecg": [
+        {
+          "offsetSec": 0,
+          "widthSec": 0.03,
+          "amplitude": 0.7
+        },
+        {
+          "offsetSec": 0.2,
+          "widthSec": 0.07,
+          "amplitude": -0.25
+        },
+        {
+          "offsetSec": 0.4,
+          "widthSec": 0.07,
+          "amplitude": 0.2
+        }
+      ],
+      "pleth": null
+    }
+  },
+  {
+    "id": "ASYSTOLE",
+    "label": "Asystole",
+    "family": "ASYSTOLE",
+    "hrRange": [0, 1000],
+    "shockable": false,
+    "pulse": false,
+    "alarm": "ALARM",
+    "electricalRate": 0,
+    "wave": {
+      "kind": "flat",
+      "driftAmplitude": 0.02,
+      "driftFreqHz": 0.3
     }
   }
 ]

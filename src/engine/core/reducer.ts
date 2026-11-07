@@ -15,8 +15,10 @@ import {
   type GameState,
   type NewGameParams,
 } from './state';
+import { aclsModule } from '../acls/aclsModule';
 import { bedsideModule } from '../bedside/bedside';
 import { caseModule } from '../case/caseModule';
+import { deathModule } from '../death/deathModule';
 import { gateModule } from '../gate/gate';
 import { ordersModule } from '../orders/orders';
 import { resultsModule } from '../results/results';
@@ -31,6 +33,8 @@ export const defaultModules: readonly EngineModule[] = [
   resultsModule,
   caseModule,
   wardModule,
+  aclsModule,
+  deathModule,
   bedsideModule,
 ];
 

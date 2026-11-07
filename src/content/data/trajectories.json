@@ -578,5 +578,150 @@
     },
     "rhythm": "SINUS_TACHYCARDIA",
     "consciousness": "V"
+  },
+  {
+    "id": "acls.pulseless",
+    "target": {
+      "hr": 0,
+      "sbp": 0,
+      "dbp": 0,
+      "spo2": 0,
+      "rr": 0,
+      "temp": 36.0
+    },
+    "slopePerMin": {
+      "hr": 1,
+      "sbp": 1,
+      "dbp": 1,
+      "spo2": 1,
+      "rr": 1,
+      "temp": 1
+    },
+    "noise": {
+      "hr": 0,
+      "sbp": 0,
+      "dbp": 0,
+      "spo2": 0,
+      "rr": 0,
+      "temp": 0
+    },
+    "rhythm": "ASYSTOLE",
+    "consciousness": "U"
+  },
+  {
+    "id": "acls.postrosc",
+    "target": {
+      "hr": 108,
+      "sbp": 88,
+      "dbp": 52,
+      "spo2": 91,
+      "rr": 16,
+      "temp": 36.2
+    },
+    "slopePerMin": {
+      "hr": 40,
+      "sbp": 30,
+      "dbp": 20,
+      "spo2": 10,
+      "rr": 6,
+      "temp": 0.1
+    },
+    "noise": {
+      "hr": 3,
+      "sbp": 4,
+      "dbp": 3,
+      "spo2": 1,
+      "rr": 1,
+      "temp": 0.1
+    },
+    "rhythm": "SINUS_RHYTHM",
+    "consciousness": "U"
+  },
+  {
+    "id": "acs.chestpain",
+    "target": {
+      "hr": 96,
+      "sbp": 138,
+      "dbp": 82,
+      "spo2": 96,
+      "rr": 18,
+      "temp": 36.8
+    },
+    "slopePerMin": {
+      "hr": 1,
+      "sbp": 1,
+      "dbp": 1,
+      "spo2": 0.2,
+      "rr": 0.5,
+      "temp": 0.02
+    },
+    "noise": {
+      "hr": 2,
+      "sbp": 3,
+      "dbp": 2,
+      "spo2": 1,
+      "rr": 1,
+      "temp": 0.1
+    },
+    "rhythm": "SINUS_RHYTHM",
+    "consciousness": "A"
+  },
+  {
+    "id": "acs.stabilising",
+    "target": {
+      "hr": 88,
+      "sbp": 124,
+      "dbp": 74,
+      "spo2": 96,
+      "rr": 16,
+      "temp": 36.8
+    },
+    "slopePerMin": {
+      "hr": 2,
+      "sbp": 2,
+      "dbp": 1.5,
+      "spo2": 0.5,
+      "rr": 1,
+      "temp": 0.05
+    },
+    "noise": {
+      "hr": 2,
+      "sbp": 3,
+      "dbp": 2,
+      "spo2": 1,
+      "rr": 1,
+      "temp": 0.1
+    },
+    "rhythm": "SINUS_RHYTHM",
+    "consciousness": "A"
+  },
+  {
+    "id": "terminal.decline",
+    "target": {
+      "hr": 58,
+      "sbp": 84,
+      "dbp": 46,
+      "spo2": 86,
+      "rr": 10,
+      "temp": 36.0
+    },
+    "slopePerMin": {
+      "hr": 1,
+      "sbp": 1,
+      "dbp": 0.5,
+      "spo2": 0.3,
+      "rr": 0.3,
+      "temp": 0.02
+    },
+    "noise": {
+      "hr": 2,
+      "sbp": 3,
+      "dbp": 2,
+      "spo2": 1,
+      "rr": 1,
+      "temp": 0.1
+    },
+    "rhythm": "SINUS_BRADYCARDIA",
+    "consciousness": "P"
   }
 ]

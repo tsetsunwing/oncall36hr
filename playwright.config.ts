@@ -5,7 +5,9 @@ const MOCK_PORT = 8787;
 
 export default defineConfig({
   testDir: './e2e',
-  fullyParallel: true,
+  // 單一 worker：mock AI server 嘅重試計數同 /__reset 係全域狀態，desktop／mobile 同時行會互相干擾。
+  fullyParallel: false,
+  workers: 1,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [['github'], ['html', { open: 'never' }]] : [['list']],

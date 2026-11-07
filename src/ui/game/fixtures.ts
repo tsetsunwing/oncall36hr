@@ -42,6 +42,9 @@ export function monitor(over: Partial<MonitorView> = {}): MonitorView {
     temp: readout('38.4', 'CAUTION', 'HIGH'),
     rhythmId: 'SINUS_TACHY',
     rhythmLabel: '竇性心搏過速',
+    rhythmAlarm: 'NORMAL',
+    pulseless: false,
+    waveRate: 118,
     hrValue: 118,
     pulseAmplitude: 0.8,
     wave: null,
@@ -146,6 +149,8 @@ export function clock(over: Partial<GameView['clock']> = {}): GameView['clock'] 
     speeds: [0, 1, 2, 4],
     paused: false,
     pausedBy: null,
+    cprSlow: false,
+    effectiveSpeed: 1,
     ...over,
   };
 }

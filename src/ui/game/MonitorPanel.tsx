@@ -53,7 +53,11 @@ export function MonitorPanel({ patient, monitor }: MonitorPanelProps) {
     { key: 'temp', readout: monitor.temp },
   ];
   const tags = tiles.filter((t) => t.readout.level !== 'NORMAL');
-  const level = maxLevel([monitor.mews.level, ...tiles.map((t) => t.readout.level)]);
+  const level = maxLevel([
+    monitor.mews.level,
+    monitor.rhythmAlarm,
+    ...tiles.map((t) => t.readout.level),
+  ]);
   const band = (m.band as Record<string, string>)[monitor.mews.bandId] ?? monitor.mews.bandId;
 
   return (
@@ -81,7 +85,13 @@ export function MonitorPanel({ patient, monitor }: MonitorPanelProps) {
       </header>
 
       <ul className="alarm-tags" aria-label={m.level.ALARM} data-testid="alarm-tags">
-        {tags.length === 0 ? (
+        {monitor.rhythmAlarm !== 'NORMAL' ? (
+          <li className="alarm-tag" data-level={monitor.rhythmAlarm} data-testid="rhythm-alarm-tag">
+            {m.rhythmAlarm[monitor.rhythmAlarm]} · {monitor.rhythmLabel}
+            {monitor.pulseless ? ` · ${m.pulseless}` : ''}
+          </li>
+        ) : null}
+        {tags.length === 0 && monitor.rhythmAlarm === 'NORMAL' ? (
           <li className="alarm-tag" data-level="NORMAL">
             {m.noAlarm}
           </li>
@@ -102,7 +112,7 @@ export function MonitorPanel({ patient, monitor }: MonitorPanelProps) {
             <WaveformCanvas
               kind="ecg"
               wave={monitor.wave}
-              hr={monitor.hrValue}
+              hr={monitor.waveRate}
               amplitude={monitor.pulseAmplitude}
               sweepSeconds={monitor.sweepSeconds}
               targetFps={monitor.targetFps}
@@ -114,7 +124,7 @@ export function MonitorPanel({ patient, monitor }: MonitorPanelProps) {
             <WaveformCanvas
               kind="pleth"
               wave={monitor.wave}
-              hr={monitor.hrValue}
+              hr={monitor.waveRate}
               amplitude={monitor.pulseAmplitude}
               sweepSeconds={monitor.sweepSeconds}
               targetFps={monitor.targetFps}

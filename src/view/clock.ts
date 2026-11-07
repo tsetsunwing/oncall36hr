@@ -27,3 +27,9 @@ export function formatClock(tSec: number, mode: Mode, config: ShiftClockConfig):
   const mm = minutes % 60;
   return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
 }
+
+/** 秒 → "mm:ss"（搶救計時器顯示用） */
+export function formatDuration(totalSec: number): string {
+  const sec = Math.max(0, Math.floor(totalSec));
+  return `${String(Math.floor(sec / 60)).padStart(2, '0')}:${String(sec % 60).padStart(2, '0')}`;
+}

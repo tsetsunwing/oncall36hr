@@ -423,5 +423,249 @@
     "pharmacyGate": false,
     "nurseGate": "HIGH_RISK",
     "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "acls.cpr",
+    "type": "RESUSCITATION",
+    "label": "CPR",
+    "aliases": [
+      "cpr",
+      "start cpr",
+      "開始cpr",
+      "開始 cpr",
+      "壓胸",
+      "chest compression",
+      "continue cpr",
+      "繼續cpr",
+      "繼續 cpr"
+    ],
+    "executors": ["NURSE"],
+    "fixedDurationSec": 5,
+    "setsFlags": [],
+    "cancelWhile": ["QUEUED", "RUNNING"],
+    "sunkEffectRule": "DISCARD",
+    "pharmacyGate": false,
+    "nurseGate": "NEVER",
+    "acls": {
+      "action": "CPR_START"
+    },
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "acls.rhythmcheck",
+    "type": "RESUSCITATION",
+    "label": "Rhythm check",
+    "aliases": [
+      "rhythm check",
+      "check rhythm",
+      "rhythm",
+      "睇rhythm",
+      "睇 rhythm",
+      "pause cpr check rhythm"
+    ],
+    "executors": ["NURSE"],
+    "fixedDurationSec": 10,
+    "setsFlags": [],
+    "cancelWhile": ["QUEUED", "RUNNING"],
+    "sunkEffectRule": "DISCARD",
+    "pharmacyGate": false,
+    "nurseGate": "NEVER",
+    "acls": {
+      "action": "RHYTHM_CHECK"
+    },
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "acls.defib",
+    "type": "RESUSCITATION",
+    "label": "Defibrillation",
+    "aliases": ["defib", "defibrillate", "defibrillation", "shock", "電擊"],
+    "executors": ["NURSE"],
+    "fixedDurationSec": 10,
+    "setsFlags": [],
+    "formularyId": "defibrillation",
+    "cancelWhile": ["QUEUED", "RUNNING"],
+    "sunkEffectRule": "DISCARD",
+    "pharmacyGate": false,
+    "nurseGate": "NEVER",
+    "acls": {
+      "action": "DEFIB"
+    },
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "acls.terminate",
+    "type": "RESUSCITATION",
+    "label": "Stop resuscitation",
+    "aliases": [
+      "stop cpr",
+      "stop resuscitation",
+      "停止搶救",
+      "停止cpr",
+      "停止 cpr",
+      "terminate resuscitation",
+      "call time of death"
+    ],
+    "executors": ["NURSE"],
+    "fixedDurationSec": 5,
+    "setsFlags": [],
+    "cancelWhile": ["QUEUED", "RUNNING"],
+    "sunkEffectRule": "DISCARD",
+    "pharmacyGate": false,
+    "nurseGate": "NEVER",
+    "acls": {
+      "action": "TERMINATE"
+    },
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "drug.adrenaline",
+    "type": "DRUG",
+    "label": "Adrenaline",
+    "aliases": ["adrenaline", "epinephrine", "adr", "epi", "腎上腺素"],
+    "executors": ["NURSE"],
+    "fixedDurationSec": 15,
+    "setsFlags": [],
+    "formularyId": "adrenaline",
+    "cancelWhile": ["QUEUED", "RUNNING"],
+    "sunkEffectRule": "DISCARD",
+    "pharmacyGate": false,
+    "nurseGate": "NEVER",
+    "acls": {
+      "action": "DRUG"
+    },
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "drug.amiodarone",
+    "type": "DRUG",
+    "label": "Amiodarone",
+    "aliases": ["amiodarone", "cordarone"],
+    "executors": ["NURSE"],
+    "fixedDurationSec": 30,
+    "setsFlags": [],
+    "formularyId": "amiodarone",
+    "cancelWhile": ["QUEUED", "RUNNING"],
+    "sunkEffectRule": "DISCARD",
+    "pharmacyGate": false,
+    "nurseGate": "NEVER",
+    "acls": {
+      "action": "DRUG"
+    },
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "drug.calcium",
+    "type": "DRUG",
+    "label": "Calcium gluconate",
+    "aliases": ["calcium gluconate", "calcium", "ca gluconate"],
+    "executors": ["NURSE"],
+    "fixedDurationSec": 30,
+    "setsFlags": [],
+    "formularyId": "calcium-gluconate",
+    "cancelWhile": ["QUEUED", "RUNNING"],
+    "sunkEffectRule": "DISCARD",
+    "pharmacyGate": false,
+    "nurseGate": "NEVER",
+    "acls": {
+      "action": "DRUG"
+    },
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "drug.naloxone",
+    "type": "DRUG",
+    "label": "Naloxone",
+    "aliases": ["naloxone", "narcan"],
+    "executors": ["NURSE"],
+    "fixedDurationSec": 30,
+    "setsFlags": [],
+    "formularyId": "naloxone",
+    "cancelWhile": ["QUEUED", "RUNNING"],
+    "sunkEffectRule": "DISCARD",
+    "pharmacyGate": false,
+    "nurseGate": "NEVER",
+    "acls": {
+      "action": "DRUG"
+    },
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "drug.alteplase",
+    "type": "DRUG",
+    "label": "Alteplase",
+    "aliases": ["alteplase", "tpa", "thrombolysis"],
+    "executors": ["NURSE"],
+    "fixedDurationSec": 120,
+    "setsFlags": [],
+    "formularyId": "alteplase",
+    "cancelWhile": ["QUEUED", "RUNNING"],
+    "sunkEffectRule": "DISCARD",
+    "pharmacyGate": false,
+    "nurseGate": "NEVER",
+    "acls": {
+      "action": "DRUG"
+    },
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "img.pocus",
+    "type": "ULTRASOUND",
+    "label": "POCUS",
+    "aliases": ["pocus", "bedside echo", "bedside us", "床邊超聲", "床邊 echo"],
+    "executors": ["PLAYER", "SUBORDINATE"],
+    "fixedDurationSec": 120,
+    "setsFlags": [],
+    "resultId": "res.pocus",
+    "cancelWhile": ["QUEUED", "RUNNING"],
+    "sunkEffectRule": "DISCARD",
+    "pharmacyGate": false,
+    "nurseGate": "NEVER",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "proc.decompression",
+    "type": "PROCEDURE",
+    "label": "Needle decompression",
+    "aliases": ["needle decompression", "decompression", "針刺減壓"],
+    "executors": ["PLAYER", "SUBORDINATE"],
+    "fixedDurationSec": 120,
+    "setsFlags": ["decompression.done"],
+    "resultTemplate": "Needle decompression completed",
+    "cancelWhile": ["QUEUED", "RUNNING"],
+    "sunkEffectRule": "DISCARD",
+    "pharmacyGate": false,
+    "nurseGate": "NEVER",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "proc.pericardiocentesis",
+    "type": "PROCEDURE",
+    "label": "Pericardiocentesis",
+    "aliases": ["pericardiocentesis", "心包穿刺"],
+    "executors": ["PLAYER", "SUBORDINATE"],
+    "fixedDurationSec": 300,
+    "setsFlags": ["pericardiocentesis.done"],
+    "resultTemplate": "Pericardiocentesis completed",
+    "cancelWhile": ["QUEUED", "RUNNING"],
+    "sunkEffectRule": "DISCARD",
+    "pharmacyGate": false,
+    "nurseGate": "NEVER",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "proc.rewarm",
+    "type": "PROCEDURE",
+    "label": "Active rewarming",
+    "aliases": ["rewarm", "active rewarming", "回暖"],
+    "executors": ["NURSE"],
+    "fixedDurationSec": 600,
+    "setsFlags": ["rewarm.on"],
+    "resultTemplate": "Active rewarming started",
+    "cancelWhile": ["QUEUED", "RUNNING"],
+    "sunkEffectRule": "DISCARD",
+    "pharmacyGate": false,
+    "nurseGate": "NEVER",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
   }
 ]

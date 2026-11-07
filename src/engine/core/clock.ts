@@ -4,6 +4,7 @@
  * TICK 帶嘅係真實毫秒；換算由 engine 負責，所以暫停、倍速、CPR 慢速都係 engine 嘅確定性行為。
  */
 import type { EngineConfig } from './config';
+import type { Effect } from './events';
 import type { GameState } from './state';
 
 /** 每真實毫秒推進幾多遊戲秒；暫停時為 0 */
@@ -16,4 +17,37 @@ export function gameSecondsPerRealMs(
   // CPR 期間有效速率固定為 1 倍嘅 cprSlowFactor，無視玩家倍速（S-3 A）
   const multiplier = state.clock.cprSlow ? config.clock.cprSlowFactor : state.clock.speed;
   return baseAt1x * multiplier;
+}
+
+/** 突發事件（心臟停頓呼叫、電話…）：倍速回到 config 設定值，但絕不取消 CPR 慢速（S26b B）。 */
+export function interruptSpeed(
+  state: GameState,
+  config: EngineConfig,
+): { state: GameState; effects: Effect[] } {
+  return setSpeed(state, config.clock.speedAfterInterrupt);
+}
+
+/** CPR 期間開始：有效速率固定為 1 倍嘅 cprSlowFactor，玩家倍速只係被忽略（唔改寫） */
+export function beginCprSlow(state: GameState): GameState {
+  return state.clock.cprSlow ? state : { ...state, clock: { ...state.clock, cprSlow: true } };
+}
+
+/** CPR 期間結束（ROSC、停止搶救）：回復慢速前嘅倍速 */
+export function endCprSlow(
+  state: GameState,
+  config: EngineConfig,
+): { state: GameState; effects: Effect[] } {
+  const released: GameState = {
+    ...state,
+    clock: { ...state.clock, cprSlow: false },
+  };
+  return setSpeed(released, config.clock.speedAfterCpr);
+}
+
+function setSpeed(state: GameState, speed: number): { state: GameState; effects: Effect[] } {
+  if (state.clock.speed === speed) return { state, effects: [] };
+  return {
+    state: { ...state, clock: { ...state.clock, speed } },
+    effects: [{ type: 'SET_SPEED', speed }],
+  };
 }

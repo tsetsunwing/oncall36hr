@@ -20,6 +20,12 @@ export interface MonitorView {
   temp: VitalReadout;
   rhythmId: string;
   rhythmLabel: string;
+  /** 節律本身嘅靜態警示等級（顏色＋文字，唔閃爍）；NORMAL＝冇節律警示 */
+  rhythmAlarm: AlarmLevel;
+  /** 無脈搏（心臟停頓）：HR／血壓／SpO₂／RR 顯示「—」 */
+  pulseless: boolean;
+  /** 波形用嘅速率：有脈搏＝HR；無脈搏＝rhythm 表嘅示意電活動速率 */
+  waveRate: number;
   hrValue: number;
   pulseAmplitude: number;
   wave: WaveSpec | null;
@@ -296,6 +302,73 @@ export interface WardView {
   total: number;
 }
 
+export type CprState = 'NOT_STARTED' | 'ACTIVE' | 'PAUSED';
+
+export interface ResusCauseView {
+  id: string;
+  label: string;
+  group: 'H' | 'T';
+  /** 已完成檢查 order；唔透露個病人實際有冇呢個病因 */
+  checked: boolean;
+  treated: boolean;
+}
+
+export interface ResusView {
+  patientId: string;
+  status: 'ARREST' | 'ROSC' | 'RECOVERED' | 'STOPPED';
+  episode: number;
+  rhythmLabel: string;
+  /** 由 monitor 上可見嘅節律推出（唔係隱藏資料） */
+  shockable: boolean;
+  cpr: CprState;
+  elapsedSec: number;
+  cycleSeconds: number;
+  /** 呢輪 CPR 已經做咗幾耐；唔喺 CPR 中＝null */
+  cycleElapsedSec: number | null;
+  cycles: number;
+  minCyclesBeforeStop: number;
+  canStop: boolean;
+  shocks: number;
+  /** 冇血流／手停累計秒數（含進行中） */
+  handsOffSec: number;
+  drugs: { label: string; timeLabel: string }[];
+  causes: ResusCauseView[];
+  postRosc: {
+    windowRemainingSec: number;
+    bundle: { id: string; label: string; done: boolean }[];
+  } | null;
+}
+
+export type DeathStepCode = 'CERTIFICATE' | 'NOTIFY_SENIOR' | 'PHONE_FAMILY' | 'RECORD';
+
+export interface DeathStepView {
+  step: DeathStepCode;
+  done: boolean;
+  completedLabel: string | null;
+  /** 預填欄位（T23）；內容見 DeathView.prefill */
+  fields: string[];
+}
+
+export interface DeathView {
+  patientId: string;
+  status: 'PENDING_PROCESS' | 'COMPLETE';
+  diedAtLabel: string;
+  prefill: {
+    name: string;
+    bed: number;
+    age: number;
+    sex: 'M' | 'F';
+    cause: string;
+    seniorRank: string;
+    resusSummary: { cycles: number; shocks: number; drugs: number };
+  };
+  steps: DeathStepView[];
+  /** 已被扣過幾次「拖延」分 */
+  delayCharges: number;
+  /** 四步完成之前床位唔釋放 */
+  bedReleased: boolean;
+}
+
 export interface GameView {
   clock: {
     label: string;
@@ -304,6 +377,9 @@ export interface GameView {
     speeds: number[];
     paused: boolean;
     pausedBy: 'player' | 'ai-failure' | 'forced' | null;
+    /** CPR 期間：有效速率固定為 1 倍嘅 cprSlowFactor，玩家倍速被忽略 */
+    cprSlow: boolean;
+    effectiveSpeed: number;
   };
   patient: PatientView | null;
   monitor: MonitorView | null;
@@ -313,6 +389,8 @@ export interface GameView {
   reports: ReportView[];
   actionLog: { all: ActionRowView[]; patient: ActionRowView[] };
   quickChips: QuickChipView[];
+  resus: ResusView | null;
+  death: DeathView | null;
   pendingAiCount: number;
   aiFailure: { reqId: string; reason: string | null } | null;
   /** 最近一次被 engine 拒絕嘅玩家動作（暫停中落 order 等）；下一個動作時清除 */
@@ -343,4 +421,5 @@ export interface GameActions {
     patientId: string | null;
     callId: string | null;
   }) => void;
+  completeDeathStep: (step: DeathStepCode) => void;
 }

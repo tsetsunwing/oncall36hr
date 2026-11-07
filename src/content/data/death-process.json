@@ -1,1 +1,54 @@
-[]
+[
+  {
+    "id": "death.model",
+    "kind": "MODEL",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。 扣分幅度同間隔為預設值（spec Q83 D、S12 A）。",
+    "delayIntervalSec": 300,
+    "seniorByRank": {
+      "HO": "MO",
+      "MO": "RES",
+      "RES": "CONSULTANT"
+    },
+    "scoring": {
+      "death": {
+        "delta": -10
+      },
+      "delay": {
+        "delta": -1
+      }
+    }
+  },
+  {
+    "id": "death.step.certificate",
+    "kind": "STEP",
+    "step": "CERTIFICATE",
+    "fields": ["name", "ageSex", "bed", "timeOfDeath", "cause"],
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "預填欄位由 case 資料映射；只用按鈕確認，唔做文書（spec §1、§18）。"
+  },
+  {
+    "id": "death.step.notify-senior",
+    "kind": "STEP",
+    "step": "NOTIFY_SENIOR",
+    "fields": ["name", "bed", "timeOfDeath", "seniorRank", "resusSummary"],
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "預填欄位由 case 資料映射；只用按鈕確認，唔做文書（spec §1、§18）。"
+  },
+  {
+    "id": "death.step.phone-family",
+    "kind": "STEP",
+    "step": "PHONE_FAMILY",
+    "fields": ["name", "timeOfDeath"],
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "預填欄位由 case 資料映射；只用按鈕確認，唔做文書（spec §1、§18）。"
+  },
+  {
+    "id": "death.step.record",
+    "kind": "STEP",
+    "step": "RECORD",
+    "fields": ["name", "bed", "timeOfDeath", "cause", "resusSummary"],
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "預填欄位由 case 資料映射；只用按鈕確認，唔做文書（spec §1、§18）。"
+  }
+]

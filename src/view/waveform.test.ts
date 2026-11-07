@@ -2,8 +2,10 @@ import { describe, expect, it } from 'vitest';
 import { getContent } from '@/content';
 import { beatPeriodSec, ecgAt, parseWave, plethAmplitude, plethAt } from './waveform';
 
-const wave = parseWave(getContent().tables.rhythms[1]?.wave);
-if (!wave) throw new Error('rhythm 波形無法解析');
+const parsed = parseWave(getContent().tables.rhythms[1]?.wave);
+if (parsed?.kind !== 'sinus' || parsed.pleth === null) throw new Error('rhythm 波形無法解析');
+const wave = parsed;
+const pleth = parsed.pleth;
 
 describe('波形生成（由 rhythm 表＋HR）', () => {
   it('R 波係週期內最高點；基線附近細', () => {
@@ -39,7 +41,7 @@ describe('波形生成（由 rhythm 表＋HR）', () => {
 
   it('Pleth：有脈搏上升、之後下降；振幅隨脈壓縮放（窄脈壓＝細波）', () => {
     const period = beatPeriodSec(80);
-    const rise = plethAt(wave.pleth.delaySec + wave.pleth.riseSec, period, wave);
+    const rise = plethAt(pleth.delaySec + pleth.riseSec, period, wave);
     expect(rise).toBeGreaterThan(0.8);
     expect(plethAt(period - 0.01, period, wave)).toBeLessThan(rise);
     expect(plethAt(0.01, period, wave, 0.5)).toBeLessThanOrEqual(plethAt(0.01, period, wave, 1));

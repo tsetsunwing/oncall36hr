@@ -2,6 +2,7 @@
  * Case 模組：病人建立、vitals 取樣排程、FSM 轉移、MEWS、rhythm。
  * 全部由 content 表驅動；呢度冇任何臨床數字。
  */
+import { beginArrest } from '../acls/arrest';
 import { abnormalOf, patientTokens, queueDialogue, vitalTokens, type Beat } from '../chat/dialogue';
 import { enqueue } from '../core/eventQueue';
 import type { EngineContext, EngineModule } from '../core/module';
@@ -18,7 +19,7 @@ import type {
   VitalNumbers,
 } from './tables';
 import { nextSample, resolveRhythm } from './vitals';
-import type { Reduction } from '../core/events';
+import type { Effect, Reduction } from '../core/events';
 
 export const VITALS_SAMPLE_EVENT = 'VITALS_SAMPLE';
 export const VITALS_SAMPLE_PRIORITY = 10;
@@ -67,44 +68,88 @@ function applySample(
   fsm: CaseFsmRow,
   ctx: EngineContext,
   t: number,
-): { state: GameState; patient: Patient; alert: string; bandId: string } {
+): {
+  state: GameState;
+  patient: Patient;
+  alert: string;
+  bandId: string;
+  arresting: boolean;
+  effects: Effect[];
+} {
   const mewsTable = ctx.tables.mews[0];
   if (!mewsTable) throw new Error('缺少 MEWS 表');
 
   const evaluated = evaluateFsm(patient, fsm, t, state.rng);
-  const trajectory = trajectoryFor(ctx.tables, fsm, evaluated.patient.hidden.fsm.state);
-  const sample = nextSample({
-    patient: evaluated.patient,
-    orders: state.orders,
-    tables: ctx.tables,
-    config: ctx.config,
-    trajectory,
-    rng: evaluated.rng,
-    t,
-  });
-  const mews = computeMews(sample.vitals, trajectory.consciousness, mewsTable);
-  const rhythm = resolveRhythm(trajectory.rhythm, sample.vitals.hr, ctx.tables);
-  const history = [...evaluated.patient.visible.vitalsHistory, { t, ...sample.vitals }].slice(
+  const fsmState = evaluated.patient.hidden.fsm.state;
+  let working: GameState = { ...state, rng: evaluated.rng };
+  const effects: Effect[] = [];
+
+  const arrestDef = fsm.states[fsmState]?.arrest;
+  const enteredArrest = fsmState !== patient.hidden.fsm.state;
+  if (
+    arrestDef &&
+    ctx.tables['acls-transitions'].length > 0 &&
+    (enteredArrest || working.resus === null)
+  ) {
+    const begun = beginArrest(working, patient.id, arrestDef.rhythm, ctx, { rearrest: false });
+    working = begun.state;
+    effects.push(...begun.effects);
+  }
+
+  const trajectory = trajectoryFor(ctx.tables, fsm, fsmState);
+  const resus = working.resus?.patientId === patient.id ? working.resus : null;
+  const arresting = resus?.status === 'ARREST';
+
+  let vitals: VitalNumbers;
+  let base: VitalNumbers;
+  let rng = working.rng;
+  if (arresting) {
+    vitals = { ...trajectory.target, temp: patient.visible.vitals.temp };
+    base = vitals;
+  } else {
+    const sample = nextSample({
+      patient: evaluated.patient,
+      orders: working.orders,
+      tables: ctx.tables,
+      config: ctx.config,
+      trajectory,
+      rng,
+      t,
+    });
+    vitals = sample.vitals;
+    base = sample.base;
+    rng = sample.rng;
+  }
+  const consciousness = arresting ? 'U' : trajectory.consciousness;
+  const mews = computeMews(vitals, consciousness, mewsTable);
+  let rhythm: string;
+  if (arresting) rhythm = resus.rhythm;
+  else if (resus?.status === 'ROSC' && resus.roscRhythm) {
+    rhythm = resolveRhythm(resus.roscRhythm, vitals.hr, ctx.tables);
+  } else rhythm = resolveRhythm(trajectory.rhythm, vitals.hr, ctx.tables);
+  const history = [...evaluated.patient.visible.vitalsHistory, { t, ...vitals }].slice(
     -ctx.config.vitals.historyLimit,
   );
 
   const updated: Patient = {
     ...evaluated.patient,
-    hidden: { ...evaluated.patient.hidden, base: sample.base, lastSampleAt: t },
+    hidden: { ...evaluated.patient.hidden, base, lastSampleAt: t },
     visible: {
       ...evaluated.patient.visible,
-      vitals: { t, ...sample.vitals },
+      vitals: { t, ...vitals },
       vitalsHistory: history,
       rhythm,
-      consciousness: trajectory.consciousness,
+      consciousness,
       mews: { score: mews.score, band: mews.band, components: mews.components },
     },
   };
   return {
-    state: { ...state, rng: sample.rng },
+    state: { ...working, rng },
     patient: updated,
-    alert: mews.alert,
+    alert: arresting ? 'ALARM' : mews.alert,
     bandId: mews.band,
+    arresting,
+    effects,
   };
 }
 
@@ -194,14 +239,16 @@ export const caseModule: EngineModule = {
       ...applied.state,
       patients: { ...applied.state.patients, [patient.id]: applied.patient },
     };
-    const effects: Reduction['effects'] = [];
+    const effects: Reduction['effects'] = [...applied.effects];
 
     const mewsTable = ctx.tables.mews[0];
     const rank = (band: string | null) => mewsTable?.bands.find((b) => b.id === band)?.min ?? -1;
     const previous = applied.patient.hidden;
     let alertedBand = previous.alertedBand;
     let lastAlertAt = previous.lastAlertAt;
-    if (applied.alert === 'NONE') {
+    if (applied.arresting) {
+      // 心臟停頓由 acls 模組嘅「ARREST_ANNOUNCED」呼叫，唔再行 MEWS 惡化提示
+    } else if (applied.alert === 'NONE') {
       alertedBand = null;
     } else if (applied.alert === 'ALARM') {
       const escalated = alertedBand === null || rank(applied.bandId) > rank(alertedBand);

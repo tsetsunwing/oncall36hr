@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { beatPeriodSec, ecgAt, plethAt, type WaveSpec } from '@/view';
+import { beatPeriodSec, ecgAt, jitteredPeriod, plethAt, type WaveSpec } from '@/view';
 
 export interface WaveformCanvasProps {
   kind: 'ecg' | 'pleth';
@@ -15,10 +15,16 @@ const WIDTH = 480;
 const HEIGHT = 72;
 const ERASE_PX = 14;
 
-function sampleY(kind: 'ecg' | 'pleth', phase: number, hr: number, wave: WaveSpec, amp: number) {
-  const period = beatPeriodSec(hr);
+function sampleY(
+  kind: 'ecg' | 'pleth',
+  phase: number,
+  period: number,
+  time: number,
+  wave: WaveSpec,
+  amp: number,
+) {
   if (kind === 'ecg') {
-    const v = ecgAt(phase, period, wave);
+    const v = ecgAt(phase, period, wave, time);
     return HEIGHT * 0.72 - v * HEIGHT * 0.58;
   }
   const v = plethAt(phase, period, wave, amp);
@@ -44,7 +50,7 @@ export function WaveformCanvas(props: WaveformCanvasProps) {
     if (!canvas || !ctx || !hasWave) return;
 
     const buffer = new Float32Array(WIDTH).fill(HEIGHT / 2);
-    const state = { phase: 0, x: 0, last: 0, accumulator: 0, frame: 0 };
+    const state = { phase: 0, time: 0, beat: 0, x: 0, last: 0, accumulator: 0, frame: 0 };
     const reduced =
       typeof window.matchMedia === 'function' &&
       window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -75,11 +81,21 @@ export function WaveformCanvas(props: WaveformCanvasProps) {
     const advance = (steps: number, stepSec: number) => {
       const { wave, hr, amplitude, kind } = live.current;
       if (!wave) return;
-      const period = beatPeriodSec(hr);
+      const basePeriod = beatPeriodSec(hr);
+      const periodOf = () =>
+        wave.kind === 'sinus' && wave.periodJitter
+          ? jitteredPeriod(basePeriod, wave.periodJitter, state.beat)
+          : basePeriod;
+      let period = periodOf();
       for (let i = 0; i < steps; i += 1) {
         state.phase += stepSec;
-        while (state.phase >= period) state.phase -= period;
-        buffer[state.x] = sampleY(kind, state.phase, hr, wave, amplitude);
+        state.time += stepSec;
+        while (state.phase >= period) {
+          state.phase -= period;
+          state.beat += 1;
+          period = periodOf();
+        }
+        buffer[state.x] = sampleY(kind, state.phase, period, state.time, wave, amplitude);
         state.x = (state.x + 1) % WIDTH;
       }
     };

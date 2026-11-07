@@ -8,8 +8,12 @@ export interface EngineConfig {
     speeds: readonly number[];
     defaultSpeed: number;
     cprSlowFactor: number;
+    /** 搶救（CPR）結束後嘅倍速 */
+    speedAfterCpr: number;
+    /** 突發事件（電話、心臟停頓呼叫）令倍速回到呢個值；唔會取消 CPR 慢速 */
     speedAfterInterrupt: number;
   };
+  acls: { cycleSeconds: number; minCyclesBeforeStop: number };
   saves: {
     manualSlots: number;
     autoSaveEveryGameMinutes: number;

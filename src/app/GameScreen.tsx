@@ -47,6 +47,13 @@ function pickSeed(): string {
   return fromUrl && fromUrl.length > 0 ? fromUrl : `night-${String(Date.now())}`;
 }
 
+/** 開發／測試用：`#/game?case=<template id>` 指定單一病人病例（未知 id 忽略；指定病例時強制單一病人模式） */
+function pickCase(): { caseId: string; ward: false } | Record<string, never> {
+  const requested = hashParams(window.location.hash).get('case');
+  const found = getContent().tables['case-templates'].find((c) => c.id === requested);
+  return found ? { caseId: found.id, ward: false } : {};
+}
+
 export function GameScreen({ settings, devProxy }: GameScreenProps) {
   const session: GameSession = useMemo(
     () =>
@@ -56,6 +63,7 @@ export function GameScreen({ settings, devProxy }: GameScreenProps) {
         params: {
           seed: pickSeed(),
           ...pickParams(),
+          ...pickCase(),
           nurseConfirmHighRisk: settings.nurseConfirmHighRisk,
         },
         gateway: createAiGateway(settings, devProxy ? { proxy: devProxy } : {}),

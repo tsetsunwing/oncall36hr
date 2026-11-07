@@ -92,5 +92,79 @@
     "params": {
       "executor": "SUBORDINATE"
     }
+  },
+  {
+    "id": "qw.cpr",
+    "aliases": [
+      "cpr",
+      "start cpr",
+      "開始cpr",
+      "開始 cpr",
+      "壓胸",
+      "continue cpr",
+      "繼續cpr",
+      "繼續 cpr"
+    ],
+    "catalogId": "acls.cpr",
+    "chipLabel": "CPR"
+  },
+  {
+    "id": "qw.rhythm",
+    "aliases": ["rhythm check", "check rhythm", "rhythm", "睇rhythm", "睇 rhythm"],
+    "catalogId": "acls.rhythmcheck",
+    "chipLabel": "Rhythm check"
+  },
+  {
+    "id": "qw.defib200",
+    "aliases": ["defib 200 j", "defib 200j", "defib 200 joule"],
+    "catalogId": "acls.defib",
+    "chipLabel": "Defib 200 J",
+    "params": {
+      "drugFormularyId": "defibrillation",
+      "dose": {
+        "value": 200,
+        "unit": "J"
+      }
+    }
+  },
+  {
+    "id": "qw.adrenaline",
+    "aliases": ["adrenaline 1 mg iv", "adrenaline 1mg iv", "adr 1 mg iv", "epi 1 mg iv"],
+    "catalogId": "drug.adrenaline",
+    "chipLabel": "Adrenaline 1 mg IV",
+    "params": {
+      "drugFormularyId": "adrenaline",
+      "dose": {
+        "value": 1,
+        "unit": "mg"
+      },
+      "route": "IV"
+    }
+  },
+  {
+    "id": "qw.stopcpr",
+    "aliases": ["stop cpr", "stop resuscitation", "停止搶救", "停止cpr", "停止 cpr"],
+    "catalogId": "acls.terminate",
+    "chipLabel": "Stop CPR"
+  },
+  {
+    "id": "qw.pocus",
+    "aliases": ["pocus", "bedside echo"],
+    "catalogId": "img.pocus",
+    "chipLabel": "POCUS"
+  },
+  {
+    "id": "qw.amiodarone",
+    "aliases": ["amiodarone 300 mg iv", "amiodarone 300mg iv"],
+    "catalogId": "drug.amiodarone",
+    "chipLabel": "Amiodarone 300 mg IV",
+    "params": {
+      "drugFormularyId": "amiodarone",
+      "dose": {
+        "value": 300,
+        "unit": "mg"
+      },
+      "route": "IV"
+    }
   }
 ]

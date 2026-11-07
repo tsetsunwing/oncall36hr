@@ -47,7 +47,29 @@ export type Beat =
   | { type: 'ALERT_DETERIORATION'; speaker: 'NURSE'; tokens: string[]; abnormal: Abnormal[] }
   | { type: 'PATIENT_SPEAKS'; speaker: 'PATIENT'; symptoms: string[] }
   | { type: 'ACK_CHAT'; speaker: 'NURSE' }
-  | { type: 'ASK_REPHRASE'; speaker: 'NURSE'; reason: 'UNKNOWN_ORDER' | 'UNSUPPORTED' };
+  | { type: 'ASK_REPHRASE'; speaker: 'NURSE'; reason: 'UNKNOWN_ORDER' | 'UNSUPPORTED' }
+  | { type: 'ARREST_ANNOUNCED'; speaker: 'NURSE'; tokens: string[]; rearrest: boolean }
+  | { type: 'ACLS_CYCLE_DUE'; speaker: 'NURSE'; tokens: string[] }
+  | {
+      type: 'ACLS_ACTION_DONE';
+      speaker: 'NURSE';
+      action: AclsActionDone;
+      labelToken: string | null;
+    }
+  | { type: 'ACLS_RHYTHM_REPORTED'; speaker: 'NURSE'; tokens: string[]; shockable: boolean }
+  | { type: 'ACLS_ROSC'; speaker: 'NURSE' }
+  | { type: 'ACLS_STOP_REFUSED'; speaker: 'NURSE'; tokens: string[] }
+  | { type: 'ACLS_NOT_APPLICABLE'; speaker: 'NURSE'; labelToken: string }
+  | { type: 'DEATH_PRONOUNCED'; speaker: 'NURSE'; tokens: string[] };
+
+export const ACLS_ACTIONS_DONE = [
+  'CPR_STARTED',
+  'CPR_RESUMED',
+  'CPR_ALREADY_RUNNING',
+  'SHOCK_DELIVERED',
+  'DRUG_GIVEN',
+] as const;
+export type AclsActionDone = (typeof ACLS_ACTIONS_DONE)[number];
 
 export const VITAL_TOKEN_KEYS = [
   'vital.hr',
@@ -136,7 +158,7 @@ function liveTokensOf(beats: readonly Beat[]): string[] {
   for (const beat of beats) {
     const tokens = 'tokens' in beat ? beat.tokens : [];
     for (const token of tokens) (LIVE_BEATS.includes(beat.type) ? live : frozen).add(token);
-    if ('labelToken' in beat) frozen.add(beat.labelToken);
+    if ('labelToken' in beat && beat.labelToken !== null) frozen.add(beat.labelToken);
   }
   return [...live].filter((token) => !frozen.has(token));
 }

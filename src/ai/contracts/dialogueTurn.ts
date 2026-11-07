@@ -64,6 +64,51 @@ const beatSchema = z.discriminatedUnion('type', [
     speaker: z.literal('NURSE'),
     reason: z.enum(['UNKNOWN_ORDER', 'UNSUPPORTED']),
   }),
+  z.object({
+    type: z.literal('ARREST_ANNOUNCED'),
+    speaker: z.literal('NURSE'),
+    tokens: z.array(z.string()),
+    rearrest: z.boolean(),
+  }),
+  z.object({
+    type: z.literal('ACLS_CYCLE_DUE'),
+    speaker: z.literal('NURSE'),
+    tokens: z.array(z.string()),
+  }),
+  z.object({
+    type: z.literal('ACLS_ACTION_DONE'),
+    speaker: z.literal('NURSE'),
+    action: z.enum([
+      'CPR_STARTED',
+      'CPR_RESUMED',
+      'CPR_ALREADY_RUNNING',
+      'SHOCK_DELIVERED',
+      'DRUG_GIVEN',
+    ]),
+    labelToken: z.string().nullable(),
+  }),
+  z.object({
+    type: z.literal('ACLS_RHYTHM_REPORTED'),
+    speaker: z.literal('NURSE'),
+    tokens: z.array(z.string()),
+    shockable: z.boolean(),
+  }),
+  z.object({ type: z.literal('ACLS_ROSC'), speaker: z.literal('NURSE') }),
+  z.object({
+    type: z.literal('ACLS_STOP_REFUSED'),
+    speaker: z.literal('NURSE'),
+    tokens: z.array(z.string()),
+  }),
+  z.object({
+    type: z.literal('ACLS_NOT_APPLICABLE'),
+    speaker: z.literal('NURSE'),
+    labelToken: z.string(),
+  }),
+  z.object({
+    type: z.literal('DEATH_PRONOUNCED'),
+    speaker: z.literal('NURSE'),
+    tokens: z.array(z.string()),
+  }),
 ]);
 
 export const dialoguePromptSchema = z.object({

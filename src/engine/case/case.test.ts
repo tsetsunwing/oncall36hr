@@ -89,7 +89,7 @@ describe('vitals 軌跡（零噪音：精確對照表）', () => {
 
     const shocked = advance(engine, state, 7200 + 3600 * 2).state;
     const pHidden = shocked.patients.p1?.hidden;
-    expect(['DETERIORATING', 'SEPTIC_SHOCK']).toContain(pHidden?.fsm.state);
+    expect(['DETERIORATING', 'SEPTIC_SHOCK', 'ARREST_PEA']).toContain(pHidden?.fsm.state);
     if (pHidden?.fsm.state === 'DETERIORATING') expect(pHidden.fsm.rolled).toHaveLength(1);
     if (pHidden?.fsm.state === 'SEPTIC_SHOCK') {
       expect(pHidden.fsm.rolled).toEqual([]);

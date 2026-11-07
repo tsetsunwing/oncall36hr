@@ -4,9 +4,11 @@ import type { GameActions, GameView } from '@/view';
 import { AiFailureBanner } from '../game/AiFailureBanner';
 import { ChatPanel } from '../game/ChatPanel';
 import { ClockBar } from '../game/ClockBar';
+import { DeathFlowPanel } from '../game/DeathFlowPanel';
 import { LogPanel } from '../game/LogPanel';
 import { MonitorPanel } from '../game/MonitorPanel';
 import { WardGame } from './WardGame';
+import { ResusPanel } from '../game/ResusPanel';
 
 export interface GamePageProps {
   view: GameView;
@@ -29,6 +31,15 @@ export function GamePage({ view, actions }: GamePageProps) {
         <div className="game-grid">
           <div className="game-main">
             <MonitorPanel patient={view.patient} monitor={view.monitor} />
+            {view.resus?.patientId === view.patient.id ? (
+              <ResusPanel
+                patientId={view.patient.id}
+                resus={view.resus}
+                chips={view.quickChips}
+                actions={actions}
+              />
+            ) : null}
+            {view.death ? <DeathFlowPanel death={view.death} actions={actions} /> : null}
           </div>
           <div className="game-chat">
             <ChatPanel

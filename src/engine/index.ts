@@ -71,6 +71,22 @@ export {
   type PlayerRank,
 } from './core/state';
 export { ordersModule, isCancellable } from './orders/orders';
+export { aclsModule } from './acls/aclsModule';
+export { deathModule, COMPLETE_STEP_INTENT, DEATH_MODULE } from './death/deathModule';
+export { deathModelOf } from './death/death';
+export {
+  aclsModelOf,
+  causeRowsOf,
+  computeRoscProbability,
+  doseMatches,
+  rhythmOf,
+  type RoscBreakdown,
+  type RoscInputs,
+} from './acls/model';
+export { postRoscBundleDone } from './acls/arrest';
+export type { Death, LedgerEntry, Resus } from './acls/resusState';
+export { addLedger, ledgerTotal } from './score/ledger';
+export { beginCprSlow, endCprSlow, interruptSpeed } from './core/clock';
 export { gateModule } from './gate/gate';
 export { resultsModule } from './results/results';
 export { gateRecordSchema, type GateRecord, type GatePhase, type GateRole } from './gate/gateTypes';
@@ -81,9 +97,24 @@ export { composeOrderLabel } from './orders/label';
 export { matchQuickPhrase, normalizePhrase } from './orders/quickPhrase';
 export { meanArterialPressure, computeMews, type MewsResult } from './case/mews';
 export type { Patient, VitalsSample } from './case/patient';
-export { CONCERN_CATEGORIES, EMPTY_TABLES, MEWS_COMPONENT_KEYS, VITAL_KEYS } from './case/tables';
+export {
+  CONCERN_CATEGORIES,
+  DEATH_STEP_IDS,
+  EMPTY_TABLES,
+  MEWS_COMPONENT_KEYS,
+  VITAL_KEYS,
+} from './case/tables';
 export type {
+  AclsAction,
+  AclsCauseRow,
+  AclsModelRow,
+  AclsRhythmRow,
+  AclsRow,
   CaseFsmRow,
+  DeathModelRow,
+  DeathRow,
+  DeathStepId,
+  DeathStepRow,
   CaseTemplateRow,
   ConcernCategory,
   ConsequenceRow,

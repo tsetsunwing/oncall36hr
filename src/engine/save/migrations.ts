@@ -92,10 +92,16 @@ function migrateV3toV4(raw: RawState): RawState {
   };
 }
 
+/** schema 4 → 5（M5）：加入搶救、死亡流程同分數 ledger；舊存檔當作冇發生過心臟停頓 */
+function migrateV4toV5(raw: RawState): RawState {
+  return { ...raw, resus: null, death: null, scoreLedger: [] };
+}
+
 export const migrations: MigrationRegistry = {
   1: migrateV1toV2,
   2: migrateV2toV3,
   3: migrateV3toV4,
+  4: migrateV4toV5,
 };
 
 export type MigrateResult =

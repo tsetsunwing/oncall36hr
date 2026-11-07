@@ -1660,3 +1660,134 @@ textarea {
 .delegation-right fieldset {
   margin: 0 0 0.5rem;
 }
+
+/* 搶救／死亡流程面板：全部靜態，狀態以邊框顏色＋文字標示，冇動畫、冇閃爍 */
+.game-main > * + * {
+  margin-top: 0.75rem;
+}
+
+.resus,
+.death-flow {
+  padding: 0.75rem 1rem;
+  background: var(--surface);
+  border: 3px solid var(--border);
+  border-radius: 10px;
+}
+
+.resus[data-status='ARREST'],
+.death-flow[data-status='PENDING_PROCESS'] {
+  border-color: #b42318;
+}
+
+.resus[data-status='ROSC'],
+.resus[data-status='RECOVERED'],
+.death-flow[data-status='COMPLETE'] {
+  border-color: var(--ok-text);
+}
+
+.panel-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.5rem;
+  font-size: 1.05rem;
+}
+
+.panel-subtitle {
+  margin: 0.75rem 0 0.25rem;
+  font-size: 0.95rem;
+}
+
+.resus-facts,
+.death-prefill {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.35rem 1rem;
+  margin: 0;
+}
+
+.resus-facts dt,
+.death-prefill dt {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.resus-facts dd,
+.death-prefill dd {
+  margin: 0;
+  font-weight: 700;
+}
+
+.resus-hint {
+  margin: 0.35rem 0;
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
+ul.chips {
+  padding: 0;
+  list-style: none;
+}
+
+.cause-groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.5rem 1rem;
+}
+
+.cause-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cause-list li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.5rem;
+  align-items: center;
+}
+
+.tag {
+  padding: 0 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--info-text);
+  background: var(--info-bg);
+  border: 1px solid var(--info-text);
+  border-radius: 4px;
+}
+
+.tag-ok {
+  color: var(--ok-text);
+  background: var(--ok-bg);
+  border-color: var(--ok-text);
+}
+
+.death-steps {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.death-steps > li {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.death-steps > li[data-done='true'] {
+  background: var(--ok-bg);
+}
+
+.death-step-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+}

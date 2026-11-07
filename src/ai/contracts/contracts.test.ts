@@ -170,3 +170,47 @@ it('contractFor：只認識已登記嘅 kind', () => {
   }
   expect(contractFor('gate.unknown')).toBeUndefined();
 });
+
+describe('dialogue.turn：搶救／死亡 beats', () => {
+  const beats: DialoguePrompt['beats'] = [
+    { type: 'ARREST_ANNOUNCED', speaker: 'NURSE', tokens: ['rhythm.label'], rearrest: false },
+    { type: 'ACLS_CYCLE_DUE', speaker: 'NURSE', tokens: ['rhythm.label'] },
+    { type: 'ACLS_ACTION_DONE', speaker: 'NURSE', action: 'CPR_STARTED', labelToken: null },
+    {
+      type: 'ACLS_ACTION_DONE',
+      speaker: 'NURSE',
+      action: 'DRUG_GIVEN',
+      labelToken: 'order.1.label',
+    },
+    { type: 'ACLS_RHYTHM_REPORTED', speaker: 'NURSE', tokens: ['rhythm.label'], shockable: true },
+    { type: 'ACLS_ROSC', speaker: 'NURSE' },
+    { type: 'ACLS_STOP_REFUSED', speaker: 'NURSE', tokens: ['acls.cycles', 'acls.minCycles'] },
+    { type: 'ACLS_NOT_APPLICABLE', speaker: 'NURSE', labelToken: 'order.1.label' },
+    { type: 'DEATH_PRONOUNCED', speaker: 'NURSE', tokens: ['patient.name', 'patient.bed'] },
+  ];
+  const prompt: DialoguePrompt = {
+    patientId: 'p1',
+    speakers: [{ id: 'nurse:N1', kind: 'NURSE', name: '何姑娘', tone: null }],
+    addressed: [],
+    beats,
+    allowedTokens: ['rhythm.label', 'acls.cycles', 'acls.minCycles', 'order.1.label'],
+    recent: [],
+    maxLines: 9,
+    maxLineChars: 80,
+  };
+
+  it('所有新 beat 通過 prompt schema', () => {
+    expect(dialogueContract.promptSchema.safeParse(prompt).success).toBe(true);
+    expect(
+      dialogueContract.promptSchema.safeParse({
+        ...prompt,
+        beats: [{ type: 'ACLS_ROSC', speaker: 'PATIENT' }],
+      }).success,
+    ).toBe(false);
+  });
+
+  it('system prompt 聲明 engine 先決定結果、AI 只措辭，唔提生存機率', () => {
+    expect(dialogueContract.system).toMatch(/engine alone decides every outcome/);
+    expect(dialogueContract.system).toMatch(/never state or hint at a chance of survival/);
+  });
+});

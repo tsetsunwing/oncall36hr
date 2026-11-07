@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { eventQueueSchema, type EventQueue } from './eventQueue';
 import { createEventQueue, enqueue } from './eventQueue';
 import { createRngState, rngStateSchema } from './rng';
+import { deathSchema, ledgerEntrySchema, resusSchema } from '../acls/resusState';
 import { patientSchema } from '../case/patient';
 import { chatThreadSchema } from '../chat/chatTypes';
 import { actionLogEntrySchema } from '../log/actionLog';
@@ -14,7 +15,7 @@ import { orderSchema } from '../orders/orderTypes';
 import { emptyWard, wardStateSchema } from '../ward/wardTypes';
 import type { EngineConfig } from './config';
 
-export const CURRENT_SCHEMA = 4;
+export const CURRENT_SCHEMA = 5;
 
 export const MODES = ['DAY', 'NIGHT', 'ONCALL'] as const;
 export const DIFFICULTIES = ['EASY', 'MEDIUM', 'HARD'] as const;
@@ -80,6 +81,12 @@ export const gameStateSchema = z
     scheduler: eventQueueSchema,
     pendingAi: z.array(pendingAiSchema),
     ward: wardStateSchema,
+    /** M5：最近一次心臟停頓（搶救）嘅進行／結果；未發生過為 null */
+    resus: resusSchema.nullable(),
+    /** M5：死亡流程；病人未死為 null。流程完成前床位不釋放 */
+    death: deathSchema.nullable(),
+    /** M5：分數 ledger（只增不減；回顧由此重建） */
+    scoreLedger: z.array(ledgerEntrySchema),
   })
   .strict();
 
@@ -131,5 +138,8 @@ export function createInitialState(params: NewGameParams, config: EngineConfig):
     scheduler,
     pendingAi: [],
     ward: emptyWard(),
+    resus: null,
+    death: null,
+    scoreLedger: [],
   };
 }

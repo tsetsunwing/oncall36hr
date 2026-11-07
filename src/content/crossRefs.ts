@@ -1,6 +1,8 @@
 /** T-F 內容驗證：交叉引用檢查（implementation-plan §15）。只讀 data，唔含遊戲邏輯。 */
 import type { ContentIssue } from './schema/issues';
+import { ACLS_ACTIONS } from './schema/m2Tables';
 import { CONCERN_CATEGORIES } from './schema/m3Tables';
+import { DEATH_STEPS } from './schema/m5Tables';
 import type { Tables } from './schema/tables';
 
 const RESULT_TYPES: readonly string[] = [
@@ -77,7 +79,21 @@ export function validateCrossReferences(tables: Tables): ContentIssue[] {
     if (RESULT_TYPES.includes(entry.type) && !entry.resultId) {
       add('order-catalog', `${at}.resultId`, `${entry.type} 類 order 必須有 resultId`);
     }
-    if (entry.type === 'DRUG' && (!entry.formularyId || !entry.pharmacyGate)) {
+    if (entry.acls) {
+      if (entry.pharmacyGate || entry.nurseGate !== 'NEVER') {
+        add(
+          'order-catalog',
+          at,
+          '搶救 order（acls）唔經藥房／護士把關：急救唔受 AI 延遲影響（plan §2.4）',
+        );
+      }
+      if (entry.acls.action === 'DRUG' && (entry.type !== 'DRUG' || !entry.formularyId)) {
+        add('order-catalog', `${at}.acls`, 'acls DRUG 必須係有 formularyId 嘅 DRUG');
+      }
+      if (entry.acls.action === 'DEFIB' && !entry.formularyId) {
+        add('order-catalog', `${at}.acls`, 'acls DEFIB 必須有 formularyId（能量以劑量表示）');
+      }
+    } else if (entry.type === 'DRUG' && (!entry.formularyId || !entry.pharmacyGate)) {
       add('order-catalog', at, 'DRUG 必須有 formularyId 而且 pharmacyGate 為 true（藥房永遠把關）');
     }
     if (entry.pharmacyGate && entry.type !== 'DRUG') {
@@ -188,6 +204,7 @@ export function validateCrossReferences(tables: Tables): ContentIssue[] {
   });
 
   validateWardRefs(tables, add);
+  validateAcls(tables, add);
 
   return issues;
 }
@@ -291,6 +308,132 @@ function validateWardRefs(
       if (!tables.subordinates.some((r) => r.rank === rank && r.level === level)) {
         add('subordinates', `${rank}.${level}`, `缺少 ${rank} 的 ${level} 下屬`);
       }
+    }
+  }
+}
+
+function validateAcls(
+  tables: Tables,
+  add: (table: string, path: string, message: string) => void,
+): void {
+  const rhythmById = new Map(tables.rhythms.map((r) => [r.id, r]));
+  const catalogIds = new Set(tables['order-catalog'].map((r) => r.id));
+  const formularyIds = new Set(tables.formulary.map((r) => r.id));
+  const trajectoryIds = new Set(tables.trajectories.map((r) => r.id));
+  const acls = tables['acls-transitions'];
+  const rhythmRows = acls.flatMap((r) => (r.kind === 'RHYTHM' ? [r] : []));
+  const models = acls.flatMap((r) => (r.kind === 'MODEL' ? [r] : []));
+  const causeIds = new Set(acls.flatMap((r) => (r.kind === 'CAUSE' ? [r.id] : [])));
+  const setFlags = new Set(tables['order-catalog'].flatMap((r) => r.setsFlags));
+
+  const pulseless = (table: string, path: string, rhythm: string) => {
+    const row = rhythmById.get(rhythm);
+    if (!row) add(table, path, `未知 rhythm：${rhythm}`);
+    else if (row.pulse) add(table, path, `${rhythm} 有脈搏，唔可以用作停頓節律`);
+  };
+
+  if (acls.length > 0 && models.length !== 1) {
+    add('acls-transitions', '(根)', 'acls-transitions 必須有且只有一列 MODEL');
+  }
+  const covered = new Set(rhythmRows.map((r) => r.rhythm));
+  for (const rhythm of tables.rhythms.filter((r) => !r.pulse)) {
+    if (acls.length > 0 && !covered.has(rhythm.id)) {
+      add('acls-transitions', '(根)', `無脈搏節律 ${rhythm.id} 缺少 RHYTHM 列`);
+    }
+  }
+  const weights = (table: string, path: string, list: readonly { rhythm: string }[]) => {
+    for (const w of list) {
+      if (!rhythmById.has(w.rhythm)) add(table, path, `未知 rhythm：${w.rhythm}`);
+    }
+  };
+  acls.forEach((row, i) => {
+    const at = String(i);
+    if (row.kind === 'RHYTHM') {
+      pulseless('acls-transitions', `${at}.rhythm`, row.rhythm);
+      if (!trajectoryIds.has(row.trajectory)) {
+        add('acls-transitions', `${at}.trajectory`, `未知 trajectory：${row.trajectory}`);
+      }
+      weights('acls-transitions', `${at}.ifNoShock`, row.ifNoShock);
+      weights('acls-transitions', `${at}.ifShocked`, row.ifShocked);
+      for (const w of [...row.ifNoShock, ...row.ifShocked]) {
+        if (rhythmById.get(w.rhythm)?.pulse) {
+          add('acls-transitions', at, `搶救期間下一個節律 ${w.rhythm} 必須係無脈搏節律`);
+        }
+      }
+    } else if (row.kind === 'MODEL') {
+      weights('acls-transitions', `${at}.afterRosc`, row.afterRosc);
+      for (const w of row.afterRosc) {
+        if (rhythmById.get(w.rhythm)?.pulse === false) {
+          add('acls-transitions', `${at}.afterRosc`, `ROSC 後節律 ${w.rhythm} 必須有脈搏`);
+        }
+      }
+      weights('acls-transitions', `${at}.postRosc.rearrestRhythms`, row.postRosc.rearrestRhythms);
+      for (const w of row.postRosc.rearrestRhythms) pulseless('acls-transitions', at, w.rhythm);
+      for (const drug of row.drugs) {
+        if (!formularyIds.has(drug.formularyId)) {
+          add('acls-transitions', `${at}.drugs`, `未知 formulary：${drug.formularyId}`);
+        }
+      }
+      for (const item of row.postRosc.bundle) {
+        for (const c of item.catalogIds) {
+          if (!catalogIds.has(c))
+            add('acls-transitions', `${at}.postRosc.bundle`, `未知 catalog：${c}`);
+        }
+      }
+      if (row.rosc.min > row.rosc.max) {
+        add('acls-transitions', `${at}.rosc`, 'rosc.min 唔可以大過 rosc.max');
+      }
+      if (row.shock.minEnergyJ > row.shock.maxEnergyJ) {
+        add('acls-transitions', `${at}.shock`, 'minEnergyJ 唔可以大過 maxEnergyJ');
+      }
+      if (!setFlags.has(row.airway.flag)) {
+        add('acls-transitions', `${at}.airway.flag`, `冇任何 order 會設定 flag ${row.airway.flag}`);
+      }
+    } else {
+      for (const c of [...row.checkCatalogIds, ...row.treatCatalogIds]) {
+        if (!catalogIds.has(c)) add('acls-transitions', at, `未知 catalog：${c}`);
+      }
+    }
+  });
+  if (acls.length > 0) {
+    for (const action of ACLS_ACTIONS) {
+      if (!tables['order-catalog'].some((r) => r.acls?.action === action)) {
+        add('order-catalog', '(根)', `缺少搶救 order：${action}`);
+      }
+    }
+  }
+
+  tables['case-fsm'].forEach((fsm, i) => {
+    const arrestStates = Object.entries(fsm.states).filter(([, def]) => def.arrest);
+    for (const [state, def] of arrestStates) {
+      pulseless('case-fsm', `${String(i)}.states.${state}.arrest`, def.arrest?.rhythm ?? '');
+    }
+    if (arrestStates.length > 0) {
+      if (!fsm.postRoscState || !(fsm.postRoscState in fsm.states)) {
+        add(
+          'case-fsm',
+          `${String(i)}.postRoscState`,
+          '有 arrest 狀態嘅 FSM 必須指定有效嘅 postRoscState',
+        );
+      }
+    }
+  });
+  tables['case-templates'].forEach((tpl, i) => {
+    for (const cause of tpl.reversibleCauseIds) {
+      if (!causeIds.has(cause)) {
+        add('case-templates', `${String(i)}.reversibleCauseIds`, `未知病因：${cause}`);
+      }
+    }
+  });
+
+  const deathModels = tables['death-process'].filter((r) => r.kind === 'MODEL');
+  if (tables['death-process'].length > 0) {
+    if (deathModels.length !== 1) add('death-process', '(根)', '必須有且只有一列 MODEL');
+    for (const step of DEATH_STEPS) {
+      const count = tables['death-process'].filter(
+        (r) => r.kind === 'STEP' && r.step === step,
+      ).length;
+      if (count !== 1) add('death-process', '(根)', `步驟 ${step} 必須有且只有一列`);
     }
   }
 }
