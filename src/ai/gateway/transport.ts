@@ -2,7 +2,9 @@ import type { ChatMessage } from '../prompts/messages';
 import type { AiEndpoint, TransportOptions } from './types';
 
 export type TransportResult =
-  { kind: 'response'; status: number; body: unknown } | { kind: 'timeout' } | { kind: 'network' };
+  | { kind: 'response'; status: number; body: unknown; url: string }
+  | { kind: 'timeout'; url: string }
+  | { kind: 'network'; url: string; message: string };
 
 export const TARGET_BASE_URL_HEADER = 'x-ai-target-base-url';
 
@@ -109,9 +111,12 @@ async function sendJson(
     } catch {
       parsed = null;
     }
-    return { kind: 'response', status: response.status, body: parsed };
-  } catch {
-    return state.timedOut ? { kind: 'timeout' } : { kind: 'network' };
+    return { kind: 'response', status: response.status, body: parsed, url };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : '';
+    return state.timedOut
+      ? { kind: 'timeout', url }
+      : { kind: 'network', url, message: message.replace(/\s+/g, ' ').slice(0, 180) };
   } finally {
     clearTimeout(timer);
   }
@@ -248,6 +253,7 @@ export async function postCompletion(
     return {
       kind: 'response',
       status: result.status,
+      url: result.url,
       body: { choices: [{ message: { content: claudeText(result.body) } }] },
     };
   }

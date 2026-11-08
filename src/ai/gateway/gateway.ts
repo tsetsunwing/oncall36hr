@@ -10,7 +10,7 @@ import type { AiFailureReason, JsonValue } from '@/engine';
 import { contractFor } from '../contracts';
 import { CONTRACT_VERSION } from '../contracts/types';
 import { buildMessages, repairMessages, type ChatMessage } from '../prompts/messages';
-import { isApiKeyRejection, postCompletion } from './transport';
+import { isApiKeyRejection, postCompletion, providerErrorDetail } from './transport';
 import type { AiEndpoint, TransportOptions } from './types';
 
 export interface AiRequest {
@@ -19,7 +19,8 @@ export interface AiRequest {
   context: unknown;
 }
 
-export type AiOutcome = { ok: true; payload: JsonValue } | { ok: false; reason: AiFailureReason };
+export type AiOutcome =
+  { ok: true; payload: JsonValue } | { ok: false; reason: AiFailureReason; detail: string };
 
 export interface AiGateway {
   run(request: AiRequest): Promise<AiOutcome>;
@@ -43,7 +44,20 @@ const envelopeSchema = z.object({
 
 type Attempt =
   | { kind: 'ok'; payload: JsonValue }
-  | { kind: 'fail'; reason: AiFailureReason; retry: boolean; reply?: string; issues?: string[] };
+  | {
+      kind: 'fail';
+      reason: AiFailureReason;
+      retry: boolean;
+      detail: string;
+      reply?: string;
+      issues?: string[];
+    };
+
+function httpDetail(status: number, body: unknown, url: string): string {
+  const message = providerErrorDetail(body);
+  const statusText = message ? `HTTP ${String(status)}：${message}` : `HTTP ${String(status)}`;
+  return `${statusText}（${url}）`;
+}
 
 function parseJson(text: string): unknown {
   try {
@@ -74,14 +88,19 @@ export function createAiGateway(
       const { ai } = getConfig();
       const contract = contractFor(request.kind);
       const context = contextSchema.safeParse(request.context);
-      if (!contract || !context.success) return { ok: false, reason: 'FORMAT' };
+      if (!contract || !context.success) {
+        return { ok: false, reason: 'FORMAT', detail: '回覆格式不符契約' };
+      }
       const prompt = contract.promptSchema.safeParse(context.data.prompt);
       const local = contract.localSchema.safeParse(context.data.local);
-      if (!prompt.success || !local.success) return { ok: false, reason: 'FORMAT' };
+      if (!prompt.success || !local.success) {
+        return { ok: false, reason: 'FORMAT', detail: '回覆格式不符契約' };
+      }
 
       const base = buildMessages(contract, prompt.data);
       let messages: ChatMessage[] = base;
       let last: AiFailureReason = 'FORMAT';
+      let lastDetail = '回覆格式不符契約';
 
       const attempt = async (): Promise<Attempt> => {
         const response = await postCompletion(
@@ -93,20 +112,53 @@ export function createAiGateway(
           },
           { timeoutMs: ai.requestTimeoutMs, ...options },
         );
-        if (response.kind === 'timeout') return { kind: 'fail', reason: 'TIMEOUT', retry: true };
-        if (response.kind === 'network') return { kind: 'fail', reason: 'NETWORK', retry: true };
+        if (response.kind === 'timeout') {
+          return {
+            kind: 'fail',
+            reason: 'TIMEOUT',
+            retry: true,
+            detail: `逾時（${response.url}）`,
+          };
+        }
+        if (response.kind === 'network') {
+          const raw = response.message ? ` ${response.message}` : '';
+          const extra = endpoint.apiKey ? raw.split(endpoint.apiKey).join('…') : raw;
+          return {
+            kind: 'fail',
+            reason: 'NETWORK',
+            retry: true,
+            detail: `沒有收到 HTTP 回應（${response.url}）${extra}`.trim(),
+          };
+        }
         if (isApiKeyRejection(response.status, response.body)) {
-          return { kind: 'fail', reason: 'AUTH', retry: false };
+          return {
+            kind: 'fail',
+            reason: 'AUTH',
+            retry: false,
+            detail: httpDetail(response.status, response.body, response.url),
+          };
         }
         if (response.status === 404) {
-          return { kind: 'fail', reason: 'NETWORK', retry: false };
+          return {
+            kind: 'fail',
+            reason: 'NETWORK',
+            retry: false,
+            detail: httpDetail(response.status, response.body, response.url),
+          };
         }
         if (response.status < 200 || response.status >= 300) {
-          return { kind: 'fail', reason: 'NETWORK', retry: true };
+          return {
+            kind: 'fail',
+            reason: 'NETWORK',
+            retry: true,
+            detail: httpDetail(response.status, response.body, response.url),
+          };
         }
         const completion = completionSchema.safeParse(response.body);
         const reply = completion.success ? (completion.data.choices[0]?.message.content ?? '') : '';
-        if (!completion.success) return { kind: 'fail', reason: 'FORMAT', retry: true };
+        if (!completion.success) {
+          return { kind: 'fail', reason: 'FORMAT', retry: true, detail: '回覆不是聊天補全' };
+        }
 
         const json = parseJson(reply);
         const envelope = envelopeSchema.safeParse(json);
@@ -115,6 +167,7 @@ export function createAiGateway(
             kind: 'fail',
             reason: 'FORMAT',
             retry: true,
+            detail: '回覆格式不符契約',
             reply,
             issues: [
               `Top level must be {"contract":"${CONTRACT_VERSION}","kind":"${request.kind}","data":{...}}.`,
@@ -127,13 +180,21 @@ export function createAiGateway(
             kind: 'fail',
             reason: 'FORMAT',
             retry: true,
+            detail: '回覆格式不符契約',
             reply,
             issues: formatIssues(data.error),
           };
         }
         const guard = contract.guard(data.data, prompt.data, local.data);
         if (guard.issues.length > 0) {
-          return { kind: 'fail', reason: 'GUARD', retry: true, reply, issues: guard.issues };
+          return {
+            kind: 'fail',
+            reason: 'GUARD',
+            retry: true,
+            detail: '回覆內容未通過檢查',
+            reply,
+            issues: guard.issues,
+          };
         }
         return { kind: 'ok', payload: data.data as JsonValue };
       };
@@ -142,13 +203,14 @@ export function createAiGateway(
         const result = await attempt();
         if (result.kind === 'ok') return { ok: true, payload: result.payload };
         last = result.reason;
+        lastDetail = result.detail;
         if (!result.retry) break;
         messages =
           result.issues && result.reply !== undefined
             ? repairMessages(base, result.reply, result.issues)
             : base;
       }
-      return { ok: false, reason: last };
+      return { ok: false, reason: last, detail: lastDetail };
     },
   };
 }

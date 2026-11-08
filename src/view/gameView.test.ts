@@ -109,7 +109,7 @@ describe('聊天 ViewModel', () => {
   });
 
   it('輸入中：由 pending AI 請求推算邊個角色回應', () => {
-    const state = play([say('check vitals')]);
+    const state = play([say('病人而家點呀')]);
     expect(selectGameView(state, env).chat?.present.find((p) => p.kind === 'NURSE')?.typing).toBe(
       true,
     );
@@ -180,7 +180,7 @@ describe('時鐘同 AI 失敗狀態', () => {
     const reqId = state.pendingAi[0]?.reqId ?? '';
     state = engine.reduce(state, { type: 'AI_FAILURE', reqId, reason: 'TIMEOUT' }).state;
     const view = selectGameView(state, { ...env, aiFailureReason: 'TIMEOUT' });
-    expect(view.aiFailure).toEqual({ reqId, reason: 'TIMEOUT' });
+    expect(view.aiFailure).toEqual({ reqId, reason: 'TIMEOUT', detail: null });
     expect(view.clock).toMatchObject({ paused: true, pausedBy: 'ai-failure' });
   });
 });

@@ -1,11 +1,11 @@
 /* 示範稿色票與兩個固定框內的版面。顏色係靜態，唔加動畫。 */
 
 :root {
-  --bg: #ecf1f2;
+  --bg: #f3f4f6;
   --surface: #ffffff;
   --text: #1c2933;
-  --muted: #5c6d78;
-  --border: #d5e0e2;
+  --muted: #6b7280;
+  --border: #e5e7eb;
   --accent: #128d75;
   --accent-text: #ffffff;
   --accent-soft: #e5f5f1;
@@ -17,7 +17,7 @@
   --info-text: #0f6e5c;
   --blocked-bg: #fff6e0;
   --blocked-text: #7a4e00;
-  --card-shadow: 0 1px 2px rgb(28 41 51 / 4%), 0 8px 20px rgb(28 41 51 / 4%);
+  --card-shadow: 0 1px 2px rgb(17 24 39 / 5%);
   --band-low: #2e9e6b;
   --band-mid: #e5b400;
   --band-high: #e07a1f;
@@ -31,7 +31,7 @@ body,
 }
 
 body {
-  background: #d5dee1;
+  background: #e5e7eb;
 }
 
 .play-viewport {
@@ -41,7 +41,7 @@ body {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: #d5dee1;
+  background: #e5e7eb;
 }
 
 .play-stage {
@@ -81,6 +81,11 @@ body {
   display: none;
 }
 
+.frame-desktop.play-stage {
+  max-width: 1280px;
+  max-height: 800px;
+}
+
 .play-stage .game {
   position: relative;
   display: flex;
@@ -94,13 +99,30 @@ body {
 .clock-bar {
   display: flex;
   flex: none;
+  flex-wrap: nowrap;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   height: 44px;
-  padding: 0 14px;
+  padding: 0 12px;
+  overflow: hidden;
   white-space: nowrap;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
+}
+
+.clock-bar .btn,
+.clock-bar .incoming,
+.bar-btn {
+  appearance: none;
+  height: 28px;
+  min-height: 0;
+  padding: 0 10px;
+  font-size: 13px;
+  line-height: 26px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: none;
 }
 
 .shift-meta {
@@ -151,11 +173,14 @@ body {
 
 .speed-group .btn {
   min-height: 0;
-  padding: 2px 10px;
+  height: 28px;
+  padding: 0 10px;
   font-weight: 600;
+  line-height: 26px;
   background: #fff;
   border: 1px solid var(--border);
   border-radius: 0;
+  box-shadow: none;
 }
 
 .speed-group .btn:first-of-type {
@@ -350,7 +375,7 @@ body {
   overflow: visible;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: 12px;
   box-shadow: var(--card-shadow);
 }
 
@@ -382,7 +407,7 @@ body {
   overflow: hidden;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: 12px;
   box-shadow: var(--card-shadow);
 }
 
@@ -393,7 +418,7 @@ body {
   align-items: center;
   gap: 8px;
   margin: 0;
-  padding: 7px 12px;
+  padding: 12px 16px;
   font-size: 13px;
   font-weight: 700;
   color: var(--muted);
@@ -416,8 +441,8 @@ body {
 .q {
   display: flex;
   flex-direction: column;
-  gap: 1px;
-  padding: 5px 12px;
+  gap: 2px;
+  padding: 12px 16px;
   border-bottom: 1px solid #eeebe2;
   border-left: 4px solid transparent;
 }
@@ -464,13 +489,13 @@ body {
   padding: 0 0 8px;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: 12px;
   box-shadow: var(--card-shadow);
 }
 
 .plan-grid {
-  gap: 4px;
-  padding: 8px;
+  gap: 8px;
+  padding: 12px;
   background: transparent;
   border: 0;
   border-radius: 0;
@@ -482,14 +507,15 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 4.6rem;
-  padding: 14px 2px 4px;
+  aspect-ratio: 1;
+  min-height: 0;
+  padding: 12px 6px;
   line-height: 1.2;
   color: var(--text);
   background: #ffffff;
-  border: 1px solid #d5e0e2;
-  border-radius: 10px;
-  box-shadow: 0 1px 2px rgb(28 41 51 / 4%);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--card-shadow);
 }
 
 .bed[data-band='LOW'] {
@@ -567,23 +593,40 @@ body {
 
 .bed-name {
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 800;
+  color: #111827;
 }
 
-.bed-name,
-.bed-meta,
-.bed-level,
-.bed-empty,
-.bed-tag,
-.bed-no {
-  color: #1b2733;
-}
-
-.bed-meta,
-.bed-level,
+.bed-no,
 .bed-empty,
 .bed-tag {
+  color: #374151;
+}
+
+.bed-meta {
   font-size: 10px;
+  color: #6b7280;
+}
+
+.bed-level {
+  margin-top: 2px;
+  padding: 1px 6px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #374151;
+  background: #f3f4f6;
+  border-radius: 999px;
+}
+
+.bed[data-level='NORMAL'] .bed-level,
+.bed[data-band='LOW'] .bed-level {
+  color: #0f6e5c;
+  background: #e8f6ef;
+}
+
+.bed[data-level='CAUTION'] .bed-level {
+  color: #7a4e00;
+  background: #fff6e0;
 }
 
 .bed[data-band='EMPTY'],
@@ -594,7 +637,8 @@ body {
 
 .bed[data-level='ALARM'] .bed-level {
   font-weight: 700;
-  color: #7f1d1d;
+  color: #9b2c2c;
+  background: #fde8e8;
 }
 
 .plan-corridor {
@@ -1091,7 +1135,7 @@ tr[data-flag='H'] .value-flagged {
 .choice-card {
   background: #fff;
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: 12px;
   box-shadow: var(--card-shadow);
 }
 
@@ -1123,27 +1167,32 @@ tr[data-flag='H'] .value-flagged {
 .page section {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: 12px;
   box-shadow: var(--card-shadow);
 }
 
 .selfcare-wrap {
-  position: static;
+  position: absolute;
+  top: 52px;
+  left: 12px;
+  z-index: 6;
   display: flex;
-  gap: 6px;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 360px;
   padding: 0;
-  margin: 0 12px 8px;
+  margin: 0;
 }
 
 .frame-desktop .selfcare-wrap {
   position: absolute;
-  top: 6px;
+  top: 52px;
   bottom: auto;
-  left: 188px;
+  left: 12px;
   z-index: 6;
-  flex-direction: row;
-  align-items: flex-start;
-  max-width: 168px;
+  flex-direction: column;
+  align-items: stretch;
+  max-width: 360px;
   margin: 0;
 }
 
@@ -1158,11 +1207,46 @@ tr[data-flag='H'] .value-flagged {
 }
 
 .selfcare-wrap .btn {
-  padding: 2px 10px;
-  font-size: 12px;
+  height: auto;
+  min-height: 36px;
+  padding: 8px 12px;
+  font-size: 13px;
+  line-height: 1.3;
   background: #fff;
   border: 1px solid var(--border);
-  border-radius: 99px;
+  border-radius: 12px;
+}
+
+.not-at-bed {
+  padding: 16px;
+  border-radius: 12px;
+}
+
+.frame-desktop #panel-chat > .muted {
+  margin: 0;
+  padding: 12px 16px;
+}
+
+.not-at-bed h2 {
+  margin: 0;
+}
+
+.not-at-bed p {
+  margin: 8px 0 0;
+}
+
+.ai-failure {
+  flex: none;
+  margin: 8px 12px 0;
+  padding: 12px 16px;
+  color: #7f1d1d;
+  background: #fde8e8;
+  border: 1px solid #f6c9c9;
+  border-radius: 12px;
+}
+
+.play-stage button {
+  appearance: none;
 }
 
 /* ---------- 手機框：直向一欄，唔重排成桌面三欄 ---------- */
@@ -1263,7 +1347,7 @@ tr[data-flag='H'] .value-flagged {
   padding: 16px 18px;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: 12px;
   box-shadow: var(--card-shadow);
 }
 

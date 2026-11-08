@@ -627,7 +627,7 @@ export interface GameView {
   resus: ResusView | null;
   death: DeathView | null;
   pendingAiCount: number;
-  aiFailure: { reqId: string; reason: string | null } | null;
+  aiFailure: { reqId: string; reason: string | null; detail: string | null } | null;
   /** 最近一次被 engine 拒絕嘅玩家動作（暫停中落 order 等）；下一個動作時清除 */
   notice: { kind: string; tone: 'info' | 'warn' | 'error' } | null;
   /** 多病人病房（M4）；舊式單一病人時為 null */

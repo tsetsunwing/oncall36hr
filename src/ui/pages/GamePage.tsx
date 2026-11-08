@@ -112,6 +112,36 @@ export function GamePage({ view, actions, onExit }: GamePageProps) {
         onOpenPhone={() => {
           window.dispatchEvent(new CustomEvent('dandu-command', { detail: 'tab-phone' }));
         }}
+        tools={
+          shift.handover ? null : (
+            <>
+              <button
+                type="button"
+                className="btn bar-btn"
+                aria-expanded={saveOpen}
+                aria-controls="save-dialog"
+                data-testid="open-save"
+                onClick={() => {
+                  setSaveOpen(true);
+                }}
+              >
+                {ui.saves.open}
+              </button>
+              <button
+                type="button"
+                className="btn bar-btn"
+                aria-expanded={selfCareOpen}
+                aria-controls="selfcare-region"
+                data-testid="selfcare-toggle"
+                onClick={() => {
+                  setSelfCareOpen((open) => !open);
+                }}
+              >
+                {ui.shift.selfCare.heading}
+              </button>
+            </>
+          )
+        }
       />
       {view.aiFailure ? (
         <AiFailureBanner failure={view.aiFailure} actions={actions} onLeave={leave} />
@@ -169,20 +199,8 @@ export function GamePage({ view, actions, onExit }: GamePageProps) {
       ) : (
         <p>{g.noPatient}</p>
       )}
-      {shift.handover ? null : (
+      {!shift.handover && (saveOpen || selfCareOpen) ? (
         <div className="selfcare-wrap">
-          <button
-            type="button"
-            className="btn"
-            aria-expanded={saveOpen}
-            aria-controls="save-dialog"
-            data-testid="open-save"
-            onClick={() => {
-              setSaveOpen(true);
-            }}
-          >
-            {ui.saves.open}
-          </button>
           {saveOpen ? (
             <div
               id="save-dialog"
@@ -235,25 +253,13 @@ export function GamePage({ view, actions, onExit }: GamePageProps) {
               </div>
             </div>
           ) : null}
-          <button
-            type="button"
-            className="btn"
-            aria-expanded={selfCareOpen}
-            aria-controls="selfcare-region"
-            data-testid="selfcare-toggle"
-            onClick={() => {
-              setSelfCareOpen((open) => !open);
-            }}
-          >
-            {ui.shift.selfCare.heading}
-          </button>
           {selfCareOpen ? (
             <div id="selfcare-region">
               <SelfCarePanel shift={shift} notice={view.notice} actions={actions} />
             </div>
           ) : null}
         </div>
-      )}
+      ) : null}
     </section>
   );
 }

@@ -18,5 +18,6 @@ export interface ViewEnv {
       ui: { monitor: { sweepSeconds: number; targetFps: number } };
     };
   aiFailureReason?: string | null;
+  aiFailureDetail?: string | null;
   notice?: GameView['notice'];
 }

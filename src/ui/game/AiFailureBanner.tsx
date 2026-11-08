@@ -10,7 +10,8 @@ export interface AiFailureBannerProps {
 /** 靜態橫幅（顏色＋文字＋圖示）；唔閃爍。重試用同一 reqId（spec §21）。 */
 export function AiFailureBanner({ failure, actions, onLeave }: AiFailureBannerProps) {
   const f = ui.game.aiFailure;
-  const reason = f.reason[failure.reason ?? 'UNKNOWN'] ?? f.reason.UNKNOWN;
+  const category = f.reason[failure.reason ?? 'UNKNOWN'] ?? f.reason.UNKNOWN;
+  const reason = failure.detail ? `${category}。${failure.detail}` : category;
   return (
     <div className="ai-failure" role="alert" data-testid="ai-failure">
       <p className="ai-failure-title">

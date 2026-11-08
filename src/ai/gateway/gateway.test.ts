@@ -96,7 +96,7 @@ describe('AI gateway', () => {
   it('逾時：自動重試 1 次，仍逾時 → TIMEOUT', async () => {
     const { sent, fetchImpl } = scripted(['hang']);
     const outcome = await createAiGateway(endpoint, { fetchImpl, timeoutMs: 20 }).run(request);
-    expect(outcome).toEqual({ ok: false, reason: 'TIMEOUT' });
+    expect(outcome).toMatchObject({ ok: false, reason: 'TIMEOUT' });
     expect(sent).toHaveLength(2);
   });
 
@@ -109,10 +109,9 @@ describe('AI gateway', () => {
 
   it('認證錯誤：唔重試 → AUTH', async () => {
     const { sent, fetchImpl } = scripted([{ status: 401, body: { error: 'no' } }]);
-    expect(await createAiGateway(endpoint, { fetchImpl, timeoutMs: 500 }).run(request)).toEqual({
-      ok: false,
-      reason: 'AUTH',
-    });
+    const outcome = await createAiGateway(endpoint, { fetchImpl, timeoutMs: 500 }).run(request);
+    expect(outcome).toMatchObject({ ok: false, reason: 'AUTH' });
+    if (!outcome.ok) expect(outcome.detail).toMatch(/HTTP 401/);
     expect(sent).toHaveLength(1);
   });
 
@@ -120,24 +119,52 @@ describe('AI gateway', () => {
     const { sent, fetchImpl } = scripted([
       { status: 400, body: { error: 'Incorrect API key provided. Obtain one from the console.' } },
     ]);
-    expect(await createAiGateway(endpoint, { fetchImpl, timeoutMs: 500 }).run(request)).toEqual({
-      ok: false,
-      reason: 'AUTH',
-    });
+    const outcome = await createAiGateway(endpoint, { fetchImpl, timeoutMs: 500 }).run(request);
+    expect(outcome).toMatchObject({ ok: false, reason: 'AUTH' });
+    if (!outcome.ok) expect(outcome.detail).toContain('Incorrect API key');
     expect(sent).toHaveLength(1);
   });
 
-  it('404 唔重試', async () => {
+  it('Gemini 的 400 鑰匙錯誤唔會當成網絡失敗', async () => {
+    const { fetchImpl } = scripted([
+      {
+        status: 400,
+        body: [
+          {
+            error: {
+              code: 400,
+              message: 'Please pass a valid API key',
+              status: 'INVALID_ARGUMENT',
+            },
+          },
+        ],
+      },
+    ]);
+    const outcome = await createAiGateway(
+      { ...endpoint, provider: 'gemini', baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai' },
+      { fetchImpl, timeoutMs: 500 },
+    ).run(request);
+    expect(outcome).toMatchObject({ ok: false, reason: 'AUTH' });
+    if (!outcome.ok) {
+      expect(outcome.detail).toContain('HTTP 400');
+      expect(outcome.detail).toContain('Please pass a valid API key');
+      expect(outcome.detail).not.toMatch(/網絡/);
+    }
+  });
+
+  it('404 唔重試，橫幅可以見到狀態同供應商原文', async () => {
     const { sent, fetchImpl } = scripted([
       {
         status: 404,
         body: { error: 'The model grok-4.7 does not exist or your team lacks access.' },
       },
     ]);
-    expect(await createAiGateway(endpoint, { fetchImpl, timeoutMs: 500 }).run(request)).toEqual({
-      ok: false,
-      reason: 'NETWORK',
-    });
+    const outcome = await createAiGateway(endpoint, { fetchImpl, timeoutMs: 500 }).run(request);
+    expect(outcome).toMatchObject({ ok: false, reason: 'NETWORK' });
+    if (!outcome.ok) {
+      expect(outcome.detail).toContain('HTTP 404');
+      expect(outcome.detail).toContain('does not exist');
+    }
     expect(sent).toHaveLength(1);
   });
 
@@ -145,7 +172,7 @@ describe('AI gateway', () => {
     for (const step of [{ status: 503, body: {} }, { status: 429, body: {} }, 'network' as const]) {
       const { sent, fetchImpl } = scripted([step]);
       const outcome = await createAiGateway(endpoint, { fetchImpl, timeoutMs: 500 }).run(request);
-      expect(outcome).toEqual({ ok: false, reason: 'NETWORK' });
+      expect(outcome).toMatchObject({ ok: false, reason: 'NETWORK' });
       expect(sent).toHaveLength(2);
     }
   });
@@ -168,7 +195,7 @@ describe('AI gateway', () => {
       envelope({ lines: [{ speaker: 'nurse:N1', text: '好' }] }, 'order.parse'),
     );
     const { fetchImpl } = scripted([{ status: 200, body: wrong }]);
-    expect(await createAiGateway(endpoint, { fetchImpl, timeoutMs: 500 }).run(request)).toEqual({
+    expect(await createAiGateway(endpoint, { fetchImpl, timeoutMs: 500 }).run(request)).toMatchObject({
       ok: false,
       reason: 'FORMAT',
     });
@@ -180,7 +207,7 @@ describe('AI gateway', () => {
     );
     const { sent, fetchImpl } = scripted([{ status: 200, body: bad }]);
     const outcome = await createAiGateway(endpoint, { fetchImpl, timeoutMs: 500 }).run(request);
-    expect(outcome).toEqual({ ok: false, reason: 'GUARD' });
+    expect(outcome).toMatchObject({ ok: false, reason: 'GUARD' });
     expect(sent).toHaveLength(2);
     const feedback = sent[1]?.body.messages.at(-1)?.content ?? '';
     expect(feedback).toMatch(/number/);
@@ -198,11 +225,11 @@ describe('AI gateway', () => {
   it('context 唔符契約（engine／ai 脫節）→ FORMAT，並且唔會發出請求', async () => {
     const { sent, fetchImpl } = scripted([good]);
     const gateway = createAiGateway(endpoint, { fetchImpl, timeoutMs: 500 });
-    expect(await gateway.run({ ...request, context: { prompt: {}, local } })).toEqual({
+    expect(await gateway.run({ ...request, context: { prompt: {}, local } })).toMatchObject({
       ok: false,
       reason: 'FORMAT',
     });
-    expect(await gateway.run({ ...request, kind: 'unknown.kind' })).toEqual({
+    expect(await gateway.run({ ...request, kind: 'unknown.kind' })).toMatchObject({
       ok: false,
       reason: 'FORMAT',
     });

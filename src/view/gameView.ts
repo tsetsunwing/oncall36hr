@@ -351,7 +351,13 @@ export function selectGameView(state: GameState, env: ViewEnv): GameView {
     resus: selectResus(state, env, clockLabel),
     death: selectDeath(state, env, clockLabel),
     pendingAiCount: state.pendingAi.length,
-    aiFailure: failedReq ? { reqId: failedReq, reason: env.aiFailureReason ?? null } : null,
+    aiFailure: failedReq
+      ? {
+          reqId: failedReq,
+          reason: env.aiFailureReason ?? null,
+          detail: env.aiFailureDetail ?? null,
+        }
+      : null,
     notice: env.notice ?? null,
     ward: selectWard(state, env, clockLabel),
     shift: selectShift(state, env, clockLabel),

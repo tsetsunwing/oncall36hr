@@ -71,6 +71,7 @@ export function createGameSession(options: GameSessionOptions): GameSession {
   const listeners = new Set<() => void>();
   const inflight = new Set<Promise<void>>();
   let failureReason: AiFailureReason | null = null;
+  let failureDetail: string | null = null;
   let notice: GameView['notice'] = null;
   let stopped = false;
   let timerId: number | null = null;
@@ -85,9 +86,11 @@ export function createGameSession(options: GameSessionOptions): GameSession {
         if (stopped) return;
         if (outcome.ok) {
           failureReason = null;
+          failureDetail = null;
           dispatch({ type: 'AI_RESULT', reqId: request.reqId, payload: outcome.payload });
         } else {
           failureReason = outcome.reason;
+          failureDetail = outcome.detail;
           dispatch({ type: 'AI_FAILURE', reqId: request.reqId, reason: outcome.reason });
         }
       })
@@ -101,6 +104,7 @@ export function createGameSession(options: GameSessionOptions): GameSession {
     tables: options.tables,
     config: options.config,
     aiFailureReason: failureReason,
+    aiFailureDetail: failureDetail,
     notice,
   });
 

@@ -250,7 +250,7 @@ describe('AiFailureBanner', () => {
     const onLeave = vi.fn();
     render(
       <AiFailureBanner
-        failure={{ reqId: 'r1', reason: 'TIMEOUT' }}
+        failure={{ reqId: 'r1', reason: 'TIMEOUT', detail: null }}
         actions={actions}
         onLeave={onLeave}
       />,
@@ -260,6 +260,26 @@ describe('AiFailureBanner', () => {
     expect(actions.retryAi).toHaveBeenCalledOnce();
     await user.click(screen.getByTestId('ai-failure-leave'));
     expect(onLeave).toHaveBeenCalledOnce();
+  });
+
+  it('認證失敗顯示供應商狀態同原文，唔會只寫網絡錯誤', () => {
+    render(
+      <AiFailureBanner
+        failure={{
+          reqId: 'r1',
+          reason: 'AUTH',
+          detail:
+            'HTTP 400：Please pass a valid API key（https://generativelanguage.googleapis.com/v1beta/openai/chat/completions）',
+        }}
+        actions={makeActions()}
+        onLeave={() => undefined}
+      />,
+    );
+    const alert = screen.getByRole('alert');
+    expect(alert).toHaveTextContent('認證失敗');
+    expect(alert).toHaveTextContent('HTTP 400');
+    expect(alert).toHaveTextContent('Please pass a valid API key');
+    expect(alert).not.toHaveTextContent(ui.game.aiFailure.reason.NETWORK ?? '網絡錯誤');
   });
 });
 

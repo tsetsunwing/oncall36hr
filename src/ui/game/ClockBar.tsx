@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { ui } from '@/i18n';
 import type { GameActions, GameView, ShiftView } from '@/view';
 
@@ -7,6 +8,7 @@ export interface ClockBarProps {
   actions: GameActions;
   ringing?: number;
   onOpenPhone?: () => void;
+  tools?: ReactNode;
 }
 
 function dayNight(label: string, segment: ShiftView['segment']): string {
@@ -16,7 +18,14 @@ function dayNight(label: string, segment: ShiftView['segment']): string {
   return hour >= 8 && hour < 18 ? ui.game.day : ui.game.night;
 }
 
-export function ClockBar({ clock, shift, actions, ringing = 0, onOpenPhone }: ClockBarProps) {
+export function ClockBar({
+  clock,
+  shift,
+  actions,
+  ringing = 0,
+  onOpenPhone,
+  tools,
+}: ClockBarProps) {
   const g = ui.game;
   const speeds = clock.speeds.filter((s) => s > 0);
   const lockedByFailure = clock.pausedBy === 'ai-failure';
@@ -46,6 +55,7 @@ export function ClockBar({ clock, shift, actions, ringing = 0, onOpenPhone }: Cl
           </span>
         </div>
       ) : null}
+      {tools}
       <div className="speed-group" role="group" aria-label={g.speedGroup}>
         <span className="speed-lab">{g.speedGroup}</span>
         <button
