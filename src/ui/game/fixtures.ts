@@ -8,6 +8,7 @@ import type {
   OrderRowView,
   PatientView,
   ReportView,
+  VitalBand,
   VitalReadout,
 } from '@/view';
 
@@ -15,10 +16,12 @@ const readout = (
   text: string,
   level: VitalReadout['level'] = 'NORMAL',
   direction: VitalReadout['direction'] = null,
+  band: VitalBand = 'normal',
 ): VitalReadout => ({
   text,
   level,
   direction,
+  band,
 });
 
 export const patient: PatientView = {
@@ -34,13 +37,13 @@ export const patient: PatientView = {
 
 export function monitor(over: Partial<MonitorView> = {}): MonitorView {
   return {
-    hr: readout('118', 'ALARM', 'HIGH'),
-    bp: { ...readout('96/58 (71)', 'CAUTION', 'LOW'), sbp: 96, dbp: 58 },
+    hr: readout('118', 'ALARM', 'HIGH', 'moderate'),
+    bp: { ...readout('96/58 (71)', 'CAUTION', 'LOW', 'mild'), sbp: 96, dbp: 58 },
     lineSlot: { kind: null, reviewPending: false },
     lines: { abp: false, cvp: false, etco2: false },
-    spo2: readout('89', 'ALARM', 'LOW'),
-    rr: readout('26', 'CAUTION', 'HIGH'),
-    temp: readout('38.4', 'CAUTION', 'HIGH'),
+    spo2: readout('89', 'ALARM', 'LOW', 'severe'),
+    rr: readout('26', 'CAUTION', 'HIGH', 'moderate'),
+    temp: readout('38.4', 'CAUTION', 'HIGH', 'moderate'),
     rhythmId: 'SINUS_TACHY',
     rhythmLabel: '竇性心搏過速',
     rhythmAlarm: 'NORMAL',

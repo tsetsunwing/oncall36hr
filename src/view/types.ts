@@ -1,3 +1,4 @@
+import type { VitalBand } from './vitalBands';
 import type { WaveSpec } from './waveform';
 
 export type VitalName = 'hr' | 'bp' | 'spo2' | 'rr' | 'temp';
@@ -8,6 +9,8 @@ export interface LineSlotView {
   /** 有導管但冇經審核嘅讀數時為 true（PENDING_CLINICAL_REVIEW） */
   reviewPending: boolean;
 }
+
+export type { VitalBand };
 export type AlarmLevel = 'NORMAL' | 'CAUTION' | 'ALARM';
 export type Direction = 'LOW' | 'HIGH' | null;
 
@@ -16,6 +19,7 @@ export interface VitalReadout {
   text: string;
   level: AlarmLevel;
   direction: Direction;
+  band: VitalBand;
 }
 
 export interface MonitorView {

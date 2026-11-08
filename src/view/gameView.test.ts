@@ -3,6 +3,13 @@ import { getConfig, getContent } from '@/content';
 import { createEngine, type EngineEvent, type GameState } from '@/engine';
 import { formatClock } from './clock';
 import { selectGameView, selectMonitor, type ViewEnv } from './gameView';
+import {
+  bloodPressureBand,
+  heartRateBand,
+  respiratoryRateBand,
+  spo2Band,
+  temperatureBand,
+} from './vitalBands';
 
 const baseConfig = getConfig();
 const config = { ...baseConfig, clock: { ...baseConfig.clock, pauseWhileAiPending: false } };
@@ -87,6 +94,13 @@ describe('ViewModel：只映射可見資料', () => {
     expect(view?.spo2).toMatchObject({ level: 'ALARM', direction: 'LOW' });
     expect(view?.bp).toMatchObject({ level: 'NORMAL', direction: null });
     expect(view?.mews).toMatchObject({ bandId: 'CRITICAL', level: 'ALARM', reviewPending: true });
+    const source = play([]).patients.p1?.visible.vitals;
+    if (!source) throw new Error('缺生命體徵');
+    expect(view?.hr.band).toBe(heartRateBand(source.hr));
+    expect(view?.spo2.band).toBe(spo2Band(source.spo2));
+    expect(view?.rr.band).toBe(respiratoryRateBand(source.rr));
+    expect(view?.temp.band).toBe(temperatureBand(source.temp));
+    expect(view?.bp.band).toBe(bloodPressureBand(source.sbp, source.dbp));
   });
 
   it('快捷 chips 來自 quick-words 表', () => {

@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from 'react';
 import { ui } from '@/i18n';
 import { ECG_LEADS, type EcgLead } from '@/view';
-import type { AlarmLevel, MonitorView, PatientView, VitalReadout } from '@/view';
+import type { AlarmLevel, MonitorView, PatientView, VitalBand, VitalReadout } from '@/view';
 import { WaveformCanvas, type WaveKind } from './WaveformCanvas';
 
 const OPTIONAL_WAVES = ['abp', 'cvp', 'etco2'] as const;
@@ -46,6 +46,28 @@ interface TileProps {
   extra?: ReactNode;
 }
 
+/** 中度黃色、嚴重紅色。只係驚嘆號，冇警報句子。 */
+function VitalMark({
+  testId,
+  band,
+}: {
+  testId: string;
+  band: Extract<VitalBand, 'moderate' | 'severe'>;
+}) {
+  return (
+    <span className="vital-mark" data-band={band} data-testid={testId}>
+      <svg viewBox="0 0 8 24" aria-hidden="true" focusable="false">
+        <rect x="2.1" y="0.4" width="3.8" height="14.2" rx="1.2" fill="currentColor" />
+        <circle cx="4" cy="20.4" r="2.15" fill="currentColor" />
+      </svg>
+    </span>
+  );
+}
+
+function markedBand(band: VitalBand): Extract<VitalBand, 'moderate' | 'severe'> | null {
+  return band === 'moderate' || band === 'severe' ? band : null;
+}
+
 function ReadoutValue({ text }: { text: string }) {
   const [main, ...rest] = text.split(' ');
   return (
@@ -57,20 +79,16 @@ function ReadoutValue({ text }: { text: string }) {
 }
 
 function Tile({ testId, param, label, unit, readout, extra }: TileProps) {
-  const m = ui.game.monitor;
-  const alerting = readout.level !== 'NORMAL';
-  const hidden = `${m.level[readout.level]} · ${label}${readout.direction ? m.direction[readout.direction] : ''}`;
+  const mark = markedBand(readout.band);
   return (
-    <div className="tile" data-level={readout.level} data-param={param} data-testid={testId}>
+    <div className="tile" data-band={readout.band} data-param={param} data-testid={testId}>
       <div className="tile-label">
         {label}
         <span className="tile-unit">{unit}</span>
         {extra}
       </div>
       <div className="tile-reading">
-        {alerting ? (
-          <AlertTriangle testId={`alert-${param}`} level={readout.level} text={hidden} />
-        ) : null}
+        {mark ? <VitalMark testId={`alert-${param}`} band={mark} /> : null}
         <span className="tile-value">
           <ReadoutValue text={readout.text} />
         </span>
@@ -89,10 +107,11 @@ function OptionalTile({ kind, bp }: { kind: OptionalWave; bp: VitalReadout | nul
   const label = m.optionalWave[kind] ?? kind;
   const unit = kind === 'cvp' ? m.cvpUnit : m.bpUnit;
   const reading = kind === 'abp' ? bp : null;
+  const mark = reading ? markedBand(reading.band) : null;
   return (
     <div
       className="tile"
-      data-level={reading?.level ?? 'NORMAL'}
+      data-band={reading?.band ?? 'normal'}
       data-param={kind}
       data-testid={`vital-${kind}`}
       data-review="PENDING_CLINICAL_REVIEW"
@@ -102,6 +121,7 @@ function OptionalTile({ kind, bp }: { kind: OptionalWave; bp: VitalReadout | nul
         <span className="tile-unit">{unit}</span>
       </div>
       <div className="tile-reading">
+        {mark ? <VitalMark testId={`alert-${kind}`} band={mark} /> : null}
         {reading ? (
           <span className="tile-value">
             <ReadoutValue text={reading.text} />
@@ -133,6 +153,7 @@ export function MonitorPanel({ patient, monitor }: MonitorPanelProps) {
       text: monitor.bp.text,
       level: monitor.bp.level,
       direction: monitor.bp.direction,
+      band: monitor.bp.band,
     });
     setNibpByBed(next);
   }
@@ -276,6 +297,7 @@ export function MonitorPanel({ patient, monitor }: MonitorPanelProps) {
                       text: monitor.bp.text,
                       level: monitor.bp.level,
                       direction: monitor.bp.direction,
+                      band: monitor.bp.band,
                     });
                     return next;
                   });

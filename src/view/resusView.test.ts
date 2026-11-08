@@ -46,7 +46,11 @@ describe('搶救 ViewModel', () => {
     expect(view.monitor?.pulseless).toBe(true);
     expect(view.monitor?.rhythmAlarm).toBe('ALARM');
     expect(view.monitor?.hr.text).toBe('—');
+    expect(view.monitor?.hr.band).toBe('normal');
     expect(view.monitor?.bp.text).toBe('—');
+    expect(view.monitor?.bp.band).toBe('normal');
+    expect(view.monitor?.spo2.band).toBe('normal');
+    expect(view.monitor?.rr.band).toBe('normal');
     expect(view.monitor?.rhythmLabel).toContain('Fibrillation');
   });
 

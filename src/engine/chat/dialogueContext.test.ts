@@ -31,7 +31,16 @@ describe('對白 context 固定大小', () => {
       { config: engine.config, tables: engine.tables },
     );
     const request = aiRequests(queued?.effect ? [queued.effect] : [])[0];
-    const prompt = request?.context.prompt as {
+    const context = request?.context;
+    if (
+      !context ||
+      typeof context !== 'object' ||
+      Array.isArray(context) ||
+      !('prompt' in context)
+    ) {
+      throw new Error('缺對白 context');
+    }
+    const prompt = context.prompt as {
       recent: { template: string }[];
       card: { openOrders: { catalogId: string }[]; active: string[] };
     };

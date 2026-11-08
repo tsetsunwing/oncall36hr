@@ -45,20 +45,24 @@ function makeActions() {
   } satisfies GameActions;
 }
 
-describe('MonitorPanel：床邊監護儀風格＋閃爍數值＋黃色三角警示', () => {
-  it('數值全部來自 view；異常只用閃爍數值同黃色三角（唔寫句子）', () => {
+describe('MonitorPanel：床邊監護儀風格＋閃爍數值＋驚嘆號', () => {
+  it('中度同嚴重先出驚嘆號，唔寫注意或警報句子', () => {
     render(<MonitorPanel patient={patient} monitor={monitor()} />);
     expect(screen.getByTestId('vital-hr')).toHaveTextContent('118');
-    expect(screen.getByTestId('vital-hr')).toHaveAttribute('data-level', 'ALARM');
-    expect(screen.getByTestId('vital-hr')).toHaveTextContent(ui.game.monitor.direction.HIGH);
-    expect(screen.getByTestId('vital-spo2')).toHaveTextContent(ui.game.monitor.direction.LOW);
+    expect(screen.getByTestId('vital-hr')).toHaveAttribute('data-band', 'moderate');
+    expect(screen.getByTestId('alert-hr')).toHaveAttribute('data-band', 'moderate');
+    expect(screen.getByTestId('vital-spo2')).toHaveAttribute('data-band', 'severe');
+    expect(screen.getByTestId('alert-spo2')).toHaveAttribute('data-band', 'severe');
     expect(screen.getByTestId('vital-bp')).toHaveTextContent('96/58 (71)');
+    expect(screen.getByTestId('vital-bp')).toHaveAttribute('data-band', 'mild');
+    expect(screen.queryByTestId('alert-bp')).not.toBeInTheDocument();
     expect(screen.queryByTestId('vital-line')).not.toBeInTheDocument();
     expect(screen.queryByTestId('vital-map')).not.toBeInTheDocument();
     const monitorEl = screen.getByTestId('monitor');
-    expect(monitorEl.querySelectorAll('.alert-tri')).toHaveLength(5);
+    expect(monitorEl.querySelectorAll('.vital-mark')).toHaveLength(4);
+    expect(monitorEl).not.toHaveTextContent('注意');
+    expect(monitorEl).not.toHaveTextContent('警報');
     expect(screen.queryByTestId('alarm-tags')).not.toBeInTheDocument();
-    expect(screen.getByTestId('alert-hr')).toHaveTextContent(ui.game.monitor.level.ALARM);
     expect(
       within(screen.getByTestId('vital-hr')).getByText('118').closest('.tile-value'),
     ).not.toBeNull();
@@ -67,16 +71,48 @@ describe('MonitorPanel：床邊監護儀風格＋閃爍數值＋黃色三角警�
     expect(screen.getByRole('combobox', { name: ui.game.monitor.leadMenu })).toHaveValue('II');
   });
 
+  it('血氧 95 只閃、93 黃色驚嘆號、91 紅色驚嘆號', () => {
+    const { rerender } = render(
+      <MonitorPanel
+        patient={patient}
+        monitor={monitor({ spo2: { text: '95', level: 'NORMAL', direction: null, band: 'mild' } })}
+      />,
+    );
+    expect(screen.getByTestId('vital-spo2')).toHaveAttribute('data-band', 'mild');
+    expect(screen.queryByTestId('alert-spo2')).not.toBeInTheDocument();
+    rerender(
+      <MonitorPanel
+        patient={patient}
+        monitor={monitor({
+          spo2: { text: '93', level: 'NORMAL', direction: null, band: 'moderate' },
+        })}
+      />,
+    );
+    expect(screen.getByTestId('alert-spo2')).toHaveAttribute('data-band', 'moderate');
+    rerender(
+      <MonitorPanel
+        patient={patient}
+        monitor={monitor({
+          spo2: { text: '91', level: 'NORMAL', direction: null, band: 'severe' },
+        })}
+      />,
+    );
+    expect(screen.getByTestId('alert-spo2')).toHaveAttribute('data-band', 'severe');
+    expect(screen.getByTestId('vital-spo2')).not.toHaveTextContent('注意');
+    expect(screen.getByTestId('vital-spo2')).not.toHaveTextContent('警報');
+  });
+
   it('全部正常：冇三角警示，面板 level 為 NORMAL', () => {
     const normal = monitor({
-      hr: { text: '80', level: 'NORMAL', direction: null },
-      bp: { text: '120/80', level: 'NORMAL', direction: null, sbp: 120, dbp: 80 },
-      spo2: { text: '98', level: 'NORMAL', direction: null },
-      rr: { text: '16', level: 'NORMAL', direction: null },
-      temp: { text: '36.8', level: 'NORMAL', direction: null },
+      hr: { text: '80', level: 'NORMAL', direction: null, band: 'normal' },
+      bp: { text: '120/80', level: 'NORMAL', direction: null, band: 'normal', sbp: 120, dbp: 80 },
+      spo2: { text: '98', level: 'NORMAL', direction: null, band: 'normal' },
+      rr: { text: '16', level: 'NORMAL', direction: null, band: 'normal' },
+      temp: { text: '36.8', level: 'NORMAL', direction: null, band: 'normal' },
       mews: { score: 0, bandId: 'LOW', level: 'NORMAL', components: [], reviewPending: false },
     });
     render(<MonitorPanel patient={patient} monitor={normal} />);
+    expect(screen.getByTestId('monitor').querySelectorAll('.vital-mark')).toHaveLength(0);
     expect(screen.getByTestId('monitor').querySelectorAll('.alert-tri')).toHaveLength(0);
     expect(screen.getByTestId('monitor')).toHaveAttribute('data-level', 'NORMAL');
     expect(screen.queryByText(ui.game.monitor.mewsPending)).not.toBeInTheDocument();
@@ -114,7 +150,14 @@ describe('MonitorPanel：床邊監護儀風格＋閃爍數值＋黃色三角警�
       <MonitorPanel
         patient={patient}
         monitor={monitor({
-          bp: { text: '140/90 (107)', level: 'ALARM', direction: 'HIGH', sbp: 140, dbp: 90 },
+          bp: {
+            text: '140/90 (107)',
+            level: 'ALARM',
+            direction: 'HIGH',
+            band: 'mild',
+            sbp: 140,
+            dbp: 90,
+          },
         })}
       />,
     );
@@ -122,7 +165,8 @@ describe('MonitorPanel：床邊監護儀風格＋閃爍數值＋黃色三角警�
     expect(screen.getByTestId('vital-bp')).not.toHaveTextContent('140/90');
     await user.click(screen.getByTestId('measure-nibp'));
     expect(screen.getByTestId('vital-bp')).toHaveTextContent('140/90 (107)');
-    expect(screen.getByTestId('vital-bp')).toHaveAttribute('data-level', 'ALARM');
+    expect(screen.getByTestId('vital-bp')).toHaveAttribute('data-band', 'mild');
+    expect(screen.queryByTestId('alert-bp')).not.toBeInTheDocument();
   });
 
   it('有 Lead II 同 Pleth 兩條波形（canvas）', () => {
@@ -141,8 +185,13 @@ describe('閃爍數值：只由 CSS 驅動，並尊重 reduced-motion', () => {
     );
     expect(css).not.toMatch(/text-decoration\s*:[^;]*blink/);
   });
-  it('只有異常數值會閃（NORMAL 唔閃）', () => {
-    expect(css).toMatch(/\.tile:not\(\[data-level='NORMAL'\]\) \.tile-value/);
+  it('只有偏離正常嘅數值會閃，驚嘆號唔受動畫影響', () => {
+    expect(css).toMatch(/\.tile\[data-band='mild'\] \.tile-value/);
+    expect(css).toMatch(/\.tile\[data-band='moderate'\] \.tile-value/);
+    expect(css).toMatch(/\.tile\[data-band='severe'\] \.tile-value/);
+    expect(css).toMatch(/\.vital-mark\[data-band='severe'\]/);
+    expect(css).not.toMatch(/\.tile\[data-band='normal'\] \.tile-value/);
+    expect(css).not.toMatch(/\.vital-mark[^{]*\{[^}]*animation/);
   });
   it('組件原始碼冇用 setInterval 切換 alarm 樣式', () => {
     const src = readFileSync('src/ui/game/MonitorPanel.tsx', 'utf8');
@@ -466,7 +515,12 @@ describe('ClockBar', () => {
       <ClockBar
         clock={clock()}
         actions={actions}
-        places={{ here: null, onPlace: (place) => actions.enterPlace(place) }}
+        places={{
+          here: null,
+          onPlace: (place) => {
+            actions.enterPlace(place);
+          },
+        }}
       />,
     );
     expect(screen.getByText(ui.game.ward.pantry)).toBeInTheDocument();

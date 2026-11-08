@@ -1372,12 +1372,31 @@ tr[data-flag='H'] .value-flagged {
   height: 100%;
 }
 
-.tile:not([data-level='NORMAL']) .tile-value,
+.vital-mark {
+  display: inline-flex;
+  flex: none;
+  width: 14px;
+  height: 22px;
+  color: #ffd400;
+}
+
+.vital-mark[data-band='severe'] {
+  color: #ff2a2a;
+}
+
+.vital-mark svg {
+  width: 100%;
+  height: 100%;
+}
+
+.tile[data-band='mild'] .tile-value,
+.tile[data-band='moderate'] .tile-value,
+.tile[data-band='severe'] .tile-value,
 .monitor-rhythm:not([data-level='NORMAL']) .rhythm-text {
   animation: monitor-blink 1.4s steps(1, end) infinite;
 }
 
-.tile[data-level='ALARM'] .tile-value,
+.tile[data-band='severe'] .tile-value,
 .monitor-rhythm[data-level='ALARM'] .rhythm-text {
   animation-duration: 0.7s;
 }

@@ -208,58 +208,56 @@ export function GamePage({ view, actions, onExit }: GamePageProps) {
       )}
       {!shift.handover && saveOpen ? (
         <div className="selfcare-wrap">
-          {saveOpen ? (
-            <div
-              id="save-dialog"
-              className="save-dialog"
-              role="dialog"
-              aria-labelledby="save-heading"
-              data-testid="save-dialog"
-            >
-              <h2 id="save-heading">{ui.saves.heading}</h2>
-              <p className="hint">{ui.saves.manualHint}</p>
-              <div className="save-slot-buttons" role="group" aria-label={ui.saves.heading}>
-                {Array.from({ length: manualSlots }, (_, index) => index + 1).map((slot) => (
-                  <button
-                    key={slot}
-                    type="button"
-                    className="btn"
-                    data-testid={`save-slot-${String(slot)}`}
-                    onClick={() => {
-                      actions.saveManual(slot);
-                      setSaveNote(ui.saves.saved(slot));
-                    }}
-                  >
-                    {ui.saves.slot(slot)}
-                  </button>
-                ))}
-              </div>
-              {saveNote ? (
-                <p className="notice notice-info" role="status" data-testid="save-note">
-                  {saveNote}
-                </p>
-              ) : null}
-              <div className="save-dialog-actions">
+          <div
+            id="save-dialog"
+            className="save-dialog"
+            role="dialog"
+            aria-labelledby="save-heading"
+            data-testid="save-dialog"
+          >
+            <h2 id="save-heading">{ui.saves.heading}</h2>
+            <p className="hint">{ui.saves.manualHint}</p>
+            <div className="save-slot-buttons" role="group" aria-label={ui.saves.heading}>
+              {Array.from({ length: manualSlots }, (_, index) => index + 1).map((slot) => (
                 <button
+                  key={slot}
                   type="button"
                   className="btn"
-                  data-testid="pause-leave"
-                  onClick={pauseAndLeave}
-                >
-                  {ui.saves.pauseLeave}
-                </button>
-                <button
-                  type="button"
-                  className="btn"
+                  data-testid={`save-slot-${String(slot)}`}
                   onClick={() => {
-                    setSaveOpen(false);
+                    actions.saveManual(slot);
+                    setSaveNote(ui.saves.saved(slot));
                   }}
                 >
-                  {ui.saves.close}
+                  {ui.saves.slot(slot)}
                 </button>
-              </div>
+              ))}
             </div>
-          ) : null}
+            {saveNote ? (
+              <p className="notice notice-info" role="status" data-testid="save-note">
+                {saveNote}
+              </p>
+            ) : null}
+            <div className="save-dialog-actions">
+              <button
+                type="button"
+                className="btn"
+                data-testid="pause-leave"
+                onClick={pauseAndLeave}
+              >
+                {ui.saves.pauseLeave}
+              </button>
+              <button
+                type="button"
+                className="btn"
+                onClick={() => {
+                  setSaveOpen(false);
+                }}
+              >
+                {ui.saves.close}
+              </button>
+            </div>
+          </div>
         </div>
       ) : null}
     </section>

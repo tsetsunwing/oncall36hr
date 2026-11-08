@@ -33,6 +33,13 @@ import type {
 } from './types';
 import { selectDeath, selectResus } from './resusView';
 import { chipPrompt } from './quickPrompt';
+import {
+  bloodPressureBand,
+  heartRateBand,
+  respiratoryRateBand,
+  spo2Band,
+  temperatureBand,
+} from './vitalBands';
 import { parseWave, plethAmplitude } from './waveform';
 import { selectShift } from './shiftView';
 import { selectWard } from './wardView';
@@ -78,7 +85,7 @@ export function selectMonitor(
   const abnormal = new Map(abnormalOf(patient, tables).map((a) => [a.key, a.direction] as const));
   const component = (key: MewsComponentKey): VitalReadout => {
     const level = alertLevel(patient.visible.mews.components[key] ?? 0, mews);
-    return { text: '', level, direction: abnormal.get(key) ?? null };
+    return { text: '', level, direction: abnormal.get(key) ?? null, band: 'normal' };
   };
   const rhythm = tables.rhythms.find((r) => r.id === patient.visible.rhythm);
   const pulseless = rhythm ? !rhythm.pulse : false;
@@ -90,12 +97,17 @@ export function selectMonitor(
   const temp = component('temp');
   const map = meanArterialPressure(v.sbp, v.dbp);
   return {
-    hr: { ...hr, text: pulseless ? dash : String(v.hr) },
+    hr: {
+      ...hr,
+      text: pulseless ? dash : String(v.hr),
+      band: pulseless ? 'normal' : heartRateBand(v.hr),
+    },
     bp: {
       ...sbp,
       text: pulseless ? dash : `${String(v.sbp)}/${String(v.dbp)} (${String(map)})`,
       sbp: v.sbp,
       dbp: v.dbp,
+      band: pulseless ? 'normal' : bloodPressureBand(v.sbp, v.dbp),
     },
     lineSlot: selectLineSlot(patient.hidden.fsm.flags),
     lines: {
@@ -103,9 +115,17 @@ export function selectMonitor(
       cvp: patient.hidden.fsm.flags.includes('cvc.in'),
       etco2: patient.hidden.fsm.flags.includes('airway.secured'),
     },
-    spo2: { ...spo2, text: pulseless ? dash : String(v.spo2) },
-    rr: { ...rr, text: pulseless ? dash : String(v.rr) },
-    temp: { ...temp, text: v.temp.toFixed(1) },
+    spo2: {
+      ...spo2,
+      text: pulseless ? dash : String(v.spo2),
+      band: pulseless ? 'normal' : spo2Band(v.spo2),
+    },
+    rr: {
+      ...rr,
+      text: pulseless ? dash : String(v.rr),
+      band: pulseless ? 'normal' : respiratoryRateBand(v.rr),
+    },
+    temp: { ...temp, text: v.temp.toFixed(1), band: temperatureBand(v.temp) },
     rhythmId: patient.visible.rhythm,
     rhythmLabel: rhythm?.label ?? patient.visible.rhythm,
     rhythmAlarm: rhythm ? rhythmAlarmLevel(rhythm.alarm) : 'NORMAL',

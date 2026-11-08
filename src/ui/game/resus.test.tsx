@@ -244,7 +244,7 @@ describe('監察儀：停頓節律', () => {
       rhythmLabel: 'Ventricular Fibrillation (VF)',
       rhythmAlarm: 'ALARM',
       pulseless: true,
-      hr: { text: '—', level: 'NORMAL', direction: null },
+      hr: { text: '—', level: 'NORMAL', direction: null, band: 'normal' },
     });
     render(<MonitorPanel patient={patient} monitor={view} />);
     const tag = screen.getByTestId('rhythm-alarm-tag');
