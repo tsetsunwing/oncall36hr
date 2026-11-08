@@ -108,6 +108,15 @@ describe('ViewModel：只映射可見資料', () => {
     expect(chips.map((c) => c.label)).toEqual(
       tables['quick-words'].flatMap((w) => (w.chipLabel ? [w.chipLabel] : [])),
     );
+    expect(chips.find((chip) => chip.label === 'CBC')?.report).toEqual({
+      bucket: 'laboratory',
+      section: 'haem',
+    });
+    expect(chips.find((chip) => chip.label === 'POCUS')?.report).toEqual({
+      bucket: 'radiology',
+      section: 'us',
+    });
+    expect(chips.some((chip) => chip.report?.section === 'cytology')).toBe(false);
   });
 });
 

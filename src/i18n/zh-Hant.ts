@@ -141,6 +141,7 @@ export const ui = {
         procedure: '程序',
         resus: '搶救',
       } as Record<string, string>,
+      testsEmpty: '尚未有項目',
       prompt: {
         dose: '劑量',
         route: '途徑',

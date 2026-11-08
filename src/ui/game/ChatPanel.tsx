@@ -9,13 +9,17 @@ import {
 } from 'react';
 import { Send } from 'lucide-react';
 import { ui } from '@/i18n';
-import type {
-  ChatLineView,
-  ChatView,
-  GameActions,
-  GateCardView,
-  QuickChipCategory,
-  QuickChipView,
+import {
+  TEST_ACTION_ORDER,
+  TEST_MENU_BUCKETS,
+  TEST_MENU_SECTIONS,
+  type ChatLineView,
+  type ChatView,
+  type GameActions,
+  type GateCardView,
+  type QuickChipCategory,
+  type QuickChipView,
+  type ReportBucket,
 } from '@/view';
 import { ChipPrompt } from './ChipPrompt';
 import { GatePanel } from './GatePanel';
@@ -60,6 +64,22 @@ function Line({ line }: { line: ChatLineView }) {
   );
 }
 
+function actionsIn(chips: readonly QuickChipView[], bucket: ReportBucket, section: string) {
+  const order = TEST_ACTION_ORDER[section] ?? [];
+  return chips
+    .filter(
+      (chip) =>
+        chip.category === 'tests' &&
+        chip.report?.bucket === bucket &&
+        chip.report.section === section,
+    )
+    .sort((a, b) => {
+      const ai = order.indexOf(a.catalogId ?? '');
+      const bi = order.indexOf(b.catalogId ?? '');
+      return (ai < 0 ? order.length : ai) - (bi < 0 ? order.length : bi);
+    });
+}
+
 function ChipMenus({
   chips,
   onPick,
@@ -70,16 +90,25 @@ function ChipMenus({
   onPrompt: (chip: QuickChipView) => void;
 }) {
   const c = ui.game.chat;
+  const r = ui.game.reports;
   const [open, setOpen] = useState<QuickChipCategory | null>(null);
+  const [bucket, setBucket] = useState<ReportBucket | null>(null);
+  const [section, setSection] = useState<string | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
+
+  function close() {
+    setOpen(null);
+    setBucket(null);
+    setSection(null);
+  }
 
   useEffect(() => {
     if (!open) return;
     function onPointer(event: PointerEvent) {
-      if (!rootRef.current?.contains(event.target as Node)) setOpen(null);
+      if (!rootRef.current?.contains(event.target as Node)) close();
     }
     function onKey(event: globalThis.KeyboardEvent) {
-      if (event.key === 'Escape') setOpen(null);
+      if (event.key === 'Escape') close();
     }
     document.addEventListener('pointerdown', onPointer);
     document.addEventListener('keydown', onKey);
@@ -88,6 +117,9 @@ function ChipMenus({
       document.removeEventListener('keydown', onKey);
     };
   }, [open]);
+
+  const sections = bucket ? TEST_MENU_SECTIONS[bucket] : [];
+  const actions = bucket && section ? actionsIn(chips, bucket, section) : [];
 
   return (
     <div className="chips" role="group" aria-label={c.quickGroup} ref={rootRef}>
@@ -104,12 +136,17 @@ function ChipMenus({
               aria-expanded={shown}
               aria-controls={`chip-menu-${category}`}
               onClick={() => {
-                setOpen(shown ? null : category);
+                if (shown) close();
+                else {
+                  setOpen(category);
+                  setBucket(null);
+                  setSection(null);
+                }
               }}
             >
               {label}
             </button>
-            {shown ? (
+            {shown && category !== 'tests' ? (
               <div
                 id={`chip-menu-${category}`}
                 className="chip-menu"
@@ -125,7 +162,7 @@ function ChipMenus({
                     onClick={() => {
                       if (chip.prompt) onPrompt(chip);
                       else onPick(chip.text);
-                      setOpen(null);
+                      close();
                     }}
                   >
                     {chip.label}
@@ -136,6 +173,88 @@ function ChipMenus({
           </div>
         );
       })}
+      {open === 'tests' ? (
+        <div id="chip-menu-tests" className="chip-menu chip-menu--tests" data-testid="test-menu">
+          <div
+            className="chip-col"
+            role="menu"
+            aria-label={r.filtersLabel}
+            data-testid="test-col-bucket"
+          >
+            {TEST_MENU_BUCKETS.map((id) => (
+              <button
+                key={id}
+                type="button"
+                role="menuitemradio"
+                className="chip"
+                aria-checked={bucket === id}
+                data-testid={`test-bucket-${id}`}
+                onClick={() => {
+                  setBucket(id);
+                  setSection(null);
+                }}
+              >
+                {r.bucket[id]}
+              </button>
+            ))}
+          </div>
+          {bucket ? (
+            <div
+              className="chip-col"
+              role="menu"
+              aria-label={r.sectionsLabel}
+              data-testid="test-col-section"
+            >
+              {sections.map((id) => (
+                <button
+                  key={id}
+                  type="button"
+                  role="menuitemradio"
+                  className="chip"
+                  aria-checked={section === id}
+                  data-testid={`test-section-${id}`}
+                  onClick={() => {
+                    setSection(id);
+                  }}
+                >
+                  {r.section[id] ?? id}
+                </button>
+              ))}
+            </div>
+          ) : null}
+          {bucket && section ? (
+            <div
+              className="chip-col"
+              role="menu"
+              aria-label={r.section[section]}
+              data-testid="test-col-action"
+            >
+              {actions.length > 0 ? (
+                actions.map((chip) => (
+                  <button
+                    key={chip.id}
+                    type="button"
+                    role="menuitem"
+                    className="chip"
+                    data-testid={`test-action-${chip.id}`}
+                    onClick={() => {
+                      if (chip.prompt) onPrompt(chip);
+                      else onPick(chip.text);
+                      close();
+                    }}
+                  >
+                    {chip.label}
+                  </button>
+                ))
+              ) : (
+                <p className="chip-empty" data-testid="test-empty">
+                  {c.testsEmpty}
+                </p>
+              )}
+            </div>
+          ) : null}
+        </div>
+      ) : null}
     </div>
   );
 }

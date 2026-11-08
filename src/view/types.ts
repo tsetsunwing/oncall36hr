@@ -228,6 +228,9 @@ export interface QuickChipView {
   label: string;
   text: string;
   category: QuickChipCategory;
+  catalogId?: string;
+  /** 檢查對應報告面板的組別與部門。 */
+  report?: { bucket: 'laboratory' | 'radiology' | 'poct'; section: string };
   /** 有值時先彈小窗，唔直接落單。 */
   prompt?: QuickChipPrompt;
 }

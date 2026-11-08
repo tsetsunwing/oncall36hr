@@ -2,7 +2,15 @@ export * from './startGate';
 export * from './clock';
 export * from './gameView';
 export { composePromptPhrase } from './quickPrompt';
-export { reportCategory, sectionsFor, type ReportBucket } from './reportGroup';
+export {
+  knownReportCategory,
+  reportCategory,
+  sectionsFor,
+  TEST_ACTION_ORDER,
+  TEST_MENU_BUCKETS,
+  TEST_MENU_SECTIONS,
+  type ReportBucket,
+} from './reportGroup';
 export * from './types';
 export {
   bloodPressureBand,

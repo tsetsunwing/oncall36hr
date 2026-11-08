@@ -62,6 +62,39 @@ export function reportCategory(resultId: string): ReportCategory {
   return BY_RESULT[resultId] ?? { bucket: 'laboratory', section: 'biochem' };
 }
 
+export function knownReportCategory(resultId: string): ReportCategory | null {
+  return BY_RESULT[resultId] ?? null;
+}
+
+/** 檢查選單由左至右：組別，然後報告面板的部門。空部門仍然列出。 */
+export const TEST_MENU_BUCKETS: readonly ReportBucket[] = ['laboratory', 'radiology', 'poct'];
+
+export const TEST_MENU_SECTIONS: Record<ReportBucket, readonly string[]> = {
+  laboratory: ['haem', 'biochem', 'micro', 'cytology', 'histo', 'immuno', 'genetics', 'tox'],
+  radiology: ['xr', 'ct', 'mri', 'us'],
+  poct: ['ecg', 'istat', 'glucose', 'rat', 'inr', 'tropT', 'urine', 'hb', 'hba1c'],
+};
+
+/** 同一部門內，現有檢查的次序。唔喺表內的真檢查會排在後面。 */
+export const TEST_ACTION_ORDER: Record<string, readonly string[]> = {
+  haem: ['lab.cbc', 'lab.crossmatch'],
+  biochem: ['lab.rft', 'lab.troponin'],
+  micro: ['lab.bloodculture'],
+  xr: ['img.cxr'],
+  ct: ['img.ct.thorax'],
+  mri: ['img.mri'],
+  us: ['img.us.abdomen', 'img.pocus'],
+  ecg: ['ecg.12lead'],
+  istat: ['lab.abg'],
+  glucose: ['poct.glucose'],
+  rat: ['poct.rat'],
+  inr: ['poct.inr'],
+  tropT: ['poct.troponinT'],
+  urine: ['poct.urine'],
+  hb: ['poct.hb'],
+  hba1c: ['poct.hba1c'],
+};
+
 export function sectionsFor(bucket: ReportBucket): readonly string[] {
   if (bucket === 'laboratory') return LAB_SECTIONS;
   if (bucket === 'radiology') return RAD_SECTIONS;

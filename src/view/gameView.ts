@@ -16,7 +16,7 @@ import {
   type Patient,
 } from '@/engine';
 import { formatClock } from './clock';
-import { reportCategory } from './reportGroup';
+import { knownReportCategory, reportCategory } from './reportGroup';
 import type {
   ActionRowView,
   AlarmLevel,
@@ -426,13 +426,16 @@ function selectQuickChips(tables: EngineTables): QuickChipView[] {
       tables.formulary.find((item) => item.catalogId === word.catalogId) ??
       null;
     const prompt = chipPrompt(word, formulary);
+    const report = row?.resultId ? knownReportCategory(row.resultId) : null;
     return word.chipLabel && text
       ? [
           {
             id: word.id,
             label: word.chipLabel,
             text,
+            catalogId: word.catalogId,
             category: word.chipGroup ?? chipCategory(row?.type ?? '', word.catalogId),
+            ...(report ? { report } : {}),
             ...(prompt ? { prompt } : {}),
           },
         ]

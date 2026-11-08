@@ -277,6 +277,65 @@ describe('ChatPanel', () => {
     expect(screen.getByRole('combobox')).toHaveValue('');
   });
 
+  it('檢查選單由左至右跟報告分類，空部門沒有假項目', async () => {
+    const user = userEvent.setup();
+    const actions = makeActions();
+    render(
+      <ChatPanel
+        chat={chat()}
+        chips={[
+          {
+            id: 'qw.cbc',
+            label: 'CBC',
+            text: 'cbc',
+            category: 'tests',
+            catalogId: 'lab.cbc',
+            report: { bucket: 'laboratory', section: 'haem' },
+          },
+          {
+            id: 'qw.crossmatch',
+            label: 'Cross-match',
+            text: 'crossmatch',
+            category: 'tests',
+            catalogId: 'lab.crossmatch',
+            report: { bucket: 'laboratory', section: 'haem' },
+          },
+          {
+            id: 'qw.cxr',
+            label: 'Chest X-ray',
+            text: 'cxr',
+            category: 'tests',
+            catalogId: 'img.cxr',
+            report: { bucket: 'radiology', section: 'xr' },
+          },
+          { id: 'vitals', label: 'Check vitals', text: 'check vitals', category: 'observe' },
+        ]}
+        notice={null}
+        actions={actions}
+      />,
+    );
+    await user.click(screen.getByRole('button', { name: ui.game.chat.chipGroup.tests ?? '' }));
+    expect(screen.getByTestId('test-col-bucket')).toBeInTheDocument();
+    expect(screen.queryByTestId('test-col-section')).not.toBeInTheDocument();
+    await user.click(screen.getByTestId('test-bucket-laboratory'));
+    const sections = screen.getByTestId('test-col-section');
+    expect(sections).toHaveTextContent(ui.game.reports.section.haem ?? '');
+    expect(sections).toHaveTextContent(ui.game.reports.section.cytology ?? '');
+    expect(screen.queryByTestId('test-col-action')).not.toBeInTheDocument();
+    await user.click(screen.getByTestId('test-section-cytology'));
+    expect(screen.getByTestId('test-empty')).toHaveTextContent(ui.game.chat.testsEmpty);
+    expect(screen.queryByTestId('test-action-qw.cbc')).not.toBeInTheDocument();
+    await user.click(screen.getByTestId('test-section-haem'));
+    expect(screen.getByTestId('test-action-qw.cbc')).toHaveTextContent('CBC');
+    expect(screen.getByTestId('test-action-qw.crossmatch')).toHaveTextContent('Cross-match');
+    await user.click(screen.getByTestId('test-action-qw.cbc'));
+    expect(actions.submitChat).toHaveBeenCalledWith('p1', 'cbc');
+    expect(screen.queryByTestId('test-menu')).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: ui.game.chat.chipGroup.observe ?? '' }));
+    expect(screen.getByRole('menuitem', { name: 'Check vitals' })).toBeInTheDocument();
+    expect(screen.queryByTestId('test-col-bucket')).not.toBeInTheDocument();
+  });
+
   it('快捷 chips 直接提交其文字', async () => {
     const user = userEvent.setup();
     const actions = makeActions();
