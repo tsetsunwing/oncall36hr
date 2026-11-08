@@ -43,8 +43,8 @@ function makeActions() {
   } satisfies GameActions;
 }
 
-describe('MonitorPanel：靜態顏色＋文字警報', () => {
-  it('數值全部來自 view；警報用文字標籤（唔單靠顏色）', () => {
+describe('MonitorPanel：床邊監護儀風格＋閃爍數值＋黃色三角警示', () => {
+  it('數值全部來自 view；異常只用閃爍數值同黃色三角（唔寫句子）', () => {
     render(<MonitorPanel patient={patient} monitor={monitor()} />);
     expect(screen.getByTestId('vital-hr')).toHaveTextContent('118');
     expect(screen.getByTestId('vital-hr')).toHaveAttribute('data-level', 'ALARM');
@@ -53,14 +53,18 @@ describe('MonitorPanel：靜態顏色＋文字警報', () => {
     expect(screen.getByTestId('vital-bp')).toHaveTextContent('96/58 (71)');
     expect(screen.getByTestId('vital-line')).toBeEmptyDOMElement();
     expect(screen.queryByTestId('vital-map')).not.toBeInTheDocument();
-    const tags = within(screen.getByTestId('alarm-tags')).getAllByRole('listitem');
-    expect(tags.length).toBe(5);
-    expect(tags[0]).toHaveTextContent(ui.game.monitor.level.ALARM);
+    const monitorEl = screen.getByTestId('monitor');
+    expect(monitorEl.querySelectorAll('.alert-tri')).toHaveLength(5);
+    expect(screen.queryByTestId('alarm-tags')).not.toBeInTheDocument();
+    expect(screen.getByTestId('alert-hr')).toHaveTextContent(ui.game.monitor.level.ALARM);
+    expect(
+      within(screen.getByTestId('vital-hr')).getByText('118').closest('.tile-value'),
+    ).not.toBeNull();
     expect(screen.getByTestId('mews-badge')).toHaveTextContent('6');
     expect(screen.getByText(ui.game.monitor.mewsPending)).toBeInTheDocument();
   });
 
-  it('全部正常：顯示「無警報」，面板 level 為 NORMAL', () => {
+  it('全部正常：冇三角警示，面板 level 為 NORMAL', () => {
     const normal = monitor({
       hr: { text: '80', level: 'NORMAL', direction: null },
       bp: { text: '120/80', level: 'NORMAL', direction: null, sbp: 120, dbp: 80 },
@@ -70,7 +74,7 @@ describe('MonitorPanel：靜態顏色＋文字警報', () => {
       mews: { score: 0, bandId: 'LOW', level: 'NORMAL', components: [], reviewPending: false },
     });
     render(<MonitorPanel patient={patient} monitor={normal} />);
-    expect(screen.getByText(ui.game.monitor.noAlarm)).toBeInTheDocument();
+    expect(screen.getByTestId('monitor').querySelectorAll('.alert-tri')).toHaveLength(0);
     expect(screen.getByTestId('monitor')).toHaveAttribute('data-level', 'NORMAL');
     expect(screen.queryByText(ui.game.monitor.mewsPending)).not.toBeInTheDocument();
   });
@@ -95,14 +99,18 @@ describe('MonitorPanel：靜態顏色＋文字警報', () => {
   });
 });
 
-describe('靜態警報：全 stylesheet 禁止閃爍／動畫', () => {
+describe('閃爍數值：只由 CSS 驅動，並尊重 reduced-motion', () => {
   const css = `${readFileSync('src/app/styles.css', 'utf8')}\n${readFileSync('src/app/v2.css', 'utf8')}`;
-  it('冇 @keyframes／animation（除 reduced-motion 嘅 none）／blink', () => {
-    expect(css).not.toMatch(/@keyframes/);
-    expect(css.replace(/animation:\s*none\s*!important;/g, '')).not.toMatch(/animation\s*:/);
-    expect(css).not.toMatch(/animation-name/);
-    expect(css).not.toMatch(/blink/i);
+  it('只有一組 monitor-blink 動畫，reduced-motion 下關閉', () => {
+    expect(css.match(/@keyframes/g)).toHaveLength(1);
+    expect(css).toMatch(/@keyframes monitor-blink/);
+    expect(css).toMatch(
+      /prefers-reduced-motion: reduce\)\s*\{[^}]*\.tile \.tile-value[^}]*\{\s*animation: none/,
+    );
     expect(css).not.toMatch(/text-decoration\s*:[^;]*blink/);
+  });
+  it('只有異常數值會閃（NORMAL 唔閃）', () => {
+    expect(css).toMatch(/\.tile:not\(\[data-level='NORMAL'\]\) \.tile-value/);
   });
   it('組件原始碼冇用 setInterval 切換 alarm 樣式', () => {
     const src = readFileSync('src/ui/game/MonitorPanel.tsx', 'utf8');

@@ -49,13 +49,7 @@ function BedButton({ bed, actions }: { bed: BedView; actions: GameActions }) {
   );
 }
 
-export function FloorPlan({
-  ward,
-  actions,
-  onExpand,
-  onClose,
-  compact = false,
-}: FloorPlanProps) {
+export function FloorPlan({ ward, actions, onExpand, onClose, compact = false }: FloorPlanProps) {
   const w = ui.game.ward;
   const upper = ward.beds.filter((b) => b.row <= 1);
   const lower = ward.beds.filter((b) => b.row >= 2);

@@ -163,9 +163,7 @@ describe('FloorPlan', () => {
   });
 
   it('行緊路時顯示狀態；平面圖冇電話地標', () => {
-    render(
-      <FloorPlan ward={ward({ movingToBed: 7, arriveInSec: 40 })} actions={makeActions()} />,
-    );
+    render(<FloorPlan ward={ward({ movingToBed: 7, arriveInSec: 40 })} actions={makeActions()} />);
     expect(screen.getByTestId('walking')).toBeInTheDocument();
     expect(screen.queryByTestId('landmark-phone')).toBeNull();
   });

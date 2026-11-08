@@ -49,7 +49,7 @@ test.describe('M2 bedside slice', () => {
 
     await expect(page.getByTestId('mews-badge')).toContainText('MEWS');
     await expect(page.getByTestId('vital-hr')).toContainText(/\d/);
-    await expect(page.getByTestId('alarm-tags')).toContainText(ui.game.monitor.level.ALARM);
+    await expect(page.locator('[data-testid^="alert-"]').first()).toBeVisible();
     await expect(page.getByTestId('rhythm')).toContainText('Sinus Tachycardia');
     await expect(page.locator('[data-kind="SYSTEM"]').first()).toBeVisible();
 
