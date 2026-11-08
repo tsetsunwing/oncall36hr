@@ -62,8 +62,9 @@ describe('order.parse 套用', () => {
     expect(reviews.map((r) => r.kind)).toEqual(['gate.pharmacy', 'gate.nurse']);
     const released = answerGates(engine, done);
     expect(Object.values(released.state.orders)[0]?.status).toBe('RUNNING');
-    const ack = aiRequests(released.effects).filter((r) => r.kind === 'dialogue.turn');
-    expect(ack).toHaveLength(1);
+    expect(aiRequests(released.effects).some((r) => r.kind === 'dialogue.turn')).toBe(false);
+    const ack = released.state.chats.p1?.lines.find((l) => l.template.startsWith('收到'));
+    expect(ack?.tokenValues['order.1.label']).toContain('Ceftriaxone');
   });
 
   it('虛構劑量（原文冇出現）被丟棄，order 照建但冇劑量', () => {
@@ -315,18 +316,16 @@ describe('dialogue.turn：token 凍結與即時', () => {
     expect(line?.tokenValues['vital.hr']).toBe(String(done.state.patients.p1?.visible.vitals.hr));
   });
 
-  it('非即時 beat（例如 ACK_ORDER）嘅 token 仍然凍結喺 queue 當刻', () => {
-    let run = feed(engine, fresh('freeze-1c'), [say('oxygen nrb')]);
-    const request = aiRequests(run.effects).find((r) => r.kind === 'dialogue.turn');
-    if (!request) throw new Error('預期有 ACK 請求');
-    const frozen = (request.context as { local: { frozenTokens: Record<string, string> } }).local
-      .frozenTokens;
-    run = advance(engine, run.state, 7200);
-    const done = feed(engine, run.state, [
-      { type: 'AI_RESULT', reqId: request.reqId, payload: statusLine },
-    ]);
-    const line = done.state.chats.p1?.lines.at(-1);
-    expect(line?.tokenValues['vital.hr']).toBe(frozen['vital.hr']);
+  it('非即時 beat（例如 ACK_ORDER）由模板寫入，之後生命表徵改變唔會改寫', () => {
+    const run = feed(engine, fresh('freeze-1c'), [say('oxygen nrb')]);
+    expect(aiRequests(run.effects).some((r) => r.kind === 'dialogue.turn')).toBe(false);
+    const line = run.state.chats.p1?.lines.find((l) => l.template.startsWith('收到'));
+    expect(line?.template).toContain('{{order.1.label}}');
+    expect(line?.template.replace(/\{\{[^}]+\}\}/g, '')).not.toMatch(/\d/);
+    const frozen = line?.tokenValues['order.1.label'];
+    const later = advance(engine, run.state, 7200);
+    const same = later.state.chats.p1?.lines.find((l) => l.template.startsWith('收到'));
+    expect(same?.tokenValues['order.1.label']).toBe(frozen);
   });
 
   it('同一個 reqId 重送結果一致（凍結值存喺 pending context）', () => {

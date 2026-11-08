@@ -284,7 +284,7 @@ export const caseModule: EngineModule = {
         );
         if (queued) {
           next = queued.state;
-          effects.push(queued.effect);
+          if (queued.effect) effects.push(queued.effect);
         }
       }
     }

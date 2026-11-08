@@ -113,7 +113,7 @@ function releaseOrder(
     );
     if (queued) {
       next = queued.state;
-      effects.push(queued.effect);
+      if (queued.effect) effects.push(queued.effect);
     }
   }
   return { state: next, effects };
@@ -374,7 +374,7 @@ function insistOrder(state: GameState, orderId: string, ctx: EngineContext): Red
       ctx,
     );
     return queued
-      ? { state: queued.state, effects: [queued.effect] }
+      ? { state: queued.state, effects: queued.effect ? [queued.effect] : [] }
       : { state: next, effects: [] };
   }
 

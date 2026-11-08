@@ -15,5 +15,7 @@ export function queueBeatsForOrders(
 ): Reduction {
   const tokens = { ...vitalTokens(patient, ctx.tables), ...patientTokens(patient), ...extraTokens };
   const queued = queueDialogue(state, { patientId: patient.id, beats, tokens, addressed }, ctx);
-  return queued ? { state: queued.state, effects: [queued.effect] } : { state, effects: [] };
+  return queued
+    ? { state: queued.state, effects: queued.effect ? [queued.effect] : [] }
+    : { state, effects: [] };
 }

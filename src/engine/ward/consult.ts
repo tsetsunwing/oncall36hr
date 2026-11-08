@@ -5,7 +5,7 @@
  * - AI（consult.assess）只做「理解」：由玩家自己寫嘅 SBAR／跟進文字抽出佢講咗清單上邊啲項目、
  *   逐字引用嘅生命體徵數值、語氣；
  * - engine 用 config.consult 清單計清晰度、核對數值、按 T18／T24 同印象決定來唔來、幾耐到；
- * - AI（consult.reply）只將 engine 已決定嘅結果講成對白，對白入面嘅數值只可以係凍結 token。
+ * - 會診態度同結果句由職級隱藏印象帶揀固定句；其他專科冇印象，用中性句。唔再叫模型寫呢啲句。
  * 玩家冇改動 engine 預填嘅 SBAR 時，內容本身就係 engine 寫嘅，唔使 AI 理解。
  */
 import { z } from 'zod';
@@ -22,12 +22,8 @@ import type { Effect, Reduction } from '../core/events';
 import type { EngineContext } from '../core/module';
 import type { GameState, PendingAiRequest } from '../core/state';
 import { completeDeathStep } from '../death/death';
-import {
-  applyCalleeLines,
-  CONSULT_REPLY_KIND,
-  requestCalleeReply,
-  type ReplyInput,
-} from './callReply';
+import { applyCalleeLines, CONSULT_REPLY_KIND } from './callReply';
+import { consultReplyLines } from './scriptedLines';
 import {
   CONSULT_ARRIVAL_EVENT,
   findCall,
@@ -493,33 +489,13 @@ function etaText(seconds: number): string {
   return `${String(Math.max(1, Math.round(seconds / 60)))} 分鐘`;
 }
 
-function denyTermsOf(state: GameState, patientId: string, ctx: EngineContext): string[] {
-  const patient = state.patients[patientId];
-  const template = ctx.tables['case-templates'].find(
-    (c) => c.id === patient?.hidden.caseTemplateId,
-  );
-  return template ? [...template.diagnosisTerms] : [];
-}
-
-type ConsultBeat =
-  | {
-      type: 'OUTCOME';
-      outcome: string;
-      attitude: string | null;
-      etaToken: string | null;
-      changed: boolean;
-    }
-  | { type: 'ASK_MISSING'; items: { id: string; description: string }[] };
-
 function replyFor(
   state: GameState,
   call: Call,
   decision: { outcome: string; arrivalDelay: number | null; attitude: Decision['attitude'] },
   asks: string[],
   changed: boolean,
-  doctorSaid: string,
-  ctx: EngineContext,
-): { state: GameState; effect: Effect; reqId: string } | undefined {
+): { lines: CallLine[] } | undefined {
   const patient = call.patientId ? state.patients[call.patientId] : undefined;
   if (!patient) return undefined;
   const hasEta = decision.arrivalDelay !== null && decision.outcome !== 'ICU_ASSESS';
@@ -530,51 +506,39 @@ function replyFor(
       ? { 'consult.eta': etaText(decision.arrivalDelay) }
       : {}),
   };
-  const descriptions = new Map(ctx.config.consult.items.map((i) => [i.id, i.description] as const));
-  const beats: ConsultBeat[] = [
-    {
-      type: 'OUTCOME',
+  return {
+    lines: consultReplyLines({
+      t: state.clock.t,
+      name: call.callerName,
       outcome: decision.outcome,
       attitude: decision.attitude,
-      etaToken: hasEta ? 'consult.eta' : null,
+      hasEta,
       changed,
-    },
-  ];
-  if (asks.length > 0) {
-    beats.push({
-      type: 'ASK_MISSING',
-      items: asks.map((id) => ({ id, description: descriptions.get(id) ?? id })),
-    });
-  }
-  const input: ReplyInput = {
-    kind: CONSULT_REPLY_KIND,
-    call,
-    callee: {
-      name: call.callerName,
-      kind: call.target?.kind ?? 'RANK',
-      rank: call.callerRank,
-      attitude: decision.attitude,
-    },
-    beats,
-    doctorSaid,
-    tokens,
-    denyTerms: denyTermsOf(state, patient.id, ctx),
+      asks,
+      tokens,
+    }),
   };
-  return requestCalleeReply(state, input, ctx);
 }
 
 function withReply(
+  state: GameState,
   call: Call,
   consult: ConsultExchange,
   outcome: string,
-  reply: { state: GameState; effect: Effect; reqId: string },
+  lines: CallLine[],
 ): Reduction {
   const updated: Call = {
     ...call,
     outcome,
-    exchange: { phase: 'AWAITING_REPLY', reqId: reply.reqId, consult, family: null },
+    lines: [...call.lines, ...lines],
+    exchange: {
+      phase: consult.asks.length > 0 ? 'OPEN' : 'CLOSED',
+      reqId: null,
+      consult,
+      family: null,
+    },
   };
-  return { state: putCall(reply.state, updated), effects: [reply.effect] };
+  return { state: putCall(state, updated), effects: [] };
 }
 
 function resolveInitial(
@@ -625,10 +589,9 @@ function resolveInitial(
     ruleApplied,
     vitalsRef,
   };
-  const said = PARTS.map((part) => `${part}: ${call.sbar?.[part] ?? ''}`).join('\n');
-  const reply = replyFor(next, call, decision, asks, false, said, ctx);
+  const reply = replyFor(next, call, decision, asks, false);
   if (!reply) return { state: next, effects };
-  const result = withReply(call, consult, decision.outcome, reply);
+  const result = withReply(next, call, consult, decision.outcome, reply.lines);
   return { state: result.state, effects: [...effects, ...result.effects] };
 }
 
@@ -694,11 +657,9 @@ function resolveFollowup(
     { outcome, arrivalDelay: arrival, attitude: decision.attitude },
     asks,
     upgraded,
-    call.lines.filter((l) => l.speaker === 'PLAYER').at(-1)?.template ?? '',
-    ctx,
   );
   if (!reply) return { state: next, effects: [] };
-  return withReply(call, consult, outcome, reply);
+  return withReply(next, call, consult, outcome, reply.lines);
 }
 
 // ---------- 玩家跟進／掛線 ----------

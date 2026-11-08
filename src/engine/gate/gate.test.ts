@@ -100,7 +100,10 @@ describe('藥房一律把關', () => {
     expect(order?.status).toBe('RUNNING');
     expect(order?.gate?.phase).toBe('RELEASED');
     expect(done.state.actionLog.find((e) => e.orderId === order?.id)?.reasonCode).toBeNull();
-    expect(aiRequests(done.effects).some((r) => r.kind === 'dialogue.turn')).toBe(true);
+    expect(aiRequests(done.effects).some((r) => r.kind === 'dialogue.turn')).toBe(false);
+    const ack = done.state.chats.p1?.lines.find((l) => l.template.startsWith('收到'));
+    expect(ack?.speaker.kind).toBe('NURSE');
+    expect(ack?.template.replace(/\{\{[^}]+\}\}/g, '')).not.toMatch(/\d/);
   });
 });
 

@@ -244,19 +244,8 @@ describe('ward ViewModel：雙向通話（M4b）', () => {
       tone: 'NEUTRAL',
     });
     view = selectGameView(assessed.state, env).ward?.phone;
-    expect(view?.calls[0]?.exchange).toMatchObject({ phase: 'AWAITING_REPLY', clarity: 0 });
-
-    const speaker = (
-      assessed.effects.find(
-        (e) => e.type === 'AI_REQUEST' && e.kind === 'consult.reply',
-      ) as unknown as {
-        context: { local: { speakerId: string } };
-      }
-    ).context.local.speakerId;
-    const replied = answer(assessed.state, assessed.effects, 'consult.reply', {
-      lines: [{ speaker, text: '再講多啲。' }],
-    });
-    const exchange = selectGameView(replied.state, env).ward?.phone.calls[0]?.exchange;
+    const exchange = view?.calls[0]?.exchange;
+    expect(exchange?.clarity).toBe(0);
     expect(exchange).toMatchObject({
       phase: 'OPEN',
       waiting: false,

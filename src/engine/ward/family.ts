@@ -4,11 +4,11 @@
  * - 預設講法本身帶有一組「訊號」（STATES_DEATH、CONDOLENCE…）；
  * - 自己打字就由 AI（family.assess）抽出訊號，AI 唔會評分、唔會決定家屬反應；
  * - engine 按訊號計「有冇講清楚」「有冇同理心」，查 T27 反應表同計分規則；
- * - 家屬對白（family.reply）由 AI 按 engine 決定嘅反應措辭，數值只可以係凍結 token。
+ * - 預設選項的家屬對白由狀態機反應揀固定句；自己打字先交 family.reply 措辭。
  */
 import { z } from 'zod';
 import { patientTokens } from '../chat/dialogue';
-import { renderTemplate } from '../chat/tokens';
+import { extractTokens, renderTemplate } from '../chat/tokens';
 import {
   FAMILY_SIGNAL_IDS,
   type FamilyOptionRow,
@@ -22,6 +22,7 @@ import type { EngineContext } from '../core/module';
 import type { GameState, PendingAiRequest } from '../core/state';
 import { completeDeathStep } from '../death/death';
 import { applyCalleeLines, FAMILY_REPLY_KIND, requestCalleeReply } from './callReply';
+import { familyPresetTemplate } from './scriptedLines';
 import { findCall, notice, playerTemplate, putCall } from './callStore';
 import { applyRule } from '../score/scoring';
 import type { Call, CallLine, Exchange, FamilyExchange } from './wardTypes';
@@ -158,6 +159,7 @@ export function familyOption(
     [...option.signals],
     renderTemplate(option.line, { 'patient.name': patient.demographics.name }),
     ctx,
+    true,
   );
 }
 
@@ -210,7 +212,7 @@ export function handleFamilyAssessResult(
   }
   const signals = data.data.signals;
   if (!signalsConsistent(signals)) return rejectAiResult(state, pending);
-  return resolveTurn(state, call.id, signals, local.text, ctx);
+  return resolveTurn(state, call.id, signals, local.text, ctx, false);
 }
 
 function resolveTurn(
@@ -219,6 +221,7 @@ function resolveTurn(
   signals: readonly FamilySignal[],
   doctorSaid: string,
   ctx: EngineContext,
+  preset: boolean,
 ): Reduction {
   const call = findCall(state, callId);
   const family = call?.exchange?.family;
@@ -262,6 +265,33 @@ function resolveTurn(
     applied,
   };
   const tokens = patientTokens(patient);
+  const reactionId = reaction?.reaction ?? 'CONFUSED';
+  const asks = closing ? 'NONE' : (reaction?.asks ?? 'NONE');
+  if (preset) {
+    const template = familyPresetTemplate(reactionId, asks, closing);
+    const tokenValues: Record<string, string> = {};
+    for (const token of extractTokens(template)) {
+      const value = tokens[token];
+      if (value !== undefined) tokenValues[token] = value;
+    }
+    const reply: CallLine = {
+      t: next.clock.t,
+      speaker: 'CALLEE',
+      name: scenario.calleeName,
+      template,
+      tokenValues,
+    };
+    const exchange: Exchange = {
+      phase: closing ? 'CLOSED' : 'OPEN',
+      reqId: null,
+      consult: null,
+      family: nextFamily,
+    };
+    return {
+      state: putCall(next, { ...call, lines: [...call.lines, reply], exchange }),
+      effects,
+    };
+  }
   const requested = requestCalleeReply(
     next,
     {

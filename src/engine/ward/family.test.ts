@@ -91,13 +91,10 @@ describe('死亡流程：通知上一級係真電話', () => {
     expect(run.state.death?.steps.NOTIFY_SENIOR).not.toBeNull();
     const call = outgoing(run.state, 'DEATH_SENIOR');
     expect(call.outcome).toBe('DEATH_ACK');
-    const req = request(run, 'consult.reply');
-    const prompt = (req.context as { prompt: { beats: { type: string; outcome?: string }[] } })
-      .prompt;
-    expect(prompt.beats[0]).toMatchObject({ type: 'OUTCOME', outcome: 'DEATH_ACK' });
-    const speaker = (req.context as { local: { speakerId: string } }).local.speakerId;
-    const done = answer(run, 'consult.reply', { lines: [{ speaker, text: '收到，辛苦晒。' }] });
-    expect(outgoing(done.state, 'DEATH_SENIOR').exchange?.phase).toBe('CLOSED');
+    expect(aiRequests(run.effects)).toHaveLength(0);
+    expect(call.exchange?.phase).toBe('CLOSED');
+    expect(call.lines.at(-1)?.template).toBe('收到。');
+    expect(call.lines.at(-1)?.template).not.toMatch(/\d/);
   });
 
   it('重複開始、冇死亡、已完成：拒絕', () => {
@@ -131,15 +128,14 @@ describe('死亡流程：致電家屬', () => {
     const out = feed(engine, run.state, [
       ward('FAMILY_OPTION', { callId: call.id, optionId: 'direct' }),
     ]);
-    expect(aiRequests(out.effects).map((r) => r.kind)).toEqual(['family.reply']);
+    expect(aiRequests(out.effects)).toHaveLength(0);
     expect(out.state.death?.steps.PHONE_FAMILY).not.toBeNull();
-    const beat = (
-      request(out, 'family.reply').context as {
-        prompt: { beats: Record<string, unknown>[] };
-      }
-    ).prompt.beats[0];
-    expect(beat).toMatchObject({ type: 'FAMILY_REACT', informed: true, reaction: 'SHOCK' });
+    const line = outgoing(out.state, 'DEATH_FAMILY').lines.at(-1);
+    expect(line?.speaker).toBe('CALLEE');
+    expect(line?.template).toContain('走咗');
+    expect(line?.tokenValues['patient.name']).toBeTruthy();
     expect(outgoing(out.state, 'DEATH_FAMILY').exchange?.family?.stage).toBe('FOLLOWUP');
+    expect(outgoing(out.state, 'DEATH_FAMILY').exchange?.phase).toBe('OPEN');
   });
 
   it('「溫和」講法同理心較高：反應為 GRIEF，並加 FAMILY_EMPATHIC；冷淡講法加 FAMILY_COLD', () => {
@@ -154,10 +150,8 @@ describe('死亡流程：致電家屬', () => {
       ward('FAMILY_OPTION', { callId: cold.call.id, optionId: 'cold' }),
     ]);
     expect(rules(c.state)).toContain('FAMILY_COLD');
-    const beat = (
-      request(c, 'family.reply').context as { prompt: { beats: Record<string, unknown>[] } }
-    ).prompt.beats[0];
-    expect(beat).toMatchObject({ reaction: 'ANGER' });
+    expect(aiRequests(c.effects)).toHaveLength(0);
+    expect(outgoing(c.state, 'DEATH_FAMILY').lines.at(-1)?.template).toContain('發生咗咩事');
   });
 
   it('含糊講法：未算已通知（PHONE_FAMILY 未完成），家屬困惑，FAMILY_VAGUE', () => {
@@ -197,11 +191,20 @@ describe('死亡流程：致電家屬', () => {
     expect(failed(answer(typed, 'family.assess', { nothing: true }).state)).toBe(true);
   });
 
-  it('家屬對白：裸數字、未授權 token、錯 speaker 全部拒絕；合規對白進入通話紀錄', () => {
+  it('家屬對白：預設選項唔叫模型；自由輸入先交 family.reply，裸數字、未授權 token、錯 speaker 全部拒絕', () => {
     const { run, call } = started('fam-reply');
-    const out = feed(engine, run.state, [
+    const preset = feed(engine, run.state, [
       ward('FAMILY_OPTION', { callId: call.id, optionId: 'direct' }),
     ]);
+    expect(aiRequests(preset.effects)).toHaveLength(0);
+    expect(outgoing(preset.state, 'DEATH_FAMILY').lines.at(-1)?.speaker).toBe('CALLEE');
+
+    const typed = feed(engine, run.state, [
+      ward('FAMILY_SAY', { callId: call.id, text: '病人搶救無效離世，我好遺憾。' }),
+    ]);
+    const out = answer(typed, 'family.assess', {
+      signals: ['STATES_DEATH', 'CONDOLENCE', 'EXPLAINS_EVENTS'],
+    });
     const speaker = (request(out, 'family.reply').context as { local: { speakerId: string } }).local
       .speakerId;
     for (const text of ['佢今年 86 歲㗎。', '床號係 {{vital.hr}}。', '我哋九十分鐘後到。']) {
@@ -230,9 +233,7 @@ describe('死亡流程：致電家屬', () => {
           optionId: turn === 0 ? 'direct' : 'explain',
         }),
       ]);
-      const speaker = (request(run, 'family.reply').context as { local: { speakerId: string } })
-        .local.speakerId;
-      run = answer(run, 'family.reply', { lines: [{ speaker, text: '我明白。' }] });
+      expect(aiRequests(run.effects).some((r) => r.kind === 'family.reply')).toBe(false);
       call = outgoing(run.state, 'DEATH_FAMILY');
     }
     expect(call.exchange?.phase).toBe('CLOSED');
@@ -245,10 +246,7 @@ describe('死亡流程：致電家屬', () => {
     const informed = feed(engine, fresh.run.state, [
       ward('FAMILY_OPTION', { callId: fresh.call.id, optionId: 'direct' }),
     ]);
-    const speaker = (request(informed, 'family.reply').context as { local: { speakerId: string } })
-      .local.speakerId;
-    const replied = answer(informed, 'family.reply', { lines: [{ speaker, text: '我明白。' }] });
-    const ended = feed(engine, replied.state, [ward('END_CALL', { callId: fresh.call.id })]);
+    const ended = feed(engine, informed.state, [ward('END_CALL', { callId: fresh.call.id })]);
     const last = outgoing(ended.state, 'DEATH_FAMILY');
     expect(last.exchange?.phase).toBe('CLOSED');
     expect(last.lines.at(-1)?.template).toBe(engine.tables['family-scenarios'][0]?.closing);

@@ -142,7 +142,7 @@ export function completeOrder(state: GameState, order: Order, ctx: EngineContext
     );
     if (queued) {
       next = queued.state;
-      effects.push(queued.effect);
+      if (queued.effect) effects.push(queued.effect);
     }
   }
   return { state: next, effects };

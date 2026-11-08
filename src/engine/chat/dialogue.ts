@@ -18,6 +18,7 @@ import type { Effect, Reduction } from '../core/events';
 import type { EngineContext } from '../core/module';
 import type { GameState, PendingAiRequest } from '../core/state';
 import type { ChatLine, ChatThread } from './chatTypes';
+import { shortReplyTemplate } from './shortReplies';
 import { extractTokens, leaksDiagnosis, validateTemplate } from './tokens';
 
 export const DIALOGUE_KIND = 'dialogue.turn';
@@ -163,6 +164,46 @@ function liveTokensOf(beats: readonly Beat[]): string[] {
   return [...live].filter((token) => !frozen.has(token));
 }
 
+/**
+ * 收到、已執行、量完生命體徵：全部 beat 都有系統模板就本地寫入，唔再叫模型。
+ * 混有其他 beat 先交回模型，避免漏句。模板填唔到 token 時留空，唔交俾模型補數字。
+ */
+function scriptedNurseTurn(
+  state: GameState,
+  thread: ChatThread,
+  input: DialogueTurnInput,
+  ctx: EngineContext,
+): { kind: 'ai' } | { kind: 'local'; state: GameState } {
+  if (input.beats.length === 0) return { kind: 'ai' };
+  const templates = input.beats.map(shortReplyTemplate);
+  if (templates.some((item) => item === null)) return { kind: 'ai' };
+  const nurse = thread.present.find((person) => person.kind === 'NURSE');
+  if (!nurse) return { kind: 'local', state };
+  let next = state;
+  for (const template of templates) {
+    if (!template) return { kind: 'local', state };
+    const needed = extractTokens(template);
+    if (validateTemplate(template, new Set(needed), ctx.config.chat.maxLineChars) !== null) {
+      return { kind: 'local', state };
+    }
+    const tokenValues: Record<string, string> = {};
+    for (const token of needed) {
+      const value = input.tokens[token];
+      if (value === undefined) return { kind: 'local', state };
+      tokenValues[token] = value;
+    }
+    next = appendLine(next, {
+      t: next.clock.t,
+      patientId: input.patientId,
+      speaker: { kind: 'NURSE', id: nurse.id },
+      template,
+      tokenValues,
+      orderId: null,
+    });
+  }
+  return { kind: 'local', state: next };
+}
+
 function recentLines(thread: ChatThread, limit: number) {
   return thread.lines.slice(-limit).map((line) => ({
     speaker: line.speaker.id,
@@ -179,10 +220,12 @@ export function queueDialogue(
   state: GameState,
   input: DialogueTurnInput,
   ctx: EngineContext,
-): { state: GameState; effect: Effect } | undefined {
+): { state: GameState; effect: Effect | null } | undefined {
   const patient = state.patients[input.patientId];
   const thread = state.chats[input.patientId];
   if (!patient || !thread) return undefined;
+  const scripted = scriptedNurseTurn(state, thread, input, ctx);
+  if (scripted.kind === 'local') return { state: scripted.state, effect: null };
   const template = ctx.tables['case-templates'].find((c) => c.id === patient.hidden.caseTemplateId);
   const speakers = [
     ...thread.present.map(speakerView),

@@ -58,12 +58,6 @@ const answer = (run: Run, kind: string, payload: unknown): Run => {
   return { state: result.state, effects: [...run.effects, ...result.effects] };
 };
 
-const replyOf = (run: Run, text: string): Run => {
-  const req = request(run, 'consult.reply');
-  const speaker = (req.context as { local: { speakerId: string } }).local.speakerId;
-  return answer(run, 'consult.reply', { lines: [{ speaker, text }] });
-};
-
 const rules = (state: GameState) => state.scoreLedger.map((l) => l.rule);
 const failed = (state: GameState) => state.paused?.by === 'ai-failure';
 
@@ -76,14 +70,19 @@ const withEdit = (state: GameState, patch: Partial<Record<'S' | 'B' | 'A' | 'R',
 });
 
 describe('consult：SBAR 清晰度由 engine 計', () => {
-  it('冇改動預填 SBAR：唔需要 AI 理解，直接由 engine 決定，只請求措辭', () => {
+  it('冇改動預填 SBAR：唔需要 AI 理解，態度句由印象帶揀固定句', () => {
     const { state } = prepared('c-unedited');
     const run = send(state, state.ward.draft?.sbar ?? { S: '', B: '', A: '', R: '' });
-    expect(aiRequests(run.effects).map((r) => r.kind)).toEqual(['consult.reply']);
+    expect(aiRequests(run.effects)).toHaveLength(0);
     const call = outgoing(run.state);
     expect(call.exchange?.consult?.clarity).toBe(3);
     expect(call.outcome).toBe('BEDSIDE');
     expect(rules(run.state)).toContain('SBAR_GOOD');
+    const line = call.lines.at(-1);
+    expect(line?.speaker).toBe('CALLEE');
+    expect(line?.template).toContain('{{consult.eta}}');
+    expect(line?.tokenValues['consult.eta']).toMatch(/分鐘$/);
+    expect(line?.template.replace(/\{\{[^}]+\}\}/g, '')).not.toMatch(/\d/);
   });
 
   it('改動後先要 AI 理解；prompt 帶清單，唔帶任何隱藏資料', () => {
@@ -111,9 +110,10 @@ describe('consult：SBAR 清晰度由 engine 計', () => {
     });
     const exchange = outgoing(run.state).exchange;
     expect(exchange?.consult?.clarity).toBe(1);
-    expect(exchange?.phase).toBe('AWAITING_REPLY');
+    expect(exchange?.phase).not.toBe('ASSESSING');
+    expect(exchange?.reqId).toBeNull();
     expect(rules(run.state)).toContain('SBAR_POOR');
-    expect(request(run, 'consult.reply')).toBeDefined();
+    expect(aiRequests(run.effects).some((r) => r.kind === 'consult.reply')).toBe(false);
   });
 
   it('四段都有覆蓋：clarity 3；對方追問冇覆蓋嘅項目', () => {
@@ -216,7 +216,7 @@ describe('consult：惡意或錯誤嘅 assess 結果一律當 AI 失敗', () => 
   });
 });
 
-describe('consult：senior 回覆只係措辭', () => {
+describe('consult：senior 回覆係固定句', () => {
   const afterAssess = (seed: string) => {
     const { state } = prepared(seed);
     const run0 = send(state, withEdit(state, { R: '請過嚟睇下。' }));
@@ -227,58 +227,28 @@ describe('consult：senior 回覆只係措辭', () => {
     });
   };
 
-  it('beats 由 engine 決定；token 凍結；對白進入通話紀錄並凍結 token 值', () => {
+  it('印象帶揀句；到達時間凍結喺 token；模板冇裸數字', () => {
     const run = afterAssess('r-1');
-    const req = request(run, 'consult.reply');
-    const prompt = (
-      req.context as {
-        prompt: { beats: { type: string; outcome?: string }[]; allowedTokens: string[] };
-      }
-    ).prompt;
-    expect(prompt.beats[0]?.type).toBe('OUTCOME');
-    expect(prompt.beats[0]?.outcome).toBe('BEDSIDE');
-    expect(prompt.allowedTokens).toContain('consult.eta');
-    const done = replyOf(run, '收到，我 {{consult.eta}} 內過嚟睇。');
-    const line = outgoing(done.state).lines.at(-1);
-    expect(line?.speaker).toBe('CALLEE');
+    expect(aiRequests(run.effects).some((r) => r.kind === 'consult.reply')).toBe(false);
+    expect(outgoing(run.state).outcome).toBe('BEDSIDE');
+    const line = outgoing(run.state).lines.find((l) => l.template.includes('{{consult.eta}}'));
+    expect(line?.template).toContain('{{consult.eta}}');
     expect(line?.tokenValues['consult.eta']).toMatch(/分鐘$/);
-    expect(failed(done.state)).toBe(false);
+    expect(line?.template.replace(/\{\{[^}]+\}\}/g, '')).not.toMatch(/\d|肺炎|sepsis|mg/i);
+    expect(failed(run.state)).toBe(false);
   });
 
-  it('對白入面嘅裸數字、未授權 token、診斷詞、錯 speaker：全部拒絕', () => {
-    const run = afterAssess('r-2');
-    const speaker = (request(run, 'consult.reply').context as { local: { speakerId: string } })
-      .local.speakerId;
-    const bad = [
-      { speaker, text: '血氧而家 99% 呀。' },
-      { speaker, text: '血氧係 {{vital.secret}}。' },
-      { speaker: 'doctor:boss', text: '好，我過嚟。' },
-      { speaker, text: '我哋 ICU 九十分鐘後到。' },
-    ];
-    for (const line of bad) {
-      const out = answer(run, 'consult.reply', { lines: [line] });
-      expect(failed(out.state), line.text).toBe(true);
-    }
-  });
-
-  it('同 phase 嘅過期回覆被忽略（reqId 唔對得上）', () => {
+  it('固定句唔會被事後的 AI 回覆改寫', () => {
     const run = afterAssess('r-3');
-    const req = request(run, 'consult.reply');
-    const call = outgoing(run.state);
-    const tampered: GameState = {
-      ...run.state,
-      ward: {
-        ...run.state.ward,
-        calls: run.state.ward.calls.map((c) =>
-          c.id === call.id && c.exchange ? { ...c, exchange: { ...c.exchange, reqId: 'r999' } } : c,
-        ),
+    const before = outgoing(run.state).lines.length;
+    const out = feed(engine, run.state, [
+      {
+        type: 'AI_RESULT',
+        reqId: 'no-such-reply',
+        payload: { lines: [{ speaker: 'x', text: '血氧 99' }] },
       },
-    };
-    const speaker = (req.context as { local: { speakerId: string } }).local.speakerId;
-    const out = feed(engine, tampered, [
-      { type: 'AI_RESULT', reqId: req.reqId, payload: { lines: [{ speaker, text: '好。' }] } },
     ]);
-    expect(outgoing(out.state).lines.filter((l) => l.speaker === 'CALLEE')).toHaveLength(0);
+    expect(outgoing(out.state).lines).toHaveLength(before);
     expect(failed(out.state)).toBe(false);
   });
 });
@@ -286,13 +256,12 @@ describe('consult：senior 回覆只係措辭', () => {
 describe('consult：跟進（雙向）', () => {
   const opened = (seed: string) => {
     const { state } = prepared(seed);
-    let run = send(state, withEdit(state, { S: '氣促', B: '', A: '', R: '' }));
-    run = answer(run, 'consult.assess', {
+    const run = send(state, withEdit(state, { S: '氣促', B: '', A: '', R: '' }));
+    return answer(run, 'consult.assess', {
       parts: { S: ['S.PROBLEM'], B: [], A: [], R: [] },
       quoted: [],
       tone: 'NEUTRAL',
     });
-    return replyOf(run, '你再講多啲，我未夠資料。');
   };
 
   it('回覆後如果仲有追問，通話保持 OPEN；跟進會合併覆蓋並可以提升結果', () => {
@@ -332,7 +301,6 @@ describe('consult：跟進（雙向）', () => {
     for (let i = 0; i < config.consult.maxFollowups; i += 1) {
       run = feed(engine, run.state, [ward('SEND_FOLLOWUP', { callId: id, text: '再補充一下' })]);
       run = answer(run, 'consult.assess', { parts: NO_PARTS, quoted: [], tone: 'NEUTRAL' });
-      run = replyOf(run, '咁我聽到喇。');
     }
     expect(outgoing(run.state).outcome).toBe('REFUSE');
     expect(outgoing(run.state).exchange?.phase).toBe('CLOSED');

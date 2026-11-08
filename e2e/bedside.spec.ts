@@ -67,7 +67,7 @@ test.describe('M2 bedside slice', () => {
     const logNumbers = numbersOf((await result.locator('.log-result').textContent()) ?? '');
     expect(logNumbers.length).toBeGreaterThanOrEqual(7);
 
-    const report = page.locator('[data-kind="NURSE"]').filter({ hasText: '做好喇' }).last();
+    const report = page.locator('[data-kind="NURSE"]').filter({ hasText: '量完生命體徵' }).last();
     await expect(report).toBeVisible({ timeout: 15_000 });
     const chatNumbers = numbersOf(
       ((await report.textContent()) ?? '').split('：').slice(1).join(''),

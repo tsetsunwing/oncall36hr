@@ -155,7 +155,9 @@ export function handleResultReport(
     },
     ctx,
   );
-  return queued ? { state: queued.state, effects: [queued.effect] } : { state: next, effects: [] };
+  return queued
+    ? { state: queued.state, effects: queued.effect ? [queued.effect] : [] }
+    : { state: next, effects: [] };
 }
 
 export const resultsModule: EngineModule = {

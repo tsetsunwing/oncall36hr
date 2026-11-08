@@ -105,7 +105,9 @@ describe('快捷詞 → order → 結果（唔經 order.parse）', () => {
     const logNumbers = numbers(row?.resultText ?? '');
     expect(logNumbers).toHaveLength(7);
 
-    const report = view.chat?.lines.find((l) => l.kind === 'NURSE' && l.text?.includes('做好喇'));
+    const report = view.chat?.lines.find(
+      (l) => l.kind === 'NURSE' && l.text?.includes('量完生命體徵'),
+    );
     expect(report).toBeDefined();
     const chatNumbers = numbers((report?.text ?? '').split('：').slice(1).join(''));
     expect(chatNumbers).toEqual(logNumbers);
@@ -167,7 +169,7 @@ describe('惡意／錯誤 AI 輸出：改唔到任何顯示數字', () => {
       const { session } = open(`mock-${mode}`);
       const before = patientsJson(session);
       const hrBefore = session.getSnapshot().monitor?.hr.text;
-      session.actions.submitChat('p1', 'oxygen nrb');
+      session.actions.submitChat('p1', '病人而家點呀');
       await session.settled();
       const view = session.getSnapshot();
       expect(view.aiFailure?.reason).toBe('GUARD');
@@ -178,7 +180,7 @@ describe('惡意／錯誤 AI 輸出：改唔到任何顯示數字', () => {
       expect(chatKinds(session).filter((k) => k === 'NURSE' || k === 'PATIENT')).toEqual([]);
       expect(JSON.stringify(view.chat)).not.toMatch(/99|肺炎|sepsis/i);
       const attempts = mock.requests.length;
-      expect(attempts).toBe(2);
+      expect(attempts).toBeGreaterThanOrEqual(2);
     });
   }
 

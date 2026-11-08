@@ -6,7 +6,6 @@ import { describe, expect, it } from 'vitest';
 import {
   checkDialogueText,
   CONSULT_ASSESS_KIND,
-  CONSULT_REPLY_KIND,
   contractFor,
   DIALOGUE_KIND,
   FAMILY_ASSESS_KIND,
@@ -99,12 +98,10 @@ describe('engine 發出嘅每個 AI context 都符合 ai 契約', () => {
     expect([...beats].sort()).toEqual(
       [
         'ACK_CHAT',
-        'ACK_ORDER',
         'ALERT_DETERIORATION',
         'ASK_REPHRASE',
         'ORDER_CANCELLED',
         'PATIENT_SPEAKS',
-        'REPORT_RESULT',
         'REPORT_STATUS',
       ].sort(),
     );
@@ -276,9 +273,6 @@ describe('M4b：consult／family 契約同 engine 一致', () => {
       quoted: [],
       tone: 'NEUTRAL',
     });
-    run.answer(CONSULT_REPLY_KIND, {
-      lines: [{ speaker: speakerOf(run, CONSULT_REPLY_KIND), text: '再講多啲。' }],
-    });
     const callId = run.state().ward.calls.find((c) => c.direction === 'OUT')?.id ?? '';
     run.ward('SEND_FOLLOWUP', { callId, text: '背景有高血壓' });
 
@@ -302,12 +296,7 @@ describe('M4b：consult／family 契約同 engine 一致', () => {
     run.answer(FAMILY_ASSESS_KIND, { signals: ['STATES_DEATH', 'CONDOLENCE'] });
 
     const kinds = new Set(run.requests.map((r) => r.kind));
-    for (const kind of [
-      CONSULT_ASSESS_KIND,
-      CONSULT_REPLY_KIND,
-      FAMILY_ASSESS_KIND,
-      FAMILY_REPLY_KIND,
-    ]) {
+    for (const kind of [CONSULT_ASSESS_KIND, FAMILY_ASSESS_KIND, FAMILY_REPLY_KIND]) {
       expect(kinds.has(kind), kind).toBe(true);
     }
     for (const request of run.requests) {
@@ -430,7 +419,7 @@ describe('M4b：consult／family 契約同 engine 一致', () => {
 
   it('callee reply：對白文字兩邊判斷一致（裸數字、token、診斷、speaker）', () => {
     const texts = [
-      '收到，我 {{consult.eta}} 內過嚟。',
+      '{{patient.name}}之前仲好好哋。',
       '血氧 99',
       '{{vital.secret}}',
       '九十分鐘',
@@ -439,10 +428,26 @@ describe('M4b：consult／family 契約同 engine 一致', () => {
     for (const text of texts) {
       const run = wardRun();
       const patientId = Object.keys(run.state().patients)[0] ?? 'p1';
-      run.ward('PREPARE_CALL', { patientId, target: { kind: 'RANK', rank: 'RES' } });
-      run.ward('SEND_CALL', { sbar: run.state().ward.draft?.sbar });
-      const request = run.requests.find((r) => r.kind === CONSULT_REPLY_KIND);
-      const contract = contractFor(CONSULT_REPLY_KIND);
+      const state = run.state();
+      run.setState({
+        ...state,
+        death: {
+          patientId,
+          diedAt: 0,
+          status: 'PENDING_PROCESS',
+          steps: { CERTIFICATE: null, NOTIFY_SENIOR: null, PHONE_FAMILY: null, RECORD: null },
+          seniorRank: 'RES',
+          delayCharges: 0,
+          completedAt: null,
+          summary: { cycles: 1, shocks: 0, drugs: 0 },
+        },
+      });
+      run.ward('START_DEATH_CALL', { step: 'PHONE_FAMILY' });
+      const callId = run.state().ward.calls.find((c) => c.purpose === 'DEATH_FAMILY')?.id ?? '';
+      run.ward('FAMILY_SAY', { callId, text: '病人離世，我好遺憾。' });
+      run.answer(FAMILY_ASSESS_KIND, { signals: ['STATES_DEATH', 'CONDOLENCE'] });
+      const request = run.requests.find((r) => r.kind === FAMILY_REPLY_KIND);
+      const contract = contractFor(FAMILY_REPLY_KIND);
       const { prompt, local } = request?.context as {
         prompt: unknown;
         local: { speakerId: string };
@@ -454,7 +459,7 @@ describe('M4b：consult／family 契約同 engine 一致', () => {
           contract.promptSchema.parse(prompt),
           contract.localSchema.parse(local),
         ).issues.length === 0;
-      run.answer(CONSULT_REPLY_KIND, data);
+      run.answer(FAMILY_REPLY_KIND, data);
       expect(aiOk, text).toBe(run.state().paused?.by !== 'ai-failure');
     }
   });
