@@ -82,7 +82,8 @@ export function QueuePanel({ ward, reports, shift }: QueuePanelProps) {
       {items.length === 0 ? (
         <p className="hint queue-empty">{q.empty}</p>
       ) : (
-        <div className="queue-list">
+        // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- 可捲動區域要俾鍵盤聚焦
+        <div className="queue-list" role="group" aria-label={q.heading} tabIndex={0}>
           {items.map((item) => (
             <div key={item.id} className={`q q-${item.tone}`} data-testid="queue-item">
               <div className="a">

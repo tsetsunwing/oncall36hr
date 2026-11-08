@@ -4,9 +4,9 @@
   --bg: #f3f4f6;
   --surface: #ffffff;
   --text: #1c2933;
-  --muted: #6b7280;
+  --muted: #596273;
   --border: #e5e7eb;
-  --accent: #128d75;
+  --accent: #0f7a64;
   --accent-text: #ffffff;
   --accent-soft: #e5f5f1;
   --ok-bg: #e5f5f1;
@@ -641,7 +641,7 @@ body {
 
 .bed-meta {
   font-size: 10px;
-  color: #6b7280;
+  color: #596273;
 }
 
 .bed-level {
@@ -943,7 +943,7 @@ tr[data-flag='H'] .value-flagged {
 
 .monitor .badge[data-level='ALARM'] {
   color: #fff;
-  background: #e5312b;
+  background: #d92d27;
 }
 
 .monitor-body {
@@ -1730,4 +1730,23 @@ tr[data-flag='H'] .value-flagged {
 .queue-empty {
   margin: 0;
   padding: 12px 16px;
+}
+
+.frame-desktop .ward-main {
+  overflow-y: auto;
+}
+
+.frame-desktop .ward-main > * {
+  flex-shrink: 0;
+}
+
+.frame-desktop .ward-main > div[role='tabpanel'] {
+  flex: 1 0 260px;
+  min-height: 260px;
+}
+
+.frame-mobile .selfcare-wrap {
+  position: static;
+  max-width: none;
+  margin: 8px 12px 0;
 }

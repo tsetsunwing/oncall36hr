@@ -67,7 +67,7 @@ test.describe('M4b AI 雙向通話', () => {
     await expect(page.getByTestId('exchange-clarity')).toHaveAttribute('data-clarity', '0');
     await expect(exchange).toHaveAttribute('data-phase', 'OPEN', { timeout: 30_000 });
     await expect(page.getByTestId('exchange-asks')).toBeVisible();
-    await expect(page.getByTestId('call-lines')).toContainText('你再講多啲');
+    await expect(page.getByTestId('call-lines')).toContainText('我想再問');
     await shot(page, 'sbar-consult-asks');
     await expectAxeClean(page);
 

@@ -15,6 +15,7 @@ export default defineConfig({
     baseURL: `http://127.0.0.1:${String(APP_PORT)}`,
     trace: 'retain-on-failure',
     locale: 'zh-HK',
+    contextOptions: { reducedMotion: 'reduce' },
   },
   projects: [
     { name: 'desktop', use: { ...devices['Desktop Chrome'] } },
