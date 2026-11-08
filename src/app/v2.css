@@ -2081,15 +2081,23 @@ tr[data-flag='H'] .value-flagged {
   line-height: 1.25;
 }
 
-.frame-desktop .setup-api {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  min-height: 0;
+.frame-desktop .page fieldset.soft-panel.setup-api {
+  display: block;
+  flex: 0 0 auto;
+  height: auto;
+  min-height: max-content;
+  overflow: visible;
+}
+
+.frame-desktop .setup-api > * + * {
+  margin-top: 8px;
 }
 
 .frame-desktop .setup-api-fields {
-  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: max-content;
 }
 
 .frame-desktop .page.setup .save-library {
