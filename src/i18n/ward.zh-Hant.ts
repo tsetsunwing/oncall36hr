@@ -11,7 +11,7 @@ export const wardUi = {
   bedLabel: (bed: number) => `${String(bed)} 號床`,
   empty: '空床',
   here: '你在這裡',
-  walking: (bed: number, seconds: number) => `前往 ${String(bed)} 號床，約 ${String(seconds)} 秒`,
+  walking: (bed: number) => `前往 ${String(bed)} 號床`,
   newAdmission: '新入院，尚未接收',
   mewsShort: (score: number) => `MEWS ${String(score)}`,
   sex: { M: '男', F: '女' } as Record<string, string>,

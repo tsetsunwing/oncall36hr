@@ -85,7 +85,7 @@ export function FloorPlan({ ward, actions, onExpand, onClose, compact = false }:
       </header>
       {ward.movingToBed !== null ? (
         <p className="floor-plan-walking" role="status" data-testid="walking">
-          {w.walking(ward.movingToBed, ward.arriveInSec ?? 0)}
+          {w.walking(ward.movingToBed)}
         </p>
       ) : null}
       <div className="plan-grid" role="group" aria-label={w.mapLabel}>
