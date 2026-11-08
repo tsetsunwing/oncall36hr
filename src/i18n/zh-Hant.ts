@@ -282,6 +282,7 @@ export const ui = {
         TIMEOUT: '逾時',
         AUTH: '認證失敗',
         NETWORK: '網絡錯誤、離線或供應商錯誤',
+        MODEL: '所選模型不存在，或此帳戶沒有使用權',
         FORMAT: '回覆格式錯誤',
         GUARD: '回覆內容未通過檢查',
         UNKNOWN: '未知',

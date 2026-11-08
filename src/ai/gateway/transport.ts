@@ -204,7 +204,7 @@ export function providerErrorDetail(body: unknown): string {
   text = text.replace(/\s+/g, ' ').trim();
   text = text.replace(/bearer\s+\S+/gi, 'Bearer …');
   text = text.replace(/\b(?:sk-|xai-|sk-ant-)[A-Za-z0-9_-]{8,}\b/g, '…');
-  if (text.length > 180) text = `${text.slice(0, 177)}…`;
+  if (text.length > 420) text = `${text.slice(0, 417)}…`;
   return text;
 }
 

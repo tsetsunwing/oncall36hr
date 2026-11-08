@@ -281,6 +281,26 @@ describe('AiFailureBanner', () => {
     expect(alert).toHaveTextContent('Please pass a valid API key');
     expect(alert).not.toHaveTextContent(ui.game.aiFailure.reason.NETWORK ?? '網絡錯誤');
   });
+
+  it('模型 404 唔寫成網絡錯誤，並保留供應商原文', () => {
+    render(
+      <AiFailureBanner
+        failure={{
+          reqId: 'r1',
+          reason: 'NETWORK',
+          detail:
+            'HTTP 404：The model grok-4.7 does not exist or your team does not have access to it.（https://api.x.ai/v1/chat/completions） 這條 key 可用的模型：grok-4.3、grok-4.5。',
+        }}
+        actions={makeActions()}
+        onLeave={() => undefined}
+      />,
+    );
+    const alert = screen.getByRole('alert');
+    expect(alert).toHaveTextContent(ui.game.aiFailure.reason.MODEL ?? '');
+    expect(alert).toHaveTextContent('HTTP 404');
+    expect(alert).toHaveTextContent('grok-4.3');
+    expect(alert).not.toHaveTextContent(ui.game.aiFailure.reason.NETWORK ?? '網絡錯誤');
+  });
 });
 
 describe('ClockBar', () => {

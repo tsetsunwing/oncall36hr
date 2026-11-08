@@ -1541,11 +1541,15 @@ textarea {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.25rem 0.5rem;
-  padding: 0.25rem 0.5rem;
+  gap: 8px 10px;
+  padding: 12px 14px;
   background: #f1f4f7;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: 12px;
+}
+
+.ladder-skip {
+  flex-basis: 100%;
 }
 
 .ladder-step--you {

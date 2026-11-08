@@ -10,7 +10,13 @@ import type { AiFailureReason, JsonValue } from '@/engine';
 import { contractFor } from '../contracts';
 import { CONTRACT_VERSION } from '../contracts/types';
 import { buildMessages, repairMessages, type ChatMessage } from '../prompts/messages';
-import { isApiKeyRejection, postCompletion, providerErrorDetail } from './transport';
+import {
+  authorizedGet,
+  completionTarget,
+  isApiKeyRejection,
+  postCompletion,
+  providerErrorDetail,
+} from './transport';
 import type { AiEndpoint, TransportOptions } from './types';
 
 export interface AiRequest {
@@ -57,6 +63,39 @@ function httpDetail(status: number, body: unknown, url: string): string {
   const message = providerErrorDetail(body);
   const statusText = message ? `HTTP ${String(status)}：${message}` : `HTTP ${String(status)}`;
   return `${statusText}（${url}）`;
+}
+
+/** xAI 用 404 表示模型不存在，或這條 key 的團隊沒有該模型。這不是斷線。 */
+function isModelAccess404(status: number, body: unknown): boolean {
+  if (status !== 404) return false;
+  return /does not exist|does not have access/i.test(providerErrorDetail(body));
+}
+
+function listedModelIds(body: unknown): string[] {
+  if (!body || typeof body !== 'object') return [];
+  const data = (body as { data?: unknown }).data;
+  if (!Array.isArray(data)) return [];
+  const ids = data.flatMap((item) => {
+    if (!item || typeof item !== 'object') return [];
+    const id = (item as { id?: unknown }).id;
+    return typeof id === 'string' && id.length > 0 ? [id] : [];
+  });
+  const chat = ids.filter((id) => !/imagine|image|video|tts|embed/i.test(id));
+  return (chat.length > 0 ? chat : ids).slice(0, 8);
+}
+
+async function modelsThisKeyCanUse(
+  endpoint: AiEndpoint,
+  options: TransportOptions,
+): Promise<string[]> {
+  if (endpoint.provider !== 'grok') return [];
+  const listed = await authorizedGet(
+    `${completionTarget(endpoint.baseUrl)}/models`,
+    endpoint.apiKey,
+    options,
+  );
+  if (listed.kind !== 'response' || listed.status < 200 || listed.status >= 300) return [];
+  return listedModelIds(listed.body).filter((id) => id !== endpoint.model.trim());
 }
 
 function parseJson(text: string): unknown {
@@ -139,11 +178,16 @@ export function createAiGateway(
           };
         }
         if (response.status === 404) {
+          const detail = httpDetail(response.status, response.body, response.url);
+          const usable = isModelAccess404(response.status, response.body)
+            ? await modelsThisKeyCanUse(endpoint, { timeoutMs: ai.requestTimeoutMs, ...options })
+            : [];
+          const models = usable.length > 0 ? ` 這條 key 可用的模型：${usable.join('、')}。` : '';
           return {
             kind: 'fail',
             reason: 'NETWORK',
             retry: false,
-            detail: httpDetail(response.status, response.body, response.url),
+            detail: `${detail}${models}`,
           };
         }
         if (response.status < 200 || response.status >= 300) {

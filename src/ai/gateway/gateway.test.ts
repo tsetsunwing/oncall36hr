@@ -38,7 +38,13 @@ function scripted(steps: Step[]) {
   const sent: Sent[] = [];
   let i = 0;
   const fetchImpl = ((url: string, init: RequestInit & { signal?: AbortSignal }) => {
-    sent.push({ url, body: JSON.parse(init.body as string) as Sent['body'] });
+    sent.push({
+      url,
+      body:
+        typeof init.body === 'string'
+          ? (JSON.parse(init.body) as Sent['body'])
+          : { model: '', messages: [], temperature: 0 },
+    });
     const step = steps[Math.min(i, steps.length - 1)];
     i += 1;
     if (step === 'network') return Promise.reject(new TypeError('failed'));
@@ -141,7 +147,11 @@ describe('AI gateway', () => {
       },
     ]);
     const outcome = await createAiGateway(
-      { ...endpoint, provider: 'gemini', baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai' },
+      {
+        ...endpoint,
+        provider: 'gemini',
+        baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai',
+      },
       { fetchImpl, timeoutMs: 500 },
     ).run(request);
     expect(outcome).toMatchObject({ ok: false, reason: 'AUTH' });
@@ -166,6 +176,38 @@ describe('AI gateway', () => {
       expect(outcome.detail).toContain('does not exist');
     }
     expect(sent).toHaveLength(1);
+  });
+
+  it('Grok 模型 404 列出這條 key 可用的模型，唔當成斷線重試', async () => {
+    const { sent, fetchImpl } = scripted([
+      {
+        status: 404,
+        body: {
+          error:
+            'The model grok-4.7 does not exist or your team ab2cad15-212a-44fd-b58d-8e0bf17831d9 does not have access to it. If you believe this is a mistake, please contact support and quote the request id req_123.',
+        },
+      },
+      {
+        status: 200,
+        body: { data: [{ id: 'grok-4.3' }, { id: 'grok-imagine-image' }, { id: 'grok-4.5' }] },
+      },
+    ]);
+    const outcome = await createAiGateway(
+      { ...endpoint, provider: 'grok', model: 'grok-4.7' },
+      { fetchImpl, timeoutMs: 500 },
+    ).run(request);
+    expect(outcome).toMatchObject({ ok: false, reason: 'NETWORK' });
+    if (!outcome.ok) {
+      expect(outcome.detail).toContain('HTTP 404');
+      expect(outcome.detail).toContain('quote the request id req_123');
+      expect(outcome.detail).toContain('可用的模型：grok-4.3、grok-4.5');
+      expect(outcome.detail).not.toContain('grok-imagine-image');
+      expect(outcome.detail).not.toContain('secret-key');
+    }
+    expect(sent.map((item) => item.url)).toEqual([
+      'http://x/v1/chat/completions',
+      'http://x/v1/models',
+    ]);
   });
 
   it('HTTP 5xx／429／網絡錯誤：重試 1 次後 → NETWORK', async () => {
@@ -195,7 +237,9 @@ describe('AI gateway', () => {
       envelope({ lines: [{ speaker: 'nurse:N1', text: '好' }] }, 'order.parse'),
     );
     const { fetchImpl } = scripted([{ status: 200, body: wrong }]);
-    expect(await createAiGateway(endpoint, { fetchImpl, timeoutMs: 500 }).run(request)).toMatchObject({
+    expect(
+      await createAiGateway(endpoint, { fetchImpl, timeoutMs: 500 }).run(request),
+    ).toMatchObject({
       ok: false,
       reason: 'FORMAT',
     });
