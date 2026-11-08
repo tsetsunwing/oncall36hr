@@ -228,7 +228,13 @@ describe('prompt injection／虛構數字：任何 payload 都改唔到病人狀
   }
 
   it('dialogue.turn：任何 payload 都唔會改 patients（對白只入 ChatLine）', () => {
-    const start = advance(engine, fresh('dlg-inj'), 1800);
+    const asked = ask('護士，病人而家情況點呀？', 'dlg-inj');
+    const parsed = answer(asked.run, asked.reqId, {
+      intent: 'QUESTION',
+      addressee: { kind: 'nurse', id: null },
+      actions: [],
+    });
+    const start = { state: parsed.state, effects: parsed.effects };
     const request = aiRequests(start.effects)[0];
     expect(request?.kind).toBe('dialogue.turn');
     const before = patientsJson(start);
@@ -257,43 +263,21 @@ describe('dialogue.turn：token 凍結與即時', () => {
     lines: [{ speaker: 'nurse:N1', text: '心率 {{vital.hr}}，血氧 {{vital.spo2}}' }],
   };
 
-  it('M2 回歸：ALERT 對白嘅生命表徵喺「寫入對話」當刻取，同監護器同一分鐘一致（唔係排隊當刻）', () => {
-    let run = advance(engine, fresh('freeze-1'), 1800);
-    const request = aiRequests(run.effects)[0];
-    if (!request) throw new Error('預期有 ALERT 請求');
-    const queued = JSON.parse(JSON.stringify(request.context)) as {
-      local: { frozenTokens: Record<string, string>; liveTokens: string[] };
-    };
-    const hrAtQueue = run.state.patients.p1?.visible.vitals.hr;
-    expect(queued.local.frozenTokens['vital.hr']).toBe(String(hrAtQueue));
-    expect(queued.local.liveTokens).toEqual(expect.arrayContaining(['vital.hr', 'vital.spo2']));
-
-    run = feed(engine, run.state, [say('oxygen nrb')]);
-    run = advance(engine, run.state, 7200);
-    const hrAtWrite = run.state.patients.p1?.visible.vitals.hr;
-    expect(hrAtWrite).not.toBe(hrAtQueue);
-
-    const done = feed(engine, run.state, [
-      { type: 'AI_RESULT', reqId: request.reqId, payload: statusLine },
-    ]);
-    const line = done.state.chats.p1?.lines.at(-1);
-    const visible = done.state.patients.p1?.visible.vitals;
-    expect(line?.t).toBe(done.state.clock.t);
-    expect(line?.tokenValues['vital.hr']).toBe(String(visible?.hr));
-    expect(line?.tokenValues['vital.spo2']).toBe(String(visible?.spo2));
+  it('惡化提示用固定 SBAR，數值在寫入當刻凍結，之後生命表徵改變唔會改寫', () => {
+    const run = advance(engine, fresh('freeze-1'), 1800);
+    expect(aiRequests(run.effects).some((request) => request.kind === 'dialogue.turn')).toBe(
+      false,
+    );
+    const line = run.state.chats.p1?.lines.find((item) => item.template.startsWith('S：'));
+    expect(line?.template).toContain('{{vital.hr}}');
+    expect(line?.template).toContain('{{vital.sbp}}/{{vital.dbp}}');
     expect(line?.speaker).toEqual({ kind: 'NURSE', id: 'nurse:N1' });
-  });
-
-  it('寫入後數值唔再變：之後生命表徵改變，已寫入嘅對白維持原值', () => {
-    const run = advance(engine, fresh('freeze-1b'), 1800);
-    const request = aiRequests(run.effects)[0];
-    if (!request) throw new Error('預期有 ALERT 請求');
-    const done = feed(engine, run.state, [
-      { type: 'AI_RESULT', reqId: request.reqId, payload: statusLine },
-    ]);
-    const before = JSON.stringify(done.state.chats.p1?.lines.at(-1));
-    const later = advance(engine, done.state, 3600);
-    expect(JSON.stringify(later.state.chats.p1?.lines.at(-1))).toBe(before);
+    expect(line?.tokenValues['vital.hr']).toMatch(/^\d+$/);
+    expect(line?.tokenValues['patient.name']?.length).toBeGreaterThan(0);
+    const frozen = JSON.stringify(line);
+    const later = advance(engine, run.state, 3600);
+    const same = later.state.chats.p1?.lines.find((item) => item.template.startsWith('S：'));
+    expect(JSON.stringify(same)).toBe(frozen);
   });
 
   it('ANSWER_QUESTION（問情況）同樣即時：回覆慢返嚟時講嘅係寫入當刻嘅數值', () => {
@@ -330,15 +314,28 @@ describe('dialogue.turn：token 凍結與即時', () => {
   });
 
   it('同一個 reqId 重送結果一致（凍結值存喺 pending context）', () => {
-    const run = advance(engine, fresh('freeze-2'), 1800);
-    const request = aiRequests(run.effects)[0];
-    const pending = run.state.pendingAi.find((p) => p.reqId === request?.reqId);
+    const asked = ask('護士，病人而家情況點呀？', 'freeze-2');
+    const parsed = answer(asked.run, asked.reqId, {
+      intent: 'QUESTION',
+      addressee: { kind: 'nurse', id: null },
+      actions: [],
+    });
+    const request = aiRequests(parsed.effects)[0];
+    expect(request?.kind).toBe('dialogue.turn');
+    const pending = parsed.state.pendingAi.find((p) => p.reqId === request?.reqId);
     expect(pending?.context).toEqual(request?.context);
   });
 
   it('發給 AI 嘅 prompt 唔包含診斷詞、FSM 狀態、base 值或任何 token 值', () => {
-    const run = advance(engine, fresh('freeze-3'), 1800);
-    const request = aiRequests(run.effects)[0];
+    const asked = ask('護士，病人而家情況點呀？', 'freeze-3');
+    const parsed = answer(asked.run, asked.reqId, {
+      intent: 'QUESTION',
+      addressee: { kind: 'nurse', id: null },
+      actions: [],
+    });
+    const request = aiRequests(parsed.effects)[0];
+    expect(request?.kind).toBe('dialogue.turn');
+    const run = { state: parsed.state, effects: parsed.effects };
     const { prompt } = request?.context as { prompt: unknown };
     const sent = JSON.stringify(prompt);
     for (const secret of [

@@ -96,13 +96,7 @@ describe('engine 發出嘅每個 AI context 都符合 ai 契約', () => {
       }
     }
     expect([...beats].sort()).toEqual(
-      [
-        'ACK_CHAT',
-        'ALERT_DETERIORATION',
-        'ANSWER_QUESTION',
-        'ORDER_CANCELLED',
-        'PATIENT_SPEAKS',
-      ].sort(),
+      ['ACK_CHAT', 'ANSWER_QUESTION', 'ORDER_CANCELLED', 'PATIENT_SPEAKS'].sort(),
     );
   });
 

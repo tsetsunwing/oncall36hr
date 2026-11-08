@@ -87,10 +87,13 @@ export function ChipPrompt({ chip, onSubmit, onClose }: ChipPromptProps) {
     const row = draft[field.id];
     if (field.kind === 'amount') {
       const value = Number(row?.value);
-      const filled = row?.value.trim() !== '' && Number.isFinite(value) && value > 0;
+      const inRange =
+        (field.min === undefined || value >= field.min) &&
+        (field.max === undefined || value <= field.max);
+      const filled = row?.value.trim() !== '' && Number.isFinite(value) && value > 0 && inRange;
       if (field.required && !filled) ready = false;
       if (!filled) continue;
-      if (field.id === 'dose') values.dose = { value, unit: row?.unit || field.unit };
+      if (field.id === 'dose') values.dose = { value, unit: row?.unit ?? field.unit };
       if (field.id === 'volume') values.volume = value;
       if (field.id === 'rate') values.rate = value;
       if (field.id === 'energy') values.energy = value;
@@ -136,7 +139,8 @@ export function ChipPrompt({ chip, onSubmit, onClose }: ChipPromptProps) {
               {name}
               <input
                 type="number"
-                min="0"
+                min={field.min ?? 0}
+                max={field.max}
                 step="any"
                 inputMode="decimal"
                 aria-label={name}
@@ -145,6 +149,9 @@ export function ChipPrompt({ chip, onSubmit, onClose }: ChipPromptProps) {
                   update(field.id, { value: event.target.value });
                 }}
               />
+              {field.min !== undefined && field.max !== undefined ? (
+                <span className="hint">{c.outOfRange(field.min, field.max)}</span>
+              ) : null}
               {field.units.length > 1 ? (
                 <select
                   aria-label={`${name} unit`}
@@ -176,7 +183,7 @@ export function ChipPrompt({ chip, onSubmit, onClose }: ChipPromptProps) {
                   update(field.id, { value: event.target.value });
                 }}
               >
-                {field.required ? null : <option value="">—</option>}
+                <option value="">—</option>
                 {field.options.map((option) => (
                   <option key={option} value={option}>
                     {option}

@@ -31,6 +31,7 @@ export function matchQuickPhrase(text: string, tables: EngineTables): LocalOrder
   if (phrase.length === 0) return null;
 
   for (const word of tables['quick-words']) {
+    if (word.prompt && word.prompt.length > 0) continue;
     if (!word.aliases.some((alias) => normalizePhrase(alias) === phrase)) continue;
     const params = word.params;
     return {

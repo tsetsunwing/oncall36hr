@@ -216,8 +216,8 @@ export function StartPage({
         {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- 可捲動設定要俾鍵盤聚焦 */}
         <aside className="setup-side" aria-label={s.apiHeading} tabIndex={0}>
           {draft ? (
-            <fieldset className="soft-panel setup-api">
-              <legend>{`④ ${s.apiHeading}`}</legend>
+            <div className="soft-panel setup-api">
+              <h2 className="setup-api-title">{`④ ${s.apiHeading}`}</h2>
               {onTestConnection ? (
                 <div className="setup-test">
                   <button
@@ -253,7 +253,7 @@ export function StartPage({
                   }}
                 />
               </div>
-            </fieldset>
+            </div>
           ) : null}
         </aside>
       </div>

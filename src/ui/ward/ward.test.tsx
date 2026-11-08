@@ -193,7 +193,7 @@ describe('FloorPlan', () => {
 });
 
 describe('PhonePanel', () => {
-  it('來電列表帶標籤；三個回應按鈕各自回報；可委派來電有委派按鈕', async () => {
+  it('來電列表帶標籤；稍後同繼續各自回報；可委派來電有委派按鈕', async () => {
     const actions = makeActions();
     const onDelegate = vi.fn();
     render(
@@ -206,11 +206,10 @@ describe('PhonePanel', () => {
     );
     const row = screen.getByTestId('call-row');
     expect(row).toHaveTextContent(ui.game.ward.phone.tag.NURSE ?? '');
-    await userEvent.click(screen.getByTestId('respond-go-now'));
+    expect(screen.queryByTestId('respond-go-now')).toBeNull();
     await userEvent.click(screen.getByTestId('respond-later'));
     await userEvent.click(screen.getByTestId('respond-continue'));
     expect(actions.respondCall.mock.calls).toEqual([
-      ['c1', 'GO_NOW'],
       ['c1', 'LATER'],
       ['c1', 'CONTINUE'],
     ]);

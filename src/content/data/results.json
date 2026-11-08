@@ -86,7 +86,7 @@
         "decimals": 1,
         "ref": {
           "low": 3.5,
-          "high": 5.0
+          "high": 5
         },
         "byState": {
           "DETERIORATING": 4.2,
@@ -107,7 +107,7 @@
         "byState": {
           "DETERIORATING": 8.4,
           "SEPTIC_SHOCK": 14.2,
-          "STABILISING": 9.0,
+          "STABILISING": 9,
           "*": 14.2
         }
       },
@@ -188,7 +188,7 @@
         "decimals": 1,
         "ref": {
           "low": 4.7,
-          "high": 6.0
+          "high": 6
         },
         "byState": {
           "DETERIORATING": 4.4,
@@ -236,7 +236,7 @@
         "decimals": 1,
         "ref": {
           "low": 0.5,
-          "high": 2.0
+          "high": 2
         },
         "byState": {
           "DETERIORATING": 2.4,
@@ -458,81 +458,6 @@
     "textByState": {
       "*": {
         "text": "HbA1c: placeholder result pending clinical review.",
-        "abnormal": false
-      }
-    }
-  },
-  {
-    "id": "res.cytology",
-    "kind": "REPORT",
-    "label": "Cytology",
-    "reportDelaySec": 1800,
-    "reviewStatus": "PENDING_CLINICAL_REVIEW",
-    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
-    "items": [],
-    "textByState": {
-      "*": {
-        "text": "Cytology: placeholder report pending clinical review.",
-        "abnormal": false
-      }
-    }
-  },
-  {
-    "id": "res.histology",
-    "kind": "REPORT",
-    "label": "Pathology & Histology",
-    "reportDelaySec": 1800,
-    "reviewStatus": "PENDING_CLINICAL_REVIEW",
-    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
-    "items": [],
-    "textByState": {
-      "*": {
-        "text": "Pathology and histology: placeholder report pending clinical review.",
-        "abnormal": false
-      }
-    }
-  },
-  {
-    "id": "res.serology",
-    "kind": "REPORT",
-    "label": "Immunology & Serology",
-    "reportDelaySec": 1800,
-    "reviewStatus": "PENDING_CLINICAL_REVIEW",
-    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
-    "items": [],
-    "textByState": {
-      "*": {
-        "text": "Immunology and serology: placeholder report pending clinical review.",
-        "abnormal": false
-      }
-    }
-  },
-  {
-    "id": "res.genetics",
-    "kind": "REPORT",
-    "label": "Genetics & Molecular Pathology",
-    "reportDelaySec": 1800,
-    "reviewStatus": "PENDING_CLINICAL_REVIEW",
-    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
-    "items": [],
-    "textByState": {
-      "*": {
-        "text": "Genetics and molecular pathology: placeholder report pending clinical review.",
-        "abnormal": false
-      }
-    }
-  },
-  {
-    "id": "res.toxicology",
-    "kind": "REPORT",
-    "label": "Toxicology",
-    "reportDelaySec": 1800,
-    "reviewStatus": "PENDING_CLINICAL_REVIEW",
-    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
-    "items": [],
-    "textByState": {
-      "*": {
-        "text": "Toxicology: placeholder report pending clinical review.",
         "abnormal": false
       }
     }

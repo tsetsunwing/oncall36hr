@@ -14,6 +14,7 @@ const vitalTokens = [
 ];
 
 const beats: Beat[] = [
+  { type: 'ALERT_DETERIORATION', speaker: 'NURSE', tokens: vitalTokens, abnormal: [] },
   { type: 'ASK_REPHRASE', speaker: 'NURSE', reason: 'UNKNOWN_ORDER' },
   { type: 'ASK_REPHRASE', speaker: 'NURSE', reason: 'UNSUPPORTED' },
   { type: 'ACK_ORDER', speaker: 'NURSE', labelToken: 'order.1.label', executor: null },
@@ -39,7 +40,8 @@ describe('shortReplyTemplate', () => {
       const template = shortReplyTemplate(beat);
       expect(template, JSON.stringify(beat)).not.toBeNull();
       const tokens = extractTokens(template ?? '');
-      expect(validateTemplate(template ?? '', new Set(tokens), 140), template ?? '').toBeNull();
+      const limit = beat.type === 'ALERT_DETERIORATION' ? 220 : 140;
+      expect(validateTemplate(template ?? '', new Set(tokens), limit), template ?? '').toBeNull();
     }
   });
 

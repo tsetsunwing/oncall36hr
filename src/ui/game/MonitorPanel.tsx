@@ -84,14 +84,15 @@ export interface MonitorPanelProps {
   monitor: MonitorView;
 }
 
-function OptionalTile({ kind }: { kind: OptionalWave }) {
+function OptionalTile({ kind, bp }: { kind: OptionalWave; bp: VitalReadout | null }) {
   const m = ui.game.monitor;
   const label = m.optionalWave[kind] ?? kind;
   const unit = kind === 'cvp' ? m.cvpUnit : m.bpUnit;
+  const reading = kind === 'abp' ? bp : null;
   return (
     <div
       className="tile"
-      data-level="NORMAL"
+      data-level={reading?.level ?? 'NORMAL'}
       data-param={kind}
       data-testid={`vital-${kind}`}
       data-review="PENDING_CLINICAL_REVIEW"
@@ -101,10 +102,18 @@ function OptionalTile({ kind }: { kind: OptionalWave }) {
         <span className="tile-unit">{unit}</span>
       </div>
       <div className="tile-reading">
-        <span className="tile-value">
-          <span className="num">—</span>
-        </span>
-        <span className="visually-hidden">{m.noReading}</span>
+        {reading ? (
+          <span className="tile-value">
+            <ReadoutValue text={reading.text} />
+          </span>
+        ) : (
+          <>
+            <span className="tile-value">
+              <span className="num">—</span>
+            </span>
+            <span className="visually-hidden">{m.noReading}</span>
+          </>
+        )}
       </div>
     </div>
   );
@@ -285,7 +294,7 @@ export function MonitorPanel({ patient, monitor }: MonitorPanelProps) {
             readout={monitor.temp}
           />
           {shownExtra.map((kind) => (
-            <OptionalTile key={kind} kind={kind} />
+            <OptionalTile key={kind} kind={kind} bp={kind === 'abp' ? nibp : null} />
           ))}
         </div>
       </div>

@@ -89,7 +89,7 @@ function fieldFor(
       id,
       kind: 'select',
       options,
-      value: word.params?.route ?? options[0] ?? null,
+      value: word.params?.route ?? null,
       required,
     };
   }
@@ -122,8 +122,17 @@ function fieldFor(
       required,
     );
   }
-  if (id === 'flow') return amount(id, ['L/min'], defaults?.flow ?? null, required);
+  if (id === 'flow') {
+    const bounds = flowBounds(word.catalogId);
+    return amount(id, ['L/min'], defaults?.flow ?? null, required, bounds);
+  }
   return amount('transfusion', ['unit'], defaults?.transfusion ?? null, required);
+}
+
+function flowBounds(catalogId: string): { min: number; max: number } | undefined {
+  if (catalogId === 'oxygen.nasal') return { min: 1, max: 6 };
+  if (catalogId === 'oxygen.nrb') return { min: 10, max: 15 };
+  return undefined;
 }
 
 function amount(
@@ -131,6 +140,15 @@ function amount(
   units: readonly string[],
   value: number | null,
   required: boolean,
+  bounds?: { min: number; max: number },
 ): QuickChipPromptField {
-  return { id, kind: 'amount', units, value, unit: units[0] ?? '', required };
+  return {
+    id,
+    kind: 'amount',
+    units,
+    value,
+    unit: units[0] ?? '',
+    required,
+    ...(bounds ?? {}),
+  };
 }

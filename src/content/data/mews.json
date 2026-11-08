@@ -13,15 +13,9 @@
         },
         {
           "min": 9,
-          "max": 15,
+          "max": 21,
           "score": 0,
           "direction": null
-        },
-        {
-          "min": 15,
-          "max": 21,
-          "score": 1,
-          "direction": "HIGH"
         },
         {
           "min": 21,

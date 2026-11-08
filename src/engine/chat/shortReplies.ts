@@ -36,6 +36,9 @@ export function shortReplyTemplate(beat: Beat): string | null {
     if (beat.executor === 'SUBORDINATE') return `收到，下屬同事做 ${label}。`;
     return `收到，我即刻做 ${label}。`;
   }
+  if (beat.type === 'ALERT_DETERIORATION') {
+    return 'S：{{patient.bed}}號床{{patient.name}}情況轉差。B：剛量生命體徵。A：MEWS {{mews.score}}，心率 {{vital.hr}}，血壓 {{vital.sbp}}/{{vital.dbp}}，血氧 {{vital.spo2}}%，呼吸 {{vital.rr}}，體溫 {{vital.temp}}。R：請過嚟評估。';
+  }
   if (beat.type !== 'REPORT_RESULT') return null;
   if (isVitalCheck(beat.tokens)) return VITAL_CHECK_LINE;
   if (beat.tokens.length === 0) return `已執行 {{${beat.labelToken}}}。`;

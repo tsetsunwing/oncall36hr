@@ -92,9 +92,18 @@ describe('AI 輸出 fuzz（B1：AI 永遠改唔到 patient）', () => {
   });
 
   it('dialogue.turn：任意 payload 唔 throw，patients 不變，只有通過 guard 嘅行先會入 chat', () => {
-    const run = advance(engine, engine.init(params('fuzz-2')), 1800);
+    const asked = feed(engine, engine.init(params('fuzz-2')), [say('護士，病人而家情況點呀？')]);
+    const parse = aiRequests(asked.effects)[0];
+    if (!parse) throw new Error('預期有請求');
+    const run = feed(engine, asked.state, [
+      {
+        type: 'AI_RESULT',
+        reqId: parse.reqId,
+        payload: { intent: 'QUESTION', addressee: { kind: 'nurse', id: null }, actions: [] },
+      },
+    ]);
     const request = aiRequests(run.effects)[0];
-    if (!request) throw new Error('預期有請求');
+    if (request?.kind !== 'dialogue.turn') throw new Error('預期有對白請求');
     const before = JSON.stringify(run.state.patients);
     fc.assert(
       fc.property(fc.oneof(jsonArb, structuredDialogue as fc.Arbitrary<JsonValue>), (payload) => {

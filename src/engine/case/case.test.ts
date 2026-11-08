@@ -35,7 +35,7 @@ describe('個案初始化', () => {
     expect(patient?.demographics.sex).toBe(template?.demographics.sex);
     expect(patient?.demographics.code).toBe(template?.demographics.code);
     expect(patient?.demographics.name).not.toBe(template?.demographics.name);
-    expect(patient?.demographics.name?.length).toBeGreaterThanOrEqual(2);
+    expect(patient?.demographics.name.length).toBeGreaterThanOrEqual(2);
     expect(patient?.hidden.fsm.state).toBe(tables['case-fsm'][0]?.initial);
     expect(patient?.visible.vitalsHistory).toHaveLength(1);
     expect(state.actionLog.map((l) => l.reasonCode)).toEqual(['SHIFT_START']);
@@ -184,14 +184,21 @@ describe('rhythm 同 HR', () => {
 });
 
 describe('惡化提示（不重複轟炸）', () => {
-  it('同一次 ALARM 期間只提示一次；每次提示都係 dialogue.turn', () => {
+  it('同一次 ALARM 期間只提示一次；提示用固定 SBAR，唔叫模型', () => {
     const engine = realEngine(zeroNoiseTables());
     const state = engine.init(params('alert-1'));
     const run = advance(engine, state, 1800);
-    const alerts = aiRequests(run.effects);
+    expect(aiRequests(run.effects)).toHaveLength(0);
+    const alerts = Object.values(run.state.chats).flatMap((chat) =>
+      chat.lines.filter((line) => line.template.startsWith('S：')),
+    );
     expect(alerts).toHaveLength(1);
-    expect(alerts[0]?.kind).toBe('dialogue.turn');
+    expect(alerts[0]?.template).toContain('{{patient.name}}');
+    expect(alerts[0]?.template).toContain('{{vital.sbp}}/{{vital.dbp}}');
     const more = advance(engine, run.state, 1800);
-    expect(aiRequests(more.effects)).toHaveLength(0);
+    const again = Object.values(more.state.chats).flatMap((chat) =>
+      chat.lines.filter((line) => line.template.startsWith('S：')),
+    );
+    expect(again).toHaveLength(1);
   });
 });

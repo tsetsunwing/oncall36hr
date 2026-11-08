@@ -203,7 +203,12 @@ function CallDetail({
 }) {
   const p = ui.game.ward.phone;
   return (
-    <div className="call-detail" data-testid="call-detail" data-call-id={call.id}>
+    <div
+      className="call-detail"
+      data-testid="call-detail"
+      data-call-id={call.id}
+      data-bed={call.bed ?? ''}
+    >
       <p className="call-detail-head">
         <span className="tag" data-tag={call.tag}>
           {p.tag[call.tag]}
@@ -239,16 +244,6 @@ function CallDetail({
       <ExchangePane key={call.id} call={call} actions={actions} />
       {call.canRespond ? (
         <div className="call-actions" role="group" aria-label={p.respondGroup}>
-          <button
-            type="button"
-            className="btn btn-primary"
-            data-testid="respond-go-now"
-            onClick={() => {
-              actions.respondCall(call.id, 'GO_NOW');
-            }}
-          >
-            {p.goNow}
-          </button>
           <button
             type="button"
             className="btn"
@@ -319,26 +314,20 @@ function Ladder({
               className="btn btn-small ladder-call"
               disabled={disabled}
               data-testid={`call-rank-${step.rank}`}
+              title={step.skips.length > 0 ? e.skipWarning(step.skips.join('、')) : undefined}
               onClick={() => {
                 onCall(step.rank);
               }}
             >
-              {e.call(e.rankShort[step.rank] ?? step.rank)}
+              {step.skips.length > 0 ? e.callSkip : e.callPlain}
+              {step.skips.length > 0 ? (
+                <span className="visually-hidden" data-testid={`skip-${step.rank}`}>
+                  {e.skipWarning(step.skips.join('、'))}
+                </span>
+              ) : null}
             </button>
           ) : null}
           {step.contacted ? <span className="ladder-note">{e.contacted}</span> : null}
-          {step.skips.length > 0 ? (
-            <button
-              type="button"
-              className="ladder-bang"
-              data-testid={`skip-${step.rank}`}
-              data-tip={e.skipWarning(step.skips.join('、'))}
-              title={e.skipWarning(step.skips.join('、'))}
-              aria-label={e.skipWarning(step.skips.join('、'))}
-            >
-              !
-            </button>
-          ) : null}
         </li>
       ))}
     </ol>

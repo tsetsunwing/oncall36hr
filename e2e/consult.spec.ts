@@ -117,7 +117,9 @@ test.describe('M4b AI 雙向通話', () => {
     await shot(page, 'arrest-call');
     await expectAxeClean(page);
     await page.getByTestId('pause-toggle').click();
-    await page.getByTestId('respond-go-now').click();
+    const bed = await page.getByTestId('call-detail').getAttribute('data-bed');
+    if (!bed) throw new Error('arrest call has no bed');
+    await page.getByTestId(`bed-${bed}`).click();
 
     await expect(page.getByTestId('resus-panel')).toHaveAttribute('data-status', 'ARREST', {
       timeout: 60_000,

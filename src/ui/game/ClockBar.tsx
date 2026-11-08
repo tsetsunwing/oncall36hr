@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { Armchair, Bath, Coffee, Hospital, Pause, Play } from 'lucide-react';
 import { ui } from '@/i18n';
 import type { GameActions, GameView, ShiftView } from '@/view';
@@ -21,12 +21,6 @@ const PLACE_CHIPS = [
   { id: 'WC', icon: Bath, testId: 'landmark-wc' },
 ] as const;
 
-const PLACE_CARE: Partial<Record<(typeof PLACE_CHIPS)[number]['id'], readonly string[]>> = {
-  PANTRY: ['MEAL', 'WATER'],
-  REST: ['NAP', 'PHONE_CHAT', 'MUSIC'],
-  WC: ['TOILET'],
-};
-
 const NEED_KEYS = ['fatigue', 'hunger', 'bladder'] as const;
 
 function dayNight(label: string, segment: ShiftView['segment']): string {
@@ -38,7 +32,6 @@ function dayNight(label: string, segment: ShiftView['segment']): string {
 
 export function ClockBar({ clock, shift, actions, tools, places }: ClockBarProps) {
   const g = ui.game;
-  const [carePlace, setCarePlace] = useState<(typeof PLACE_CHIPS)[number]['id'] | null>(null);
   const speeds = clock.speeds.filter((s) => s > 0);
   const lockedByFailure = clock.pausedBy === 'ai-failure';
   const lowEnergy =
@@ -81,10 +74,6 @@ export function ClockBar({ clock, shift, actions, tools, places }: ClockBarProps
                     ? ui.game.ward.rest
                     : ui.game.ward.wc;
             const here = places.here === chip.id;
-            const careIds = PLACE_CARE[chip.id] ?? [];
-            const careActions =
-              shift?.selfCare.actions.filter((action) => careIds.includes(action.id)) ?? [];
-            const menuOpen = carePlace === chip.id && careActions.length > 0;
             return (
               <span key={chip.id} className="place-chip-wrap">
                 <button
@@ -93,51 +82,14 @@ export function ClockBar({ clock, shift, actions, tools, places }: ClockBarProps
                   data-here={here}
                   data-testid={chip.testId}
                   aria-pressed={here}
-                  aria-expanded={careActions.length > 0 ? menuOpen : undefined}
                   title={ui.game.ward.placeRelief[chip.id]}
                   onClick={() => {
                     places.onPlace(chip.id);
-                    setCarePlace(menuOpen ? null : chip.id);
                   }}
                 >
                   <Icon size={14} strokeWidth={2} aria-hidden="true" />
                   <span>{label}</span>
                 </button>
-                {menuOpen ? (
-                  <div className="place-care" role="menu" data-testid={`care-${chip.id}`}>
-                    {shift?.selfCare.active ? (
-                      <p className="hint">
-                        {ui.shift.selfCare.busy(
-                          ui.shift.selfCare.action[shift.selfCare.active.id] ??
-                            shift.selfCare.active.id,
-                          shift.selfCare.active.endsLabel,
-                        )}
-                      </p>
-                    ) : null}
-                    {careActions.map((action) => (
-                      <button
-                        key={action.id}
-                        type="button"
-                        role="menuitem"
-                        className="place-care-item"
-                        disabled={!action.available || shift?.selfCare.active !== null}
-                        data-testid={`selfcare-${action.id}`}
-                        onClick={() => {
-                          actions.startSelfCare(action.id);
-                          setCarePlace(null);
-                        }}
-                      >
-                        <strong>{ui.shift.selfCare.action[action.id]}</strong>
-                        <span>
-                          {ui.shift.selfCare.cost(
-                            Math.round(action.durationSec / 60),
-                            action.gainPercent,
-                          )}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                ) : null}
               </span>
             );
           })}

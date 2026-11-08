@@ -15,55 +15,40 @@
   },
   {
     "id": "qw.nrb",
-    "aliases": ["oxygen nrb", "o2 nrb", "nrb", "nrb mask", "o2 15l", "oxygen 15l"],
+    "aliases": ["oxygen nrb", "o2 nrb", "nrb", "nrb mask"],
     "catalogId": "oxygen.nrb",
     "chipLabel": "Oxygen NRB",
     "chipGroup": "treat",
     "promptStem": "oxygen nrb",
-    "prompt": ["flow"],
-    "promptDefaults": { "flow": 15 }
+    "prompt": ["flow"]
   },
   {
     "id": "qw.nasal",
-    "aliases": ["oxygen nasal", "o2 nasal", "o2 np", "nasal prong", "o2 2l", "oxygen 2l"],
+    "aliases": ["oxygen nasal", "o2 nasal", "o2 np", "nasal prong"],
     "catalogId": "oxygen.nasal",
     "chipGroup": "treat",
     "chipLabel": "Oxygen nasal",
     "promptStem": "oxygen nasal",
-    "prompt": ["flow"],
-    "promptDefaults": { "flow": 2 }
+    "prompt": ["flow"]
   },
   {
     "id": "qw.ns500",
-    "aliases": [
-      "ns 500",
-      "ns 500ml",
-      "ns 500 ml",
-      "normal saline 500 ml",
-      "fluid bolus",
-      "ivf bolus"
-    ],
+    "aliases": ["ns", "normal saline", "fluid bolus", "ivf bolus"],
     "catalogId": "fluid.ns500",
     "chipLabel": "NS",
     "chipGroup": "treat",
     "promptStem": "ns",
-    "prompt": ["volume", "rate"],
-    "promptDefaults": { "volume": 500 }
+    "prompt": ["volume", "rate"]
   },
   {
     "id": "qw.ceftriaxone",
-    "aliases": ["ceftriaxone 1 g iv", "ceftriaxone 1g iv"],
+    "aliases": ["ceftriaxone"],
     "catalogId": "drug.ceftriaxone",
     "chipLabel": "Ceftriaxone",
     "promptStem": "ceftriaxone",
     "prompt": ["dose", "route", "frequency", "times"],
     "params": {
-      "drugFormularyId": "ceftriaxone",
-      "dose": {
-        "value": 1,
-        "unit": "g"
-      },
-      "route": "IV"
+      "drugFormularyId": "ceftriaxone"
     },
     "chipGroup": "treat"
   },
@@ -138,35 +123,25 @@
   },
   {
     "id": "qw.defib200",
-    "aliases": ["defib 200 j", "defib 200j", "defib 200 joule"],
+    "aliases": ["defib", "defibrillate"],
     "catalogId": "acls.defib",
     "chipLabel": "Defib",
     "promptStem": "defib",
     "prompt": ["energy"],
     "params": {
-      "drugFormularyId": "defibrillation",
-      "dose": {
-        "value": 200,
-        "unit": "J"
-      }
+      "drugFormularyId": "defibrillation"
     },
     "chipGroup": "resus"
   },
   {
     "id": "qw.adrenaline",
-    "aliases": ["adrenaline 1 mg iv", "adrenaline 1mg iv", "adr 1 mg iv", "epi 1 mg iv"],
+    "aliases": ["adrenaline", "epinephrine", "adr", "epi"],
     "catalogId": "drug.adrenaline",
     "chipLabel": "Adrenaline",
     "promptStem": "adrenaline",
     "prompt": ["dose", "route", "frequency"],
-    "promptDefaults": { "frequency": "stat" },
     "params": {
-      "drugFormularyId": "adrenaline",
-      "dose": {
-        "value": 1,
-        "unit": "mg"
-      },
-      "route": "IV"
+      "drugFormularyId": "adrenaline"
     },
     "chipGroup": "resus"
   },
@@ -186,19 +161,13 @@
   },
   {
     "id": "qw.amiodarone",
-    "aliases": ["amiodarone 300 mg iv", "amiodarone 300mg iv"],
+    "aliases": ["amiodarone"],
     "catalogId": "drug.amiodarone",
     "chipLabel": "Amiodarone",
     "promptStem": "amiodarone",
     "prompt": ["dose", "route", "frequency"],
-    "promptDefaults": { "frequency": "stat" },
     "params": {
-      "drugFormularyId": "amiodarone",
-      "dose": {
-        "value": 300,
-        "unit": "mg"
-      },
-      "route": "IV"
+      "drugFormularyId": "amiodarone"
     },
     "chipGroup": "resus"
   },
@@ -389,41 +358,6 @@
     "aliases": ["hba1c"],
     "catalogId": "poct.hba1c",
     "chipLabel": "HbA1c",
-    "chipGroup": "tests"
-  },
-  {
-    "id": "qw.cytology",
-    "aliases": ["cytology"],
-    "catalogId": "lab.cytology",
-    "chipLabel": "Cytology",
-    "chipGroup": "tests"
-  },
-  {
-    "id": "qw.histology",
-    "aliases": ["histology"],
-    "catalogId": "lab.histology",
-    "chipLabel": "Histology",
-    "chipGroup": "tests"
-  },
-  {
-    "id": "qw.serology",
-    "aliases": ["serology"],
-    "catalogId": "lab.serology",
-    "chipLabel": "Serology",
-    "chipGroup": "tests"
-  },
-  {
-    "id": "qw.genetics",
-    "aliases": ["molecular pathology"],
-    "catalogId": "lab.genetics",
-    "chipLabel": "Molecular pathology",
-    "chipGroup": "tests"
-  },
-  {
-    "id": "qw.tox",
-    "aliases": ["toxicology screen"],
-    "catalogId": "lab.toxicology",
-    "chipLabel": "Toxicology",
     "chipGroup": "tests"
   },
   {

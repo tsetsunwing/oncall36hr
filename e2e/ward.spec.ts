@@ -89,7 +89,8 @@ test.describe('M4 ward, phone and delegation', () => {
     const ringing = page.locator('[data-testid="call-row"][data-status="RINGING"]').first();
     if ((await ringing.count()) > 0) {
       await ringing.click();
-      await page.getByTestId('respond-go-now').click();
+      const bed = await page.getByTestId('call-detail').getAttribute('data-bed');
+      if (bed) await page.getByTestId(`bed-${bed}`).click();
       await expect(page.getByTestId('call-status')).not.toHaveAttribute('data-status', 'RINGING');
     }
   });

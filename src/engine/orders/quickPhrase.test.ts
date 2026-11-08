@@ -67,6 +67,8 @@ describe('本地快捷詞 parser', () => {
       'ceftriaxone',
       'please give ceftriaxone 1 g iv',
       'give oxygen',
+      'oxygen nasal 99 L/min',
+      'oxygen nrb 99 L/min',
       'check vitals and pulse',
       '',
       '   ',

@@ -151,6 +151,7 @@ export const ui = {
         flow: '氧氣流量',
         transfusion: '輸血',
         confirm: '落單',
+        outOfRange: (min: number, max: number) => `可接受範圍 ${String(min)}–${String(max)}`,
         cancel: '取消',
         every: '每',
         hours: '小時',

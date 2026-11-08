@@ -19,6 +19,11 @@ describe('MEWS（table-driven，對照手算）', () => {
     expect(r).toMatchObject({ score: 0, band: 'LOW', alert: 'NONE' });
   });
 
+  it('RR 20 仍是 0 分，21 才算過高', () => {
+    expect(computeMews(vitals(80, 120, 20, 36.8, 98), 'A', mews).components.rr).toBe(0);
+    expect(computeMews(vitals(80, 120, 21, 36.8, 98), 'A', mews).components.rr).toBe(2);
+  });
+
   it('個案起始（HR 113、SBP 103、RR 23、Temp 38.3、SpO2 93、A）＝ 2+0+2+0+2 ＝ 6，HIGH', () => {
     const r = computeMews(vitals(113, 103, 23, 38.3, 93), 'A', mews);
     expect(r.components).toEqual({ avpu: 0, rr: 2, hr: 2, sbp: 0, temp: 0, spo2: 2 });

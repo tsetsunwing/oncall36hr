@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { BedDouble, ClipboardList, History, MessageSquare, Phone, Users, X } from 'lucide-react';
 import { ui } from '@/i18n';
 import { IconButton } from '../IconButton';
-import type { GameActions, GameView, WardView } from '@/view';
+import type { GameActions, GameView, ShiftView, WardView } from '@/view';
 import { ChatPanel } from '../game/ChatPanel';
 import { LogPanel } from '../game/LogPanel';
 import { DeathFlowPanel } from '../game/DeathFlowPanel';
@@ -12,6 +12,7 @@ import { DelegationDialog } from '../ward/DelegationDialog';
 import { useFrame } from '../frame/PlayFrame';
 import { BedTable } from '../ward/BedTable';
 import { FloorPlan } from '../ward/FloorPlan';
+import { PlaceRoom, type CarePlace } from '../ward/PlaceRoom';
 import { PhonePanel } from '../ward/PhonePanel';
 import { QueuePanel } from '../ward/QueuePanel';
 
@@ -153,7 +154,9 @@ export function WardGame({ view, ward, actions }: WardGameProps) {
             setBedsOpen(false);
           }}
         />
-        <FloorPlan
+        <MapOrRoom
+          place={view.shift.place}
+          shift={view.shift}
           ward={ward}
           actions={actions}
           compact={frame === 'desktop'}
@@ -328,5 +331,57 @@ export function WardGame({ view, ward, actions }: WardGameProps) {
         }}
       />
     </div>
+  );
+}
+
+function isCarePlace(place: ShiftView['place']): place is CarePlace {
+  return place === 'PANTRY' || place === 'REST' || place === 'WC';
+}
+
+function MapOrRoom({
+  place,
+  shift,
+  ward,
+  actions,
+  compact,
+  onExpand,
+}: {
+  place: ShiftView['place'];
+  shift: ShiftView;
+  ward: WardView;
+  actions: GameActions;
+  compact: boolean;
+  onExpand?: () => void;
+}) {
+  if (isCarePlace(place)) {
+    return <PlaceRoom place={place} shift={shift} actions={actions} />;
+  }
+  return (
+    <>
+      {shift.selfCare.active ? (
+        <div className="place-room-active" role="status" data-testid="selfcare-active">
+          <p>
+            {ui.shift.selfCare.busy(
+              ui.shift.selfCare.action[shift.selfCare.active.id] ?? shift.selfCare.active.id,
+              shift.selfCare.active.endsLabel,
+            )}
+          </p>
+          <button
+            type="button"
+            className="btn"
+            data-testid="selfcare-stop"
+            onClick={actions.stopSelfCare}
+          >
+            {ui.shift.selfCare.stop}
+          </button>
+        </div>
+      ) : null}
+      <FloorPlan
+        ward={ward}
+        actions={actions}
+        compact={compact}
+        {...(onExpand ? { onExpand } : {})}
+      />
+    </>
   );
 }

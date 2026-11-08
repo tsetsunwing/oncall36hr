@@ -191,6 +191,8 @@ export interface QuickChipAmountField {
   value: number | null;
   unit: string;
   required: boolean;
+  min?: number;
+  max?: number;
 }
 
 export interface QuickChipSelectField {

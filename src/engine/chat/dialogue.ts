@@ -197,7 +197,8 @@ function scriptedNurseTurn(
     }
     if (!nurse) continue;
     const needed = extractTokens(template);
-    if (validateTemplate(template, new Set(needed), ctx.config.chat.maxLineChars) !== null) {
+    const limit = beat.type === 'ALERT_DETERIORATION' ? 220 : ctx.config.chat.maxLineChars;
+    if (validateTemplate(template, new Set(needed), limit) !== null) {
       continue;
     }
     const tokenValues: Record<string, string> = {};

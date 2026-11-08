@@ -84,7 +84,10 @@ function parseTail(tail: string, word: QuickWordRow, tables: EngineTables): Orde
     if (field === 'dose' && parsed.dose) setAmount(parsed.dose.value, parsed.dose.unit);
     if (field === 'volume' && parsed.amount !== undefined) setAmount(parsed.amount, 'ml');
     if (field === 'energy' && parsed.amount !== undefined) setAmount(parsed.amount, 'J');
-    if (field === 'flow' && parsed.amount !== undefined) setAmount(parsed.amount, 'L/min');
+    if (field === 'flow' && parsed.amount !== undefined) {
+      if (!flowAllowed(word.catalogId, parsed.amount)) return null;
+      setAmount(parsed.amount, 'L/min');
+    }
     if (field === 'transfusion' && parsed.amount !== undefined) setAmount(parsed.amount, 'unit');
     if (field === 'route' && parsed.route) route = parsed.route;
     if (field === 'frequency' && parsed.frequency) frequency = parsed.frequency;
@@ -137,7 +140,7 @@ function parseField(
   }
   if (field === 'frequency') {
     const taken = take(tail, /^(stat|tds|prn|q\d+h|q\d+min)\b/i);
-    if (!taken || !taken.groups[0]) return null;
+    if (!taken?.groups[0]) return null;
     return { rest: taken.rest, frequency: canonicalFrequency(taken.groups[0]) };
   }
   if (field === 'times') {
@@ -146,7 +149,9 @@ function parseField(
     return { rest: taken.rest, times: Number(taken.groups[0]) };
   }
   if (field === 'volume') {
-    const taken = take(tail, /^(\d+(?:\.\d+)?)\s*ml\b(?!\/)/i);
+    const taken =
+      take(tail, /^(\d+(?:\.\d+)?)\s*ml\b(?!\/)/i) ??
+      take(tail, /^(\d+(?:\.\d+)?)(?!\s*ml\/)(?=\s|$)/i);
     return amount(taken);
   }
   if (field === 'rate') {
@@ -154,7 +159,7 @@ function parseField(
     return amount(taken);
   }
   if (field === 'energy') {
-    const taken = take(tail, /^(\d+(?:\.\d+)?)\s*j\b/i);
+    const taken = take(tail, /^(\d+(?:\.\d+)?)\s*(?:j|joules?)\b/i);
     return amount(taken);
   }
   if (field === 'flow') {
@@ -163,6 +168,13 @@ function parseField(
   }
   const taken = take(tail, /^(\d+(?:\.\d+)?)\s*unit\b/i);
   return amount(taken);
+}
+
+/** 鼻導管 1–6 L/min；非循環面罩 10–15 L/min。超出唔落單。 */
+function flowAllowed(catalogId: string, value: number): boolean {
+  if (catalogId === 'oxygen.nasal') return value >= 1 && value <= 6;
+  if (catalogId === 'oxygen.nrb') return value >= 10 && value <= 15;
+  return true;
 }
 
 function escapeRoute(value: string): string {
