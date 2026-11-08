@@ -43,6 +43,17 @@ export {
 
 const schedule = scheduleCallEvent;
 
+/** 玩家已經企喺呢個病人張床，護士同駐院醫生唔使再打電話。 */
+function atThisBedside(state: GameState, patientId: string | null): boolean {
+  if (!patientId) return false;
+  const bed = state.patients[patientId]?.bed;
+  return bed !== undefined && state.ward.location.bed === bed;
+}
+
+function bedsideCaller(tag: CallTemplateRow['tag']): boolean {
+  return tag === 'NURSE' || tag === 'JUNIOR';
+}
+
 function worstPatientId(state: GameState): string | null {
   let best: string | null = null;
   let bestScore = -1;
@@ -204,13 +215,18 @@ export function handleCallArrival(state: GameState, ctx: EngineContext): Reducti
   let patientId: string | null = null;
   switch (row.needs) {
     case 'ANY_PATIENT': {
-      const ids = Object.keys(next.patients).sort();
-      patientId = ids[cursor.int('calls', 0, ids.length)] ?? null;
+      const here = next.ward.location.bed;
+      const ids = Object.keys(next.patients)
+        .filter((id) => !bedsideCaller(row.tag) || next.patients[id]?.bed !== here)
+        .sort();
+      patientId = ids.length > 0 ? (ids[cursor.int('calls', 0, ids.length)] ?? null) : null;
       break;
     }
-    case 'WORST_PATIENT':
-      patientId = worstPatientId(next);
+    case 'WORST_PATIENT': {
+      const id = worstPatientId(next);
+      patientId = bedsideCaller(row.tag) && atThisBedside(next, id) ? null : id;
       break;
+    }
     case 'ABNORMAL_REPORT': {
       const ids = patientsWithAbnormalReport(next).sort();
       patientId = ids[cursor.int('calls', 0, ids.length)] ?? null;
@@ -431,6 +447,17 @@ export function handleCallExpire(state: GameState, callId: string, ctx: EngineCo
 export function handleRingAgain(state: GameState, callId: string, ctx: EngineContext): Reduction {
   const call = findCall(state, callId);
   if (call?.status !== 'DEFERRED') return { state, effects: [] };
+  if ((call.tag === 'NURSE' || call.tag === 'JUNIOR') && atThisBedside(state, call.patientId)) {
+    return {
+      state: putCall(state, {
+        ...call,
+        status: 'DONE',
+        resolution: 'ATTENDED',
+        ringAgainAt: null,
+      }),
+      effects: [],
+    };
+  }
   const next = interrupt(
     putCall(state, { ...call, status: 'RINGING', ringAgainAt: null }),
     call.priority,

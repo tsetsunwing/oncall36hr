@@ -85,10 +85,15 @@ export function raiseArrestCall(
   return { state: next, effects: [notice('CALL_RINGING', 'info')] };
 }
 
-/** 玩家到咗該床：未接嘅停頓來電唔使再響（唔扣分） */
+/**
+ * 玩家到咗該床：護士、駐院醫生同停頓來電都唔使再響（唔扣分）。
+ * 人已經喺床邊，佢哋可以直接講，唔使再打同一個病人嘅電話。
+ */
 export function resolveArrestCallsAtBed(state: GameState, patientId: string): GameState {
   const pending = (call: Call) =>
-    call.templateId === ARREST_TEMPLATE_ID && call.patientId === patientId && isOpen(call);
+    call.patientId === patientId &&
+    isOpen(call) &&
+    (call.tag === 'NURSE' || call.tag === 'JUNIOR' || call.templateId === ARREST_TEMPLATE_ID);
   if (!state.ward.calls.some(pending)) return state;
   const calls = state.ward.calls.map((call) =>
     pending(call)

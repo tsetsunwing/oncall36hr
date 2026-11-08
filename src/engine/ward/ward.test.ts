@@ -224,6 +224,24 @@ describe('來電量（T12）', () => {
     state = advance(engine, state, 36000).state;
     expect(state.ward.calls.some((c) => c.tag === 'JUNIOR')).toBe(false);
   });
+
+  it('人已經喺床邊，護士同駐院醫生唔會再打關於呢個病人嘅電話', () => {
+    let state = engine.init(wardParams('beside-quiet', 'MO', 'HARD', 'DAY'));
+    const target = patientsOf(state)[0];
+    if (!target) throw new Error('no patient');
+    state = feed(engine, state, [ward('GO_TO_BED', { bed: target.bed })]).state;
+    expect(state.ward.location.bed).toBe(target.bed);
+    const started = state.clock.t;
+    state = advance(engine, state, 8 * 3600).state;
+    const aboutHere = state.ward.calls.filter(
+      (call) =>
+        call.arrivedAt >= started &&
+        (call.tag === 'NURSE' || call.tag === 'JUNIOR') &&
+        call.patientId === target.id,
+    );
+    expect(aboutHere).toEqual([]);
+    expect(state.ward.calls.some((call) => call.arrivedAt >= started)).toBe(true);
+  });
 });
 
 describe('三種來電回應有後果', () => {
@@ -298,6 +316,60 @@ describe('三種來電回應有後果', () => {
     expect(run.state.scoreLedger.map((l) => l.rule)).toContain('CALL_MISSED_JUNIOR');
     expect(run.state.ward.impressions.HO ?? 0).toBeLessThan(before);
     expect(run.state.patients[target.id]?.hidden.fsm.flags).toContain('unattended_call');
+  });
+
+  it('行到病人床邊，未接嘅護士同駐院醫生來電標成已到床邊', () => {
+    let state = base();
+    const target = patientsOf(state)[0];
+    if (!target) throw new Error('no patient');
+    state = injectCall(state, 'NURSE_SPO2', target.id);
+    state = injectCall(state, 'JUNIOR_REVIEW', target.id, { tag: 'JUNIOR', callerRank: 'HO' });
+    const run = feed(engine, state, [ward('GO_TO_BED', { bed: target.bed })]);
+    expect(run.state.ward.location.bed).toBe(target.bed);
+    expect(run.state.ward.calls).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          templateId: 'NURSE_SPO2',
+          status: 'DONE',
+          resolution: 'ATTENDED',
+        }),
+        expect.objectContaining({
+          templateId: 'JUNIOR_REVIEW',
+          status: 'DONE',
+          resolution: 'ATTENDED',
+        }),
+      ]),
+    );
+    expect(run.state.scoreLedger.map((entry) => entry.rule)).not.toContain('CALL_MISSED');
+    expect(run.state.scoreLedger.map((entry) => entry.rule)).not.toContain('CALL_MISSED_JUNIOR');
+  });
+
+  it('人已經喺床邊，延後嘅護士來電唔會再響', () => {
+    let state = base();
+    const target = patientsOf(state)[0];
+    if (!target) throw new Error('no patient');
+    state = feed(engine, state, [ward('GO_TO_BED', { bed: target.bed })]).state;
+    const ringAt = state.clock.t + 30;
+    state = injectCall(state, 'NURSE_ROUTINE', target.id, {
+      status: 'DEFERRED',
+      ringAgainAt: ringAt,
+      priority: 'ROUTINE',
+    });
+    const callId = state.ward.calls.at(-1)?.id ?? '';
+    state = {
+      ...state,
+      scheduler: enqueue(state.scheduler, {
+        time: ringAt,
+        priority: 20,
+        kind: 'CALL_RING_AGAIN',
+        payload: { callId },
+      }),
+    };
+    const run = advance(engine, state, 40);
+    expect(run.state.ward.calls.find((call) => call.id === callId)).toMatchObject({
+      status: 'DONE',
+      resolution: 'ATTENDED',
+    });
   });
 
   it('未知來電 id 被拒', () => {
