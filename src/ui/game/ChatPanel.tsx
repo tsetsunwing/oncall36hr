@@ -20,7 +20,7 @@ import type {
 import { GatePanel } from './GatePanel';
 
 const MENTION_AT_END = /[@＠]([^\s@＠]*)$/u;
-const CHIP_GROUPS: QuickChipCategory[] = ['observe', 'treat', 'tests', 'procedure', 'resus'];
+const CHIP_GROUPS: QuickChipCategory[] = ['observe', 'treat', 'tests', 'resus'];
 
 export interface ChatPanelProps {
   chat: ChatView;

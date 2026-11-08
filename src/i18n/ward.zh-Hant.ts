@@ -66,7 +66,7 @@ export const wardUi = {
     ringing: (count: number) => `${String(count)} 個來電`,
     tag: {
       NURSE: '護士',
-      JUNIOR: '低階醫生',
+      JUNIOR: '駐院醫生',
       LAB: '化驗室',
       XRAY: 'X-ray',
       PHARMACY: '藥房',

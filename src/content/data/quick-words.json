@@ -3,24 +3,29 @@
     "id": "qw.vitals",
     "aliases": ["check vitals", "check vital signs", "vital signs", "vitals", "vs", "check vs"],
     "catalogId": "obs.vitals",
-    "chipLabel": "Check vitals"
+    "chipLabel": "Check vitals",
+    "chipGroup": "observe"
   },
   {
     "id": "qw.pulse",
     "aliases": ["check pulse", "pulse check"],
     "catalogId": "obs.pulse",
-    "chipLabel": "Check pulse"
+    "chipLabel": "Check pulse",
+    "chipGroup": "observe"
   },
   {
     "id": "qw.nrb",
     "aliases": ["oxygen nrb", "o2 nrb", "nrb", "nrb mask", "o2 15l", "oxygen 15l"],
     "catalogId": "oxygen.nrb",
-    "chipLabel": "Oxygen NRB"
+    "chipLabel": "Oxygen NRB",
+    "chipGroup": "treat"
   },
   {
     "id": "qw.nasal",
     "aliases": ["oxygen nasal", "o2 nasal", "o2 np", "nasal prong", "o2 2l", "oxygen 2l"],
-    "catalogId": "oxygen.nasal"
+    "catalogId": "oxygen.nasal",
+    "chipGroup": "treat",
+    "chipLabel": "Oxygen nasal"
   },
   {
     "id": "qw.ns500",
@@ -33,7 +38,8 @@
       "ivf bolus"
     ],
     "catalogId": "fluid.ns500",
-    "chipLabel": "NS 500 mL"
+    "chipLabel": "NS 500 mL",
+    "chipGroup": "treat"
   },
   {
     "id": "qw.ceftriaxone",
@@ -47,19 +53,22 @@
         "unit": "g"
       },
       "route": "IV"
-    }
+    },
+    "chipGroup": "treat"
   },
   {
     "id": "qw.ecg",
     "aliases": ["ecg", "stat ecg", "12 lead ecg"],
     "catalogId": "ecg.12lead",
-    "chipLabel": "ECG"
+    "chipLabel": "ECG",
+    "chipGroup": "tests"
   },
   {
     "id": "qw.cbc",
     "aliases": ["cbc", "抽血 cbc"],
     "catalogId": "lab.cbc",
-    "chipLabel": "CBC"
+    "chipLabel": "CBC",
+    "chipGroup": "tests"
   },
   {
     "id": "qw.ng.self",
@@ -106,13 +115,15 @@
       "繼續 cpr"
     ],
     "catalogId": "acls.cpr",
-    "chipLabel": "CPR"
+    "chipLabel": "CPR",
+    "chipGroup": "resus"
   },
   {
     "id": "qw.rhythm",
     "aliases": ["rhythm check", "check rhythm", "rhythm", "睇rhythm", "睇 rhythm"],
     "catalogId": "acls.rhythmcheck",
-    "chipLabel": "Rhythm check"
+    "chipLabel": "Rhythm check",
+    "chipGroup": "resus"
   },
   {
     "id": "qw.defib200",
@@ -125,7 +136,8 @@
         "value": 200,
         "unit": "J"
       }
-    }
+    },
+    "chipGroup": "resus"
   },
   {
     "id": "qw.adrenaline",
@@ -139,19 +151,22 @@
         "unit": "mg"
       },
       "route": "IV"
-    }
+    },
+    "chipGroup": "resus"
   },
   {
     "id": "qw.stopcpr",
     "aliases": ["stop cpr", "stop resuscitation", "停止搶救", "停止cpr", "停止 cpr"],
     "catalogId": "acls.terminate",
-    "chipLabel": "Stop CPR"
+    "chipLabel": "Stop CPR",
+    "chipGroup": "resus"
   },
   {
     "id": "qw.pocus",
     "aliases": ["pocus", "bedside echo"],
     "catalogId": "img.pocus",
-    "chipLabel": "POCUS"
+    "chipLabel": "POCUS",
+    "chipGroup": "tests"
   },
   {
     "id": "qw.amiodarone",
@@ -165,6 +180,140 @@
         "unit": "mg"
       },
       "route": "IV"
-    }
+    },
+    "chipGroup": "resus"
+  },
+  {
+    "id": "qw.monitor.q15",
+    "aliases": ["vs q15min"],
+    "catalogId": "monitor.vitals.q15",
+    "chipLabel": "Vitals q15min",
+    "chipGroup": "observe"
+  },
+  {
+    "id": "qw.monitor.spo2",
+    "aliases": ["continuous spo2"],
+    "catalogId": "monitor.spo2",
+    "chipLabel": "SpO2 monitor",
+    "chipGroup": "observe"
+  },
+  {
+    "id": "qw.monitor.io",
+    "aliases": ["strict io"],
+    "catalogId": "monitor.io",
+    "chipLabel": "Intake/output",
+    "chipGroup": "observe"
+  },
+  {
+    "id": "qw.ngtube",
+    "aliases": ["ng tube"],
+    "catalogId": "proc.ngtube",
+    "chipLabel": "NG tube",
+    "chipGroup": "treat"
+  },
+  {
+    "id": "qw.foley",
+    "aliases": ["foley"],
+    "catalogId": "proc.foley",
+    "chipLabel": "Foley",
+    "chipGroup": "treat"
+  },
+  {
+    "id": "qw.cvc",
+    "aliases": ["cvc"],
+    "catalogId": "proc.cvc",
+    "chipLabel": "CVC",
+    "chipGroup": "treat"
+  },
+  {
+    "id": "qw.rft",
+    "aliases": ["rft"],
+    "catalogId": "lab.rft",
+    "chipLabel": "RFT",
+    "chipGroup": "tests"
+  },
+  {
+    "id": "qw.troponin",
+    "aliases": ["troponin"],
+    "catalogId": "lab.troponin",
+    "chipLabel": "Troponin I",
+    "chipGroup": "tests"
+  },
+  {
+    "id": "qw.cxr",
+    "aliases": ["cxr"],
+    "catalogId": "img.cxr",
+    "chipLabel": "Chest X-ray",
+    "chipGroup": "tests"
+  },
+  {
+    "id": "qw.ct",
+    "aliases": ["ct thorax"],
+    "catalogId": "img.ct.thorax",
+    "chipLabel": "CT thorax",
+    "chipGroup": "tests"
+  },
+  {
+    "id": "qw.us",
+    "aliases": ["us abdomen"],
+    "catalogId": "img.us.abdomen",
+    "chipLabel": "Ultrasound abdomen",
+    "chipGroup": "tests"
+  },
+  {
+    "id": "qw.abg",
+    "aliases": ["abg"],
+    "catalogId": "lab.abg",
+    "chipLabel": "ABG",
+    "chipGroup": "tests"
+  },
+  {
+    "id": "qw.culture",
+    "aliases": ["blood culture"],
+    "catalogId": "lab.bloodculture",
+    "chipLabel": "Blood culture",
+    "chipGroup": "tests"
+  },
+  {
+    "id": "qw.crossmatch",
+    "aliases": ["crossmatch"],
+    "catalogId": "lab.crossmatch",
+    "chipLabel": "Cross-match",
+    "chipGroup": "tests"
+  },
+  {
+    "id": "qw.chesttube",
+    "aliases": ["chest tube"],
+    "catalogId": "proc.chesttube",
+    "chipLabel": "Chest tube",
+    "chipGroup": "resus"
+  },
+  {
+    "id": "qw.intubation",
+    "aliases": ["intubation"],
+    "catalogId": "proc.intubation",
+    "chipLabel": "Intubation",
+    "chipGroup": "resus"
+  },
+  {
+    "id": "qw.decompression",
+    "aliases": ["needle decompression"],
+    "catalogId": "proc.decompression",
+    "chipLabel": "Needle decompression",
+    "chipGroup": "resus"
+  },
+  {
+    "id": "qw.pericardial",
+    "aliases": ["pericardiocentesis"],
+    "catalogId": "proc.pericardiocentesis",
+    "chipLabel": "Pericardiocentesis",
+    "chipGroup": "resus"
+  },
+  {
+    "id": "qw.rewarm",
+    "aliases": ["rewarm"],
+    "catalogId": "proc.rewarm",
+    "chipLabel": "Rewarming",
+    "chipGroup": "resus"
   }
 ]

@@ -303,7 +303,7 @@ function selectActionLog(
       patientId: entry.patientId,
       bed: patient?.bed ?? null,
       kind: entry.kind,
-      label: order ? composeOrderLabel(row, order) : null,
+      label: order ? (presetLabel(order, env.tables) ?? composeOrderLabel(row, order)) : null,
       eventCode: entry.kind === 'EVENT' ? entry.reasonCode : null,
       status: order?.status ?? null,
       executorName: executorName(state, entry.executor),
@@ -324,6 +324,30 @@ function chipCategory(type: string, catalogId: string): QuickChipView['category'
   return 'tests';
 }
 
+function presetLabel(
+  order: {
+    catalogId: string;
+    params: { dose: { value: number; unit: string } | null; route: string | null };
+  },
+  tables: EngineTables,
+): string | undefined {
+  const hits = tables['quick-words'].filter(
+    (word) => word.chipLabel && word.catalogId === order.catalogId,
+  );
+  const match = hits.find((word) => {
+    const dose = word.params?.dose;
+    if (dose) {
+      return (
+        order.params.dose?.value === dose.value &&
+        order.params.dose.unit === dose.unit &&
+        (word.params?.route ?? null) === order.params.route
+      );
+    }
+    return order.params.dose === null;
+  });
+  return match?.chipLabel;
+}
+
 function selectQuickChips(tables: EngineTables): QuickChipView[] {
   return tables['quick-words'].flatMap((word) => {
     const text = word.aliases[0];
@@ -334,7 +358,7 @@ function selectQuickChips(tables: EngineTables): QuickChipView[] {
             id: word.id,
             label: word.chipLabel,
             text,
-            category: chipCategory(row?.type ?? '', word.catalogId),
+            category: word.chipGroup ?? chipCategory(row?.type ?? '', word.catalogId),
           },
         ]
       : [];

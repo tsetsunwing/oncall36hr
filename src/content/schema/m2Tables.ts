@@ -381,6 +381,8 @@ export const quickWordSchema = z
     aliases: z.array(z.string().min(1)).min(1),
     catalogId: id,
     chipLabel: z.string().min(1).optional(),
+    /** 快捷選單：觀察、治療、檢查、搶救。改呢欄就改分類。 */
+    chipGroup: z.enum(['observe', 'treat', 'tests', 'resus']).optional(),
     params: z
       .object({
         drugFormularyId: id.optional(),

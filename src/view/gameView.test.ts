@@ -105,6 +105,9 @@ describe('聊天 ViewModel', () => {
     expect(system.map((l) => l.systemCode)).toEqual(['ARRIVE', 'ARRIVE']);
     expect(system.every((l) => l.text === null)).toBe(true);
     expect(chat?.lines.find((l) => l.kind === 'PLAYER')?.text).toBe('check vitals');
+    expect(
+      selectGameView(state, env).actionLog.patient.find((row) => row.kind === 'ORDER')?.label,
+    ).toBe('Check vitals');
     expect(chat?.present.map((p) => p.mentionName)).toEqual([
       '何姑娘',
       state.patients.p1?.demographics.name,
@@ -158,13 +161,15 @@ describe('Orders 同 Action Log', () => {
     expect(all.at(-1)?.eventCode).toBe('SHIFT_START');
     expect(patient.every((r) => r.patientId === 'p1')).toBe(true);
     expect(patient).toHaveLength(2);
-    expect(patient[0]?.label).toBe('Pulse');
+    expect(patient[0]?.label).toBe('Check pulse');
     expect(all.length).toBe(patient.length + 1);
   });
 
   it('order 結果文字係 engine 凍結值（ORDER 完成後出現）', () => {
     const state = play([say('check vitals'), tick(300)]);
-    const row = selectGameView(state, env).actionLog.patient.find((r) => r.label === 'Vital signs');
+    const row = selectGameView(state, env).actionLog.patient.find(
+      (r) => r.label === 'Check vitals',
+    );
     expect(row?.status).toBe('DONE');
     expect(row?.resultText).toMatch(/^HR \d+, BP \d+\/\d+, SpO2 \d+%/);
   });

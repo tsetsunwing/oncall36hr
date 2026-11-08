@@ -178,9 +178,9 @@ export const shiftUi = {
       CALL_LATER: '來電稍後再覆',
       CALL_CONTINUE: '來電繼續手上工作',
       CALL_MISSED: '漏接來電',
-      CALL_MISSED_JUNIOR: '漏接低階醫生來電',
-      CALL_GO_NOW_JUNIOR: '即時處理低階醫生來電',
-      CALL_LATER_JUNIOR: '低階醫生來電稍後再覆',
+      CALL_MISSED_JUNIOR: '漏接駐院醫生來電',
+      CALL_GO_NOW_JUNIOR: '即時處理駐院醫生來電',
+      CALL_LATER_JUNIOR: '駐院醫生來電稍後再覆',
       CALL_DELEGATED_OK: '成功委派來電',
       ESCALATION_STEP_OK: '逐級上報',
       ESCALATION_SKIPPED_LEVEL: '越級上報',
@@ -285,7 +285,7 @@ export const shiftUi = {
       direction: { IN: '來電', OUT: '致電' } as Record<string, string>,
       tag: {
         NURSE: '護士',
-        JUNIOR: '低階醫生',
+        JUNIOR: '駐院醫生',
         LAB: '化驗室',
         XRAY: '放射科',
         PHARMACY: '藥房',
@@ -356,7 +356,7 @@ export const shiftUi = {
       CALL_MISSED: (time: string, patient: string) =>
         `${time} ${patient}：有來電未能接聽。先簡短回應「稍後再覆」，對方會較安心。`,
       CALL_MISSED_JUNIOR: (time: string, patient: string) =>
-        `${time} ${patient}：低階醫生的來電未能接聽。簡短回應可讓對方知道你在跟進。`,
+        `${time} ${patient}：駐院醫生的來電未能接聽。簡短回應可讓對方知道你在跟進。`,
       GATE_INSISTED_CONFIRM: (time: string, patient: string, item: string) =>
         `${time} ${patient}：「${item}」經提出關注後仍堅持下單。可先與藥房核對再決定。`,
       GATE_INSISTED_OBJECT: (time: string, patient: string, item: string) =>

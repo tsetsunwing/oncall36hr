@@ -161,6 +161,7 @@ export interface QuickWordRow {
   aliases: readonly string[];
   catalogId: string;
   chipLabel?: string | undefined;
+  chipGroup?: 'observe' | 'treat' | 'tests' | 'resus' | undefined;
   params?:
     | {
         drugFormularyId?: string | undefined;
