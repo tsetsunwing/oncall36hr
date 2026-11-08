@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { ui } from '@/i18n';
 import { formatDuration, type GameActions, type QuickChipView, type ResusView } from '@/view';
+import { ChipPrompt } from './ChipPrompt';
 
 const ACLS_CHIP_IDS = [
   'qw.cpr',
@@ -25,6 +27,7 @@ export interface ResusPanelProps {
 export function ResusPanel({ patientId, resus, chips, actions }: ResusPanelProps) {
   const r = ui.game.resus;
   const arrest = resus.status === 'ARREST';
+  const [promptChip, setPromptChip] = useState<QuickChipView | null>(null);
   const shown = ACLS_CHIP_IDS.flatMap((id) => chips.filter((chip) => chip.id === id));
   const groups = ['H', 'T'] as const;
 
@@ -88,11 +91,23 @@ export function ResusPanel({ patientId, resus, chips, actions }: ResusPanelProps
                   className="btn chip"
                   data-testid={`resus-${chip.id}`}
                   onClick={() => {
-                    actions.submitChat(patientId, chip.text);
+                    if (chip.prompt) setPromptChip(chip);
+                    else actions.submitChat(patientId, chip.text);
                   }}
                 >
                   {chip.label}
                 </button>
+                {promptChip?.id === chip.id && promptChip.prompt ? (
+                  <ChipPrompt
+                    chip={promptChip}
+                    onSubmit={(text) => {
+                      actions.submitChat(patientId, text);
+                    }}
+                    onClose={() => {
+                      setPromptChip(null);
+                    }}
+                  />
+                ) : null}
               </li>
             ))}
           </ul>

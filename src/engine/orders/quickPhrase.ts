@@ -3,6 +3,7 @@
  * 所以搶救唔受 AI 延遲影響。字典來自 T26 quick-words，藥物句式來自 T5 formulary。
  */
 import type { EngineTables, ExecutorKind } from '../case/tables';
+import { matchPromptPhrase } from './quickPrompt';
 import { stripMentions } from '../chat/mentions';
 import type { Order } from './orderTypes';
 
@@ -44,6 +45,9 @@ export function matchQuickPhrase(text: string, tables: EngineTables): LocalOrder
         : NO_PARAMS,
     };
   }
+
+  const prompted = matchPromptPhrase(phrase, tables);
+  if (prompted) return prompted;
 
   for (const drug of tables.formulary) {
     const aliases = drug.aliases.map((a) => escapeRegExp(a.toLowerCase())).join('|');

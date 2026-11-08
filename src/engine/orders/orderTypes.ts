@@ -26,6 +26,12 @@ export const orderSchema = z
         drugFormularyId: z.string().nullable(),
         dose: z.object({ value: z.number(), unit: z.string() }).strict().nullable(),
         route: z.string().nullable(),
+        /** 彈窗填嘅頻次，例如 stat、TDS、Q4H。舊存檔冇呢欄。 */
+        frequency: z.string().min(1).optional(),
+        /** x1–x3。舊存檔冇呢欄。 */
+        times: z.number().int().min(1).max(3).optional(),
+        /** 輸液速率。舊存檔冇呢欄。 */
+        rate: z.object({ value: z.number(), unit: z.string() }).strict().optional(),
       })
       .strict(),
     executor: z.string().nullable(),

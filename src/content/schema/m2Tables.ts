@@ -383,6 +383,42 @@ export const quickWordSchema = z
     chipLabel: z.string().min(1).optional(),
     /** 快捷選單：觀察、治療、檢查、搶救。改呢欄就改分類。 */
     chipGroup: z.enum(['observe', 'treat', 'tests', 'resus']).optional(),
+    /**
+     * 有呢個清單時，按鈕先彈出小窗再落單。
+     * dose 劑量、route 途徑、frequency 頻次、times x1–x3、volume 容量、rate 速率、
+     * energy 能量、flow 氧氣流量、transfusion 輸血單位。
+     */
+    prompt: z
+      .array(
+        z.enum([
+          'dose',
+          'route',
+          'frequency',
+          'times',
+          'volume',
+          'rate',
+          'energy',
+          'flow',
+          'transfusion',
+        ]),
+      )
+      .min(1)
+      .optional(),
+    /** 彈窗組句用嘅開頭，例如 ceftriaxone、oxygen nrb。唔好同完整別名一樣。 */
+    promptStem: z.string().min(1).optional(),
+    promptDefaults: z
+      .object({
+        flow: z.number().positive().optional(),
+        volume: z.number().positive().optional(),
+        rate: z.number().positive().optional(),
+        energy: z.number().positive().optional(),
+        transfusion: z.number().positive().optional(),
+        frequency: z.enum(['stat', 'TDS', 'prn', 'Q_H', 'Q_min']).optional(),
+        every: z.number().positive().optional(),
+        times: z.number().int().min(1).max(3).optional(),
+      })
+      .strict()
+      .optional(),
     params: z
       .object({
         drugFormularyId: id.optional(),

@@ -31,6 +31,7 @@ import type {
   VitalReadout,
 } from './types';
 import { selectDeath, selectResus } from './resusView';
+import { chipPrompt } from './quickPrompt';
 import { parseWave, plethAmplitude } from './waveform';
 import { selectShift } from './shiftView';
 import { selectWard } from './wardView';
@@ -374,7 +375,7 @@ function presetLabel(
   tables: EngineTables,
 ): string | undefined {
   const hits = tables['quick-words'].filter(
-    (word) => word.chipLabel && word.catalogId === order.catalogId,
+    (word) => word.chipLabel && !word.prompt?.length && word.catalogId === order.catalogId,
   );
   const match = hits.find((word) => {
     const dose = word.params?.dose;
@@ -394,6 +395,11 @@ function selectQuickChips(tables: EngineTables): QuickChipView[] {
   return tables['quick-words'].flatMap((word) => {
     const text = word.aliases[0];
     const row = tables['order-catalog'].find((item) => item.id === word.catalogId);
+    const formulary =
+      tables.formulary.find((item) => item.id === word.params?.drugFormularyId) ??
+      tables.formulary.find((item) => item.catalogId === word.catalogId) ??
+      null;
+    const prompt = chipPrompt(word, formulary);
     return word.chipLabel && text
       ? [
           {
@@ -401,6 +407,7 @@ function selectQuickChips(tables: EngineTables): QuickChipView[] {
             label: word.chipLabel,
             text,
             category: word.chipGroup ?? chipCategory(row?.type ?? '', word.catalogId),
+            ...(prompt ? { prompt } : {}),
           },
         ]
       : [];

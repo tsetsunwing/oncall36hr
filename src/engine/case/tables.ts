@@ -162,6 +162,32 @@ export interface QuickWordRow {
   catalogId: string;
   chipLabel?: string | undefined;
   chipGroup?: 'observe' | 'treat' | 'tests' | 'resus' | undefined;
+  prompt?:
+    | readonly (
+        | 'dose'
+        | 'route'
+        | 'frequency'
+        | 'times'
+        | 'volume'
+        | 'rate'
+        | 'energy'
+        | 'flow'
+        | 'transfusion'
+      )[]
+    | undefined;
+  promptStem?: string | undefined;
+  promptDefaults?:
+    | {
+        flow?: number | undefined;
+        volume?: number | undefined;
+        rate?: number | undefined;
+        energy?: number | undefined;
+        transfusion?: number | undefined;
+        frequency?: 'stat' | 'TDS' | 'prn' | 'Q_H' | 'Q_min' | undefined;
+        every?: number | undefined;
+        times?: number | undefined;
+      }
+    | undefined;
   params?:
     | {
         drugFormularyId?: string | undefined;

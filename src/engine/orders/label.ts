@@ -11,5 +11,10 @@ export function composeOrderLabel(
     ? ` ${String(order.params.dose.value)} ${order.params.dose.unit}`
     : '';
   const route = order.params.route ? ` ${order.params.route}` : '';
-  return `${base}${dose}${route}`;
+  const frequency = order.params.frequency ? ` ${order.params.frequency}` : '';
+  const times = order.params.times ? ` x${String(order.params.times)}` : '';
+  const rate = order.params.rate
+    ? ` ${String(order.params.rate.value)} ${order.params.rate.unit}`
+    : '';
+  return `${base}${dose}${route}${frequency}${times}${rate}`;
 }

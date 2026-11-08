@@ -37,6 +37,28 @@ describe('本地快捷詞 parser', () => {
     expect(matchQuickPhrase('paracetamol 1 g', tables)?.params.route).toBeNull();
   });
 
+  it('彈窗句子：同一隻藥可以帶唔同劑量、途徑、頻次同次數', () => {
+    expect(matchQuickPhrase('ceftriaxone 2 g IV TDS x2', tables)?.params).toEqual({
+      drugFormularyId: 'ceftriaxone',
+      dose: { value: 2, unit: 'g' },
+      route: 'IV',
+      frequency: 'TDS',
+      times: 2,
+    });
+    expect(matchQuickPhrase('oxygen nrb 10 L/min', tables)?.params.dose).toEqual({
+      value: 10,
+      unit: 'L/min',
+    });
+    expect(matchQuickPhrase('ns 250 ml 80 ml/hr', tables)?.params).toMatchObject({
+      dose: { value: 250, unit: 'ml' },
+      rate: { value: 80, unit: 'ml/hr' },
+    });
+    expect(matchQuickPhrase('defib 150 J', tables)?.params.dose).toEqual({
+      value: 150,
+      unit: 'J',
+    });
+  });
+
   it('唔夠明確就唔中（交畀 order.parse）：未知單位、途徑、零劑量、多餘文字', () => {
     for (const text of [
       'ceftriaxone 1 kg iv',

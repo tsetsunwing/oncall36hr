@@ -219,6 +219,65 @@ describe('ChatPanel', () => {
     expect(actions.submitChat).toHaveBeenCalledWith('p1', 'check vitals');
   });
 
+  it('有數值嘅快捷先開小窗，確認後先送出劑量同頻次', async () => {
+    const user = userEvent.setup();
+    const actions = makeActions();
+    render(
+      <ChatPanel
+        chat={chat()}
+        chips={[
+          {
+            id: 'drug',
+            label: 'Ceftriaxone',
+            text: 'ceftriaxone 1 g iv',
+            category: 'treat',
+            prompt: {
+              stem: 'ceftriaxone',
+              fields: [
+                {
+                  id: 'dose',
+                  kind: 'amount',
+                  units: ['g', 'mg'],
+                  value: 1,
+                  unit: 'g',
+                  required: true,
+                },
+                { id: 'route', kind: 'select', options: ['IV'], value: 'IV', required: true },
+                { id: 'frequency', kind: 'frequency', value: null, every: null, required: false },
+                {
+                  id: 'times',
+                  kind: 'select',
+                  options: ['x1', 'x2', 'x3'],
+                  value: null,
+                  required: false,
+                },
+              ],
+            },
+          },
+        ]}
+        notice={null}
+        actions={actions}
+      />,
+    );
+    await user.click(screen.getByRole('button', { name: ui.game.chat.chipGroup.treat ?? '' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Ceftriaxone' }));
+    expect(actions.submitChat).not.toHaveBeenCalled();
+    expect(screen.getByTestId('chip-prompt')).toBeInTheDocument();
+    const dose = screen.getByRole('spinbutton', { name: ui.game.chat.prompt.dose });
+    await user.clear(dose);
+    await user.type(dose, '2');
+    await user.selectOptions(
+      screen.getByRole('combobox', { name: ui.game.chat.prompt.frequency }),
+      'TDS',
+    );
+    await user.selectOptions(
+      screen.getByRole('combobox', { name: ui.game.chat.prompt.times }),
+      'x2',
+    );
+    await user.click(screen.getByTestId('chip-prompt-confirm'));
+    expect(actions.submitChat).toHaveBeenCalledWith('p1', 'ceftriaxone 2 g IV TDS x2');
+  });
+
   it('被拒絕嘅動作顯示 notice（role=status）', () => {
     render(
       <ChatPanel

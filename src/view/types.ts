@@ -178,11 +178,49 @@ export interface ActionRowView {
 
 export type QuickChipCategory = 'observe' | 'treat' | 'tests' | 'procedure' | 'resus';
 
+export type QuickPromptFieldId =
+  'dose' | 'route' | 'frequency' | 'times' | 'volume' | 'rate' | 'energy' | 'flow' | 'transfusion';
+
+export interface QuickChipAmountField {
+  id: 'dose' | 'volume' | 'rate' | 'energy' | 'flow' | 'transfusion';
+  kind: 'amount';
+  units: readonly string[];
+  value: number | null;
+  unit: string;
+  required: boolean;
+}
+
+export interface QuickChipSelectField {
+  id: 'route' | 'times';
+  kind: 'select';
+  options: readonly string[];
+  value: string | null;
+  required: boolean;
+}
+
+export interface QuickChipFrequencyField {
+  id: 'frequency';
+  kind: 'frequency';
+  value: 'stat' | 'TDS' | 'prn' | 'Q_H' | 'Q_min' | null;
+  every: number | null;
+  required: boolean;
+}
+
+export type QuickChipPromptField =
+  QuickChipAmountField | QuickChipSelectField | QuickChipFrequencyField;
+
+export interface QuickChipPrompt {
+  stem: string;
+  fields: readonly QuickChipPromptField[];
+}
+
 export interface QuickChipView {
   id: string;
   label: string;
   text: string;
   category: QuickChipCategory;
+  /** 有值時先彈小窗，唔直接落單。 */
+  prompt?: QuickChipPrompt;
 }
 
 export type RankCode = 'HO' | 'MO' | 'RES' | 'AC' | 'COS';

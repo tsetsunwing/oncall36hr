@@ -17,6 +17,7 @@ import type {
   QuickChipCategory,
   QuickChipView,
 } from '@/view';
+import { ChipPrompt } from './ChipPrompt';
 import { GatePanel } from './GatePanel';
 
 const MENTION_AT_END = /[@＠]([^\s@＠]*)$/u;
@@ -59,7 +60,15 @@ function Line({ line }: { line: ChatLineView }) {
   );
 }
 
-function ChipMenus({ chips, onPick }: { chips: QuickChipView[]; onPick: (text: string) => void }) {
+function ChipMenus({
+  chips,
+  onPick,
+  onPrompt,
+}: {
+  chips: QuickChipView[];
+  onPick: (text: string) => void;
+  onPrompt: (chip: QuickChipView) => void;
+}) {
   const c = ui.game.chat;
   const [open, setOpen] = useState<QuickChipCategory | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -114,7 +123,8 @@ function ChipMenus({ chips, onPick }: { chips: QuickChipView[]; onPick: (text: s
                     role="menuitem"
                     className="chip"
                     onClick={() => {
-                      onPick(chip.text);
+                      if (chip.prompt) onPrompt(chip);
+                      else onPick(chip.text);
                       setOpen(null);
                     }}
                   >
@@ -133,6 +143,7 @@ function ChipMenus({ chips, onPick }: { chips: QuickChipView[]; onPick: (text: s
 export function ChatPanel({ chat, chips, gates = [], notice, actions }: ChatPanelProps) {
   const c = ui.game.chat;
   const [text, setText] = useState('');
+  const [promptChip, setPromptChip] = useState<QuickChipView | null>(null);
   const [active, setActive] = useState(0);
   const [dismissed, setDismissed] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -297,7 +308,24 @@ export function ChatPanel({ chat, chips, gates = [], notice, actions }: ChatPane
           <Send size={16} strokeWidth={2} aria-hidden="true" />
         </button>
       </form>
-      <ChipMenus chips={chips} onPick={submit} />
+      <div className="chip-prompt-anchor">
+        {promptChip?.prompt ? (
+          <ChipPrompt
+            chip={promptChip}
+            onSubmit={submit}
+            onClose={() => {
+              setPromptChip(null);
+            }}
+          />
+        ) : null}
+        <ChipMenus
+          chips={chips}
+          onPick={submit}
+          onPrompt={(chip) => {
+            setPromptChip(chip);
+          }}
+        />
+      </div>
     </section>
   );
 }

@@ -18,14 +18,20 @@
     "aliases": ["oxygen nrb", "o2 nrb", "nrb", "nrb mask", "o2 15l", "oxygen 15l"],
     "catalogId": "oxygen.nrb",
     "chipLabel": "Oxygen NRB",
-    "chipGroup": "treat"
+    "chipGroup": "treat",
+    "promptStem": "oxygen nrb",
+    "prompt": ["flow"],
+    "promptDefaults": { "flow": 15 }
   },
   {
     "id": "qw.nasal",
     "aliases": ["oxygen nasal", "o2 nasal", "o2 np", "nasal prong", "o2 2l", "oxygen 2l"],
     "catalogId": "oxygen.nasal",
     "chipGroup": "treat",
-    "chipLabel": "Oxygen nasal"
+    "chipLabel": "Oxygen nasal",
+    "promptStem": "oxygen nasal",
+    "prompt": ["flow"],
+    "promptDefaults": { "flow": 2 }
   },
   {
     "id": "qw.ns500",
@@ -38,14 +44,19 @@
       "ivf bolus"
     ],
     "catalogId": "fluid.ns500",
-    "chipLabel": "NS 500 mL",
-    "chipGroup": "treat"
+    "chipLabel": "NS",
+    "chipGroup": "treat",
+    "promptStem": "ns",
+    "prompt": ["volume", "rate"],
+    "promptDefaults": { "volume": 500 }
   },
   {
     "id": "qw.ceftriaxone",
     "aliases": ["ceftriaxone 1 g iv", "ceftriaxone 1g iv"],
     "catalogId": "drug.ceftriaxone",
-    "chipLabel": "Ceftriaxone 1 g IV",
+    "chipLabel": "Ceftriaxone",
+    "promptStem": "ceftriaxone",
+    "prompt": ["dose", "route", "frequency", "times"],
     "params": {
       "drugFormularyId": "ceftriaxone",
       "dose": {
@@ -129,7 +140,9 @@
     "id": "qw.defib200",
     "aliases": ["defib 200 j", "defib 200j", "defib 200 joule"],
     "catalogId": "acls.defib",
-    "chipLabel": "Defib 200 J",
+    "chipLabel": "Defib",
+    "promptStem": "defib",
+    "prompt": ["energy"],
     "params": {
       "drugFormularyId": "defibrillation",
       "dose": {
@@ -143,7 +156,10 @@
     "id": "qw.adrenaline",
     "aliases": ["adrenaline 1 mg iv", "adrenaline 1mg iv", "adr 1 mg iv", "epi 1 mg iv"],
     "catalogId": "drug.adrenaline",
-    "chipLabel": "Adrenaline 1 mg IV",
+    "chipLabel": "Adrenaline",
+    "promptStem": "adrenaline",
+    "prompt": ["dose", "route", "frequency"],
+    "promptDefaults": { "frequency": "stat" },
     "params": {
       "drugFormularyId": "adrenaline",
       "dose": {
@@ -172,7 +188,10 @@
     "id": "qw.amiodarone",
     "aliases": ["amiodarone 300 mg iv", "amiodarone 300mg iv"],
     "catalogId": "drug.amiodarone",
-    "chipLabel": "Amiodarone 300 mg IV",
+    "chipLabel": "Amiodarone",
+    "promptStem": "amiodarone",
+    "prompt": ["dose", "route", "frequency"],
+    "promptDefaults": { "frequency": "stat" },
     "params": {
       "drugFormularyId": "amiodarone",
       "dose": {
