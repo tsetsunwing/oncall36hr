@@ -99,7 +99,6 @@ describe('engine 發出嘅每個 AI context 都符合 ai 契約', () => {
       [
         'ACK_CHAT',
         'ALERT_DETERIORATION',
-        'ASK_REPHRASE',
         'ORDER_CANCELLED',
         'PATIENT_SPEAKS',
         'REPORT_STATUS',

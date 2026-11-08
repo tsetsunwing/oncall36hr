@@ -17,7 +17,7 @@ const VITAL_CHECK_TOKENS = [
 const VITAL_CHECK = new Set<string>(VITAL_CHECK_TOKENS);
 
 const VITAL_CHECK_LINE =
-  '量完生命體徵：HR {{vital.hr}}，BP {{vital.sbp}}/{{vital.dbp}}，SpO2 {{vital.spo2}}%，RR {{vital.rr}}，Temp {{vital.temp}}，MEWS {{mews.score}}。';
+  '量完生命體徵：心率 {{vital.hr}}，血壓 {{vital.sbp}}/{{vital.dbp}}，血氧 {{vital.spo2}}%，呼吸 {{vital.rr}}，體溫 {{vital.temp}}，MEWS {{mews.score}}。';
 
 function isVitalCheck(tokens: readonly string[]): boolean {
   return tokens.length === VITAL_CHECK.size && tokens.every((token) => VITAL_CHECK.has(token));
@@ -25,6 +25,11 @@ function isVitalCheck(tokens: readonly string[]): boolean {
 
 /** 可以本地寫出就返回模板；其餘 beat（包括含其他數值嘅結果）繼續交俾對白模型。 */
 export function shortReplyTemplate(beat: Beat): string | null {
+  if (beat.type === 'ASK_REPHRASE') {
+    return beat.reason === 'UNSUPPORTED'
+      ? '醫生，呢樣我做唔到，可唔可以講另一個 order？'
+      : '醫生，我聽唔清楚你個 order，可唔可以再講一次？';
+  }
   if (beat.type === 'ACK_ORDER') {
     const label = `{{${beat.labelToken}}}`;
     if (beat.executor === 'PLAYER') return `收到，你自己做 ${label}。`;

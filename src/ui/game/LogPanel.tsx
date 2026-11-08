@@ -28,7 +28,15 @@ function executorText(order: OrderRowView): string {
   return ` · ${ui.game.log.executor}：${name}`;
 }
 
-function OrderItem({ order, actions }: { order: OrderRowView; actions: GameActions }) {
+function OrderItem({
+  order,
+  report,
+  actions,
+}: {
+  order: OrderRowView;
+  report: ReportView | undefined;
+  actions: GameActions;
+}) {
   const o = ui.game.orders;
   const eta = etaText(order);
   return (
@@ -45,6 +53,16 @@ function OrderItem({ order, actions }: { order: OrderRowView; actions: GameActio
         {order.resultStatus ? ` · ${o.resultStatus[order.resultStatus]}` : ''}
         {eta ? ` · ${eta}` : ''}
       </div>
+      {order.status === 'DONE' && (report ?? order.resultText) ? (
+        <details className="order-result" data-testid="order-result">
+          <summary>{o.viewResult}</summary>
+          {report ? (
+            <ReportBody report={report} />
+          ) : (
+            <p className="report-text">{order.resultText}</p>
+          )}
+        </details>
+      ) : null}
       {order.cancellable ? (
         <button
           type="button"
@@ -61,14 +79,10 @@ function OrderItem({ order, actions }: { order: OrderRowView; actions: GameActio
   );
 }
 
-function ReportItem({ report }: { report: ReportView }) {
+function ReportBody({ report }: { report: ReportView }) {
   const r = ui.game.reports;
   return (
-    <li className="report-row" data-testid="report-row" data-abnormal={report.abnormal}>
-      <div className="order-main">
-        <span className="order-label">{report.label}</span>
-        <time className="log-time">{report.timeLabel}</time>
-      </div>
+    <>
       {report.kind === 'PANEL' ? (
         <table className="report-table">
           <caption className="visually-hidden">{r.tableCaption(report.label)}</caption>
@@ -104,6 +118,18 @@ function ReportItem({ report }: { report: ReportView }) {
         </p>
       )}
       {report.reviewPending ? <p className="hint">{r.pending}</p> : null}
+    </>
+  );
+}
+
+function ReportItem({ report }: { report: ReportView }) {
+  return (
+    <li className="report-row" data-testid="report-row" data-abnormal={report.abnormal}>
+      <div className="order-main">
+        <span className="order-label">{report.label}</span>
+        <time className="log-time">{report.timeLabel}</time>
+      </div>
+      <ReportBody report={report} />
     </li>
   );
 }
@@ -166,7 +192,12 @@ export function LogPanel({
         ) : (
           <ul className="order-list">
             {orders.map((order) => (
-              <OrderItem key={order.id} order={order} actions={actions} />
+              <OrderItem
+                key={order.id}
+                order={order}
+                report={reports.find((item) => item.orderId === order.id)}
+                actions={actions}
+              />
             ))}
           </ul>
         )}

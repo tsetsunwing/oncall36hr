@@ -121,8 +121,9 @@ describe('order.parse 套用', () => {
     const { run, reqId } = ask('俾 morphine');
     const done = answer(run, reqId, { intent: 'ORDER', actions: [{ catalogId: 'drug.morphine' }] });
     expect(Object.keys(done.state.orders)).toHaveLength(0);
-    const request = aiRequests(done.effects)[0];
-    expect(JSON.stringify(request?.context)).toContain('ASK_REPHRASE');
+    expect(aiRequests(done.effects)).toHaveLength(0);
+    const lines = Object.values(done.state.chats).flatMap((chat) => chat.lines);
+    expect(lines.at(-1)?.template).toContain('聽唔清楚');
   });
 
   it('單次最多接受 maxActionsPerParse 個 action', () => {

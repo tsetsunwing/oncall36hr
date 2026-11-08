@@ -4,7 +4,6 @@ import type { BedView, GameActions, WardView } from '@/view';
 export interface FloorPlanProps {
   ward: WardView;
   actions: GameActions;
-  onOpenPhone: () => void;
   onExpand?: () => void;
   onClose?: () => void;
   compact?: boolean;
@@ -53,7 +52,6 @@ function BedButton({ bed, actions }: { bed: BedView; actions: GameActions }) {
 export function FloorPlan({
   ward,
   actions,
-  onOpenPhone,
   onExpand,
   onClose,
   compact = false,
@@ -113,18 +111,6 @@ export function FloorPlan({
           >
             <span>{w.station}</span>
             {atStation ? <span className="landmark-sub">{w.stationHere}</span> : null}
-          </button>
-          <button
-            type="button"
-            className="landmark"
-            data-ringing={ward.phone.ringing > 0}
-            data-testid="landmark-phone"
-            onClick={onOpenPhone}
-          >
-            <span>{ward.phone.ringing > 0 ? w.incoming : w.phoneLandmark}</span>
-            {ward.phone.ringing > 0 ? (
-              <span className="landmark-sub">{w.phone.ringing(ward.phone.ringing)}</span>
-            ) : null}
           </button>
           <span className="landmark landmark--static">{w.pantry}</span>
           <span className="landmark landmark--static">{w.rest}</span>

@@ -254,7 +254,10 @@ export async function postCompletion(
       kind: 'response',
       status: result.status,
       url: result.url,
-      body: { choices: [{ message: { content: claudeText(result.body) } }] },
+      body: {
+        choices: [{ message: { content: claudeText(result.body) } }],
+        usage: (result.body as { usage?: unknown } | null)?.usage,
+      },
     };
   }
 

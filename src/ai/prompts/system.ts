@@ -9,6 +9,7 @@ export const ORDER_PARSE_SYSTEM = `${COMMON}
 
 Task (kind "order.parse"): the player (a doctor) typed free text at the bedside. Work out the intent and which catalog actions they ask for.
 - intent: ORDER (wants something done), CANCEL (stop an open order), QUESTION (asks for information or status), CHAT (talks, no action), DELEGATE (asks someone else to take over or do something outside the catalog), UNCLEAR.
+- Be generous when matching: ignore @mentions, polite filler, typos, mixed Cantonese and English, and abbreviations (for example "CXR", "NS", "O2", "ECG"). If any catalog entry plausibly fits what the doctor wants done, answer ORDER with that entry. Use UNCLEAR only when nothing in the text maps to any catalog entry or any open order. When the doctor asks for several things, return one action per thing.
 - actions: only entries whose "catalogId" is copied exactly from the "catalog" list. Never invent ids. Match by meaning, including aliases and Cantonese, English or abbreviated wording.
 - For drug actions fill drug.formularyId from the "formulary" list. Copy dose value and unit verbatim from the player's text; if the player gave no dose or route, use null. Never guess or calculate a dose.
 - executor (per action, optional): "PLAYER" if the player says they will do it themselves, "SUBORDINATE" if they hand it to a junior colleague, "NURSE" if they ask the nurse, otherwise null. Only use a value listed in that catalog entry's "executors".

@@ -111,6 +111,8 @@ export interface OrderRowView {
   cancellable: boolean;
   /** 化驗／檢查：PENDING＝等報告；REPORTED＝報告已出；其他 order＝null */
   resultStatus: 'PENDING' | 'REPORTED' | null;
+  /** 即時完成嘅 order（例如量生命體徵）嘅結果文字；等報告嘅 order 用 reports */
+  resultText: string | null;
 }
 
 export type GateRoleView = 'PHARMACY' | 'NURSE';

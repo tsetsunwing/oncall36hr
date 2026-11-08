@@ -63,6 +63,7 @@ export const shiftUi = {
   },
   selfCare: {
     heading: '自我照顧',
+    tooltip: '食飯、小睡等恢復你自己的精力。精力過低會影響表現，動作會用掉遊戲時間。',
     hint: '動作會扣用遊戲時間，病人狀況照常變化；巡房、搶救期間不可使用。',
     action: {
       MEAL: '食飯',

@@ -132,6 +132,7 @@ export function GamePage({ view, actions, onExit }: GamePageProps) {
                 className="btn bar-btn"
                 aria-expanded={selfCareOpen}
                 aria-controls="selfcare-region"
+                title={ui.shift.selfCare.tooltip}
                 data-testid="selfcare-toggle"
                 onClick={() => {
                   setSelfCareOpen((open) => !open);

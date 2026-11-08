@@ -121,6 +121,7 @@ export function order(over: Partial<OrderRowView> = {}): OrderRowView {
     etaSeconds: 120,
     cancellable: true,
     resultStatus: null,
+    resultText: null,
     ...over,
   };
 }

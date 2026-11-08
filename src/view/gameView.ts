@@ -235,6 +235,9 @@ function selectOrders(
             : null,
         cancellable: isCancellable(order, row),
         resultStatus: order.resultStatus,
+        resultText:
+          state.actionLog.find((entry) => entry.orderId === order.id && entry.resultText)
+            ?.resultText ?? null,
       };
     });
 }

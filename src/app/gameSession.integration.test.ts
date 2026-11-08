@@ -163,7 +163,7 @@ describe('自由文字 → order.parse → order', () => {
 });
 
 describe('惡意／錯誤 AI 輸出：改唔到任何顯示數字', () => {
-  const guardModes = ['numbers', 'inject', 'bad-token', 'diagnosis', 'wrong-speaker'];
+  const guardModes = ['numbers', 'bad-token', 'diagnosis', 'wrong-speaker'];
   for (const mode of guardModes) {
     it(`mock-${mode}：對白被 guard 擋住 → 暫停＋重試橫幅，病人同 vitals 不變，冇 AI 對白入 chat`, async () => {
       const { session } = open(`mock-${mode}`);
@@ -183,6 +183,18 @@ describe('惡意／錯誤 AI 輸出：改唔到任何顯示數字', () => {
       expect(attempts).toBeGreaterThanOrEqual(2);
     });
   }
+
+  it('mock-inject：order.parse 夾帶數字同假 ORDER → 病人同 vitals 不變，護士本地要求重講', async () => {
+    const { session } = open('mock-inject');
+    const before = patientsJson(session);
+    session.actions.submitChat('p1', '病人而家點呀');
+    await session.settled();
+    const view = session.getSnapshot();
+    expect(view.aiFailure).toBeNull();
+    expect(patientsJson(session)).toBe(before);
+    expect(Object.keys(session.getState().orders)).toHaveLength(0);
+    expect(JSON.stringify(view.chat)).toContain('聽唔清楚');
+  });
 
   it('mock-extra-fields：多餘欄位（vitals／diagnosis）被剝除，正常完成，數字不受影響', async () => {
     const { session, timer } = open('mock-extra-fields', { seed: 'int-extra' });
@@ -219,7 +231,7 @@ describe('失敗處理（C7 A、spec §21）', () => {
     const { session, timer } = open('mock-fail-twice', { seed: 'int-retry' });
     const saveMock = saveFn;
     const saveCalls = saveMock.mock.calls.length;
-    session.actions.submitChat('p1', 'oxygen nrb');
+    session.actions.submitChat('p1', '幫我睇下 vitals 呀');
     await session.settled();
     const failed = session.getSnapshot();
     expect(failed.aiFailure?.reason).toBe('NETWORK');
@@ -245,7 +257,7 @@ describe('失敗處理（C7 A、spec §21）', () => {
 
   it('認證失敗：AUTH，唔重試', async () => {
     const { session } = open('mock-auth-fail', { seed: 'int-auth' });
-    session.actions.submitChat('p1', 'oxygen nrb');
+    session.actions.submitChat('p1', '幫我睇下 vitals 呀');
     await session.settled();
     expect(session.getSnapshot().aiFailure?.reason).toBe('AUTH');
     expect(mock.requests).toHaveLength(1);
@@ -253,7 +265,7 @@ describe('失敗處理（C7 A、spec §21）', () => {
 
   it('伺服器無回應：TIMEOUT（重試 1 次後）', async () => {
     const { session } = open('mock-hang', { timeoutMs: 150, seed: 'int-hang' });
-    session.actions.submitChat('p1', 'oxygen nrb');
+    session.actions.submitChat('p1', '幫我睇下 vitals 呀');
     await session.settled();
     expect(session.getSnapshot().aiFailure?.reason).toBe('TIMEOUT');
     expect(mock.requests).toHaveLength(2);

@@ -148,7 +148,7 @@ function ward(over: Partial<WardView> = {}): WardView {
 describe('FloorPlan', () => {
   it('20 個床位按鈕；入住床有姓名、MEWS 及文字風險標籤；按床呼叫 goToBed', async () => {
     const actions = makeActions();
-    render(<FloorPlan ward={ward()} actions={actions} onOpenPhone={vi.fn()} />);
+    render(<FloorPlan ward={ward()} actions={actions} />);
     expect(screen.getAllByTestId(/^bed-\d+$/)).toHaveLength(20);
     const occupied = screen.getByTestId('bed-7');
     expect(occupied).toHaveTextContent('李婆婆');
@@ -162,16 +162,12 @@ describe('FloorPlan', () => {
     expect(actions.goToBed).toHaveBeenCalledWith(null);
   });
 
-  it('行緊路時顯示狀態；來電時電話地標顯示響鈴數', () => {
+  it('行緊路時顯示狀態；平面圖冇電話地標', () => {
     render(
-      <FloorPlan
-        ward={ward({ movingToBed: 7, arriveInSec: 40 })}
-        actions={makeActions()}
-        onOpenPhone={vi.fn()}
-      />,
+      <FloorPlan ward={ward({ movingToBed: 7, arriveInSec: 40 })} actions={makeActions()} />,
     );
     expect(screen.getByTestId('walking')).toBeInTheDocument();
-    expect(screen.getByTestId('landmark-phone')).toHaveAttribute('data-ringing', 'true');
+    expect(screen.queryByTestId('landmark-phone')).toBeNull();
   });
 });
 

@@ -1,5 +1,6 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { installAiDevHandle } from '@/ai';
 import { ContentValidationError, getContent } from '@/content';
 import { ui } from '@/i18n';
 import { App } from './App';
@@ -11,6 +12,7 @@ if (!rootElement) throw new Error('找不到 #root');
 
 try {
   getContent();
+  installAiDevHandle();
   createRoot(rootElement).render(
     <StrictMode>
       <App />

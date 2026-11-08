@@ -85,7 +85,6 @@ export function ClockBar({
             {speed}×
           </button>
         ))}
-        <span className="speed-note">{g.speedNote}</span>
       </div>
       {shift ? (
         <div

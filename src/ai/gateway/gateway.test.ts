@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { aiLogEntries, clearAiLog } from './aiLog';
 import { createAiGateway, type AiRequest } from './gateway';
 
 interface Sent {
@@ -208,6 +209,20 @@ describe('AI gateway', () => {
       'http://x/v1/chat/completions',
       'http://x/v1/models',
     ]);
+  });
+
+  it('每次往來都入 F12 記錄，帶回覆同 usage，但唔帶 key', async () => {
+    clearAiLog();
+    const withUsage = { ...good.body, usage: { prompt_tokens: 321, completion_tokens: 45 } };
+    const { fetchImpl } = scripted([{ status: 200, body: withUsage }]);
+    await createAiGateway(endpoint, { fetchImpl, timeoutMs: 500 }).run(request);
+    const entries = aiLogEntries();
+    expect(entries).toHaveLength(1);
+    expect(entries[0]).toMatchObject({ kind: 'dialogue.turn', outcome: 'ok', status: 200 });
+    expect(entries[0]?.reply).toContain('血氧');
+    expect(entries[0]?.tokens.reported).toEqual({ prompt: 321, completion: 45, total: 366 });
+    expect(entries[0]?.request.map((m) => m.role)).toEqual(['system', 'user']);
+    expect(JSON.stringify(entries)).not.toContain('secret-key');
   });
 
   it('HTTP 5xx／429／網絡錯誤：重試 1 次後 → NETWORK', async () => {

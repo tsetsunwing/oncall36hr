@@ -205,15 +205,6 @@ body {
   border-color: var(--accent);
 }
 
-.speed-note {
-  margin-left: 8px;
-  padding: 1px 8px;
-  font-size: 12px;
-  color: var(--muted);
-  border: 1px dashed var(--border);
-  border-radius: 6px;
-}
-
 .energy-meter {
   display: flex;
   align-items: center;
@@ -296,7 +287,7 @@ body {
 /* ---------- 床邊三欄 ---------- */
 .frame-desktop .desk.ward-grid {
   flex: 1;
-  grid-template-columns: 330px minmax(0, 1fr) 320px;
+  grid-template-columns: 376px minmax(0, 1fr) 320px;
   gap: 12px;
   align-items: stretch;
   min-height: 0;
@@ -331,8 +322,28 @@ body {
 
 .frame-desktop .floor-plan--compact {
   flex: none;
-  max-height: 48%;
-  overflow: auto;
+  overflow: visible;
+}
+
+.frame-desktop .floor-plan--compact .floor-plan-hint {
+  display: none;
+}
+
+.frame-desktop .floor-plan--compact .plan-grid {
+  gap: 6px;
+  padding: 10px 12px;
+}
+
+.frame-desktop .floor-plan--compact .bed {
+  padding: 6px 3px;
+}
+
+.frame-desktop .floor-plan--compact .plan-corridor {
+  padding: 6px;
+}
+
+.frame-desktop .floor-plan--compact .floor-plan-foot {
+  padding: 0 12px;
 }
 
 .frame-desktop .floor-plan--compact .bed-meta,
@@ -534,7 +545,6 @@ body {
   align-items: center;
   justify-content: center;
   aspect-ratio: 1;
-  min-height: 0;
   padding: 12px 6px;
   line-height: 1.2;
   color: var(--text);
@@ -1297,7 +1307,6 @@ tr[data-flag='H'] .value-flagged {
   padding: 6px 8px;
 }
 
-.frame-mobile .speed-note,
 .frame-mobile .speed-lab,
 .frame-mobile .round-count {
   display: none;
@@ -1576,4 +1585,38 @@ tr[data-flag='H'] .value-flagged {
 
 .frame-mobile .choice-card {
   padding: 8px;
+}
+
+.floor-plan-head {
+  align-items: center;
+  padding-right: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.floor-plan-head h2 {
+  flex: 1;
+  border-bottom: 0;
+}
+
+.order-result {
+  margin-top: 6px;
+  font-size: 12px;
+}
+
+.order-result summary {
+  display: inline-block;
+  padding: 2px 10px;
+  font-weight: 600;
+  color: var(--accent);
+  cursor: pointer;
+  background: var(--accent-soft);
+  border-radius: 999px;
+}
+
+.order-result[open] summary {
+  margin-bottom: 6px;
+}
+
+.order-result .report-text {
+  margin: 0;
 }

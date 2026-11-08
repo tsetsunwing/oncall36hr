@@ -16,7 +16,9 @@ import {
   isApiKeyRejection,
   postCompletion,
   providerErrorDetail,
+  type TransportResult,
 } from './transport';
+import { recordAiExchange, reportedUsage } from './aiLog';
 import type { AiEndpoint, TransportOptions } from './types';
 
 export interface AiRequest {
@@ -141,7 +143,41 @@ export function createAiGateway(
       let last: AiFailureReason = 'FORMAT';
       let lastDetail = '回覆格式不符契約';
 
+      let tries = 0;
       const attempt = async (): Promise<Attempt> => {
+        const started = performance.now();
+        const captured: { response?: TransportResult; reply?: string } = {};
+        const result = await attemptOnce(captured);
+        tries += 1;
+        const response = captured.response;
+        const status = response?.kind === 'response' ? response.status : null;
+        const providerBody =
+          response?.kind === 'response' && (response.status < 200 || response.status >= 300)
+            ? JSON.stringify(response.body)
+            : null;
+        recordAiExchange({
+          reqId: request.reqId,
+          kind: request.kind,
+          attempt: tries,
+          provider: endpoint.provider ?? 'openai',
+          model: endpoint.model,
+          url: response ? response.url : null,
+          status,
+          ms: performance.now() - started,
+          outcome: result.kind === 'ok' ? 'ok' : 'fail',
+          failure: result.kind === 'fail' ? result.detail : null,
+          request: messages,
+          reply: captured.reply ?? providerBody,
+          reportedUsage: response?.kind === 'response' ? reportedUsage(response.body) : null,
+          apiKey: endpoint.apiKey,
+        });
+        return result;
+      };
+
+      const attemptOnce = async (captured: {
+        response?: TransportResult;
+        reply?: string;
+      }): Promise<Attempt> => {
         const response = await postCompletion(
           endpoint,
           {
@@ -151,6 +187,7 @@ export function createAiGateway(
           },
           { timeoutMs: ai.requestTimeoutMs, ...options },
         );
+        captured.response = response;
         if (response.kind === 'timeout') {
           return {
             kind: 'fail',
@@ -200,6 +237,7 @@ export function createAiGateway(
         }
         const completion = completionSchema.safeParse(response.body);
         const reply = completion.success ? (completion.data.choices[0]?.message.content ?? '') : '';
+        captured.reply = reply;
         if (!completion.success) {
           return { kind: 'fail', reason: 'FORMAT', retry: true, detail: '回覆不是聊天補全' };
         }

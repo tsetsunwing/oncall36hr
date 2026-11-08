@@ -70,10 +70,6 @@ export function WardGame({ view, ward, actions }: WardGameProps) {
   const familyRinging = ward.phone.calls.filter(
     (call) => call.tag === 'FAMILY' && call.status === 'RINGING',
   ).length;
-  const openPhone = () => {
-    setTab('phone');
-    setPlanOpen(false);
-  };
   if (planOpen && frame === 'desktop') {
     return (
       <div className="plan-screen" data-testid="ward-game">
@@ -81,7 +77,6 @@ export function WardGame({ view, ward, actions }: WardGameProps) {
           ward={ward}
           actions={actions}
           compact={false}
-          onOpenPhone={openPhone}
           onClose={() => {
             setPlanOpen(false);
           }}
@@ -168,7 +163,6 @@ export function WardGame({ view, ward, actions }: WardGameProps) {
           ward={ward}
           actions={actions}
           compact={frame === 'desktop'}
-          onOpenPhone={openPhone}
           {...(frame === 'desktop'
             ? {
                 onExpand: () => {
