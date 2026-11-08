@@ -190,8 +190,9 @@ export function handleOrderParseResult(
         beats.push(
           result.intent === 'QUESTION'
             ? {
-                type: 'REPORT_STATUS',
+                type: 'ANSWER_QUESTION',
                 speaker: 'NURSE',
+                question: playerText,
                 tokens: STATUS_TOKENS,
                 abnormal: abnormalOf(patient, ctx.tables),
               }

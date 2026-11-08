@@ -120,6 +120,13 @@ export const ui = {
       typing: (name: string) => `${name} 輸入中……`,
       waiting: '等待回應中……',
       quickGroup: '快捷指令',
+      chipGroup: {
+        observe: '觀察',
+        treat: '治療',
+        tests: '檢查',
+        procedure: '程序',
+        resus: '搶救',
+      } as Record<string, string>,
       mentionHeading: '提及在場人員',
       phone: '電話',
       system: { ARRIVE: '在床邊' } as Record<string, string>,

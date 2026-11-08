@@ -48,6 +48,13 @@ const beatSchema = z.discriminatedUnion('type', [
     abnormal: z.array(abnormalSchema),
   }),
   z.object({
+    type: z.literal('ANSWER_QUESTION'),
+    speaker: z.literal('NURSE'),
+    question: z.string().min(1),
+    tokens: z.array(z.string()),
+    abnormal: z.array(abnormalSchema),
+  }),
+  z.object({
     type: z.literal('ALERT_DETERIORATION'),
     speaker: z.literal('NURSE'),
     tokens: z.array(z.string()),

@@ -172,10 +172,13 @@ export interface ActionRowView {
   nurseNote: string | null;
 }
 
+export type QuickChipCategory = 'observe' | 'treat' | 'tests' | 'procedure' | 'resus';
+
 export interface QuickChipView {
   id: string;
   label: string;
   text: string;
+  category: QuickChipCategory;
 }
 
 export type RankCode = 'HO' | 'MO' | 'RES' | 'AC' | 'COS';
@@ -594,6 +597,8 @@ export interface ShiftView {
     total: number;
     completed: number;
     nextAtLabel: string | null;
+    /** 到咗巡房時間，等玩家自己打開 */
+    offered: boolean;
     active: RoundView | null;
   };
   selfCare: {
@@ -666,6 +671,7 @@ export interface GameActions {
   }) => void;
   completeDeathStep: (step: DeathStepCode) => void;
   answerRound: (text: string, viaHint: boolean) => void;
+  beginRound: () => void;
   passRound: () => void;
   nextRound: () => void;
   startSelfCare: (actionId: SelfCareCode) => void;

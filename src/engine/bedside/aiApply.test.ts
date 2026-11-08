@@ -296,7 +296,7 @@ describe('dialogue.turn：token 凍結與即時', () => {
     expect(JSON.stringify(later.state.chats.p1?.lines.at(-1))).toBe(before);
   });
 
-  it('REPORT_STATUS（問情況）同樣即時：回覆慢返嚟時講嘅係寫入當刻嘅數值', () => {
+  it('ANSWER_QUESTION（問情況）同樣即時：回覆慢返嚟時講嘅係寫入當刻嘅數值', () => {
     const asked = ask('護士，病人而家情況點呀？').run;
     const parsed = answer(
       { state: asked.state, effects: [] },

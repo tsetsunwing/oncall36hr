@@ -234,6 +234,9 @@ export function createGameSession(options: GameSessionOptions): GameSession {
     delegate(request) {
       wardIntent('DELEGATE', request);
     },
+    beginRound() {
+      dispatch({ type: 'PLAYER_INTENT', intent: shiftIntent('ROUND_BEGIN') });
+    },
     answerRound(text, viaHint) {
       dispatch({ type: 'PLAYER_INTENT', intent: shiftIntent('ROUND_ANSWER', { text, viaHint }) });
     },

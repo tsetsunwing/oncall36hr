@@ -9,10 +9,18 @@ import {
 } from 'react';
 import { Send } from 'lucide-react';
 import { ui } from '@/i18n';
-import type { ChatLineView, ChatView, GameActions, GateCardView, QuickChipView } from '@/view';
+import type {
+  ChatLineView,
+  ChatView,
+  GameActions,
+  GateCardView,
+  QuickChipCategory,
+  QuickChipView,
+} from '@/view';
 import { GatePanel } from './GatePanel';
 
 const MENTION_AT_END = /[@＠]([^\s@＠]*)$/u;
+const CHIP_GROUPS: QuickChipCategory[] = ['observe', 'treat', 'tests', 'procedure', 'resus'];
 
 export interface ChatPanelProps {
   chat: ChatView;
@@ -47,6 +55,77 @@ function Line({ line }: { line: ChatLineView }) {
       <p className="chat-text" lang={mine ? undefined : 'yue-Hant-HK'}>
         {line.text}
       </p>
+    </div>
+  );
+}
+
+function ChipMenus({ chips, onPick }: { chips: QuickChipView[]; onPick: (text: string) => void }) {
+  const c = ui.game.chat;
+  const [open, setOpen] = useState<QuickChipCategory | null>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    function onPointer(event: PointerEvent) {
+      if (!rootRef.current?.contains(event.target as Node)) setOpen(null);
+    }
+    function onKey(event: globalThis.KeyboardEvent) {
+      if (event.key === 'Escape') setOpen(null);
+    }
+    document.addEventListener('pointerdown', onPointer);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('pointerdown', onPointer);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  return (
+    <div className="chips" role="group" aria-label={c.quickGroup} ref={rootRef}>
+      {CHIP_GROUPS.map((category) => {
+        const items = chips.filter((chip) => chip.category === category);
+        if (items.length === 0) return null;
+        const label = c.chipGroup[category] ?? category;
+        const shown = open === category;
+        return (
+          <div key={category} className="chip-group">
+            <button
+              type="button"
+              className="chip chip-category"
+              aria-expanded={shown}
+              aria-controls={`chip-menu-${category}`}
+              onClick={() => {
+                setOpen(shown ? null : category);
+              }}
+            >
+              {label}
+            </button>
+            {shown ? (
+              <div
+                id={`chip-menu-${category}`}
+                className="chip-menu"
+                role="menu"
+                aria-label={label}
+              >
+                {items.map((chip) => (
+                  <button
+                    key={chip.id}
+                    type="button"
+                    role="menuitem"
+                    className="chip"
+                    onClick={() => {
+                      onPick(chip.text);
+                      setOpen(null);
+                    }}
+                  >
+                    {chip.label}
+                  </button>
+                ))}
+              </div>
+            ) : null}
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -218,20 +297,7 @@ export function ChatPanel({ chat, chips, gates = [], notice, actions }: ChatPane
           <Send size={16} strokeWidth={2} aria-hidden="true" />
         </button>
       </form>
-      <div className="chips" role="group" aria-label={c.quickGroup}>
-        {chips.map((chip) => (
-          <button
-            key={chip.id}
-            type="button"
-            className="chip"
-            onClick={() => {
-              submit(chip.text);
-            }}
-          >
-            {chip.label}
-          </button>
-        ))}
-      </div>
+      <ChipMenus chips={chips} onPick={submit} />
     </section>
   );
 }

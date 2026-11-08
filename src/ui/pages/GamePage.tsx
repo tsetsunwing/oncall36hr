@@ -18,7 +18,7 @@ import { HandoverPanel } from '../shift/HandoverPanel';
 import { OvertimeBanner } from '../shift/OvertimeBanner';
 import { ResultPage } from '../shift/ResultPage';
 import { ReviewPage } from '../shift/ReviewPage';
-import { RoundPanel } from '../shift/RoundPanel';
+import { RoundDialog } from '../shift/RoundPanel';
 import { SelfCarePanel } from '../shift/SelfCarePanel';
 
 export interface GamePageProps {
@@ -148,7 +148,20 @@ export function GamePage({ view, actions, onExit }: GamePageProps) {
         <AiFailureBanner failure={view.aiFailure} actions={actions} onLeave={leave} />
       ) : null}
       {shift.overtime ? <OvertimeBanner overtime={shift.overtime} actions={actions} /> : null}
-      {shift.rounds.active ? <RoundPanel round={shift.rounds.active} actions={actions} /> : null}
+      {shift.rounds.offered ? (
+        <div className="round-offer" data-testid="round-offer">
+          <p>{ui.shift.rounds.offer(ui.shift.hostName)}</p>
+          <button
+            type="button"
+            className="btn btn-primary"
+            data-testid="begin-round"
+            onClick={actions.beginRound}
+          >
+            {ui.shift.rounds.begin}
+          </button>
+        </div>
+      ) : null}
+      {shift.rounds.active ? <RoundDialog round={shift.rounds.active} actions={actions} /> : null}
       {shift.handover ? (
         <HandoverPanel candidates={shift.handover.candidates} actions={actions} />
       ) : view.ward ? (

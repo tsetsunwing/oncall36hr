@@ -19,6 +19,7 @@ import { actionCostOf, applyDecay, energyModel, shouldNudge } from './energy';
 import { confirmHandover, faint, forceOvertimeEnd, workInFlight } from './handover';
 import {
   answerRound,
+  beginRound,
   handleRoundAiResult,
   handleRoundStart,
   handleRoundTimer,
@@ -76,6 +77,8 @@ function handleExtension(
   ctx: EngineContext,
 ): Reduction {
   switch (name) {
+    case 'ROUND_BEGIN':
+      return beginRound(state, ctx);
     case 'ROUND_ANSWER': {
       const parsed = payloads.ROUND_ANSWER.safeParse(payload);
       if (!parsed.success) return reject(state, 'ROUND_ANSWER_INVALID');

@@ -314,10 +314,30 @@ function selectActionLog(
   });
 }
 
+const RESUS_DRUGS = new Set(['drug.adrenaline', 'drug.amiodarone']);
+
+function chipCategory(type: string, catalogId: string): QuickChipView['category'] {
+  if (type === 'RESUSCITATION' || RESUS_DRUGS.has(catalogId)) return 'resus';
+  if (type === 'OBSERVATION' || type === 'MONITORING') return 'observe';
+  if (type === 'OXYGEN' || type === 'FLUID' || type === 'DRUG') return 'treat';
+  if (type === 'PROCEDURE') return 'procedure';
+  return 'tests';
+}
+
 function selectQuickChips(tables: EngineTables): QuickChipView[] {
   return tables['quick-words'].flatMap((word) => {
     const text = word.aliases[0];
-    return word.chipLabel && text ? [{ id: word.id, label: word.chipLabel, text }] : [];
+    const row = tables['order-catalog'].find((item) => item.id === word.catalogId);
+    return word.chipLabel && text
+      ? [
+          {
+            id: word.id,
+            label: word.chipLabel,
+            text,
+            category: chipCategory(row?.type ?? '', word.catalogId),
+          },
+        ]
+      : [];
   });
 }
 

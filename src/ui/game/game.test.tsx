@@ -33,6 +33,7 @@ function makeActions() {
     startDeathCall: vi.fn(),
     answerRound: vi.fn(),
     passRound: vi.fn(),
+    beginRound: vi.fn(),
     nextRound: vi.fn(),
     startSelfCare: vi.fn(),
     stopSelfCare: vi.fn(),
@@ -177,12 +178,13 @@ describe('ChatPanel', () => {
     render(
       <ChatPanel
         chat={chat()}
-        chips={[{ id: 'c1', label: '查看生命表徵', text: 'check vitals' }]}
+        chips={[{ id: 'c1', label: '查看生命表徵', text: 'check vitals', category: 'observe' }]}
         notice={null}
         actions={actions}
       />,
     );
-    await user.click(screen.getByRole('button', { name: '查看生命表徵' }));
+    await user.click(screen.getByRole('button', { name: ui.game.chat.chipGroup.observe ?? '' }));
+    await user.click(screen.getByRole('menuitem', { name: '查看生命表徵' }));
     expect(actions.submitChat).toHaveBeenCalledWith('p1', 'check vitals');
   });
 

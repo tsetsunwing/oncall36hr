@@ -35,6 +35,7 @@ function makeActions() {
     startDeathCall: vi.fn(),
     answerRound: vi.fn(),
     passRound: vi.fn(),
+    beginRound: vi.fn(),
     nextRound: vi.fn(),
     startSelfCare: vi.fn(),
     stopSelfCare: vi.fn(),
@@ -76,7 +77,7 @@ const shift = (over: Partial<ShiftView> = {}): ShiftView => ({
   segment: 'DAY',
   waitingForAi: false,
   energy: { percent: 82, level: 'NORMAL' },
-  rounds: { total: 2, completed: 1, nextAtLabel: '14:00', active: null },
+  rounds: { total: 2, completed: 1, nextAtLabel: '14:00', offered: false, active: null },
   selfCare: {
     active: null,
     mealWindowOpen: false,

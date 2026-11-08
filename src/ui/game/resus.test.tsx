@@ -25,6 +25,7 @@ function makeActions() {
     startDeathCall: vi.fn(),
     answerRound: vi.fn(),
     passRound: vi.fn(),
+    beginRound: vi.fn(),
     nextRound: vi.fn(),
     startSelfCare: vi.fn(),
     stopSelfCare: vi.fn(),
@@ -50,7 +51,12 @@ const chips = [
   'qw.pocus',
   'qw.stopcpr',
   'qw.ecg',
-].map((id) => ({ id, label: `chip ${id}`, text: `text ${id}` }));
+].map((id) => ({
+  id,
+  label: `chip ${id}`,
+  text: `text ${id}`,
+  category: id === 'qw.ecg' ? ('tests' as const) : ('resus' as const),
+}));
 
 function resusView(over: Partial<ResusView> = {}): ResusView {
   return {

@@ -93,6 +93,11 @@ describe('更次 ViewModel', () => {
   it('巡房：載入、發問、揭曉三個階段；key facts 只喺揭曉時出現', () => {
     const requests: ReturnType<typeof aiRequests> = [];
     let state = advanceTo(engine.init(params('DAY')), 3600 + 60, requests);
+    expect(selectGameView(state, env).shift.rounds.offered).toBe(true);
+    expect(selectGameView(state, env).shift.rounds.active).toBeNull();
+    const begun = engine.reduce(state, intent('ROUND_BEGIN'));
+    requests.push(...aiRequests(begun.effects));
+    state = begun.state;
     let round = selectGameView(state, env).shift.rounds.active;
     expect(round?.phase).toBe('LOADING');
     expect(round?.keyFacts).toBeNull();

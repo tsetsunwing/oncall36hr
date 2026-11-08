@@ -177,12 +177,14 @@ function beginQuestion(state: GameState, ctx: EngineContext, cursor: number): Re
   return endRound(setCurrent(state, null));
 }
 
+/** 到咗巡房時間只係通知，等玩家自己打開；未打開唔會進入巡房、唔暫停時間 */
 export function handleRoundStart(
   state: GameState,
   payload: JsonValue,
   ctx: EngineContext,
 ): Reduction {
   if (state.clock.phase !== 'REGULAR' || state.shift.rounds.active) return none(state);
+  if (state.shift.rounds.offeredAt !== null) return none(state);
   const from =
     typeof payload === 'object' && payload !== null && !Array.isArray(payload)
       ? payload.from
@@ -202,11 +204,25 @@ export function handleRoundStart(
       }),
     });
   }
+  return {
+    state: withShift(state, {
+      rounds: { ...state.shift.rounds, offeredAt: state.clock.t },
+    }),
+    effects: [noticeEffect('ROUND_OFFERED', 'info')],
+  };
+}
+
+/** 玩家打開巡房：先至停自我照顧、進入提問，並由時鐘暫停 */
+export function beginRound(state: GameState, ctx: EngineContext): Reduction {
+  if (state.clock.phase !== 'REGULAR') return reject(state, 'SHIFT_NOT_ACTIVE');
+  if (state.shift.rounds.active) return reject(state, 'ROUND_ACTIVE');
+  if (state.shift.rounds.offeredAt === null) return reject(state, 'ROUND_NOT_OFFERED');
   const stopped = stopSelfCare(state, ctx).state;
   const number = stopped.shift.rounds.started + 1;
   const started = withShift(stopped, {
     rounds: {
       ...stopped.shift.rounds,
+      offeredAt: null,
       started: number,
       active: {
         number,

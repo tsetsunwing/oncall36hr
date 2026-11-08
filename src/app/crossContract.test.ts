@@ -99,9 +99,9 @@ describe('engine 發出嘅每個 AI context 都符合 ai 契約', () => {
       [
         'ACK_CHAT',
         'ALERT_DETERIORATION',
+        'ANSWER_QUESTION',
         'ORDER_CANCELLED',
         'PATIENT_SPEAKS',
-        'REPORT_STATUS',
       ].sort(),
     );
   });
@@ -482,13 +482,24 @@ describe('巡房：engine 同 ai 嘅契約一致', () => {
       }),
     };
     const requests: Extract<Effect, { type: 'AI_REQUEST' }>[] = [];
-    while (state.shift.rounds.active === null && state.clock.t < 4000) {
+    while (state.shift.rounds.offeredAt === null && state.clock.t < 4000) {
       state = { ...state, pendingAi: [] };
       const result = engine.reduce(state, { type: 'TICK', dtRealMs: 60_000 / 12 });
       state = result.state;
       for (const e of result.effects) {
         if (e.type === 'AI_REQUEST' && e.kind.startsWith('rounds.')) requests.push(e);
       }
+    }
+    const begun = engine.reduce(
+      { ...state, pendingAi: [] },
+      {
+        type: 'PLAYER_INTENT',
+        intent: { type: 'EXTENSION', module: 'shift', name: 'ROUND_BEGIN', payload: {} },
+      },
+    );
+    state = begun.state;
+    for (const e of begun.effects) {
+      if (e.type === 'AI_REQUEST' && e.kind.startsWith('rounds.')) requests.push(e);
     }
     return { state, requests };
   }

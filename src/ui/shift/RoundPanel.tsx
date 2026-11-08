@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { ui } from '@/i18n';
 import type { GameActions, RoundView } from '@/view';
 
@@ -40,6 +40,9 @@ export function RoundPanel({ round, actions }: RoundPanelProps) {
         </p>
       </div>
       <p className="hint">{r.noInterrupts}</p>
+      <p className="hint" data-testid="round-paused">
+        {r.paused}
+      </p>
       <p className="round-patient" data-testid="round-patient">
         <strong>{ui.game.patient.bed(round.patient.bed)}</strong> · {round.patient.name} ·{' '}
         {ui.game.patient.summary(round.patient.age, round.patient.sex)} · {round.patient.complaint}
@@ -93,11 +96,6 @@ export function RoundPanel({ round, actions }: RoundPanelProps) {
                 {r.pass}
               </button>
             </div>
-            {round.secondsLeft !== null ? (
-              <p className="hint" data-testid="round-time-left">
-                {r.timeLeft(round.secondsLeft)}
-              </p>
-            ) : null}
           </form>
           <div role="group" aria-label={r.hintsHeading} className="round-hints">
             <p className="hint">{r.hintsHeading}</p>
@@ -173,5 +171,30 @@ export function RoundPanel({ round, actions }: RoundPanelProps) {
       ) : null}
       <p className="hint">{r.scoreNote}</p>
     </section>
+  );
+}
+
+/** 巡房係彈出視窗，病房留喺後面；打開之後遊戲時間暫停 */
+export function RoundDialog({ round, actions }: RoundPanelProps) {
+  const ref = useRef<HTMLDialogElement>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || el.open) return;
+    el.showModal();
+  }, []);
+
+  return (
+    <dialog
+      ref={ref}
+      className="round-dialog"
+      data-testid="round-dialog"
+      aria-labelledby="round-heading"
+      onCancel={(event) => {
+        event.preventDefault();
+      }}
+    >
+      <RoundPanel round={round} actions={actions} />
+    </dialog>
   );
 }

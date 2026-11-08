@@ -240,6 +240,7 @@ export function selectShift(state: GameState, env: ViewEnv, clockLabel: ClockLab
         nextRound !== null && !state.shift.rounds.active && phase === 'REGULAR'
           ? clockLabel(nextRound)
           : null,
+      offered: state.shift.rounds.offeredAt !== null && state.shift.rounds.active === null,
       active: selectRound(state, env, roundsAt.length),
     },
     selfCare: {

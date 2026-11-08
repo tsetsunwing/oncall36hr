@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import { getContent } from '@/content';
 import { evaluateFsm } from '../case/fsm';
 import { enqueue } from '../core/eventQueue';
-import type { Effect } from '../core/events';
 import type { GameState } from '../core/state';
 import { feed, fullTables, intentEvent, say } from '../test/realEngine';
 import { gameSecondsPerRealMs } from '../core/clock';
@@ -34,7 +33,7 @@ describe('巡房（§8）', () => {
   it('On call 實際跑完 34 小時：剛好四次巡房，每次由 AC 主持、每個病人最多問一次', () => {
     const engine = kitEngine(noEnergy);
     const init = engine.init(kitParams('rounds-oncall', 'ONCALL'));
-    const end = drive(engine, init, 34 * H + 60, { step: 120 });
+    const end = drive(engine, init, 34 * H + 60, { step: 120, enterRounds: true });
     expect(end.state.shift.rounds.started).toBe(4);
     expect(end.state.shift.rounds.completed).toBe(4);
     expect(end.state.shift.rounds.history.map((r) => r.number)).toEqual([1, 2, 3, 4]);
@@ -47,7 +46,10 @@ describe('巡房（§8）', () => {
 
   it('日班兩次、夜班零次', () => {
     const day = kitEngine(noEnergy);
-    const dayEnd = drive(day, day.init(kitParams('rounds-day', 'DAY')), 10 * H, { step: 120 });
+    const dayEnd = drive(day, day.init(kitParams('rounds-day', 'DAY')), 10 * H, {
+      step: 120,
+      enterRounds: true,
+    });
     expect(dayEnd.state.shift.rounds.completed).toBe(2);
     const night = kitEngine(noEnergy);
     const nightEnd = drive(night, night.init(kitParams('rounds-night', 'NIGHT')), 14 * H, {
@@ -56,43 +58,19 @@ describe('巡房（§8）', () => {
     expect(nightEnd.state.shift.rounds.started).toBe(0);
   }, 60_000);
 
-  it('巡房期間冇電話、冇護士惡化提示、冇心臟停頓（多個 seed、困難模式）', () => {
-    for (const seed of ['quiet-1', 'quiet-2', 'quiet-3', 'quiet-4']) {
-      const engine = kitEngine(noEnergy);
-      const init = engine.init(kitParams(seed, 'DAY', { difficulty: 'HARD' }));
-      const alerts: { t: number }[] = [];
-      let roundActive = false;
-      const end = drive(engine, init, 10 * H, {
-        step: 60,
-        onStep(state, effects) {
-          const wholeStepInRound = roundActive && state.shift.rounds.active !== null;
-          roundActive = state.shift.rounds.active !== null;
-          if (!wholeStepInRound) return;
-          for (const e of effects as Effect[]) {
-            if (e.type !== 'AI_REQUEST' || e.kind !== 'dialogue.turn') continue;
-            const beats = (e.context as { prompt: { beats: { type: string }[] } }).prompt.beats;
-            if (
-              beats.some((b) => b.type === 'ALERT_DETERIORATION' || b.type === 'ARREST_ANNOUNCED')
-            ) {
-              alerts.push({ t: state.clock.t });
-            }
-          }
-        },
-      });
-      expect(alerts, seed).toEqual([]);
-      const windows = end.state.shift.rounds.history.map((r) => [r.startedAt, r.endedAt] as const);
-      expect(windows.length).toBe(2);
-      for (const [from, to] of windows) {
-        for (const call of end.state.ward.calls) {
-          expect(call.arrivedAt >= from && call.arrivedAt < to, `${seed} call ${call.id}`).toBe(
-            false,
-          );
-        }
-        const onset = end.state.resus?.onsetAt;
-        if (onset !== undefined) expect(onset >= from && onset < to, `${seed} arrest`).toBe(false);
-      }
-    }
-  }, 120_000);
+  it('到點只邀請巡房；玩家打開之後時間暫停，新來電唔會到', () => {
+    const engine = kitEngine(noEnergy);
+    const init = engine.init(kitParams('quiet-offer', 'DAY', { difficulty: 'HARD' }));
+    const offered = drive(engine, init, 1 * H + 30, { step: 60 }).state;
+    expect(offered.shift.rounds.active).toBeNull();
+    expect(offered.shift.rounds.started).toBe(0);
+    expect(offered.shift.rounds.offeredAt).not.toBeNull();
+    const begun = feed(engine, offered, [shiftAct('ROUND_BEGIN')]);
+    expect(begun.state.shift.rounds.active).not.toBeNull();
+    const frozen = feed(engine, begun.state, [{ type: 'TICK', dtRealMs: 60_000 }]).state;
+    expect(frozen.clock.t).toBe(begun.state.clock.t);
+    expect(frozen.ward.calls.filter((call) => call.arrivedAt > offered.clock.t)).toHaveLength(0);
+  });
 
   it('FSM 嘅心臟停頓轉移喺巡房期間被攔，唔擲骰、唔標記，之後照常評估', () => {
     const tables = fullTables();
@@ -128,6 +106,9 @@ describe('巡房（§8）', () => {
     const engine = kitEngine(noEnergy);
     let state = engine.init(kitParams('round-flow', 'DAY', { ward: false }));
     state = drive(engine, state, 1 * H + 5).state;
+    expect(state.shift.rounds.active).toBeNull();
+    expect(state.shift.rounds.offeredAt).not.toBeNull();
+    state = answerRoundAi(engine, feed(engine, state, [shiftAct('ROUND_BEGIN')])).state;
     const active = state.shift.rounds.active;
     expect(active?.current?.phase).toBe('ASKING');
     expect(active?.current?.hints).toHaveLength(3);
@@ -160,6 +141,7 @@ describe('巡房（§8）', () => {
     const engine = kitEngine(noEnergy);
     let state = engine.init(kitParams('round-guard', 'DAY', { ward: false }));
     state = drive(engine, state, 1 * H + 5).state;
+    state = answerRoundAi(engine, feed(engine, state, [shiftAct('ROUND_BEGIN')])).state;
     const answered = feed(engine, state, [shiftAct('ROUND_ANSWER', { text: '唔知' })]);
     const reqId = answered.state.shift.rounds.active?.current?.requestId ?? '';
     const forged = feed(engine, answered.state, [
@@ -183,21 +165,22 @@ describe('巡房（§8）', () => {
   it('題目含數字被拒；超時冇作答記 ROUND_UNANSWERED；「唔識」記答錯', () => {
     const engine = kitEngine(noEnergy);
     let state = engine.init(kitParams('round-misc', 'DAY', { ward: false }));
-    const toRound = drive(engine, state, 1 * H, { mode: 'question-only', step: 60 }).state;
-    expect(toRound.shift.rounds.active).not.toBeNull();
-    state = toRound;
+    const offered = drive(engine, state, 1 * H, { mode: 'question-only', step: 60 }).state;
+    expect(offered.shift.rounds.active).toBeNull();
+    expect(offered.shift.rounds.offeredAt).not.toBeNull();
+    state = answerRoundAi(engine, feed(engine, offered, [shiftAct('ROUND_BEGIN')])).state;
     const pending = state.pendingAi.find((p) => p.kind === 'rounds.question');
     expect(pending).toBeUndefined();
 
-    const asking = drive(engine, state, 5).state;
-    const passed = feed(engine, asking, [shiftAct('ROUND_PASS')]);
+    const passed = feed(engine, state, [shiftAct('ROUND_PASS')]);
     expect(ledgerOf(passed.state, 'ROUND_WRONG')).toHaveLength(1);
 
-    const timedOut = drive(engine, asking, engine.config.rounds.questionSeconds + 5).state;
-    expect(ledgerOf(timedOut, 'ROUND_UNANSWERED').length).toBeGreaterThanOrEqual(1);
+    const held = drive(engine, state, engine.config.rounds.questionSeconds + 5).state;
+    expect(held.clock.t).toBe(state.clock.t);
+    expect(ledgerOf(held, 'ROUND_UNANSWERED')).toHaveLength(0);
   });
 
-  it('巡房等 AI 期間時鐘自動暫停（C1），題目回覆後先倒數；作答評分期間亦暫停', () => {
+  it('巡房打開之後時間暫停，包括等題目同評分期間', () => {
     const base = kitEngine(noEnergy);
     const engine = createEngine(
       { ...base.config, clock: { ...base.config.clock, pauseWhileAiPending: true } },
@@ -215,15 +198,22 @@ describe('巡房（§8）', () => {
       ...st,
       pendingAi: st.pendingAi.filter((p) => p.kind.startsWith('rounds.')),
     });
-    while (state.clock.t < 1 * H && gameSecondsPerRealMs(engine.config, state) > 0) {
+    while (
+      state.shift.rounds.offeredAt === null &&
+      state.clock.phase === 'REGULAR' &&
+      gameSecondsPerRealMs(engine.config, state) > 0
+    ) {
       state = dropOtherAi(
-        feed(engine, dropOtherAi(state), [{ type: 'TICK', dtRealMs: 60_000 / rate }]).state,
+        feed(engine, dropOtherAi(state), [{ type: 'TICK', dtRealMs: 30 / rate }]).state,
       );
     }
-    expect(state.clock.t).toBe(1 * H);
-    expect(state.shift.rounds.active?.current?.phase).toBe('LOADING');
-    const stalled = feed(engine, state, [{ type: 'TICK', dtRealMs: 600_000 }]).state;
-    expect(stalled.clock.t).toBe(1 * H);
+    expect(state.shift.rounds.offeredAt).toBe(1 * H);
+    expect(state.clock.t).toBeGreaterThanOrEqual(1 * H);
+    expect(state.shift.rounds.active).toBeNull();
+    const begun = feed(engine, state, [shiftAct('ROUND_BEGIN')]).state;
+    expect(begun.shift.rounds.active?.current?.phase).toBe('LOADING');
+    const stalled = feed(engine, begun, [{ type: 'TICK', dtRealMs: 600_000 }]).state;
+    expect(stalled.clock.t).toBe(begun.clock.t);
 
     const answeredQuestion = answerRoundAi(engine, {
       state: stalled,
@@ -238,7 +228,7 @@ describe('巡房（§8）', () => {
     }).state;
     expect(answeredQuestion.shift.rounds.active?.current?.phase).toBe('ASKING');
     const running = feed(engine, answeredQuestion, [{ type: 'TICK', dtRealMs: 5000 }]).state;
-    expect(running.clock.t).toBeGreaterThan(1 * H);
+    expect(running.clock.t).toBe(answeredQuestion.clock.t);
     const grading = feed(engine, running, [shiftAct('ROUND_ANSWER', { text: '肺炎' })]).state;
     const frozen = feed(engine, grading, [{ type: 'TICK', dtRealMs: 60_000 }]).state;
     expect(frozen.clock.t).toBe(grading.clock.t);

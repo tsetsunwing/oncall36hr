@@ -200,6 +200,19 @@ function migrateV7toV8(raw: RawState): RawState {
   };
 }
 
+/** schema 8 → 9：巡房改為等玩家打開，舊存檔尚未有邀請時間 */
+function migrateV8toV9(raw: RawState): RawState {
+  const shift = (raw.shift ?? {}) as Record<string, unknown>;
+  const rounds = (shift.rounds ?? {}) as Record<string, unknown>;
+  return {
+    ...raw,
+    shift: {
+      ...shift,
+      rounds: { ...rounds, offeredAt: rounds.offeredAt ?? null },
+    },
+  };
+}
+
 export const migrations: MigrationRegistry = {
   1: migrateV1toV2,
   2: migrateV2toV3,
@@ -208,6 +221,7 @@ export const migrations: MigrationRegistry = {
   5: migrateV5toV6,
   6: migrateV6toV7,
   7: migrateV7toV8,
+  8: migrateV8toV9,
 };
 
 export type MigrateResult =

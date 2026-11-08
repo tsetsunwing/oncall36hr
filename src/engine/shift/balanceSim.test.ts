@@ -63,7 +63,7 @@ describe('M9 平衡模擬（T-E）', () => {
     }).state;
     expect(day.clock.phase).toBe('OVERTIME');
     expect(day.shift.ending?.reason).not.toBe('FAINT');
-    expect(day.shift.rounds.completed).toBe(2);
+    expect(day.shift.rounds.completed).toBe(0);
     expect(day.shift.energy.percent).toBeGreaterThan(0);
 
     const night = drive(engine, engine.init(kitParams('m9-night-neglect', 'NIGHT')), 14 * H + 30, {
@@ -111,7 +111,7 @@ describe('M9 平衡模擬（T-E）', () => {
     );
     expect(calm.shift.ending?.reason).not.toBe('FAINT');
     expect(calm.clock.phase).toBe('OVERTIME');
-    expect(calm.shift.rounds.completed).toBe(4);
+    expect(calm.shift.rounds.completed).toBe(0);
     expect(calm.shift.mealsTaken).toHaveLength(3);
     expect(calm.shift.energy.percent).toBeGreaterThan(0);
     // 有心臟停頓未完結時唔可以食飯；呢個 seed 少食一餐都唔會暈
@@ -120,7 +120,7 @@ describe('M9 平衡模擬（T-E）', () => {
     expect(end.clock.t).toBeGreaterThanOrEqual(34 * H);
     expect(end.clock.t).toBeLessThan(34 * H + engine.config.shifts.overtimeSeconds);
     expect(end.shift.energy.percent).toBeGreaterThan(0);
-    expect(end.shift.rounds.completed).toBe(4);
+    expect(end.shift.rounds.completed).toBe(0);
     expect(end.shift.mealsTaken.length).toBeGreaterThanOrEqual(2);
 
     const json = serializeSnapshot(end, 'm9');

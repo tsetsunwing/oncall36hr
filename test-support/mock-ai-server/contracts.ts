@@ -46,6 +46,7 @@ interface Beat {
   tokens?: string[];
   symptoms?: string[];
   reason?: string;
+  question?: string;
 }
 
 export interface ParsedRequest {
@@ -238,6 +239,18 @@ function dialogue(prompt: Record<string, unknown>, mode: ContractMode): string {
       case 'REPORT_STATUS':
         text = `而家情況：${spoken}。`;
         break;
+      case 'ANSWER_QUESTION': {
+        const asked = beat.question ?? '';
+        const wanted = (beat.tokens ?? []).filter((token) => {
+          const label = TOKEN_LABELS[token] ?? '';
+          return label.length > 0 && asked.includes(label);
+        });
+        text =
+          wanted.length > 0
+            ? `你問嘅：${phrase(wanted)}。`
+            : '呢個我而家答唔到，你想我做邊個 order？';
+        break;
+      }
       case 'ALERT_DETERIORATION':
         text = `醫生，病人情況轉差，${spoken}，麻煩你過嚟睇下。`;
         break;

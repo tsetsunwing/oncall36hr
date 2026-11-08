@@ -80,10 +80,39 @@ export function answerRoundAi(
 export interface DriveOptions {
   step?: number;
   mode?: RoundAnswerMode;
+  /** 模擬玩家每次都自己打開並答完巡房；預設唔會自動進入 */
+  enterRounds?: boolean;
   /** 每個步進後呼叫；回傳 true 停止 */
   onStep?: (state: GameState, effects: readonly Effect[]) => boolean | undefined;
   /** 每步前可注入玩家動作 */
   act?: (state: GameState) => ReturnType<typeof intentEvent>[];
+}
+
+/** 測試用：玩家打開已邀請嘅巡房，並答完每一位（唔靠時鐘，因為巡房期間時間暫停） */
+export function playOfferedRound(engine: Engine, state: GameState): GameState {
+  if (state.shift.rounds.offeredAt === null || state.shift.rounds.active !== null) return state;
+  let run = answerRoundAi(engine, feed(engine, state, [shiftAct('ROUND_BEGIN')]), 'answer-correct');
+  for (let guard = 0; run.state.shift.rounds.active && guard < 48; guard++) {
+    const phase = run.state.shift.rounds.active.current?.phase;
+    const before = run.state;
+    if (phase === 'ASKING') {
+      run = answerRoundAi(
+        engine,
+        feed(engine, run.state, [shiftAct('ROUND_ANSWER', { text: '要點' })]),
+        'answer-correct',
+      );
+    } else if (phase === 'REVEAL') {
+      run = answerRoundAi(
+        engine,
+        feed(engine, run.state, [shiftAct('ROUND_NEXT')]),
+        'answer-correct',
+      );
+    } else {
+      break;
+    }
+    if (run.state === before) break;
+  }
+  return run.state;
 }
 
 /** 前進 seconds 遊戲秒（1x），每步自動回覆巡房 AI；時鐘停咗（交更／結束）就提早返回 */
@@ -109,7 +138,7 @@ export function drive(
       { state: ticked.state, effects: [...acted.effects, ...ticked.effects] },
       options.mode,
     );
-    state = run.state;
+    state = options.enterRounds ? playOfferedRound(engine, run.state) : run.state;
     effects.push(...run.effects);
     remaining -= dt;
     if (options.onStep?.(state, run.effects) === true) break;

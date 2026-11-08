@@ -31,7 +31,10 @@ export const shiftUi = {
     hostLabel: (name: string) => `${name}（AC）提問`,
     host: (name: string) => `${name} · AC · 主持巡房`,
     patient: (position: number, count: number) => `病人 ${String(position)} ／ ${String(count)}`,
-    noInterrupts: '巡房期間不會有來電及護士呼叫；病人狀況照常變化。',
+    offer: (name: string) => `${name}可以開始巡房。`,
+    begin: '開始巡房',
+    noInterrupts: '巡房期間時間暫停，不會有來電及護士呼叫。',
+    paused: '時間暫停',
     category: { HISTORY: '病史', PATHOLOGY: '病理', PHARMACOLOGY: '藥理' } as Record<
       string,
       string
@@ -438,6 +441,8 @@ export const shiftUi = {
     SHIFT_NOT_ACTIVE: '目前不是更內時間，無法使用這個動作。',
     OVERTIME_FROZEN: '已超時，病房事務凍結，無法開始新工作。請完成進行中的事項或開始交更。',
     ROUND_ACTIVE: '巡房進行中，請先完成巡房。',
+    ROUND_NOT_OFFERED: '現在沒有巡房。',
+    ROUND_OFFERED: '莫教授可以開始巡房。',
     ROUND_STARTED: 'AC 開始巡房。',
     ROUND_ENDED: '巡房完成。',
     ROUND_ANSWER_INVALID: '請輸入回答內容。',

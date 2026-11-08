@@ -10,10 +10,12 @@ import type { GameState } from './state';
 /** 每真實毫秒推進幾多遊戲秒；暫停、等 AI 回覆、交班／結束階段時為 0 */
 export function gameSecondsPerRealMs(
   config: EngineConfig,
-  state: Pick<GameState, 'clock' | 'paused' | 'pendingAi'>,
+  state: Pick<GameState, 'clock' | 'paused' | 'pendingAi' | 'shift'>,
 ): number {
   if (state.paused) return 0;
   if (state.clock.phase === 'HANDOVER' || state.clock.phase === 'ENDED') return 0;
+  // 玩家打開巡房之後先暫停；未打開唔會進入巡房
+  if (state.shift.rounds.active) return 0;
   // C1：等 AI 回覆期間遊戲時鐘自動暫停
   if (config.clock.pauseWhileAiPending && state.pendingAi.length > 0) return 0;
   const baseAt1x = 60 / (config.clock.realSecondsPerGameMinuteAt1x * 1000);

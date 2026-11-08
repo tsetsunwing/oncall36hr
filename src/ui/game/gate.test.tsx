@@ -30,6 +30,7 @@ function makeActions() {
     startDeathCall: vi.fn(),
     answerRound: vi.fn(),
     passRound: vi.fn(),
+    beginRound: vi.fn(),
     nextRound: vi.fn(),
     startSelfCare: vi.fn(),
     stopSelfCare: vi.fn(),

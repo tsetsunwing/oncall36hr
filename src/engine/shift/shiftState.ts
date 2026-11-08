@@ -97,6 +97,8 @@ export const shiftSchema = z
       .object({
         started: z.number().int().min(0),
         completed: z.number().int().min(0),
+        /** 到咗巡房時間，等玩家自己打開；未打開就唔進入巡房 */
+        offeredAt: time.nullable(),
         active: roundActiveSchema.nullable(),
         history: z.array(roundRecordSchema),
       })
@@ -129,7 +131,7 @@ export const shiftSchema = z
 export type ShiftState = z.infer<typeof shiftSchema>;
 
 export const emptyShift = (): ShiftState => ({
-  rounds: { started: 0, completed: 0, active: null, history: [] },
+  rounds: { started: 0, completed: 0, offeredAt: null, active: null, history: [] },
   mealsTaken: [],
   energy: { percent: 100, lastNudgeAt: null },
   selfCare: { active: null, lastEndedAt: {} },

@@ -45,6 +45,13 @@ export type Beat =
       abnormal: Abnormal[];
     }
   | { type: 'REPORT_STATUS'; speaker: 'NURSE'; tokens: string[]; abnormal: Abnormal[] }
+  | {
+      type: 'ANSWER_QUESTION';
+      speaker: 'NURSE';
+      question: string;
+      tokens: string[];
+      abnormal: Abnormal[];
+    }
   | { type: 'ALERT_DETERIORATION'; speaker: 'NURSE'; tokens: string[]; abnormal: Abnormal[] }
   | { type: 'PATIENT_SPEAKS'; speaker: 'PATIENT'; symptoms: string[] }
   | { type: 'ACK_CHAT'; speaker: 'NURSE' }
@@ -151,7 +158,11 @@ export function pharmacySpeaker(ctx: EngineContext): SpeakerLike {
 }
 
 /** 呢啲 beat 講嘅係「而家」嘅狀態：數值喺發言（寫入對話）當刻取，唔係排隊當刻 */
-const LIVE_BEATS: readonly Beat['type'][] = ['REPORT_STATUS', 'ALERT_DETERIORATION'];
+const LIVE_BEATS: readonly Beat['type'][] = [
+  'REPORT_STATUS',
+  'ANSWER_QUESTION',
+  'ALERT_DETERIORATION',
+];
 
 function liveTokensOf(beats: readonly Beat[]): string[] {
   const live = new Set<string>();
