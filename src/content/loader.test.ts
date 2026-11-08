@@ -138,7 +138,7 @@ describe('config designer defaults', () => {
     expect(config.shifts.overtimeSeconds).toBe(7200);
     expect(config.staff.reliability).toEqual({ NOVICE: 0.7, NORMAL: 0.85, SENIOR: 0.95 });
     expect(config.staff.speedMultiplier).toEqual({ NOVICE: 1.5, NORMAL: 1.0, SENIOR: 0.8 });
-    expect(config.ai.requestTimeoutMs).toBe(25000);
+    expect(config.ai.requestTimeoutMs).toBe(120000);
     expect(config.ai.autoRepairRetries).toBe(1);
     expect(config.ai.defaultBaseUrl).toBe('https://api.openai.com/v1');
     expect(config.ward.bedCount).toBe(20);
