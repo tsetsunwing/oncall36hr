@@ -157,6 +157,7 @@ export const ui = {
       global: '全病房',
       executor: '執行',
       result: '結果',
+      delegated: '已委派',
       events: {
         SHIFT_START: '開始值夜',
         ADVERSE_EVENT: '病人情況出現變化',
@@ -292,7 +293,7 @@ export const ui = {
       mark: '標',
       flag: { H: '偏高', L: '偏低' } as Record<string, string>,
       tableCaption: (label: string) => `${label} 報告`,
-      pending: '數值為佔位資料，尚待臨床人員核對（PENDING_CLINICAL_REVIEW）。',
+      pending: '數值為佔位資料，尚待臨床人員核對。',
     },
     aiFailure: {
       heading: '無法取得 AI 回應',

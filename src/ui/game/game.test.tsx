@@ -64,7 +64,7 @@ describe('MonitorPanel：床邊監護儀風格＋閃爍數值＋黃色三角警�
     ).not.toBeNull();
     expect(screen.getByTestId('mews-badge')).toHaveTextContent('6');
     expect(screen.queryByText(ui.game.monitor.mewsPending)).not.toBeInTheDocument();
-    expect(screen.getByRole('combobox', { name: ui.game.monitor.leadMenu })).toHaveValue('ECG');
+    expect(screen.getByRole('combobox', { name: ui.game.monitor.leadMenu })).toHaveValue('II');
   });
 
   it('全部正常：冇三角警示，面板 level 為 NORMAL', () => {
@@ -241,6 +241,7 @@ describe('LogPanel', () => {
         kind: 'EVENT',
         label: null,
         eventCode: 'SHIFT_START',
+        group: null,
         status: null,
         patientId: null,
         bed: null,
@@ -263,6 +264,41 @@ describe('LogPanel', () => {
       'aria-pressed',
       'true',
     );
+  });
+
+  it('委派紀錄顯示所屬組同預設名稱', () => {
+    render(
+      <LogPanel
+        orders={[]}
+        log={{
+          all: [
+            row({
+              kind: 'EVENT',
+              label: 'ABG',
+              group: 'tests',
+              eventCode: 'DELEGATED_lab.abg',
+              status: null,
+              resultText: null,
+            }),
+          ],
+          patient: [
+            row({
+              kind: 'EVENT',
+              label: 'ABG',
+              group: 'tests',
+              eventCode: 'DELEGATED_lab.abg',
+              status: null,
+              resultText: null,
+            }),
+          ],
+        }}
+        actions={makeActions()}
+        open
+        onClose={() => undefined}
+      />,
+    );
+    expect(screen.getByTestId('log-row')).toHaveTextContent('已委派 · 檢查 · ABG');
+    expect(screen.getByTestId('log-row')).not.toHaveTextContent('DELEGATED_');
   });
 
   it('可取消 order 有取消鈕；已完成冇', async () => {

@@ -44,8 +44,22 @@ function OrderItem({
     <li className="order-row" data-testid="order-row" data-status={order.status}>
       <div className="order-main">
         <span className="order-label">{order.label}</span>
-        <span className="status-chip" data-status={order.status}>
-          {o.status[order.status]}
+        <span className="order-actions">
+          <span className="status-chip" data-status={order.status}>
+            {o.status[order.status]}
+          </span>
+          {order.cancellable ? (
+            <button
+              type="button"
+              className="chip-btn"
+              aria-label={o.cancelLabel(order.label)}
+              onClick={() => {
+                actions.cancelOrder(order.id);
+              }}
+            >
+              {o.cancel}
+            </button>
+          ) : null}
         </span>
       </div>
       <div className="order-sub">
@@ -63,18 +77,6 @@ function OrderItem({
             <p className="report-text">{order.resultText}</p>
           )}
         </details>
-      ) : null}
-      {order.cancellable ? (
-        <button
-          type="button"
-          className="btn btn-small"
-          aria-label={o.cancelLabel(order.label)}
-          onClick={() => {
-            actions.cancelOrder(order.id);
-          }}
-        >
-          {o.cancel}
-        </button>
       ) : null}
     </li>
   );
@@ -137,7 +139,10 @@ function ReportItem({ report }: { report: ReportView }) {
 
 function LogItem({ row }: { row: ActionRowView }) {
   const l = ui.game.log;
-  const title = row.kind === 'ORDER' ? row.label : (l.events[row.eventCode ?? ''] ?? row.eventCode);
+  const name = row.label ?? (row.eventCode ? (l.events[row.eventCode] ?? row.eventCode) : null);
+  const group = row.group ? ui.game.chat.chipGroup[row.group] : null;
+  const delegated = row.eventCode?.startsWith('DELEGATED_') ? l.delegated : null;
+  const title = [delegated, group, name].filter(Boolean).join(' · ');
   return (
     <li className="log-row" data-testid="log-row" data-kind={row.kind}>
       <div className="log-main">

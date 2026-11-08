@@ -134,6 +134,7 @@ export const row = (over: Partial<ActionRowView> = {}): ActionRowView => ({
   bed: 7,
   kind: 'ORDER',
   label: '量度生命表徵',
+  group: 'observe',
   eventCode: null,
   status: 'DONE',
   executorName: '何姑娘',

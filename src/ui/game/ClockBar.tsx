@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react';
-import { Armchair, Bath, Coffee, Hospital, Pause, Phone, Play } from 'lucide-react';
+import { Armchair, Bath, Coffee, Hospital, Pause, Play } from 'lucide-react';
 import { ui } from '@/i18n';
 import type { GameActions, GameView, ShiftView } from '@/view';
 
@@ -7,8 +7,6 @@ export interface ClockBarProps {
   clock: GameView['clock'];
   shift?: ShiftView;
   actions: GameActions;
-  ringing?: number;
-  onOpenPhone?: () => void;
   tools?: ReactNode;
   places?: {
     here: 'STATION' | 'PANTRY' | 'REST' | 'WC' | null;
@@ -38,15 +36,7 @@ function dayNight(label: string, segment: ShiftView['segment']): string {
   return hour >= 8 && hour < 18 ? ui.game.day : ui.game.night;
 }
 
-export function ClockBar({
-  clock,
-  shift,
-  actions,
-  ringing = 0,
-  onOpenPhone,
-  tools,
-  places,
-}: ClockBarProps) {
+export function ClockBar({ clock, shift, actions, tools, places }: ClockBarProps) {
   const g = ui.game;
   const [carePlace, setCarePlace] = useState<(typeof PLACE_CHIPS)[number]['id'] | null>(null);
   const speeds = clock.speeds.filter((s) => s > 0);
@@ -242,22 +232,6 @@ export function ClockBar({
           </span>
         ) : null}
       </p>
-      {onOpenPhone ? (
-        <button
-          type="button"
-          className="incoming icon-btn"
-          data-ringing={ringing > 0}
-          data-testid="incoming-call"
-          aria-label={
-            ringing > 0 ? `${ui.game.ward.incoming} ${String(ringing)}` : ui.game.ward.incoming
-          }
-          title={ui.game.ward.incoming}
-          onClick={onOpenPhone}
-        >
-          <Phone size={16} strokeWidth={2} aria-hidden="true" />
-          {ringing > 0 ? <span>{ringing}</span> : null}
-        </button>
-      ) : null}
     </div>
   );
 }

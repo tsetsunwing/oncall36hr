@@ -107,10 +107,6 @@ export function GamePage({ view, actions, onExit }: GamePageProps) {
         clock={view.clock}
         shift={shift}
         actions={actions}
-        ringing={view.ward?.phone.ringing ?? 0}
-        onOpenPhone={() => {
-          window.dispatchEvent(new CustomEvent('dandu-command', { detail: 'tab-phone' }));
-        }}
         {...(view.ward
           ? {
               places: {

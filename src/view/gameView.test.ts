@@ -161,7 +161,7 @@ describe('Orders 同 Action Log', () => {
     expect(all.at(-1)?.eventCode).toBe('SHIFT_START');
     expect(patient.every((r) => r.patientId === 'p1')).toBe(true);
     expect(patient).toHaveLength(2);
-    expect(patient[0]?.label).toBe('Check pulse');
+    expect(patient[0]).toMatchObject({ label: 'Check pulse', group: 'observe' });
     expect(all.length).toBe(patient.length + 1);
   });
 
@@ -170,8 +170,34 @@ describe('Orders 同 Action Log', () => {
     const row = selectGameView(state, env).actionLog.patient.find(
       (r) => r.label === 'Check vitals',
     );
-    expect(row?.status).toBe('DONE');
+    expect(row).toMatchObject({ status: 'DONE', group: 'observe' });
     expect(row?.resultText).toMatch(/^HR \d+, BP \d+\/\d+, SpO2 \d+%/);
+  });
+
+  it('委派紀錄用預設名稱同所屬組，行動記錄唔再顯示內部代碼當標題', () => {
+    let state = engine.init({
+      seed: 'view-del',
+      mode: 'NIGHT',
+      difficulty: 'MEDIUM',
+      playerRank: 'MO',
+      ward: true,
+    });
+    state = engine.reduce(state, {
+      type: 'PLAYER_INTENT',
+      intent: {
+        type: 'EXTENSION',
+        module: 'ward',
+        name: 'DELEGATE',
+        payload: { task: 'PROCEDURE', itemId: 'lab.abg', patientId: 'p1', callId: null },
+      },
+    }).state;
+    const event = selectGameView(state, env).actionLog.all.find(
+      (row) => row.eventCode === 'DELEGATED_lab.abg',
+    );
+    expect(event).toMatchObject({ label: 'ABG', group: 'tests' });
+    expect(
+      selectGameView(state, env).actionLog.all.every((row) => row.label !== row.eventCode),
+    ).toBe(true);
   });
 });
 

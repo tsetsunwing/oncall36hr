@@ -164,8 +164,10 @@ export interface ActionRowView {
   patientId: string | null;
   bed: number | null;
   kind: 'ORDER' | 'EVENT';
-  /** ORDER：order 標籤（content）；EVENT：null，由 UI 按 eventCode 顯示 */
+  /** ORDER：預設名稱；EVENT：委派等可對上的名稱，否則 null */
   label: string | null;
+  /** 觀察、治療、檢查、搶救。對得上預設醫囑時先有。 */
+  group: 'observe' | 'treat' | 'tests' | 'resus' | null;
   eventCode: string | null;
   status: OrderStatusCode | null;
   executorName: string | null;

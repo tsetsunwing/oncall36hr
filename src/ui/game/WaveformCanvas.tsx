@@ -134,7 +134,7 @@ export function WaveformCanvas(props: WaveformCanvasProps) {
           state.time,
           wave,
           amplitude,
-          live.current.lead ?? 'ECG',
+          live.current.lead ?? 'II',
           live.current.rr ?? 16,
         );
         state.x = (state.x + 1) % WIDTH;
@@ -167,7 +167,7 @@ export function WaveformCanvas(props: WaveformCanvasProps) {
     return () => {
       window.cancelAnimationFrame(raf);
     };
-  }, [hasWave, props.kind, props.hr]);
+  }, [hasWave, props.kind]);
 
   return (
     <canvas

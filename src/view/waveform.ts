@@ -57,7 +57,6 @@ export function beatPeriodSec(hr: number): number {
 
 /** 十二導聯只改示意波形嘅幅度同方向，數值仍然來自同一條心率／節律。預設 ECG 即現有波形。 */
 export const ECG_LEADS = [
-  'ECG',
   'I',
   'II',
   'III',
@@ -74,7 +73,6 @@ export const ECG_LEADS = [
 export type EcgLead = (typeof ECG_LEADS)[number];
 
 const LEAD_SHAPE: Record<EcgLead, { gain: number; invert: boolean }> = {
-  ECG: { gain: 1, invert: false },
   I: { gain: 0.72, invert: false },
   II: { gain: 1, invert: false },
   III: { gain: 0.5, invert: false },

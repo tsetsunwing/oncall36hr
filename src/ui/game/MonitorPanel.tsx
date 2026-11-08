@@ -113,7 +113,7 @@ function OptionalTile({ kind }: { kind: OptionalWave }) {
 export function MonitorPanel({ patient, monitor }: MonitorPanelProps) {
   const m = ui.game.monitor;
   const [seenBed, setSeenBed] = useState(patient.bed);
-  const [lead, setLead] = useState<EcgLead>('ECG');
+  const [lead, setLead] = useState<EcgLead>('II');
   const [extra, setExtra] = useState<OptionalWave[]>([]);
   const [menuOpen, setMenuOpen] = useState(false);
   const [nibpByBed, setNibpByBed] = useState<ReadonlyMap<number, VitalReadout>>(() => new Map());
@@ -130,7 +130,7 @@ export function MonitorPanel({ patient, monitor }: MonitorPanelProps) {
   const nibp = remembered ?? monitor.bp;
   if (seenBed !== patient.bed) {
     setSeenBed(patient.bed);
-    setLead('ECG');
+    setLead('II');
     setExtra([]);
     setMenuOpen(false);
   }
@@ -196,7 +196,7 @@ export function MonitorPanel({ patient, monitor }: MonitorPanelProps) {
               >
                 {ECG_LEADS.map((id) => (
                   <option key={id} value={id}>
-                    {id === 'ECG' ? m.ecg : id}
+                    {id}
                   </option>
                 ))}
               </select>

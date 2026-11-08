@@ -291,6 +291,8 @@ function selectReports(patient: Patient, clockLabel: (t: number) => string): Rep
   }));
 }
 
+type LogGroup = NonNullable<ActionRowView['group']>;
+
 function selectActionLog(
   state: GameState,
   env: ViewEnv,
@@ -302,13 +304,20 @@ function selectActionLog(
       ? env.tables['order-catalog'].find((r) => r.id === order.catalogId)
       : undefined;
     const patient = entry.patientId ? state.patients[entry.patientId] : undefined;
+    const delegated =
+      entry.kind === 'EVENT' && entry.reasonCode
+        ? delegatedAction(entry.reasonCode, env.tables)
+        : null;
     return {
       id: entry.id,
       timeLabel: clockLabel(entry.t),
       patientId: entry.patientId,
       bed: patient?.bed ?? null,
       kind: entry.kind,
-      label: order ? (presetLabel(order, env.tables) ?? composeOrderLabel(row, order)) : null,
+      label: order
+        ? (presetLabel(order, env.tables) ?? composeOrderLabel(row, order))
+        : (delegated?.label ?? null),
+      group: order ? groupForCatalog(order.catalogId, env.tables) : (delegated?.group ?? null),
       eventCode: entry.kind === 'EVENT' ? entry.reasonCode : null,
       status: order?.status ?? null,
       executorName: executorName(state, entry.executor),
@@ -317,6 +326,34 @@ function selectActionLog(
       nurseNote: entry.nurseNote,
     };
   });
+}
+
+function groupForCatalog(catalogId: string, tables: EngineTables): LogGroup | null {
+  const word = tables['quick-words'].find((item) => item.catalogId === catalogId && item.chipLabel);
+  if (word?.chipGroup) return word.chipGroup;
+  const row = tables['order-catalog'].find((item) => item.id === catalogId);
+  if (!row) return null;
+  const category = chipCategory(row.type, catalogId);
+  return category === 'procedure' ? 'treat' : category;
+}
+
+function delegatedAction(
+  code: string,
+  tables: EngineTables,
+): { label: string; group: LogGroup | null } | null {
+  if (!code.startsWith('DELEGATED_')) return null;
+  const id = code.slice('DELEGATED_'.length);
+  for (const block of tables['delegation-results']) {
+    const item = block.items.find((row) => row.id === id || row.catalogId === id);
+    if (!item) continue;
+    const catalogId = item.catalogId ?? id;
+    const word = tables['quick-words'].find((row) => row.catalogId === catalogId && row.chipLabel);
+    return {
+      label: word?.chipLabel ?? item.label,
+      group: groupForCatalog(catalogId, tables),
+    };
+  }
+  return null;
 }
 
 const RESUS_DRUGS = new Set(['drug.adrenaline', 'drug.amiodarone']);
