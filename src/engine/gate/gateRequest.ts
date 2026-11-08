@@ -113,6 +113,7 @@ function orderFacts(row: OrderCatalogRow, order: Order, ctx: EngineContext) {
           allergyClasses: [...formulary.allergyClasses],
           dose: order.params.dose,
           route: order.params.route,
+          frequency: order.params.frequency ?? null,
           typicalDose: formulary.typicalDose,
           units: [...formulary.units],
           routes: [...formulary.routes],

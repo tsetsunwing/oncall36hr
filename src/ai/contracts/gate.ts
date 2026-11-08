@@ -28,6 +28,7 @@ const orderFactsSchema = z.object({
       allergyClasses: z.array(z.string()),
       dose: z.object({ value: z.number(), unit: z.string() }).nullable(),
       route: z.string().nullable(),
+      frequency: z.string().nullable().optional(),
       typicalDose: z.unknown().nullable(),
       units: z.array(z.string()),
       routes: z.array(z.string()),

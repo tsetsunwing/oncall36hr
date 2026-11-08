@@ -196,7 +196,7 @@ export const orderCatalogEntrySchema = z
 
 /**
  * T5 formulary：parse 對照同顯示一致。把關判斷仍然係 AI（Q80 C），所以呢度冇規則；
- * `typicalDose` 於臨床審核前一律 null（唔臆測劑量範圍），AI 按自身藥理知識判斷。
+ * `typicalDose` 於臨床審核前一律 null（唔臆測劑量範圍）。AI 仍按自身藥理知識判斷，明顯唔係治療劑量就要提出。
  */
 export const formularyEntrySchema = z
   .object({

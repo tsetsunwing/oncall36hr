@@ -163,10 +163,35 @@ describe('MonitorPanel：床邊監護儀風格＋閃爍數值＋驚嘆號', () =
     );
     expect(screen.getByTestId('vital-bp')).toHaveTextContent('96/58 (71)');
     expect(screen.getByTestId('vital-bp')).not.toHaveTextContent('140/90');
-    await user.click(screen.getByTestId('measure-nibp'));
+    const measure = screen.getByTestId('measure-nibp');
+    expect(measure).toHaveAttribute('aria-label', ui.game.monitor.measureNibp);
+    expect(measure.closest('.tile-name')).not.toBeNull();
+    expect(measure.parentElement).not.toHaveTextContent('mmHg');
+    await user.click(measure);
     expect(screen.getByTestId('vital-bp')).toHaveTextContent('140/90 (107)');
     expect(screen.getByTestId('vital-bp')).toHaveAttribute('data-band', 'mild');
     expect(screen.queryByTestId('alert-bp')).not.toBeInTheDocument();
+  });
+
+  it('體溫保持上次讀數，按量度先更新', async () => {
+    const user = userEvent.setup();
+    const { rerender } = render(<MonitorPanel patient={patient} monitor={monitor()} />);
+    expect(screen.getByTestId('vital-temp')).toHaveTextContent('38.4');
+    const measure = screen.getByTestId('measure-temp');
+    expect(measure.closest('.tile-name')).not.toBeNull();
+    rerender(
+      <MonitorPanel
+        patient={patient}
+        monitor={monitor({
+          temp: { text: '39.6', level: 'ALARM', direction: 'HIGH', band: 'severe' },
+        })}
+      />,
+    );
+    expect(screen.getByTestId('vital-temp')).toHaveTextContent('38.4');
+    expect(screen.getByTestId('vital-temp')).not.toHaveTextContent('39.6');
+    await user.click(measure);
+    expect(screen.getByTestId('vital-temp')).toHaveTextContent('39.6');
+    expect(screen.getByTestId('vital-temp')).toHaveAttribute('data-band', 'severe');
   });
 
   it('有 Lead II 同 Pleth 兩條波形（canvas）', () => {

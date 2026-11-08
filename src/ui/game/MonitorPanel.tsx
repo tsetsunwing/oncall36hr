@@ -43,7 +43,7 @@ interface TileProps {
   label: string;
   unit: string;
   readout: VitalReadout;
-  extra?: ReactNode;
+  measure?: ReactNode;
 }
 
 /** 中度黃色、嚴重紅色。只係驚嘆號，冇警報句子。 */
@@ -78,14 +78,47 @@ function ReadoutValue({ text }: { text: string }) {
   );
 }
 
-function Tile({ testId, param, label, unit, readout, extra }: TileProps) {
+function MeasureButton({
+  label,
+  testId,
+  onClick,
+}: {
+  label: string;
+  testId: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      className="measure-mark"
+      data-testid={testId}
+      aria-label={label}
+      onClick={onClick}
+    >
+      <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+        <circle cx="8" cy="8" r="6.2" fill="none" stroke="currentColor" strokeWidth="1.4" />
+        <path
+          d="M8 4.2 V8.2 L10.6 10.2"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.4"
+          strokeLinecap="round"
+        />
+      </svg>
+    </button>
+  );
+}
+
+function Tile({ testId, param, label, unit, readout, measure }: TileProps) {
   const mark = markedBand(readout.band);
   return (
     <div className="tile" data-band={readout.band} data-param={param} data-testid={testId}>
       <div className="tile-label">
-        {label}
+        <span className="tile-name">
+          {label}
+          {measure}
+        </span>
         <span className="tile-unit">{unit}</span>
-        {extra}
       </div>
       <div className="tile-reading">
         {mark ? <VitalMark testId={`alert-${param}`} band={mark} /> : null}
@@ -145,19 +178,17 @@ export function MonitorPanel({ patient, monitor }: MonitorPanelProps) {
   const [lead, setLead] = useState<EcgLead>('II');
   const [extra, setExtra] = useState<OptionalWave[]>([]);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [nibpByBed, setNibpByBed] = useState<ReadonlyMap<number, VitalReadout>>(() => new Map());
-  const remembered = nibpByBed.get(patient.bed);
+  const [spotByBed, setSpotByBed] = useState<
+    ReadonlyMap<number, { bp: VitalReadout; temp: VitalReadout }>
+  >(() => new Map());
+  const remembered = spotByBed.get(patient.bed);
   if (!remembered) {
-    const next = new Map(nibpByBed);
-    next.set(patient.bed, {
-      text: monitor.bp.text,
-      level: monitor.bp.level,
-      direction: monitor.bp.direction,
-      band: monitor.bp.band,
-    });
-    setNibpByBed(next);
+    const next = new Map(spotByBed);
+    next.set(patient.bed, { bp: { ...monitor.bp }, temp: { ...monitor.temp } });
+    setSpotByBed(next);
   }
-  const nibp = remembered ?? monitor.bp;
+  const nibp = remembered?.bp ?? monitor.bp;
+  const temp = remembered?.temp ?? monitor.temp;
   if (seenBed !== patient.bed) {
     setSeenBed(patient.bed);
     setLead('II');
@@ -172,7 +203,7 @@ export function MonitorPanel({ patient, monitor }: MonitorPanelProps) {
     nibp.level,
     monitor.spo2.level,
     monitor.rr.level,
-    monitor.temp.level,
+    temp.level,
   ]);
   const band = (m.band as Record<string, string>)[monitor.mews.bandId] ?? monitor.mews.bandId;
 
@@ -285,26 +316,19 @@ export function MonitorPanel({ patient, monitor }: MonitorPanelProps) {
             label={m.bp}
             unit={m.bpUnit}
             readout={nibp}
-            extra={
-              <button
-                type="button"
-                className="nibp-measure"
-                data-testid="measure-nibp"
+            measure={
+              <MeasureButton
+                label={m.measureNibp}
+                testId="measure-nibp"
                 onClick={() => {
-                  setNibpByBed((current) => {
+                  setSpotByBed((current) => {
                     const next = new Map(current);
-                    next.set(patient.bed, {
-                      text: monitor.bp.text,
-                      level: monitor.bp.level,
-                      direction: monitor.bp.direction,
-                      band: monitor.bp.band,
-                    });
+                    const prev = next.get(patient.bed) ?? { bp: monitor.bp, temp: monitor.temp };
+                    next.set(patient.bed, { ...prev, bp: { ...monitor.bp } });
                     return next;
                   });
                 }}
-              >
-                {m.measureNibp}
-              </button>
+              />
             }
           />
           <Tile testId="vital-rr" param="rr" label={m.rr} unit={m.rrUnit} readout={monitor.rr} />
@@ -313,7 +337,21 @@ export function MonitorPanel({ patient, monitor }: MonitorPanelProps) {
             param="temp"
             label={m.temp}
             unit={m.tempUnit}
-            readout={monitor.temp}
+            readout={temp}
+            measure={
+              <MeasureButton
+                label={m.measureTemp}
+                testId="measure-temp"
+                onClick={() => {
+                  setSpotByBed((current) => {
+                    const next = new Map(current);
+                    const prev = next.get(patient.bed) ?? { bp: monitor.bp, temp: monitor.temp };
+                    next.set(patient.bed, { ...prev, temp: { ...monitor.temp } });
+                    return next;
+                  });
+                }}
+              />
+            }
           />
           {shownExtra.map((kind) => (
             <OptionalTile key={kind} kind={kind} bp={kind === 'abp' ? nibp : null} />

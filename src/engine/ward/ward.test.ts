@@ -2,7 +2,16 @@ import { describe, expect, it } from 'vitest';
 import { enqueue } from '../core/eventQueue';
 import type { EngineEvent } from '../core/events';
 import type { GameState, NewGameParams } from '../core/state';
-import { advance, aiRequests, feed, intentEvent, realConfig, realEngine } from '../test/realEngine';
+import {
+  advance,
+  aiRequests,
+  feed,
+  fullTables,
+  intentEvent,
+  realConfig,
+  realEngine,
+} from '../test/realEngine';
+import { handleCallArrival } from './calls';
 import { plannedCallCount, shiftSeconds } from './generate';
 import type { Call, DelegationTaskId, Rank } from './wardTypes';
 
@@ -524,6 +533,22 @@ describe('步步上報（S-3）', () => {
       (r) => r.kind === 'CALL' && r.tag === 'DEPT',
     );
     expect(incoming).toBe(true);
+  });
+
+  it('drug chart 覆核唔會隨機來電', () => {
+    const source = fullTables();
+    const tables = {
+      ...source,
+      'call-templates': source['call-templates'].map((row) =>
+        row.id === 'NURSE_DRUGCHART' ? { ...row, weight: 100 } : { ...row, weight: 0 },
+      ),
+    };
+    const state = engine.init(wardParams('drugchart-pool'));
+    expect(Object.keys(state.patients).length).toBeGreaterThan(0);
+    const reduced = handleCallArrival(state, { config, tables });
+    expect(reduced.state.ward.calls.some((call) => call.templateId === 'NURSE_DRUGCHART')).toBe(
+      false,
+    );
   });
 });
 

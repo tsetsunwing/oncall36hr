@@ -160,7 +160,10 @@ describe('LogPanel：報告同執行者', () => {
     await user.click(screen.getByTestId('report-bucket-radiology'));
     expect(screen.queryByText('CBC')).not.toBeInTheDocument();
     expect(screen.getByText('XR 佔位。')).toBeInTheDocument();
-    await user.click(screen.getByTestId('report-section-ct'));
+    expect(screen.getByTestId('report-section-xr')).toHaveTextContent('X 光檢查 X-ray');
+    expect(screen.queryByTestId('report-section-ct')).not.toBeInTheDocument();
+    await user.click(screen.getByTestId('report-bucket-poct'));
+    expect(screen.queryByTestId('report-section')).not.toBeInTheDocument();
     expect(screen.getByText(ui.game.reports.emptyFiltered)).toBeInTheDocument();
   });
 

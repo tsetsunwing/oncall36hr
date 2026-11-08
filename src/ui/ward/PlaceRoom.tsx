@@ -1,3 +1,4 @@
+import { Bath, BedDouble, Utensils, type LucideIcon } from 'lucide-react';
 import { ui } from '@/i18n';
 import type { GameActions, ShiftView } from '@/view';
 
@@ -6,6 +7,12 @@ const ROOM_ACTIONS = {
   REST: ['NAP', 'PHONE_CHAT', 'MUSIC'],
   WC: ['TOILET'],
 } as const;
+
+const ROOM_ICON: Record<keyof typeof ROOM_ACTIONS, LucideIcon> = {
+  PANTRY: Utensils,
+  REST: BedDouble,
+  WC: Bath,
+};
 
 export type CarePlace = keyof typeof ROOM_ACTIONS;
 
@@ -28,6 +35,7 @@ export function PlaceRoom({
   const active = shift.selfCare.active;
   const ids: readonly string[] = ROOM_ACTIONS[place];
   const choices = shift.selfCare.actions.filter((action) => ids.includes(action.id));
+  const Icon = ROOM_ICON[place];
   return (
     <section
       className="place-room"
@@ -35,7 +43,10 @@ export function PlaceRoom({
       data-testid={`room-${place}`}
     >
       <header className="floor-plan-head">
-        <h2 id="place-room-heading">{title}</h2>
+        <h2 id="place-room-heading">
+          <Icon className="heading-icon" size={16} strokeWidth={2} aria-hidden="true" />
+          {title}
+        </h2>
       </header>
       {active ? (
         <div className="place-room-active" role="status" data-testid="selfcare-active">

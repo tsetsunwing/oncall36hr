@@ -319,7 +319,13 @@ function Ladder({
                 onCall(step.rank);
               }}
             >
-              {step.skips.length > 0 ? e.callSkip : e.callPlain}
+              {e.callPlain}
+              {step.skips.length > 0 ? (
+                <svg className="skip-mark" viewBox="0 0 8 14" aria-hidden="true" focusable="false">
+                  <rect x="3" y="0" width="2" height="8" rx="0.6" fill="currentColor" />
+                  <circle cx="4" cy="12" r="1.2" fill="currentColor" />
+                </svg>
+              ) : null}
               {step.skips.length > 0 ? (
                 <span className="visually-hidden" data-testid={`skip-${step.rank}`}>
                   {e.skipWarning(step.skips.join('、'))}

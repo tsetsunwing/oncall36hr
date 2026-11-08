@@ -35,7 +35,7 @@ describe('M3 content 表（T4／T5／T6／T7／T11）', () => {
     }
   });
 
-  it('formulary 嘅常用劑量（typicalDose）冇擅自填數字：全部 null，gate 唔會判斷劑量', () => {
+  it('formulary 嘅常用劑量（typicalDose）冇擅自填數字：全部 null', () => {
     for (const drug of tables.formulary) expect(drug.typicalDose, drug.id).toBeNull();
   });
 

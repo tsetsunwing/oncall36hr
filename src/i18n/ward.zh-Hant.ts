@@ -174,7 +174,6 @@ export const wardUi = {
     skipWarning: (ranks: string) => `會越過 ${ranks}，將被扣分`,
     call: (rank: string) => `致電 ${rank}`,
     callPlain: '致電',
-    callSkip: '致電 (!)',
     deptHeading: '外撥其他部門',
     deptCall: (label: string) => `致電 ${label}`,
   },

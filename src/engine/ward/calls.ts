@@ -246,8 +246,11 @@ export function handleCallArrival(state: GameState, ctx: EngineContext): Reducti
   }
   if (row.needs !== 'NONE' && patientId === null)
     return { state: { ...next, rng: cursor.rng }, effects: [] };
-  // 隨機藥房來電唔再出現。RNG 照用，等其他來電的次序不變。真正的藥房來電由藥單核對開。
-  if (row.id === 'PHARMACY_QUERY') return { state: { ...next, rng: cursor.rng }, effects: [] };
+  // 隨機藥房來電同 drug chart 覆核唔再出現。RNG 照用，等其他來電的次序不變。
+  // 藥物同點滴的核對由玩家落單之後的把關開出。
+  if (row.id === 'PHARMACY_QUERY' || row.id === 'NURSE_DRUGCHART') {
+    return { state: { ...next, rng: cursor.rng }, effects: [] };
+  }
 
   const patient = patientId ? next.patients[patientId] : undefined;
   const deptPool = row.deptPool ?? [];

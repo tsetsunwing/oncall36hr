@@ -6,6 +6,7 @@ import {
   roundsGradeContract,
   roundsQuestionContract,
 } from '.';
+import { GATE_PHARMACY_SYSTEM } from '../prompts/system';
 import type { DialoguePrompt } from './dialogueTurn';
 import type { OrderParsePrompt } from './orderParse';
 
@@ -291,5 +292,12 @@ describe('rounds.question／rounds.grade 契約', () => {
       /digit/,
     );
     expect(roundsGradeContract.dataSchema.safeParse({ verdict: 'GREAT' }).success).toBe(false);
+  });
+});
+
+describe('把關提示', () => {
+  it('typicalDose 係 null 時仍然要攔明顯唔係治療劑量嘅醫囑', () => {
+    expect(GATE_PHARMACY_SYSTEM).not.toMatch(/do NOT judge the dose/);
+    expect(GATE_PHARMACY_SYSTEM).toMatch(/plainly not a therapeutic dose/);
   });
 });

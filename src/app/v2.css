@@ -617,7 +617,8 @@ h2,
 
 .panel > h2,
 .side-panel h2,
-.floor-plan h2 {
+.floor-plan h2,
+.place-room h2 {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -1301,19 +1302,29 @@ tr[data-flag='H'] .value-flagged {
   opacity: 0.75;
 }
 
-.monitor .nibp-measure {
-  height: 18px;
+.tile-name {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.measure-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
   min-height: 0;
-  margin-top: 2px;
-  padding: 0 5px;
-  font-size: 10px;
-  font-weight: 700;
-  line-height: 1;
+  padding: 0;
   color: inherit;
   cursor: pointer;
   background: transparent;
-  border: 1px solid currentcolor;
-  border-radius: 4px;
+  border: 0;
+}
+
+.measure-mark svg {
+  width: 14px;
+  height: 14px;
 }
 
 .tile-reading {
@@ -2184,11 +2195,6 @@ tr[data-flag='H'] .value-flagged {
   border: 1px solid var(--border);
   border-radius: 15px;
   box-shadow: var(--card-shadow);
-}
-
-.place-room h2 {
-  margin: 0;
-  font-size: 1.05rem;
 }
 
 .place-room-active {

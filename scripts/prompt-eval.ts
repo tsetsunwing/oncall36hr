@@ -107,6 +107,7 @@ const DRUG = {
   allergyClasses: ['penicillin'],
   dose: { value: 1, unit: 'g' },
   route: 'IV',
+  frequency: null,
   typicalDose: null,
   units: ['g', 'mg'],
   routes: ['IV'],

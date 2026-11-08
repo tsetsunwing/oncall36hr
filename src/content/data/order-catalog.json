@@ -106,8 +106,8 @@
   {
     "id": "oxygen.nasal",
     "type": "OXYGEN",
-    "label": "Oxygen nasal prong",
-    "aliases": ["oxygen nasal", "o2 nasal", "o2 np", "nasal prong", "鼻導管"],
+    "label": "Oxygen nasal cannula",
+    "aliases": ["oxygen nasal", "o2 nasal", "o2 np", "nasal prong", "nasal cannula", "鼻導管"],
     "executors": ["NURSE"],
     "fixedDurationSec": 60,
     "setsFlags": ["oxygen.on"],

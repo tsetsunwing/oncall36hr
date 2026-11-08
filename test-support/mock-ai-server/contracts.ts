@@ -341,8 +341,23 @@ function dialogue(prompt: Record<string, unknown>, mode: ContractMode): string {
 
 interface GateReviewPrompt {
   role: 'PHARMACY' | 'NURSE';
-  order: { drug: { allergyClasses: string[] } | null };
+  order: {
+    drug: {
+      allergyClasses: string[];
+      dose: { value: number; unit: string } | null;
+    } | null;
+  };
   patient: { allergies: string[] };
+}
+
+/** 唔係治療範圍。克數 ≥ 20 或毫克 ≥ 20000 先當明顯唔係病房劑量，1 g 仍然放行。 */
+function absurdDose(prompt: GateReviewPrompt): boolean {
+  const dose = prompt.order.drug?.dose;
+  if (!dose || !Number.isFinite(dose.value)) return false;
+  const unit = dose.unit.toLowerCase();
+  if (unit === 'g') return dose.value >= 20;
+  if (unit === 'mg') return dose.value >= 20_000;
+  return false;
 }
 
 function allergyHit(prompt: GateReviewPrompt): boolean {
@@ -353,6 +368,7 @@ function allergyHit(prompt: GateReviewPrompt): boolean {
 function gateReview(prompt: Record<string, unknown>, mode: ContractMode): string {
   const p = prompt as unknown as GateReviewPrompt;
   const hit = allergyHit(p);
+  const wildDose = absurdDose(p);
   const kind = p.role === 'PHARMACY' ? 'gate.pharmacy' : 'gate.nurse';
   const data: Record<string, unknown> = hit
     ? {
@@ -367,17 +383,35 @@ function gateReview(prompt: Record<string, unknown>, mode: ContractMode): string
           },
         ],
       }
-    : { verdict: 'OK', concerns: [] };
+    : wildDose
+      ? {
+          verdict: 'OBJECT',
+          concerns: [
+            {
+              category: 'DOSE_HIGH',
+              line:
+                p.role === 'PHARMACY'
+                  ? '{{order.dose}} 呢個劑量明顯過高，我唔會就咁發藥。'
+                  : '醫生，{{order.label}} 呢個劑量明顯唔啱，我未執行。',
+            },
+          ],
+        }
+      : { verdict: 'OK', concerns: [] };
   if (p.role === 'PHARMACY') {
     data.safety = hit
       ? {
           score: 2,
           rationale: '病人的藥物過敏紀錄與 {{order.drug}} 屬同一類別，存在交叉過敏風險。',
         }
-      : {
-          score: 9,
-          rationale: '根據現有資料，{{order.label}} 與病人的過敏紀錄及現行藥物沒有明顯衝突。',
-        };
+      : wildDose
+        ? {
+            score: 1,
+            rationale: '{{order.dose}} 與 {{order.drug}} 的常用情況明顯不符。',
+          }
+        : {
+            score: 9,
+            rationale: '根據現有資料，{{order.label}} 與病人的過敏紀錄及現行藥物沒有明顯衝突。',
+          };
   }
   if (mode === 'gate-bad-line' && hit) {
     data.concerns = [{ category: 'DOSE_HIGH', line: '呢個劑量太高，要減到 500 mg。' }];

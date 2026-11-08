@@ -179,16 +179,25 @@ function LogItem({ row }: { row: ActionRowView }) {
 function ReportFilters({
   bucket,
   section,
+  reports,
   onBucket,
   onSection,
 }: {
   bucket: 'all' | ReportBucket;
   section: string;
+  reports: ReportView[];
   onBucket: (next: 'all' | ReportBucket) => void;
   onSection: (next: string) => void;
 }) {
   const r = ui.game.reports;
   const buckets = ['all', 'laboratory', 'radiology', 'poct'] as const;
+  const present =
+    bucket === 'all'
+      ? []
+      : sectionsFor(bucket).filter((id) =>
+          reports.some((report) => report.bucket === bucket && report.section === id),
+        );
+  const selected = section === 'all' || present.includes(section) ? section : 'all';
   return (
     <>
       <div className="report-filters" role="group" aria-label={r.filtersLabel}>
@@ -207,35 +216,26 @@ function ReportFilters({
           </button>
         ))}
       </div>
-      {bucket === 'all' ? null : (
-        <div className="report-filters" role="group" aria-label={r.sectionsLabel}>
-          <button
-            type="button"
-            className="btn btn-small"
-            data-testid="report-section-all"
-            aria-pressed={section === 'all'}
-            onClick={() => {
-              onSection('all');
+      {present.length > 0 ? (
+        <label className="report-section-pick">
+          {r.sectionsLabel}
+          <select
+            data-testid="report-section"
+            aria-label={r.sectionsLabel}
+            value={selected}
+            onChange={(event) => {
+              onSection(event.target.value);
             }}
           >
-            {r.section.all}
-          </button>
-          {sectionsFor(bucket).map((id) => (
-            <button
-              key={id}
-              type="button"
-              className="btn btn-small"
-              data-testid={`report-section-${id}`}
-              aria-pressed={section === id}
-              onClick={() => {
-                onSection(id);
-              }}
-            >
-              {r.section[id] ?? id}
-            </button>
-          ))}
-        </div>
-      )}
+            <option value="all">{r.section.all}</option>
+            {present.map((id) => (
+              <option key={id} value={id} data-testid={`report-section-${id}`}>
+                {r.section[id] ?? id}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : null}
     </>
   );
 }
@@ -301,6 +301,7 @@ export function LogPanel({
         <ReportFilters
           bucket={bucket}
           section={section}
+          reports={reports}
           onBucket={(next) => {
             setBucket(next);
             setSection('all');
