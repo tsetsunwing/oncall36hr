@@ -1,4 +1,16 @@
 import { useState } from 'react';
+import {
+  AlarmClock,
+  CircleAlert,
+  CircleUserRound,
+  Gauge,
+  Moon,
+  ShieldCheck,
+  Stethoscope,
+  Sun,
+  Users,
+  type LucideIcon,
+} from 'lucide-react';
 import { ui } from '@/i18n';
 import { normalizeSettings, validateSettings, type SaveSlotView, type Settings } from '@/storage';
 import type { StartGate } from '@/view';
@@ -30,12 +42,6 @@ export interface StartPageProps {
   onTestConnection?: (settings: Settings) => Promise<ConnectionOutcome>;
 }
 
-const missingMessage = {
-  apiKey: ui.start.blockedMissingKey,
-  baseUrl: ui.start.blockedMissingBaseUrl,
-  model: ui.start.blockedMissingModel,
-} as const;
-
 const RANKS: readonly SetupRank[] = ['HO', 'MO', 'RES'];
 const DIFFICULTIES: readonly SetupDifficulty[] = ['EASY', 'MEDIUM', 'HARD'];
 const MODES: readonly SetupMode[] = ['DAY', 'NIGHT', 'ONCALL'];
@@ -45,7 +51,13 @@ interface ChoiceGroupProps<T extends string> {
   legend: string;
   hint: string;
   value: T;
-  options: readonly { id: T; title: string; line1: string; line2?: string | undefined }[];
+  options: readonly {
+    id: T;
+    title: string;
+    line1: string;
+    line2?: string | undefined;
+    icon: LucideIcon;
+  }[];
   onChange: (value: T) => void;
 }
 
@@ -78,7 +90,10 @@ function ChoiceGroup<T extends string>({
                 onChange(option.id);
               }}
             />
-            <span className="choice-title">{option.title}</span>
+            <span className="choice-title">
+              <option.icon className="choice-icon" size={16} strokeWidth={2} aria-hidden="true" />
+              {option.title}
+            </span>
             <span className="choice-line">{option.line1}</span>
             {option.line2 ? <span className="choice-line">{option.line2}</span> : null}
           </label>
@@ -167,6 +182,7 @@ export function StartPage({
               title: s.rank[id]?.name ?? id,
               line1: s.rank[id]?.sub ?? '',
               line2: s.rank[id]?.desc,
+              icon: id === 'HO' ? CircleUserRound : id === 'MO' ? Users : Stethoscope,
             }))}
           />
           <ChoiceGroup
@@ -179,6 +195,7 @@ export function StartPage({
               id,
               title: s.difficulty[id]?.name ?? id,
               line1: s.difficulty[id]?.desc ?? '',
+              icon: id === 'EASY' ? ShieldCheck : id === 'MEDIUM' ? Gauge : CircleAlert,
             }))}
           />
           <ChoiceGroup
@@ -192,24 +209,12 @@ export function StartPage({
               title: s.modeCard[id]?.name ?? id,
               line1: s.modeCard[id]?.time ?? '',
               line2: s.modeCard[id]?.desc,
+              icon: id === 'DAY' ? Sun : id === 'NIGHT' ? Moon : AlarmClock,
             }))}
           />
         </div>
         {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- 可捲動設定要俾鍵盤聚焦 */}
         <aside className="setup-side" aria-label={s.apiHeading} tabIndex={0}>
-          {gate.canStart ? null : (
-            <div className="notice notice-blocked" data-testid="start-blocked">
-              <p>{ui.start.blockedTitle}</p>
-              <ul>
-                {gate.missing.map((field) => (
-                  <li key={field}>{missingMessage[field]}</li>
-                ))}
-              </ul>
-              <a className="button-link" href="#/settings">
-                {ui.start.settingsLink}
-              </a>
-            </div>
-          )}
           {draft ? (
             <fieldset className="soft-panel setup-api">
               <legend>{`④ ${s.apiHeading}`}</legend>

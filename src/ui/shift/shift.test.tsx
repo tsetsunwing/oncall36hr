@@ -332,6 +332,7 @@ describe('StartPage 設定畫面', () => {
     expect(onSettingsChange).toHaveBeenLastCalledWith(
       expect.objectContaining({ apiKey: 'k', baseUrl: 'https://x/v1' }),
     );
-    expect(screen.getByTestId('start-blocked')).toBeInTheDocument();
+    expect(screen.queryByTestId('start-blocked')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: ui.start.startButton })).toBeDisabled();
   });
 });

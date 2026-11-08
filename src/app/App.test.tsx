@@ -16,7 +16,7 @@ describe('App (M0 gate)', () => {
   it('blocks the game without a key, even when navigating straight to #/game', async () => {
     window.location.hash = '#/game';
     render(<App />);
-    expect(await screen.findByTestId('start-blocked')).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: ui.start.startButton })).toBeDisabled();
     expect(screen.queryByTestId('game-screen')).not.toBeInTheDocument();
     await waitFor(() => {
       expect(window.location.hash).toBe('#/');
@@ -42,6 +42,7 @@ describe('App (M0 gate)', () => {
     localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify({ apiKey: 'stored' }));
     render(<App />);
     expect(screen.queryByTestId('start-blocked')).not.toBeInTheDocument();
+    expect(screen.getByLabelText(ui.settings.apiKeyLabel)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: ui.start.startButton })).toBeEnabled();
   });
 });

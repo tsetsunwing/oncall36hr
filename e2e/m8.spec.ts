@@ -250,7 +250,7 @@ test.describe('M8 mobile, shortcuts, saves and AI failure', () => {
       localStorage.removeItem('dandu.settings.v1');
     });
     await fresh.goto('/#/');
-    await expect(fresh.getByTestId('start-blocked')).toBeVisible();
+    await expect(fresh.getByTestId('start-blocked')).toHaveCount(0);
     await expect(fresh.getByRole('button', { name: ui.start.startButton })).toBeDisabled();
     await shot(fresh, 'no-key');
     await fresh.close();

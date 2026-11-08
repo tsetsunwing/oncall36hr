@@ -16,14 +16,15 @@ test.describe('M0 acceptance', () => {
     page,
   }) => {
     await page.goto('/');
-    await expect(page.getByTestId('start-blocked')).toContainText(ui.start.blockedMissingKey);
+    await expect(page.getByTestId('start-blocked')).toHaveCount(0);
+    await expect(page.getByLabel(ui.settings.apiKeyLabel, { exact: true })).toBeVisible();
     await expect(page.getByRole('button', { name: ui.start.startButton })).toBeDisabled();
 
     await page.goto('/#/game');
-    await expect(page.getByTestId('start-blocked')).toBeVisible();
     await expect(page.getByTestId('game-screen')).toHaveCount(0);
+    await expect(page.getByRole('button', { name: ui.start.startButton })).toBeDisabled();
 
-    await page.getByRole('link', { name: ui.start.settingsLink }).click();
+    await page.getByRole('link', { name: ui.nav.settings }).click();
     await fillSettings(page, { key: 'test-key' });
     await page.getByRole('button', { name: ui.settings.save }).click();
     await expect(page.getByTestId('settings-notice')).toHaveText(ui.settings.saved);

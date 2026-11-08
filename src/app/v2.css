@@ -1723,8 +1723,16 @@ tr[data-flag='H'] .value-flagged {
 }
 
 .choice-title {
+  display: flex;
+  gap: 6px;
+  align-items: center;
   font-size: 16px;
   font-weight: 800;
+}
+
+.choice-icon {
+  flex: none;
+  color: var(--accent);
 }
 
 .choice-line {
