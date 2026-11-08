@@ -51,6 +51,7 @@ function selectBeds(state: GameState, env: ViewEnv): BedView[] {
       name: patient?.demographics.name ?? null,
       age: patient?.demographics.age ?? null,
       sex: patient?.demographics.sex ?? null,
+      complaint: patient?.presentingComplaint ?? null,
       mewsScore: patient?.visible.mews.score ?? null,
       mewsBandId: bandId,
       level: patient ? bedLevel(bandId, tables) : 'NORMAL',

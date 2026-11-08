@@ -47,8 +47,7 @@ export function BedTable({ ward, actions }: BedTableProps) {
                   </button>
                 </td>
                 <td>
-                  {bed.name} {bed.age}
-                  {w.sex[bed.sex ?? 'M']}
+                  {bed.name} {bed.age}/{w.sex[bed.sex ?? 'M']}
                 </td>
                 <td>
                   <span className="mews-badge" data-band={bed.mewsBandId ?? 'LOW'}>

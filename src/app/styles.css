@@ -1201,7 +1201,6 @@ button.landmark {
 }
 
 .ward-notice {
-  min-height: 1.5rem;
   margin: 0;
   color: var(--blocked-text);
 }
@@ -1432,8 +1431,15 @@ textarea {
 }
 
 .ladder-rank {
-  flex: 1;
+  flex: 0 1 auto;
   font-weight: 700;
+}
+
+.ladder-call {
+  height: 26px;
+  min-height: 0;
+  padding: 0 8px;
+  font-size: 12px;
 }
 
 .ladder-note {
@@ -1456,11 +1462,26 @@ textarea {
   border-radius: 6px;
 }
 
+.dept-toggle {
+  height: 28px;
+  min-height: 0;
+  padding: 0 10px;
+  font-size: 12px;
+}
+
 .dept-buttons,
 .chip-row {
   display: flex;
   flex-wrap: wrap;
   gap: 0.35rem;
+}
+
+.dept-badge {
+  height: 26px;
+  min-height: 0;
+  padding: 0 8px;
+  font-size: 12px;
+  border-radius: 999px;
 }
 
 .sbar-field {

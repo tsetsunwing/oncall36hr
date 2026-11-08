@@ -87,7 +87,10 @@ describe('MonitorPanel：床邊監護儀風格＋閃爍數值＋黃色三角警�
     render(
       <MonitorPanel
         patient={patient}
-        monitor={monitor({ lineSlot: { kind: 'CVP', reviewPending: true } })}
+        monitor={monitor({
+          lineSlot: { kind: 'CVP', reviewPending: true },
+          lines: { abp: true, cvp: true, etco2: false },
+        })}
       />,
     );
     expect(screen.queryByTestId('vital-cvp')).not.toBeInTheDocument();

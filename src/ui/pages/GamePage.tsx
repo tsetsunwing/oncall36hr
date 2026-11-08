@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { getConfig } from '@/content';
-import { ClipboardList, Coffee, Save } from 'lucide-react';
+import { ClipboardList, Save } from 'lucide-react';
 import { ui } from '@/i18n';
 import { IconButton } from '../IconButton';
 import type { GameActions, GameView } from '@/view';
@@ -19,7 +19,6 @@ import { OvertimeBanner } from '../shift/OvertimeBanner';
 import { ResultPage } from '../shift/ResultPage';
 import { ReviewPage } from '../shift/ReviewPage';
 import { RoundDialog } from '../shift/RoundPanel';
-import { SelfCarePanel } from '../shift/SelfCarePanel';
 
 export interface GamePageProps {
   view: GameView;
@@ -37,7 +36,6 @@ function stepSpeed(view: GameView, actions: GameActions, direction: -1 | 1) {
 
 export function GamePage({ view, actions, onExit }: GamePageProps) {
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [selfCareOpen, setSelfCareOpen] = useState(false);
   const [reviewOpen, setReviewOpen] = useState(false);
   const [saveOpen, setSaveOpen] = useState(false);
   const [saveNote, setSaveNote] = useState<string | null>(null);
@@ -59,7 +57,6 @@ export function GamePage({ view, actions, onExit }: GamePageProps) {
     else if (command === 'speed-down') stepSpeed(view, actions, -1);
     else if (command === 'speed-up') stepSpeed(view, actions, 1);
     else if (command === 'close') {
-      setSelfCareOpen(false);
       setSaveOpen(false);
       if (!view.ward) setDrawerOpen(false);
     } else if (!view.ward && (command === 'focus-input' || command === 'tab-chat')) {
@@ -141,18 +138,6 @@ export function GamePage({ view, actions, onExit }: GamePageProps) {
                   setSaveOpen(true);
                 }}
               />
-              <IconButton
-                icon={Coffee}
-                label={ui.shift.selfCare.heading}
-                className="bar-btn"
-                aria-expanded={selfCareOpen}
-                aria-controls="selfcare-region"
-                title={ui.shift.selfCare.tooltip}
-                data-testid="selfcare-toggle"
-                onClick={() => {
-                  setSelfCareOpen((open) => !open);
-                }}
-              />
             </>
           )
         }
@@ -225,7 +210,7 @@ export function GamePage({ view, actions, onExit }: GamePageProps) {
       ) : (
         <p>{g.noPatient}</p>
       )}
-      {!shift.handover && (saveOpen || selfCareOpen) ? (
+      {!shift.handover && saveOpen ? (
         <div className="selfcare-wrap">
           {saveOpen ? (
             <div
@@ -277,11 +262,6 @@ export function GamePage({ view, actions, onExit }: GamePageProps) {
                   {ui.saves.close}
                 </button>
               </div>
-            </div>
-          ) : null}
-          {selfCareOpen ? (
-            <div id="selfcare-region">
-              <SelfCarePanel shift={shift} notice={view.notice} actions={actions} />
             </div>
           ) : null}
         </div>

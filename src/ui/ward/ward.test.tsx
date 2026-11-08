@@ -52,6 +52,7 @@ const bed = (n: number, over: Partial<BedView> = {}): BedView => ({
   name: null,
   age: null,
   sex: null,
+  complaint: null,
   mewsScore: null,
   mewsBandId: null,
   level: 'NORMAL',
@@ -63,7 +64,16 @@ const bed = (n: number, over: Partial<BedView> = {}): BedView => ({
 
 const beds: BedView[] = Array.from({ length: 20 }, (_, i) => bed(i + 1)).map((b) =>
   b.bed === 7
-    ? { ...b, patientId: 'p1', name: '李婆婆', age: 78, sex: 'F', mewsScore: 6, level: 'ALARM' }
+    ? {
+        ...b,
+        patientId: 'p1',
+        name: '李婆婆',
+        age: 78,
+        sex: 'F',
+        complaint: '氣促',
+        mewsScore: 6,
+        level: 'ALARM',
+      }
     : b.bed === 8
       ? {
           ...b,
@@ -155,6 +165,8 @@ describe('FloorPlan', () => {
     expect(screen.getAllByTestId(/^bed-\d+$/)).toHaveLength(20);
     const occupied = screen.getByTestId('bed-7');
     expect(occupied).toHaveTextContent('李婆婆');
+    expect(occupied).toHaveTextContent('78/女');
+    expect(occupied).toHaveTextContent('氣促');
     expect(occupied).toHaveAttribute('data-level', 'ALARM');
     expect(occupied).not.toHaveTextContent(ui.game.ward.level.ALARM ?? '');
     expect(occupied).not.toHaveTextContent(ui.game.ward.here);
@@ -215,6 +227,7 @@ describe('PhonePanel', () => {
     expect(within(screen.getByTestId('ladder')).getByTestId('skip-AC')).toBeInTheDocument();
     await userEvent.click(screen.getByTestId('call-rank-AC'));
     expect(actions.prepareCall).toHaveBeenCalledWith('p1', { kind: 'RANK', rank: 'AC' });
+    await userEvent.click(screen.getByTestId('dept-toggle'));
     await userEvent.click(screen.getByTestId('call-dept-ICU'));
     expect(actions.prepareCall).toHaveBeenCalledWith('p1', { kind: 'DEPT', deptId: 'ICU' });
   });

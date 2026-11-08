@@ -313,16 +313,10 @@ function Ladder({
       {steps.map((step) => (
         <li key={step.rank} className="ladder-step" data-reachable={step.reachable}>
           <span className="ladder-rank">{e.rank[step.rank]}</span>
-          {step.contacted ? <span className="ladder-note">{e.contacted}</span> : null}
-          {step.skips.length > 0 ? (
-            <span className="ladder-skip" data-testid={`skip-${step.rank}`}>
-              {e.skipWarning(step.skips.join('、'))}
-            </span>
-          ) : null}
           {step.reachable ? (
             <button
               type="button"
-              className="btn btn-small"
+              className="btn btn-small ladder-call"
               disabled={disabled}
               data-testid={`call-rank-${step.rank}`}
               onClick={() => {
@@ -331,6 +325,12 @@ function Ladder({
             >
               {e.call(e.rankShort[step.rank] ?? step.rank)}
             </button>
+          ) : null}
+          {step.contacted ? <span className="ladder-note">{e.contacted}</span> : null}
+          {step.skips.length > 0 ? (
+            <span className="ladder-skip" data-testid={`skip-${step.rank}`}>
+              {e.skipWarning(step.skips.join('、'))}
+            </span>
           ) : null}
         </li>
       ))}
@@ -353,6 +353,7 @@ export function PhonePanel({
   const [patientId, setPatientId] = useState<string>(
     currentPatientId ?? occupied[0]?.patientId ?? '',
   );
+  const [deptsOpen, setDeptsOpen] = useState(false);
 
   const [prevCurrent, setPrevCurrent] = useState(currentPatientId);
   if (prevCurrent !== currentPatientId) {
@@ -470,23 +471,35 @@ export function PhonePanel({
                   actions.prepareCall(patientId, { kind: 'RANK', rank });
                 }}
               />
-              <h4>{e.deptHeading}</h4>
-              <div className="dept-buttons" role="group" aria-label={e.deptHeading}>
-                {phone.depts.map((d) => (
-                  <button
-                    key={d.id}
-                    type="button"
-                    className="btn btn-small"
-                    disabled={patientId === ''}
-                    data-testid={`call-dept-${d.id}`}
-                    onClick={() => {
-                      actions.prepareCall(patientId, { kind: 'DEPT', deptId: d.id });
-                    }}
-                  >
-                    {e.deptCall(d.label)}
-                  </button>
-                ))}
-              </div>
+              <button
+                type="button"
+                className="btn btn-small dept-toggle"
+                aria-expanded={deptsOpen}
+                data-testid="dept-toggle"
+                onClick={() => {
+                  setDeptsOpen((open) => !open);
+                }}
+              >
+                {e.deptHeading}
+              </button>
+              {deptsOpen ? (
+                <div className="dept-buttons" role="group" aria-label={e.deptHeading}>
+                  {phone.depts.map((d) => (
+                    <button
+                      key={d.id}
+                      type="button"
+                      className="btn btn-small dept-badge"
+                      disabled={patientId === ''}
+                      data-testid={`call-dept-${d.id}`}
+                      onClick={() => {
+                        actions.prepareCall(patientId, { kind: 'DEPT', deptId: d.id });
+                      }}
+                    >
+                      {d.label}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
             </div>
           )}
         </section>

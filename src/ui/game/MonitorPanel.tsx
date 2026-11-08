@@ -134,6 +134,7 @@ export function MonitorPanel({ patient, monitor }: MonitorPanelProps) {
     setExtra([]);
     setMenuOpen(false);
   }
+  const shownExtra = extra.filter((kind) => monitor.lines[kind]);
   const level = maxLevel([
     monitor.mews.level,
     monitor.rhythmAlarm,
@@ -223,7 +224,7 @@ export function MonitorPanel({ patient, monitor }: MonitorPanelProps) {
               label={m.waveformLabel}
             />
           </div>
-          {extra.map((kind) => (
+          {shownExtra.map((kind) => (
             <div key={kind} className="wave-row" data-wave={kind}>
               <span className="wave-label">{m.optionalWave[kind]}</span>
               <WaveformCanvas
@@ -283,7 +284,7 @@ export function MonitorPanel({ patient, monitor }: MonitorPanelProps) {
             unit={m.tempUnit}
             readout={monitor.temp}
           />
-          {extra.map((kind) => (
+          {shownExtra.map((kind) => (
             <OptionalTile key={kind} kind={kind} />
           ))}
         </div>
@@ -307,15 +308,17 @@ export function MonitorPanel({ patient, monitor }: MonitorPanelProps) {
         {menuOpen ? (
           <div id="optional-waves" className="wave-menu" role="group" aria-label={m.waveMenu}>
             {OPTIONAL_WAVES.map((kind) => {
-              const checked = extra.includes(kind);
+              const ready = monitor.lines[kind];
+              const checked = ready && extra.includes(kind);
               const full = extra.length >= MAX_OPTIONAL && !checked;
               return (
-                <label key={kind}>
+                <label key={kind} title={ready ? undefined : m.waveNeeds[kind]}>
                   <input
                     type="checkbox"
                     checked={checked}
-                    disabled={full}
+                    disabled={!ready || full}
                     onChange={() => {
+                      if (!ready) return;
                       setExtra((current) => {
                         if (current.includes(kind)) return current.filter((item) => item !== kind);
                         if (current.length >= MAX_OPTIONAL) return current;

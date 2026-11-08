@@ -14,6 +14,7 @@ export const shiftUi = {
     ENDED: '已結束',
   } as Record<string, string>,
   waitingForAi: '等待 AI 回應，時間暫停',
+  waitingForAiShort: '暫停',
   energy: {
     label: '精力',
     level: { NORMAL: '尚可', LOW: '偏高', VERY_LOW: '很高' } as Record<string, string>,

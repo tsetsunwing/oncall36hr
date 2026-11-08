@@ -96,6 +96,11 @@ export function selectMonitor(
       dbp: v.dbp,
     },
     lineSlot: selectLineSlot(patient.hidden.fsm.flags),
+    lines: {
+      abp: patient.hidden.fsm.flags.includes('aline.in'),
+      cvp: patient.hidden.fsm.flags.includes('cvc.in'),
+      etco2: patient.hidden.fsm.flags.includes('airway.secured'),
+    },
     spo2: { ...spo2, text: pulseless ? dash : String(v.spo2) },
     rr: { ...rr, text: pulseless ? dash : String(v.rr) },
     temp: { ...temp, text: v.temp.toFixed(1) },

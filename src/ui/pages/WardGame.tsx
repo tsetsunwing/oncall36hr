@@ -258,14 +258,16 @@ export function WardGame({ view, ward, actions }: WardGameProps) {
               ) : null}
             </button>
           </div>
-          <IconButton
-            icon={Users}
-            label={w.delegation.open}
-            data-testid="open-delegation"
-            onClick={() => {
-              openDelegation(null);
-            }}
-          />
+          {atBed ? (
+            <IconButton
+              icon={Users}
+              label={w.delegation.open}
+              data-testid="open-delegation"
+              onClick={() => {
+                openDelegation(null);
+              }}
+            />
+          ) : null}
         </div>
         {tab === 'chat' ? (
           <div role="tabpanel" id="panel-chat" aria-labelledby="tab-chat">
@@ -298,11 +300,11 @@ export function WardGame({ view, ward, actions }: WardGameProps) {
             />
           </div>
         )}
-        {view.chat ? null : (
+        {!view.chat && view.notice ? (
           <p className="ward-notice" role="status" data-testid="ward-notice">
-            {view.notice ? (g.notice[view.notice.kind] ?? g.notice.fallback) : ''}
+            {g.notice[view.notice.kind] ?? g.notice.fallback}
           </p>
-        )}
+        ) : null}
       </div>
       <LogPanel
         orders={view.orders}
@@ -320,6 +322,7 @@ export function WardGame({ view, ward, actions }: WardGameProps) {
         actions={actions}
         open={delegationOpen}
         callId={delegationCall}
+        currentPatientId={view.patient?.id ?? null}
         onClose={() => {
           setDelegationOpen(false);
         }}

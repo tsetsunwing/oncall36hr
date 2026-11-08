@@ -37,9 +37,9 @@ function BedButton({ bed, actions }: { bed: BedView; actions: GameActions }) {
           </span>
           <span className="bed-name">{bed.name}</span>
           <span className="bed-meta">
-            {bed.age}
-            {w.sex[bed.sex ?? 'M']}
+            {bed.age}/{w.sex[bed.sex ?? 'M']}
           </span>
+          {bed.complaint ? <span className="bed-dx">{bed.complaint}</span> : null}
         </>
       ) : (
         <span className="bed-empty">{w.empty}</span>

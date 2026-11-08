@@ -54,6 +54,11 @@ export const ui = {
       pleth: 'Pleth · SpO2',
       waveMenu: '波形',
       optionalWave: { abp: 'ABP', cvp: 'CVP', etco2: 'EtCO2' } as Record<string, string>,
+      waveNeeds: {
+        abp: '需要動脈導管',
+        cvp: '需要中央靜脈導管',
+        etco2: '需要氣管插管',
+      } as Record<string, string>,
       optionalWaveLabel: (name: string) => `${name} 波形（示意，跟心率或呼吸率，未有讀數）`,
       cvpUnit: 'cmH2O',
       noReading: '未有讀數',

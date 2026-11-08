@@ -410,6 +410,21 @@
     "reviewStatus": "PENDING_CLINICAL_REVIEW"
   },
   {
+    "id": "proc.aline",
+    "type": "PROCEDURE",
+    "label": "Arterial line insertion",
+    "aliases": ["arterial line", "a-line", "aline", "art line", "動脈導管"],
+    "executors": ["PLAYER", "SUBORDINATE"],
+    "fixedDurationSec": 600,
+    "setsFlags": ["aline.in"],
+    "resultTemplate": "Arterial line inserted",
+    "cancelWhile": ["QUEUED", "RUNNING"],
+    "sunkEffectRule": "DISCARD",
+    "pharmacyGate": false,
+    "nurseGate": "HIGH_RISK",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
     "id": "proc.intubation",
     "type": "PROCEDURE",
     "label": "Intubation",

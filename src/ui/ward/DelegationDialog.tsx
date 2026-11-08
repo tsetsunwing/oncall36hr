@@ -9,10 +9,18 @@ export interface DelegationDialogProps {
   open: boolean;
   /** 由來電按「委派下屬」打開時預選的來電 */
   callId: string | null;
+  currentPatientId?: string | null;
   onClose: () => void;
 }
 
-export function DelegationDialog({ ward, actions, open, callId, onClose }: DelegationDialogProps) {
+export function DelegationDialog({
+  ward,
+  actions,
+  open,
+  callId,
+  currentPatientId = null,
+  onClose,
+}: DelegationDialogProps) {
   const d = ui.game.ward.delegation;
   const { delegation } = ward;
   const ref = useRef<HTMLDialogElement>(null);
@@ -31,6 +39,7 @@ export function DelegationDialog({ ward, actions, open, callId, onClose }: Deleg
   const key = `${String(open)}:${callId ?? ''}`;
   if (prevKey !== key) {
     setPrevKey(key);
+    if (open && currentPatientId) setPatientId(currentPatientId);
     if (open && callId) {
       setTask('SIMPLE_CALL');
       setItemId('call.handle');

@@ -24,6 +24,8 @@ export interface MonitorView {
   bp: VitalReadout & { sbp: number; dbp: number };
   /** A-line 或 CVP。冇對應導管時 kind 為 null，畫面留空。 */
   lineSlot: LineSlotView;
+  /** 額外波形：冇對應導管或插管時不可顯示。 */
+  lines: { abp: boolean; cvp: boolean; etco2: boolean };
   spo2: VitalReadout;
   rr: VitalReadout;
   temp: VitalReadout;
@@ -199,6 +201,8 @@ export interface BedView {
   name: string | null;
   age: number | null;
   sex: 'M' | 'F' | null;
+  /** 主訴，床格上年齡性別下面的一行 */
+  complaint: string | null;
   mewsScore: number | null;
   mewsBandId: string | null;
   level: AlarmLevel;

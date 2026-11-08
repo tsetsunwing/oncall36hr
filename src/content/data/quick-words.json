@@ -226,6 +226,13 @@
     "chipGroup": "treat"
   },
   {
+    "id": "qw.aline",
+    "aliases": ["arterial line"],
+    "catalogId": "proc.aline",
+    "chipLabel": "Arterial line",
+    "chipGroup": "treat"
+  },
+  {
     "id": "qw.rft",
     "aliases": ["rft"],
     "catalogId": "lab.rft",

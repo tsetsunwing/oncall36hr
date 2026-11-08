@@ -104,5 +104,105 @@
     },
     "incoming": false,
     "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "RESPIRATORY",
+    "label": "Respiratory",
+    "kind": "SPECIALTY",
+    "acceptMinClarity": 1,
+    "bedsideByUrgency": { "ROUTINE": "PHONE", "URGENT": "PHONE", "EMERGENCY": "BEDSIDE" },
+    "reactionSec": { "PHONE": 60, "BEDSIDE": 900 },
+    "incoming": true,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "NEUROLOGY",
+    "label": "Neurology",
+    "kind": "SPECIALTY",
+    "acceptMinClarity": 1,
+    "bedsideByUrgency": { "ROUTINE": "PHONE", "URGENT": "PHONE", "EMERGENCY": "BEDSIDE" },
+    "reactionSec": { "PHONE": 60, "BEDSIDE": 900 },
+    "incoming": true,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "GASTROENTEROLOGY",
+    "label": "Gastroenterology",
+    "kind": "SPECIALTY",
+    "acceptMinClarity": 1,
+    "bedsideByUrgency": { "ROUTINE": "PHONE", "URGENT": "BEDSIDE", "EMERGENCY": "BEDSIDE" },
+    "reactionSec": { "PHONE": 60, "BEDSIDE": 1200 },
+    "incoming": true,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "NEPHROLOGY",
+    "label": "Nephrology",
+    "kind": "SPECIALTY",
+    "acceptMinClarity": 1,
+    "bedsideByUrgency": { "ROUTINE": "PHONE", "URGENT": "PHONE", "EMERGENCY": "BEDSIDE" },
+    "reactionSec": { "PHONE": 60, "BEDSIDE": 900 },
+    "incoming": false,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "ENDOCRINOLOGY",
+    "label": "Endocrinology",
+    "kind": "SPECIALTY",
+    "acceptMinClarity": 1,
+    "bedsideByUrgency": { "ROUTINE": "PHONE", "URGENT": "PHONE", "EMERGENCY": "BEDSIDE" },
+    "reactionSec": { "PHONE": 60, "BEDSIDE": 1200 },
+    "incoming": false,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "HAEMATOLOGY",
+    "label": "Haematology",
+    "kind": "SPECIALTY",
+    "acceptMinClarity": 2,
+    "bedsideByUrgency": { "ROUTINE": "PHONE", "URGENT": "PHONE", "EMERGENCY": "BEDSIDE" },
+    "reactionSec": { "PHONE": 60, "BEDSIDE": 1200 },
+    "incoming": false,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "ONCOLOGY",
+    "label": "Oncology",
+    "kind": "SPECIALTY",
+    "acceptMinClarity": 1,
+    "bedsideByUrgency": { "ROUTINE": "PHONE", "URGENT": "PHONE", "EMERGENCY": "PHONE" },
+    "reactionSec": { "PHONE": 60, "BEDSIDE": 0 },
+    "incoming": false,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "ORTHOPAEDICS",
+    "label": "Orthopaedics",
+    "kind": "SPECIALTY",
+    "acceptMinClarity": 1,
+    "bedsideByUrgency": { "ROUTINE": "PHONE", "URGENT": "BEDSIDE", "EMERGENCY": "BEDSIDE" },
+    "reactionSec": { "PHONE": 60, "BEDSIDE": 1200 },
+    "incoming": true,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "PSYCHIATRY",
+    "label": "Psychiatry",
+    "kind": "SPECIALTY",
+    "acceptMinClarity": 1,
+    "bedsideByUrgency": { "ROUTINE": "PHONE", "URGENT": "PHONE", "EMERGENCY": "BEDSIDE" },
+    "reactionSec": { "PHONE": 60, "BEDSIDE": 1800 },
+    "incoming": false,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "MICROBIOLOGY",
+    "label": "Microbiology",
+    "kind": "SERVICE",
+    "acceptMinClarity": 1,
+    "bedsideByUrgency": { "ROUTINE": "PHONE", "URGENT": "PHONE", "EMERGENCY": "PHONE" },
+    "reactionSec": { "PHONE": 60, "BEDSIDE": 0 },
+    "incoming": false,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
   }
 ]

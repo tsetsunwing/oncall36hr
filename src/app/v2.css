@@ -113,7 +113,7 @@ body {
   gap: 8px;
   height: 44px;
   padding: 0 12px;
-  overflow: hidden;
+  overflow: visible;
   white-space: nowrap;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
@@ -401,8 +401,45 @@ h2,
 }
 
 .clock .badge {
+  max-width: 3.2rem;
   margin-left: 4px;
+  overflow: hidden;
   font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.place-chip-wrap {
+  position: relative;
+}
+
+.place-care {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 210px;
+  padding: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--card-shadow);
+  white-space: normal;
+}
+
+.place-care-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  height: auto;
+  min-height: 0;
+  padding: 6px 8px;
+  font-size: 12px;
+  line-height: 1.3;
+  text-align: left;
 }
 
 /* ---------- 床邊三欄 ---------- */
@@ -456,8 +493,10 @@ h2,
 }
 
 .frame-desktop .floor-plan--compact .bed {
-  min-height: 0;
-  padding: 6px 3px;
+  aspect-ratio: auto;
+  justify-content: flex-start;
+  min-height: 78px;
+  padding: 16px 4px 4px;
 }
 
 .frame-desktop .floor-plan--compact .plan-corridor {
@@ -494,6 +533,12 @@ h2,
   flex: 1;
   flex-direction: column;
   min-height: 0;
+}
+
+.frame-desktop .phone-panel {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
 }
 
 .frame-desktop .side-panel {
@@ -751,9 +796,25 @@ h2,
 }
 
 .bed-name {
-  font-size: 13px;
+  max-width: 100%;
+  margin-top: 6px;
+  overflow: hidden;
+  font-size: 12px;
   font-weight: 800;
+  line-height: 1.15;
   color: #111827;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bed-dx {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 9px;
+  line-height: 1.15;
+  color: #596273;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .bed-no,
@@ -1987,16 +2048,12 @@ tr[data-flag='H'] .value-flagged {
 }
 
 .frame-desktop .ward-main {
-  overflow-y: auto;
-}
-
-.frame-desktop .ward-main > * {
-  flex-shrink: 0;
+  overflow: hidden;
 }
 
 .frame-desktop .ward-main > div[role='tabpanel'] {
-  flex: 1 0 260px;
-  min-height: 260px;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .frame-mobile .selfcare-wrap {
