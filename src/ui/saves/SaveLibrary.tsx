@@ -1,5 +1,7 @@
 import { useState } from 'react';
+import { Download, Trash2 } from 'lucide-react';
 import { ui } from '@/i18n';
+import { IconButton } from '../IconButton';
 import type { SaveSlotView } from '@/storage';
 
 export interface SaveLibraryProps {
@@ -87,17 +89,15 @@ export function SaveLibrary({
               >
                 {s.continue}
               </button>
-              <button
-                type="button"
-                className="btn"
+              <IconButton
+                icon={Download}
+                label={s.export}
                 disabled={slot.status !== 'OK'}
                 data-testid={`export-${slot.id}`}
                 onClick={() => {
                   onExport(slot.id);
                 }}
-              >
-                {s.export}
-              </button>
+              />
               {pendingDelete === slot.id ? (
                 <>
                   <button
@@ -122,17 +122,16 @@ export function SaveLibrary({
                   </button>
                 </>
               ) : (
-                <button
-                  type="button"
-                  className="btn btn-danger"
+                <IconButton
+                  icon={Trash2}
+                  label={s.delete}
+                  className="btn-danger"
                   disabled={slot.status === 'EMPTY'}
                   data-testid={`delete-${slot.id}`}
                   onClick={() => {
                     setPendingDelete(slot.id);
                   }}
-                >
-                  {s.delete}
-                </button>
+                />
               )}
             </div>
           </li>

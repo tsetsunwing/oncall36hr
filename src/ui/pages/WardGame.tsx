@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
+import { BedDouble, ClipboardList, History, Users, X } from 'lucide-react';
 import { ui } from '@/i18n';
+import { IconButton } from '../IconButton';
 import type { GameActions, GameView, WardView } from '@/view';
 import { ChatPanel } from '../game/ChatPanel';
 import { LogPanel } from '../game/LogPanel';
@@ -111,54 +113,46 @@ export function WardGame({ view, ward, actions }: WardGameProps) {
         aria-label={ui.mobile.tools}
         data-testid="mobile-tools"
       >
-        <button
-          type="button"
-          className="btn"
+        <IconButton
+          icon={BedDouble}
+          label={ui.mobile.beds}
           data-testid="open-beds"
           aria-expanded={bedsOpen}
           aria-keyshortcuts="B"
           onClick={() => {
             setBedsOpen(true);
           }}
-        >
-          {ui.mobile.beds}
-        </button>
-        <button
-          type="button"
-          className="btn"
+        />
+        <IconButton
+          icon={ClipboardList}
+          label={ui.mobile.labs}
           data-testid="open-labs"
           aria-expanded={drawer === 'labs'}
           onClick={() => {
             setDrawer('labs');
           }}
-        >
-          {ui.mobile.labs}
-        </button>
-        <button
-          type="button"
-          className="btn"
+        />
+        <IconButton
+          icon={History}
+          label={g.log.open}
           data-testid="open-log"
           aria-expanded={drawer === 'log'}
           aria-keyshortcuts="L"
-          aria-label={g.log.open}
           onClick={() => {
             setDrawer('log');
           }}
-        >
-          {ui.mobile.record}
-        </button>
+        />
       </div>
       <div className="ward-map-col">
-        <button
-          type="button"
-          className="btn beds-close"
+        <IconButton
+          icon={X}
+          label={ui.mobile.close}
+          className="beds-close"
           data-testid="close-beds"
           onClick={() => {
             setBedsOpen(false);
           }}
-        >
-          {ui.mobile.close}
-        </button>
+        />
         <FloorPlan
           ward={ward}
           actions={actions}
@@ -261,16 +255,14 @@ export function WardGame({ view, ward, actions }: WardGameProps) {
               ) : null}
             </button>
           </div>
-          <button
-            type="button"
-            className="btn"
+          <IconButton
+            icon={Users}
+            label={w.delegation.open}
             data-testid="open-delegation"
             onClick={() => {
               openDelegation(null);
             }}
-          >
-            {w.delegation.open}
-          </button>
+          />
         </div>
         {tab === 'chat' ? (
           <div role="tabpanel" id="panel-chat" aria-labelledby="tab-chat">

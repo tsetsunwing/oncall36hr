@@ -1,4 +1,6 @@
+import { Maximize2, X } from 'lucide-react';
 import { ui } from '@/i18n';
+import { IconButton } from '../IconButton';
 import type { BedView, GameActions, WardView } from '@/view';
 
 export interface FloorPlanProps {
@@ -63,25 +65,23 @@ export function FloorPlan({ ward, actions, onExpand, onClose, compact = false }:
       <header className="floor-plan-head">
         <h2 id="floor-plan-heading">{compact ? w.miniHeading : w.planHeading}</h2>
         {onExpand ? (
-          <button
-            type="button"
-            className="btn btn-small expand-plan"
+          <IconButton
+            icon={Maximize2}
+            label={w.expandPlan}
+            className="btn-small expand-plan"
             data-testid="open-floorplan"
             onClick={onExpand}
-          >
-            {w.expandPlan}
-          </button>
+          />
         ) : null}
         <p className="floor-plan-hint">{w.planHint}</p>
         {onClose ? (
-          <button
-            type="button"
-            className="btn btn-small beds-close"
+          <IconButton
+            icon={X}
+            label={ui.mobile.close}
+            className="btn-small beds-close"
             data-testid="close-beds"
             onClick={onClose}
-          >
-            {ui.mobile.close}
-          </button>
+          />
         ) : null}
       </header>
       {ward.movingToBed !== null ? (

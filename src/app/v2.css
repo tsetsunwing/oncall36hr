@@ -1,12 +1,12 @@
 /* 示範稿色票與兩個固定框內的版面。顏色係靜態，唔加動畫。 */
 
 :root {
-  --bg: #f3f4f6;
+  --bg: #eef3f4;
   --surface: #ffffff;
-  --text: #1c2933;
+  --text: #1d2933;
   --muted: #596273;
-  --border: #e5e7eb;
-  --accent: #0f7a64;
+  --border: #dce4e6;
+  --accent: #107c67;
   --accent-text: #ffffff;
   --accent-soft: #e5f5f1;
   --ok-bg: #e5f5f1;
@@ -17,7 +17,8 @@
   --info-text: #0f6e5c;
   --blocked-bg: #fff6e0;
   --blocked-text: #7a4e00;
-  --card-shadow: 0 1px 2px rgb(17 24 39 / 5%);
+  --card-shadow: 0 4px 18px rgb(40 65 69 / 3.5%);
+  --header-shadow: 0 4px 16px rgb(30 57 62 / 4%);
   --band-low: #2e9e6b;
   --band-mid: #e5b400;
   --band-high: #e07a1f;
@@ -31,7 +32,7 @@ body,
 }
 
 body {
-  background: #e5e7eb;
+  background: #eef3f4;
 }
 
 .play-viewport {
@@ -41,7 +42,7 @@ body {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: #e5e7eb;
+  background: #eef3f4;
 }
 
 .play-stage {
@@ -116,21 +117,96 @@ body {
   white-space: nowrap;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
+  box-shadow: var(--header-shadow);
 }
 
 .clock-bar .btn,
 .clock-bar .incoming,
-.bar-btn {
+.bar-btn,
+.icon-btn {
   appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   height: 28px;
   min-height: 0;
   padding: 0 10px;
   font-size: 13px;
-  line-height: 26px;
+  line-height: 1;
+  color: #42545a;
   background: #fff;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 10px;
   box-shadow: none;
+}
+
+.icon-btn {
+  width: 28px;
+  padding: 0;
+  color: var(--text);
+}
+
+.speed-group .btn.icon-btn {
+  width: 28px;
+  padding: 0;
+}
+
+.btn-primary.icon-btn {
+  color: #fff;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.btn-primary.icon-btn:disabled {
+  color: #fff;
+  background: #7aa89e;
+  border-color: #7aa89e;
+}
+
+.btn-danger.icon-btn,
+.play-stage .page button.btn-danger.icon-btn {
+  color: #fff;
+  background: #9b1c1c;
+  border-color: #7f1d1d;
+}
+
+.play-stage .page button.icon-btn {
+  width: 28px;
+  height: 28px;
+  min-height: 28px;
+  padding: 0;
+}
+
+.frame-desktop .expand-plan.icon-btn {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+}
+
+.frame-mobile .mobile-tools .icon-btn {
+  flex: 0 0 28px;
+}
+
+.beds-close.icon-btn {
+  display: none;
+}
+
+.frame-mobile .ward-grid[data-beds='open'] .beds-close.icon-btn {
+  display: inline-flex;
+}
+
+.clock-bar .incoming.icon-btn {
+  width: auto;
+  min-width: 28px;
+  gap: 4px;
+  padding: 0 8px;
+}
+
+h1,
+h2,
+.clock-bar .title,
+.choice-title {
+  font-family: Manrope, 'DM Sans', system-ui, 'PingFang TC', 'Noto Sans TC', sans-serif;
 }
 
 .shift-meta {
@@ -394,7 +470,7 @@ body {
   overflow: visible;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 15px;
   box-shadow: var(--card-shadow);
 }
 
@@ -444,7 +520,7 @@ body {
   overflow: hidden;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 15px;
   box-shadow: var(--card-shadow);
 }
 
@@ -526,7 +602,7 @@ body {
   padding: 0 0 8px;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 15px;
   box-shadow: var(--card-shadow);
 }
 
@@ -550,7 +626,7 @@ body {
   color: var(--text);
   background: #ffffff;
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 15px;
   box-shadow: var(--card-shadow);
 }
 
@@ -685,9 +761,9 @@ body {
   min-width: 3.2rem;
   color: var(--text);
   background: #fff;
-  border: 1px solid #d5e0e2;
-  border-radius: 12px;
-  box-shadow: 0 1px 2px rgb(28 41 51 / 4%);
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  box-shadow: var(--card-shadow);
 }
 
 .landmark[data-ringing='true'] {
@@ -1293,7 +1369,7 @@ tr[data-flag='H'] .value-flagged {
 .choice-card {
   background: #fff;
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 15px;
   box-shadow: var(--card-shadow);
 }
 
@@ -1325,7 +1401,7 @@ tr[data-flag='H'] .value-flagged {
 .page section {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 15px;
   box-shadow: var(--card-shadow);
 }
 
@@ -1372,12 +1448,12 @@ tr[data-flag='H'] .value-flagged {
   line-height: 1.3;
   background: #fff;
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 15px;
 }
 
 .not-at-bed {
   padding: 16px;
-  border-radius: 12px;
+  border-radius: 15px;
 }
 
 .frame-desktop #panel-chat > .muted {
@@ -1400,7 +1476,7 @@ tr[data-flag='H'] .value-flagged {
   color: #7f1d1d;
   background: #fde8e8;
   border: 1px solid #f6c9c9;
-  border-radius: 12px;
+  border-radius: 15px;
 }
 
 .play-stage button {
@@ -1471,6 +1547,7 @@ tr[data-flag='H'] .value-flagged {
   padding: 0 14px;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
+  box-shadow: var(--header-shadow);
 }
 
 .play-stage .app-title {
@@ -1516,7 +1593,7 @@ tr[data-flag='H'] .value-flagged {
   padding: 16px 18px;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 15px;
   box-shadow: var(--card-shadow);
 }
 
@@ -1875,7 +1952,7 @@ tr[data-flag='H'] .value-flagged {
   overflow: hidden;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 15px;
 }
 
 .frame-desktop .page.setup .save-library > h2 {

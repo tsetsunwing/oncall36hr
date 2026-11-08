@@ -1,10 +1,10 @@
 :root {
-  --bg: #ecf1f2;
+  --bg: #eef3f4;
   --surface: #ffffff;
-  --text: #1c2933;
+  --text: #1d2933;
   --muted: #5c6d78;
-  --border: #d5e0e2;
-  --accent: #0f7a64;
+  --border: #dce4e6;
+  --accent: #107c67;
   --accent-text: #ffffff;
   --accent-soft: #e5f5f1;
   --ok-bg: #e5f5f1;
@@ -15,8 +15,11 @@
   --info-text: #0f6e5c;
   --blocked-bg: #fff6e0;
   --blocked-text: #7a4e00;
-  --card-shadow: 0 1px 2px rgb(28 41 51 / 4%), 0 8px 20px rgb(28 41 51 / 4%);
+  --card-shadow: 0 4px 18px rgb(40 65 69 / 3.5%);
+  --header-shadow: 0 4px 16px rgb(30 57 62 / 4%);
   font-family:
+    'DM Sans',
+    Manrope,
     system-ui,
     -apple-system,
     'Noto Sans TC',

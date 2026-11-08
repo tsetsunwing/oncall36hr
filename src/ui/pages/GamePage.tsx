@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { getConfig } from '@/content';
+import { ClipboardList, Coffee, Save } from 'lucide-react';
 import { ui } from '@/i18n';
+import { IconButton } from '../IconButton';
 import type { GameActions, GameView } from '@/view';
 import { AiFailureBanner } from '../game/AiFailureBanner';
 import { useGameHotkeys } from '../game/useGameHotkeys';
@@ -115,21 +117,21 @@ export function GamePage({ view, actions, onExit }: GamePageProps) {
         tools={
           shift.handover ? null : (
             <>
-              <button
-                type="button"
-                className="btn bar-btn"
+              <IconButton
+                icon={Save}
+                label={ui.saves.open}
+                className="bar-btn"
                 aria-expanded={saveOpen}
                 aria-controls="save-dialog"
                 data-testid="open-save"
                 onClick={() => {
                   setSaveOpen(true);
                 }}
-              >
-                {ui.saves.open}
-              </button>
-              <button
-                type="button"
-                className="btn bar-btn"
+              />
+              <IconButton
+                icon={Coffee}
+                label={ui.shift.selfCare.heading}
+                className="bar-btn"
                 aria-expanded={selfCareOpen}
                 aria-controls="selfcare-region"
                 title={ui.shift.selfCare.tooltip}
@@ -137,9 +139,7 @@ export function GamePage({ view, actions, onExit }: GamePageProps) {
                 onClick={() => {
                   setSelfCareOpen((open) => !open);
                 }}
-              >
-                {ui.shift.selfCare.heading}
-              </button>
+              />
             </>
           )
         }
@@ -186,16 +186,15 @@ export function GamePage({ view, actions, onExit }: GamePageProps) {
               setDrawerOpen(false);
             }}
           />
-          <button
-            type="button"
-            className="btn drawer-toggle"
+          <IconButton
+            icon={ClipboardList}
+            label={g.log.open}
+            className="drawer-toggle"
             aria-expanded={drawerOpen}
             onClick={() => {
               setDrawerOpen(true);
             }}
-          >
-            {g.log.open}
-          </button>
+          />
         </div>
       ) : (
         <p>{g.noPatient}</p>

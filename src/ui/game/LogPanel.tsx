@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { X } from 'lucide-react';
 import { ui } from '@/i18n';
 import type { ActionRowView, GameActions, GameView, OrderRowView, ReportView } from '@/view';
 
@@ -182,8 +183,14 @@ export function LogPanel({
       aria-labelledby={focus === 'labs' ? 'reports-heading' : 'orders-heading'}
       data-testid="side-panel"
     >
-      <button type="button" className="btn btn-small side-close" onClick={onClose}>
-        {l.close}
+      <button
+        type="button"
+        className="btn btn-small side-close icon-btn"
+        onClick={onClose}
+        aria-label={l.close}
+        title={l.close}
+      >
+        <X size={16} strokeWidth={2} aria-hidden="true" />
       </button>
       <section aria-labelledby="orders-heading" data-panel="orders">
         <h2 id="orders-heading">{ui.game.orders.heading}</h2>

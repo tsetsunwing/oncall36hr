@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { X } from 'lucide-react';
 import { ui } from '@/i18n';
 import type { DelegationTaskCode, GameActions, WardView } from '@/view';
 
@@ -63,8 +64,14 @@ export function DelegationDialog({ ward, actions, open, callId, onClose }: Deleg
     >
       <header className="dialog-head">
         <h2 id="delegation-heading">{d.heading}</h2>
-        <button type="button" className="btn btn-small" onClick={onClose} aria-label={d.close}>
-          ✕
+        <button
+          type="button"
+          className="btn btn-small icon-btn"
+          onClick={onClose}
+          aria-label={d.close}
+          title={d.close}
+        >
+          <X size={16} strokeWidth={2} aria-hidden="true" />
         </button>
       </header>
       {sub === null ? (

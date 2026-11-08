@@ -7,6 +7,7 @@ import {
   type FormEvent,
   type KeyboardEvent,
 } from 'react';
+import { Send } from 'lucide-react';
 import { ui } from '@/i18n';
 import type { ChatLineView, ChatView, GameActions, GateCardView, QuickChipView } from '@/view';
 import { GatePanel } from './GatePanel';
@@ -207,8 +208,14 @@ export function ChatPanel({ chat, chips, gates = [], notice, actions }: ChatPane
             ))}
           </ul>
         </div>
-        <button type="submit" className="btn btn-primary" disabled={text.trim().length === 0}>
-          {c.send}
+        <button
+          type="submit"
+          className="btn btn-primary icon-btn"
+          disabled={text.trim().length === 0}
+          aria-label={c.send}
+          title={c.send}
+        >
+          <Send size={16} strokeWidth={2} aria-hidden="true" />
         </button>
       </form>
       <div className="chips" role="group" aria-label={c.quickGroup}>

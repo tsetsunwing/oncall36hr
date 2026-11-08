@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { Pause, Phone, Play } from 'lucide-react';
 import { ui } from '@/i18n';
 import type { GameActions, GameView, ShiftView } from '@/view';
 
@@ -60,14 +61,19 @@ export function ClockBar({
         <span className="speed-lab">{g.speedGroup}</span>
         <button
           type="button"
-          className="btn"
+          className="btn icon-btn"
           aria-pressed={clock.paused}
           disabled={lockedByFailure}
           onClick={actions.togglePause}
           data-testid="pause-toggle"
           aria-label={clock.paused ? g.resume : g.pause}
+          title={clock.paused ? g.resume : g.pause}
         >
-          <span aria-hidden="true">{clock.paused ? '▶' : '⏸'}</span>
+          {clock.paused ? (
+            <Play size={16} strokeWidth={2} aria-hidden="true" />
+          ) : (
+            <Pause size={16} strokeWidth={2} aria-hidden="true" />
+          )}
         </button>
         {speeds.map((speed) => (
           <button
@@ -135,13 +141,17 @@ export function ClockBar({
       {onOpenPhone ? (
         <button
           type="button"
-          className="incoming"
+          className="incoming icon-btn"
           data-ringing={ringing > 0}
           data-testid="incoming-call"
+          aria-label={
+            ringing > 0 ? `${ui.game.ward.incoming} ${String(ringing)}` : ui.game.ward.incoming
+          }
+          title={ui.game.ward.incoming}
           onClick={onOpenPhone}
         >
-          {ui.game.ward.incoming}
-          {ringing > 0 ? ` ${String(ringing)}` : ''}
+          <Phone size={16} strokeWidth={2} aria-hidden="true" />
+          {ringing > 0 ? <span>{ringing}</span> : null}
         </button>
       ) : null}
     </div>
