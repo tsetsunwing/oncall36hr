@@ -14,23 +14,23 @@ const vitalTokens = [
 ];
 
 const beats: Beat[] = [
-  { type: 'ASK_REPHRASE', speaker: 'NURSE', reason: 'UNCLEAR' } as Beat,
-  { type: 'ASK_REPHRASE', speaker: 'NURSE', reason: 'UNSUPPORTED' } as Beat,
-  { type: 'ACK_ORDER', speaker: 'NURSE', labelToken: 'order.1.label', executor: null } as Beat,
+  { type: 'ASK_REPHRASE', speaker: 'NURSE', reason: 'UNKNOWN_ORDER' },
+  { type: 'ASK_REPHRASE', speaker: 'NURSE', reason: 'UNSUPPORTED' },
+  { type: 'ACK_ORDER', speaker: 'NURSE', labelToken: 'order.1.label', executor: null },
   {
     type: 'REPORT_RESULT',
     speaker: 'NURSE',
     labelToken: 'order.1.label',
     tokens: vitalTokens,
     abnormal: [],
-  } as Beat,
+  },
   {
     type: 'REPORT_RESULT',
     speaker: 'NURSE',
     labelToken: 'order.1.label',
     tokens: [],
     abnormal: [],
-  } as Beat,
+  },
 ];
 
 describe('shortReplyTemplate', () => {
@@ -44,13 +44,13 @@ describe('shortReplyTemplate', () => {
   });
 
   it('含其他數值嘅結果交返模型', () => {
-    const beat = {
+    const beat: Beat = {
       type: 'REPORT_RESULT',
       speaker: 'NURSE',
       labelToken: 'order.1.label',
       tokens: ['vital.hr'],
       abnormal: [],
-    } as Beat;
+    };
     expect(shortReplyTemplate(beat)).toBeNull();
   });
 });
