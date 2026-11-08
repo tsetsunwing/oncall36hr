@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Pause, Phone, Play } from 'lucide-react';
+import { Armchair, Bath, Coffee, Hospital, Pause, Phone, Play } from 'lucide-react';
 import { ui } from '@/i18n';
 import type { GameActions, GameView, ShiftView } from '@/view';
 
@@ -10,6 +10,7 @@ export interface ClockBarProps {
   ringing?: number;
   onOpenPhone?: () => void;
   tools?: ReactNode;
+  places?: { atStation: boolean; onStation: () => void };
 }
 
 function dayNight(label: string, segment: ShiftView['segment']): string {
@@ -26,6 +27,7 @@ export function ClockBar({
   ringing = 0,
   onOpenPhone,
   tools,
+  places,
 }: ClockBarProps) {
   const g = ui.game;
   const speeds = clock.speeds.filter((s) => s > 0);
@@ -53,6 +55,33 @@ export function ClockBar({
             hidden={shift.rounds.completed === 0}
           >
             {ui.shift.rounds.progress(shift.rounds.completed, shift.rounds.total)}
+          </span>
+        </div>
+      ) : null}
+      {places ? (
+        <div className="place-chips" role="group" aria-label={ui.game.ward.places}>
+          <button
+            type="button"
+            className="place-chip"
+            data-here={places.atStation}
+            data-testid="landmark-station"
+            aria-pressed={places.atStation}
+            onClick={places.onStation}
+          >
+            <Hospital size={14} strokeWidth={2} aria-hidden="true" />
+            <span>{ui.game.ward.station}</span>
+          </button>
+          <span className="place-chip">
+            <Coffee size={14} strokeWidth={2} aria-hidden="true" />
+            <span>{ui.game.ward.pantry}</span>
+          </span>
+          <span className="place-chip">
+            <Armchair size={14} strokeWidth={2} aria-hidden="true" />
+            <span>{ui.game.ward.rest}</span>
+          </span>
+          <span className="place-chip">
+            <Bath size={14} strokeWidth={2} aria-hidden="true" />
+            <span>{ui.game.ward.wc}</span>
           </span>
         </div>
       ) : null}

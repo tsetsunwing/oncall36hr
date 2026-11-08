@@ -153,14 +153,16 @@ describe('FloorPlan', () => {
     expect(screen.getAllByTestId(/^bed-\d+$/)).toHaveLength(20);
     const occupied = screen.getByTestId('bed-7');
     expect(occupied).toHaveTextContent('李婆婆');
-    expect(occupied).toHaveTextContent(ui.game.ward.level.ALARM ?? '');
+    expect(occupied).toHaveAttribute('data-level', 'ALARM');
+    expect(occupied).not.toHaveTextContent(ui.game.ward.level.ALARM ?? '');
+    expect(occupied).not.toHaveTextContent(ui.game.ward.here);
     expect(screen.getByTestId('bed-8')).toHaveTextContent(ui.game.ward.newAdmission);
     expect(screen.getByTestId('bed-1')).toHaveTextContent(ui.game.ward.empty);
     expect(screen.getByTestId('occupancy')).toHaveTextContent('2');
+    expect(screen.getByText(ui.game.ward.corridor)).toBeInTheDocument();
+    expect(screen.queryByTestId('landmark-station')).not.toBeInTheDocument();
     await userEvent.click(occupied);
     expect(actions.goToBed).toHaveBeenCalledWith(7);
-    await userEvent.click(screen.getByTestId('landmark-station'));
-    expect(actions.goToBed).toHaveBeenCalledWith(null);
   });
 
   it('行緊路時顯示狀態；平面圖冇電話地標', () => {

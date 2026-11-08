@@ -52,7 +52,7 @@ describe('MonitorPanel：床邊監護儀風格＋閃爍數值＋黃色三角警�
     expect(screen.getByTestId('vital-hr')).toHaveTextContent(ui.game.monitor.direction.HIGH);
     expect(screen.getByTestId('vital-spo2')).toHaveTextContent(ui.game.monitor.direction.LOW);
     expect(screen.getByTestId('vital-bp')).toHaveTextContent('96/58 (71)');
-    expect(screen.getByTestId('vital-line')).toBeEmptyDOMElement();
+    expect(screen.queryByTestId('vital-line')).not.toBeInTheDocument();
     expect(screen.queryByTestId('vital-map')).not.toBeInTheDocument();
     const monitorEl = screen.getByTestId('monitor');
     expect(monitorEl.querySelectorAll('.alert-tri')).toHaveLength(5);
@@ -62,7 +62,8 @@ describe('MonitorPanel：床邊監護儀風格＋閃爍數值＋黃色三角警�
       within(screen.getByTestId('vital-hr')).getByText('118').closest('.tile-value'),
     ).not.toBeNull();
     expect(screen.getByTestId('mews-badge')).toHaveTextContent('6');
-    expect(screen.getByText(ui.game.monitor.mewsPending)).toBeInTheDocument();
+    expect(screen.queryByText(ui.game.monitor.mewsPending)).not.toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: ui.game.monitor.leadMenu })).toHaveValue('ECG');
   });
 
   it('全部正常：冇三角警示，面板 level 為 NORMAL', () => {
@@ -80,18 +81,44 @@ describe('MonitorPanel：床邊監護儀風格＋閃爍數值＋黃色三角警�
     expect(screen.queryByText(ui.game.monitor.mewsPending)).not.toBeInTheDocument();
   });
 
-  it('已插 CVC 先顯示 CVP，冇數字，並標 PENDING_CLINICAL_REVIEW', () => {
+  it('可選 CVP 波形，數值格冇數字', async () => {
+    const user = userEvent.setup();
     render(
       <MonitorPanel
         patient={patient}
         monitor={monitor({ lineSlot: { kind: 'CVP', reviewPending: true } })}
       />,
     );
-    const cell = screen.getByTestId('vital-line');
+    expect(screen.queryByTestId('vital-cvp')).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: ui.game.monitor.waveMenu }));
+    await user.click(screen.getByRole('checkbox', { name: 'CVP' }));
+    const cell = screen.getByTestId('vital-cvp');
     expect(cell).toHaveAttribute('data-review', 'PENDING_CLINICAL_REVIEW');
     expect(cell).toHaveTextContent('CVP');
-    expect(cell).toHaveTextContent('PENDING_CLINICAL_REVIEW');
-    expect(cell.textContent).not.toMatch(/\d/);
+    expect(cell.querySelector('.num')?.textContent).toBe('—');
+    await user.click(screen.getByRole('checkbox', { name: 'ABP' }));
+    expect(screen.getByRole('checkbox', { name: 'EtCO2' })).toBeDisabled();
+    expect(screen.queryByTestId('vital-etco2')).not.toBeInTheDocument();
+  });
+
+  it('NIBP 保持上次讀數，按量 NIBP 先更新', async () => {
+    const user = userEvent.setup();
+    const first = monitor();
+    const { rerender } = render(<MonitorPanel patient={patient} monitor={first} />);
+    expect(screen.getByTestId('vital-bp')).toHaveTextContent('96/58 (71)');
+    rerender(
+      <MonitorPanel
+        patient={patient}
+        monitor={monitor({
+          bp: { text: '140/90 (107)', level: 'ALARM', direction: 'HIGH', sbp: 140, dbp: 90 },
+        })}
+      />,
+    );
+    expect(screen.getByTestId('vital-bp')).toHaveTextContent('96/58 (71)');
+    expect(screen.getByTestId('vital-bp')).not.toHaveTextContent('140/90');
+    await user.click(screen.getByTestId('measure-nibp'));
+    expect(screen.getByTestId('vital-bp')).toHaveTextContent('140/90 (107)');
+    expect(screen.getByTestId('vital-bp')).toHaveAttribute('data-level', 'ALARM');
   });
 
   it('有 Lead II 同 Pleth 兩條波形（canvas）', () => {
@@ -331,5 +358,22 @@ describe('ClockBar', () => {
     await user.click(screen.getByRole('button', { name: ui.game.speedOption(4) }));
     expect(actions.setSpeed).toHaveBeenCalledWith(4);
     expect(screen.getAllByRole('button')).toHaveLength(1 + 3);
+  });
+
+  it('護士站、茶水間、休息室、洗手間在頂欄，護士站可返回', async () => {
+    const user = userEvent.setup();
+    const actions = makeActions();
+    render(
+      <ClockBar
+        clock={clock()}
+        actions={actions}
+        places={{ atStation: false, onStation: () => actions.goToBed(null) }}
+      />,
+    );
+    expect(screen.getByText(ui.game.ward.pantry)).toBeInTheDocument();
+    expect(screen.getByText(ui.game.ward.rest)).toBeInTheDocument();
+    expect(screen.getByText(ui.game.ward.wc)).toBeInTheDocument();
+    await user.click(screen.getByTestId('landmark-station'));
+    expect(actions.goToBed).toHaveBeenCalledWith(null);
   });
 });

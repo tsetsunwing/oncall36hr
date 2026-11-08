@@ -1,4 +1,4 @@
-import { Maximize2, X } from 'lucide-react';
+import { Map, Maximize2, X } from 'lucide-react';
 import { ui } from '@/i18n';
 import { IconButton } from '../IconButton';
 import type { BedView, GameActions, WardView } from '@/view';
@@ -40,13 +40,11 @@ function BedButton({ bed, actions }: { bed: BedView; actions: GameActions }) {
             {bed.age}
             {w.sex[bed.sex ?? 'M']}
           </span>
-          <span className="bed-level">{w.level[bed.level]}</span>
           {bed.newAdmission ? <span className="bed-tag">{w.newAdmission}</span> : null}
         </>
       ) : (
         <span className="bed-empty">{w.empty}</span>
       )}
-      {bed.here ? <span className="bed-here">{w.here}</span> : null}
     </button>
   );
 }
@@ -55,7 +53,6 @@ export function FloorPlan({ ward, actions, onExpand, onClose, compact = false }:
   const w = ui.game.ward;
   const upper = ward.beds.filter((b) => b.row <= 1);
   const lower = ward.beds.filter((b) => b.row >= 2);
-  const atStation = ward.locationBed === null && ward.movingToBed === null;
   return (
     <section
       className={`floor-plan${compact ? ' floor-plan--compact' : ''}`}
@@ -63,7 +60,10 @@ export function FloorPlan({ ward, actions, onExpand, onClose, compact = false }:
       data-testid="floor-plan"
     >
       <header className="floor-plan-head">
-        <h2 id="floor-plan-heading">{compact ? w.miniHeading : w.planHeading}</h2>
+        <h2 id="floor-plan-heading">
+          <Map className="heading-icon" size={16} strokeWidth={2} aria-hidden="true" />
+          {compact ? w.miniHeading : w.planHeading}
+        </h2>
         {onExpand ? (
           <IconButton
             icon={Maximize2}
@@ -94,21 +94,6 @@ export function FloorPlan({ ward, actions, onExpand, onClose, compact = false }:
           <BedButton key={bed.bed} bed={bed} actions={actions} />
         ))}
         <div className="plan-corridor">
-          <button
-            type="button"
-            className="landmark"
-            data-here={atStation}
-            data-testid="landmark-station"
-            onClick={() => {
-              actions.goToBed(null);
-            }}
-          >
-            <span>{w.station}</span>
-            {atStation ? <span className="landmark-sub">{w.stationHere}</span> : null}
-          </button>
-          <span className="landmark landmark--static">{w.pantry}</span>
-          <span className="landmark landmark--static">{w.rest}</span>
-          <span className="landmark landmark--static">{w.wc}</span>
           <span className="plan-corridor-label">{w.corridor}</span>
         </div>
         {lower.map((bed) => (

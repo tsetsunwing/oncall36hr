@@ -1,10 +1,23 @@
 import { useEffect, useRef } from 'react';
-import { beatPeriodSec, ecgAt, jitteredPeriod, plethAt, type WaveSpec } from '@/view';
+import {
+  beatPeriodSec,
+  ecgAt,
+  jitteredPeriod,
+  plethAt,
+  shapeLead,
+  type EcgLead,
+  type WaveSpec,
+} from '@/view';
+
+export type WaveKind = 'ecg' | 'pleth' | 'abp' | 'cvp' | 'etco2';
 
 export interface WaveformCanvasProps {
-  kind: 'ecg' | 'pleth';
+  kind: WaveKind;
   wave: WaveSpec | null;
   hr: number;
+  /** EtCO2 方波跟呼吸率，唔另造一個讀數 */
+  rr?: number;
+  lead?: EcgLead;
   amplitude: number;
   sweepSeconds: number;
   targetFps: number;
@@ -16,16 +29,35 @@ const HEIGHT = 72;
 const ERASE_PX = 14;
 
 function sampleY(
-  kind: 'ecg' | 'pleth',
+  kind: WaveKind,
   phase: number,
   period: number,
   time: number,
   wave: WaveSpec,
   amp: number,
+  lead: EcgLead,
+  rr: number,
 ) {
   if (kind === 'ecg') {
-    const v = ecgAt(phase, period, wave, time);
+    const v = shapeLead(ecgAt(phase, period, wave, time), lead);
     return HEIGHT * 0.72 - v * HEIGHT * 0.58;
+  }
+  if (kind === 'abp') {
+    if (wave.kind !== 'sinus')
+      return HEIGHT * 0.72 - ecgAt(phase, period, wave, time) * HEIGHT * 0.2;
+    const v = Math.pow(Math.max(0, plethAt(phase, period, wave, amp)), 0.55);
+    return HEIGHT * 0.9 - v * HEIGHT * 0.72;
+  }
+  if (kind === 'cvp') {
+    if (wave.kind !== 'sinus') return HEIGHT * 0.62;
+    const v = 0.5 + 0.5 * Math.sin((2 * Math.PI * time) / Math.max(period, 0.3));
+    return HEIGHT * 0.62 - v * HEIGHT * 0.16;
+  }
+  if (kind === 'etco2') {
+    if (wave.kind === 'flat') return HEIGHT * 0.82;
+    const breath = 60 / Math.max(4, rr);
+    const high = time % breath < breath * 0.4 ? 0.12 : 0.82;
+    return HEIGHT * 0.88 - high * HEIGHT * 0.62;
   }
   const v = plethAt(phase, period, wave, amp);
   return HEIGHT * 0.88 - v * HEIGHT * 0.74;
@@ -95,7 +127,16 @@ export function WaveformCanvas(props: WaveformCanvasProps) {
           state.beat += 1;
           period = periodOf();
         }
-        buffer[state.x] = sampleY(kind, state.phase, period, state.time, wave, amplitude);
+        buffer[state.x] = sampleY(
+          kind,
+          state.phase,
+          period,
+          state.time,
+          wave,
+          amplitude,
+          live.current.lead ?? 'ECG',
+          live.current.rr ?? 16,
+        );
         state.x = (state.x + 1) % WIDTH;
       }
     };

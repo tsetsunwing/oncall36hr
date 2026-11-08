@@ -310,10 +310,11 @@ describe('Action Log、order 取消、提及', () => {
 
   it('@ 提及病人 → 病人對白（症狀來自 content 表）', async () => {
     const { session } = open('mock-ok', { seed: 'int-patient' });
-    session.actions.submitChat('p1', '@黃國強 你好，胸口痛嗎？');
+    const name = session.getSnapshot().patient?.name ?? '';
+    session.actions.submitChat('p1', `@${name} 你好，胸口痛嗎？`);
     await session.settled();
     const patientLine = session.getSnapshot().chat?.lines.find((l) => l.kind === 'PATIENT');
-    expect(patientLine?.speakerName).toBe('黃國強');
+    expect(patientLine?.speakerName).toBe(name);
     expect(patientLine?.text).toMatch(/氣促|發冷|咳嗽有痰/);
   });
 

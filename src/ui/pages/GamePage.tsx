@@ -114,6 +114,16 @@ export function GamePage({ view, actions, onExit }: GamePageProps) {
         onOpenPhone={() => {
           window.dispatchEvent(new CustomEvent('dandu-command', { detail: 'tab-phone' }));
         }}
+        {...(view.ward
+          ? {
+              places: {
+                atStation: view.ward.locationBed === null && view.ward.movingToBed === null,
+                onStation: () => {
+                  actions.goToBed(null);
+                },
+              },
+            }
+          : {})}
         tools={
           shift.handover ? null : (
             <>

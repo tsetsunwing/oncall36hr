@@ -105,7 +105,10 @@ describe('聊天 ViewModel', () => {
     expect(system.map((l) => l.systemCode)).toEqual(['ARRIVE', 'ARRIVE']);
     expect(system.every((l) => l.text === null)).toBe(true);
     expect(chat?.lines.find((l) => l.kind === 'PLAYER')?.text).toBe('check vitals');
-    expect(chat?.present.map((p) => p.mentionName)).toEqual(['何姑娘', '黃國強']);
+    expect(chat?.present.map((p) => p.mentionName)).toEqual([
+      '何姑娘',
+      state.patients.p1?.demographics.name,
+    ]);
   });
 
   it('輸入中：由 pending AI 請求推算邊個角色回應', () => {

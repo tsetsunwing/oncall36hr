@@ -11,6 +11,7 @@ import { logEvent } from '../log/log';
 import { trackBandUrgency } from '../score/priority';
 import { scoreStateExit } from '../score/requiredOrders';
 import { evaluateFsm } from './fsm';
+import { pickHkName } from './hkNames';
 import { computeMews } from './mews';
 import type { Patient } from './patient';
 import type {
@@ -172,10 +173,15 @@ export function createPatientState(
   const trajectory = trajectoryFor(ctx.tables, fsm, fsm.initial);
   const t = state.clock.t;
   const base: VitalNumbers = { ...trajectory.target };
+  const id = opts.id ?? 'p1';
+  const usedNames = new Set(Object.values(state.patients).map((p) => p.demographics.name));
   const blank: Patient = {
-    id: opts.id ?? 'p1',
+    id,
     bed: opts.bed ?? template.bed,
-    demographics: { ...template.demographics },
+    demographics: {
+      ...template.demographics,
+      name: pickHkName(state.seed, id, template.demographics.sex, usedNames),
+    },
     presentingComplaint: template.presentingComplaint,
     allergies: [...template.allergies],
     hidden: {

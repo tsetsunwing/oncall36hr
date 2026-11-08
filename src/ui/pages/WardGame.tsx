@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { BedDouble, ClipboardList, History, Users, X } from 'lucide-react';
+import { BedDouble, ClipboardList, History, MessageSquare, Phone, Users, X } from 'lucide-react';
 import { ui } from '@/i18n';
 import { IconButton } from '../IconButton';
 import type { GameActions, GameView, WardView } from '@/view';
@@ -212,6 +212,7 @@ export function WardGame({ view, ward, actions }: WardGameProps) {
                 setTab('chat');
               }}
             >
+              <MessageSquare size={15} strokeWidth={2} aria-hidden="true" />
               {w.tabs.chat}
             </button>
             <button
@@ -227,6 +228,7 @@ export function WardGame({ view, ward, actions }: WardGameProps) {
                 setTab('phone');
               }}
             >
+              <Phone size={15} strokeWidth={2} aria-hidden="true" />
               {w.tabs.phone}
               {phoneRinging > 0 ? (
                 <span className="tab-count" data-testid="phone-count">
@@ -247,6 +249,7 @@ export function WardGame({ view, ward, actions }: WardGameProps) {
                 setTab('family');
               }}
             >
+              <Users size={15} strokeWidth={2} aria-hidden="true" />
               {w.tabs.family}
               {familyRinging > 0 ? (
                 <span className="tab-count" data-testid="family-count">

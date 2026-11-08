@@ -31,7 +31,11 @@ describe('個案初始化', () => {
     const patient = state.patients.p1;
     const template = tables['case-templates'][0];
     expect(patient?.bed).toBe(template?.bed);
-    expect(patient?.demographics).toEqual(template?.demographics);
+    expect(patient?.demographics.age).toBe(template?.demographics.age);
+    expect(patient?.demographics.sex).toBe(template?.demographics.sex);
+    expect(patient?.demographics.code).toBe(template?.demographics.code);
+    expect(patient?.demographics.name).not.toBe(template?.demographics.name);
+    expect(patient?.demographics.name?.length).toBeGreaterThanOrEqual(2);
     expect(patient?.hidden.fsm.state).toBe(tables['case-fsm'][0]?.initial);
     expect(patient?.visible.vitalsHistory).toHaveLength(1);
     expect(state.actionLog.map((l) => l.reasonCode)).toEqual(['SHIFT_START']);

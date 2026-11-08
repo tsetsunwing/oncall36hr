@@ -55,6 +55,45 @@ export function beatPeriodSec(hr: number): number {
   return 60 / Math.max(1, hr);
 }
 
+/** 十二導聯只改示意波形嘅幅度同方向，數值仍然來自同一條心率／節律。預設 ECG 即現有波形。 */
+export const ECG_LEADS = [
+  'ECG',
+  'I',
+  'II',
+  'III',
+  'aVR',
+  'aVL',
+  'aVF',
+  'V1',
+  'V2',
+  'V3',
+  'V4',
+  'V5',
+  'V6',
+] as const;
+export type EcgLead = (typeof ECG_LEADS)[number];
+
+const LEAD_SHAPE: Record<EcgLead, { gain: number; invert: boolean }> = {
+  ECG: { gain: 1, invert: false },
+  I: { gain: 0.72, invert: false },
+  II: { gain: 1, invert: false },
+  III: { gain: 0.5, invert: false },
+  aVR: { gain: 0.62, invert: true },
+  aVL: { gain: 0.4, invert: false },
+  aVF: { gain: 0.78, invert: false },
+  V1: { gain: 0.35, invert: true },
+  V2: { gain: 0.48, invert: true },
+  V3: { gain: 0.7, invert: false },
+  V4: { gain: 0.9, invert: false },
+  V5: { gain: 0.85, invert: false },
+  V6: { gain: 0.6, invert: false },
+};
+
+export function shapeLead(value: number, lead: EcgLead): number {
+  const shape = LEAD_SHAPE[lead];
+  return (shape.invert ? -value : value) * shape.gain;
+}
+
 function gauss(x: number, width: number): number {
   const z = x / width;
   return Math.exp(-0.5 * z * z);

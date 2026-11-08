@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X } from 'lucide-react';
+import { FlaskConical, ScrollText, X } from 'lucide-react';
 import { ui } from '@/i18n';
 import type { ActionRowView, GameActions, GameView, OrderRowView, ReportView } from '@/view';
 
@@ -210,7 +210,10 @@ export function LogPanel({
         )}
       </section>
       <section aria-labelledby="reports-heading" data-testid="reports" data-panel="reports">
-        <h2 id="reports-heading">{ui.game.reports.heading}</h2>
+        <h2 id="reports-heading">
+          <FlaskConical className="heading-icon" size={16} strokeWidth={2} aria-hidden="true" />
+          {ui.game.reports.heading}
+        </h2>
         {reports.length === 0 ? (
           <p className="hint">{ui.game.reports.empty}</p>
         ) : (
@@ -222,7 +225,10 @@ export function LogPanel({
         )}
       </section>
       <section aria-labelledby="log-heading" data-panel="log">
-        <h2 id="log-heading">{l.heading}</h2>
+        <h2 id="log-heading">
+          <ScrollText className="heading-icon" size={16} strokeWidth={2} aria-hidden="true" />
+          {l.heading}
+        </h2>
         <div className="scope" role="group" aria-label={l.scopeLabel}>
           <button
             type="button"

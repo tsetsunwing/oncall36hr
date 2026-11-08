@@ -202,6 +202,44 @@ body {
   padding: 0 8px;
 }
 
+.place-chips {
+  display: flex;
+  flex: none;
+  gap: 4px;
+  align-items: center;
+}
+
+.clock-bar .place-chip {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  height: 28px;
+  min-height: 0;
+  padding: 0 8px;
+  font-size: 12px;
+  line-height: 1;
+  color: var(--text);
+  white-space: nowrap;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.clock-bar button.place-chip {
+  cursor: pointer;
+}
+
+.clock-bar .place-chip[data-here='true'] {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.heading-icon {
+  margin-right: 6px;
+  color: var(--muted);
+  vertical-align: -3px;
+}
+
 h1,
 h2,
 .clock-bar .title,
@@ -1050,6 +1088,60 @@ tr[data-flag='H'] .value-flagged {
   color: #37d4ff;
 }
 
+.wave-row[data-wave='abp'] {
+  color: #ff5a6a;
+}
+
+.wave-row[data-wave='cvp'] {
+  color: #7eb6ff;
+}
+
+.wave-row[data-wave='etco2'] {
+  color: #ffe14a;
+}
+
+.wave-lead,
+.wave-pick {
+  height: 22px;
+  min-height: 0;
+  padding: 0 6px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.wave-lead {
+  color: #2ee86b;
+  background: #0d0d0d;
+  border: 1px solid #2ee86b;
+}
+
+.wave-pick {
+  color: #d0d0d0;
+  background: #161616;
+  border: 1px solid #555;
+}
+
+.wave-menu {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 2px 6px;
+  color: #eee;
+  background: #1a1a1a;
+  border: 1px solid #444;
+  border-radius: 8px;
+}
+
+.wave-menu label {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  font-size: 12px;
+}
+
 .wave-label {
   position: absolute;
   top: 3px;
@@ -1108,8 +1200,17 @@ tr[data-flag='H'] .value-flagged {
   --tile-color: #ffa94d;
 }
 
-.tile[data-param='line'] {
-  --tile-color: #ff5a5a;
+.tile[data-param='line'],
+.tile[data-param='abp'] {
+  --tile-color: #ff5a6a;
+}
+
+.tile[data-param='cvp'] {
+  --tile-color: #7eb6ff;
+}
+
+.tile[data-param='etco2'] {
+  --tile-color: #ffe14a;
 }
 
 .tile-empty {
@@ -1128,6 +1229,21 @@ tr[data-flag='H'] .value-flagged {
   font-size: 10px;
   font-weight: 400;
   opacity: 0.75;
+}
+
+.monitor .nibp-measure {
+  height: 18px;
+  min-height: 0;
+  margin-top: 2px;
+  padding: 0 5px;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  color: inherit;
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid currentcolor;
+  border-radius: 4px;
 }
 
 .tile-reading {
@@ -1229,7 +1345,11 @@ tr[data-flag='H'] .value-flagged {
 
 .monitor-foot,
 .monitor-note {
+  position: relative;
+  display: flex;
   flex: none;
+  gap: 8px;
+  align-items: center;
   margin: 0;
   padding: 3px 12px 6px;
   font-size: 11px;
@@ -1248,6 +1368,9 @@ tr[data-flag='H'] .value-flagged {
 }
 
 .tabs .tab {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
   padding: 7px 12px;
   font-weight: 600;
   color: var(--muted);
@@ -1486,8 +1609,18 @@ tr[data-flag='H'] .value-flagged {
 /* ---------- 手機框：直向一欄，唔重排成桌面三欄 ---------- */
 .frame-mobile .clock-bar {
   flex-wrap: wrap;
+  gap: 4px;
   height: auto;
-  padding: 6px 8px;
+  padding: 4px 8px;
+}
+
+.frame-mobile .place-chips {
+  flex: 1 1 100%;
+}
+
+.frame-mobile .clock-bar .place-chip {
+  padding: 0 6px;
+  font-size: 11px;
 }
 
 .frame-mobile .speed-lab,

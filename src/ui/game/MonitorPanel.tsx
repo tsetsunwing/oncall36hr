@@ -1,6 +1,12 @@
+import { useState, type ReactNode } from 'react';
 import { ui } from '@/i18n';
+import { ECG_LEADS, type EcgLead } from '@/view';
 import type { AlarmLevel, MonitorView, PatientView, VitalReadout } from '@/view';
-import { WaveformCanvas } from './WaveformCanvas';
+import { WaveformCanvas, type WaveKind } from './WaveformCanvas';
+
+const OPTIONAL_WAVES = ['abp', 'cvp', 'etco2'] as const;
+type OptionalWave = (typeof OPTIONAL_WAVES)[number];
+const MAX_OPTIONAL = 2;
 
 const LEVEL_ORDER: Record<AlarmLevel, number> = { NORMAL: 0, CAUTION: 1, ALARM: 2 };
 
@@ -37,6 +43,7 @@ interface TileProps {
   label: string;
   unit: string;
   readout: VitalReadout;
+  extra?: ReactNode;
 }
 
 function ReadoutValue({ text }: { text: string }) {
@@ -49,31 +56,7 @@ function ReadoutValue({ text }: { text: string }) {
   );
 }
 
-function LineTile({ slot }: { slot: MonitorView['lineSlot'] }) {
-  const m = ui.game.monitor;
-  if (!slot.kind) {
-    return <div className="tile tile-empty" data-testid="vital-line" data-line="none" />;
-  }
-  const label = slot.kind === 'ALINE' ? m.aline : m.cvp;
-  return (
-    <div
-      className="tile"
-      data-level="NORMAL"
-      data-param="line"
-      data-testid="vital-line"
-      data-line={slot.kind}
-      data-review="PENDING_CLINICAL_REVIEW"
-    >
-      <div className="tile-label">{label}</div>
-      <div className="tile-reading">
-        <span className="tile-pending">{m.linePending}</span>
-        <span className="visually-hidden"> PENDING_CLINICAL_REVIEW</span>
-      </div>
-    </div>
-  );
-}
-
-function Tile({ testId, param, label, unit, readout }: TileProps) {
+function Tile({ testId, param, label, unit, readout, extra }: TileProps) {
   const m = ui.game.monitor;
   const alerting = readout.level !== 'NORMAL';
   const hidden = `${m.level[readout.level]} · ${label}${readout.direction ? m.direction[readout.direction] : ''}`;
@@ -82,6 +65,7 @@ function Tile({ testId, param, label, unit, readout }: TileProps) {
       <div className="tile-label">
         {label}
         <span className="tile-unit">{unit}</span>
+        {extra}
       </div>
       <div className="tile-reading">
         {alerting ? (
@@ -100,13 +84,61 @@ export interface MonitorPanelProps {
   monitor: MonitorView;
 }
 
+function OptionalTile({ kind }: { kind: OptionalWave }) {
+  const m = ui.game.monitor;
+  const label = m.optionalWave[kind] ?? kind;
+  const unit = kind === 'cvp' ? m.cvpUnit : m.bpUnit;
+  return (
+    <div
+      className="tile"
+      data-level="NORMAL"
+      data-param={kind}
+      data-testid={`vital-${kind}`}
+      data-review="PENDING_CLINICAL_REVIEW"
+    >
+      <div className="tile-label">
+        {label}
+        <span className="tile-unit">{unit}</span>
+      </div>
+      <div className="tile-reading">
+        <span className="tile-value">
+          <span className="num">—</span>
+        </span>
+        <span className="visually-hidden">{m.noReading}</span>
+      </div>
+    </div>
+  );
+}
+
 export function MonitorPanel({ patient, monitor }: MonitorPanelProps) {
   const m = ui.game.monitor;
+  const [seenBed, setSeenBed] = useState(patient.bed);
+  const [lead, setLead] = useState<EcgLead>('ECG');
+  const [extra, setExtra] = useState<OptionalWave[]>([]);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [nibpByBed, setNibpByBed] = useState<ReadonlyMap<number, VitalReadout>>(() => new Map());
+  const remembered = nibpByBed.get(patient.bed);
+  if (!remembered) {
+    const next = new Map(nibpByBed);
+    next.set(patient.bed, {
+      text: monitor.bp.text,
+      level: monitor.bp.level,
+      direction: monitor.bp.direction,
+    });
+    setNibpByBed(next);
+  }
+  const nibp = remembered ?? monitor.bp;
+  if (seenBed !== patient.bed) {
+    setSeenBed(patient.bed);
+    setLead('ECG');
+    setExtra([]);
+    setMenuOpen(false);
+  }
   const level = maxLevel([
     monitor.mews.level,
     monitor.rhythmAlarm,
     monitor.hr.level,
-    monitor.bp.level,
+    nibp.level,
     monitor.spo2.level,
     monitor.rr.level,
     monitor.temp.level,
@@ -151,9 +183,26 @@ export function MonitorPanel({ patient, monitor }: MonitorPanelProps) {
       <div className="monitor-body">
         <div className="waves" data-level={level}>
           <div className="wave-row" data-wave="ecg">
-            <span className="wave-label">{m.leadII}</span>
+            <label className="wave-label">
+              <span className="visually-hidden">{m.leadMenu}</span>
+              <select
+                className="wave-lead"
+                aria-label={m.leadMenu}
+                value={lead}
+                onChange={(event) => {
+                  setLead(event.target.value as EcgLead);
+                }}
+              >
+                {ECG_LEADS.map((id) => (
+                  <option key={id} value={id}>
+                    {id === 'ECG' ? m.ecg : id}
+                  </option>
+                ))}
+              </select>
+            </label>
             <WaveformCanvas
               kind="ecg"
+              lead={lead}
               wave={monitor.wave}
               hr={monitor.waveRate}
               amplitude={monitor.pulseAmplitude}
@@ -174,6 +223,21 @@ export function MonitorPanel({ patient, monitor }: MonitorPanelProps) {
               label={m.waveformLabel}
             />
           </div>
+          {extra.map((kind) => (
+            <div key={kind} className="wave-row" data-wave={kind}>
+              <span className="wave-label">{m.optionalWave[kind]}</span>
+              <WaveformCanvas
+                kind={kind as WaveKind}
+                wave={monitor.wave}
+                hr={monitor.waveRate}
+                rr={Number(monitor.rr.text) || 16}
+                amplitude={monitor.pulseAmplitude}
+                sweepSeconds={monitor.sweepSeconds}
+                targetFps={monitor.targetFps}
+                label={m.optionalWaveLabel(m.optionalWave[kind] ?? kind)}
+              />
+            </div>
+          ))}
         </div>
         <div className="tiles">
           <Tile testId="vital-hr" param="hr" label={m.hr} unit={m.hrUnit} readout={monitor.hr} />
@@ -184,8 +248,33 @@ export function MonitorPanel({ patient, monitor }: MonitorPanelProps) {
             unit={m.spo2Unit}
             readout={monitor.spo2}
           />
-          <Tile testId="vital-bp" param="bp" label={m.bp} unit={m.bpUnit} readout={monitor.bp} />
-          <LineTile slot={monitor.lineSlot} />
+          <Tile
+            testId="vital-bp"
+            param="bp"
+            label={m.bp}
+            unit={m.bpUnit}
+            readout={nibp}
+            extra={
+              <button
+                type="button"
+                className="nibp-measure"
+                data-testid="measure-nibp"
+                onClick={() => {
+                  setNibpByBed((current) => {
+                    const next = new Map(current);
+                    next.set(patient.bed, {
+                      text: monitor.bp.text,
+                      level: monitor.bp.level,
+                      direction: monitor.bp.direction,
+                    });
+                    return next;
+                  });
+                }}
+              >
+                {m.measureNibp}
+              </button>
+            }
+          />
           <Tile testId="vital-rr" param="rr" label={m.rr} unit={m.rrUnit} readout={monitor.rr} />
           <Tile
             testId="vital-temp"
@@ -194,13 +283,53 @@ export function MonitorPanel({ patient, monitor }: MonitorPanelProps) {
             unit={m.tempUnit}
             readout={monitor.temp}
           />
+          {extra.map((kind) => (
+            <OptionalTile key={kind} kind={kind} />
+          ))}
         </div>
       </div>
       <p className="monitor-foot">
         {m.consciousnessLabel}：{m.consciousness[monitor.consciousness]} · {m.asOf}{' '}
         {monitor.asOfLabel}
       </p>
-      {monitor.mews.reviewPending ? <p className="monitor-note">{m.mewsPending}</p> : null}
+      <div className="monitor-note">
+        <button
+          type="button"
+          className="wave-pick"
+          aria-expanded={menuOpen}
+          aria-controls="optional-waves"
+          onClick={() => {
+            setMenuOpen((open) => !open);
+          }}
+        >
+          {m.waveMenu}
+        </button>
+        {menuOpen ? (
+          <div id="optional-waves" className="wave-menu" role="group" aria-label={m.waveMenu}>
+            {OPTIONAL_WAVES.map((kind) => {
+              const checked = extra.includes(kind);
+              const full = extra.length >= MAX_OPTIONAL && !checked;
+              return (
+                <label key={kind}>
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    disabled={full}
+                    onChange={() => {
+                      setExtra((current) => {
+                        if (current.includes(kind)) return current.filter((item) => item !== kind);
+                        if (current.length >= MAX_OPTIONAL) return current;
+                        return [...current, kind];
+                      });
+                    }}
+                  />
+                  {m.optionalWave[kind]}
+                </label>
+              );
+            })}
+          </div>
+        ) : null}
+      </div>
     </section>
   );
 }

@@ -1,3 +1,4 @@
+import { ListTodo } from 'lucide-react';
 import { ui } from '@/i18n';
 import type { GameView, ReportView, WardView } from '@/view';
 
@@ -75,6 +76,7 @@ export function QueuePanel({ ward, reports, shift }: QueuePanelProps) {
   return (
     <section className="panel queue" aria-labelledby="queue-heading" data-testid="queue">
       <h2 id="queue-heading">
+        <ListTodo className="heading-icon" size={16} strokeWidth={2} aria-hidden="true" />
         {q.heading}
         <span className="sp" />
         <small>{q.byUrgency}</small>

@@ -96,7 +96,8 @@ describe('搶救 ViewModel', () => {
       'PHONE_FAMILY',
       'RECORD',
     ]);
-    expect(view?.prefill.name).toBe('阮美玲');
+    const patient = Object.values(state.patients)[0];
+    expect(view?.prefill.name).toBe(patient?.demographics.name);
     expect(view?.prefill.seniorRank).toBe('RES');
     expect(view?.prefill.cause).not.toBe('');
 

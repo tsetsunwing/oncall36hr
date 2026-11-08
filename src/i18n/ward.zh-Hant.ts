@@ -38,6 +38,7 @@ export const wardUi = {
     noNurse: '—',
     bedNo: (bed: number) => `床 ${String(bed)}`,
   },
+  places: '病房位置',
   station: '護士站',
   stationHere: '你在這裡',
   phoneLandmark: '電話',

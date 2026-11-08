@@ -67,7 +67,7 @@ describe('engine 發出嘅每個 AI context 都符合 ai 契約', () => {
     run.parsed({ intent: 'UNCLEAR' });
     run.say('唔該晒');
     run.parsed({ intent: 'CHAT', addressee: { kind: 'nurse' } });
-    run.say('@黃國強 你點呀');
+    run.say(`@${Object.values(run.state().patients)[0]?.demographics.name ?? ''} 你點呀`);
     run.parsed({ intent: 'QUESTION', addressee: { kind: 'patient' } });
     run.say('而家點呀');
     run.parsed({ intent: 'QUESTION' });
