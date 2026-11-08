@@ -13,6 +13,8 @@
       "CALL": 0.3,
       "DELEGATE": 0.1
     },
+    "placeReliefPercent": 20,
+    "placeCooldownSeconds": 600,
     "reviewStatus": "PENDING_CLINICAL_REVIEW",
     "note": "平衡佔位值：完全唔自我照顧，On call 34 小時內會暈倒；食飯加短睡可撐到尾"
   }

@@ -13,14 +13,48 @@ export function energyModel(ctx: {
   return ctx.tables['energy-config'][0];
 }
 
-export function setEnergy(state: GameState, percent: number): GameState {
-  const next = round2(Math.min(100, Math.max(0, percent)));
-  if (next === state.shift.energy.percent) return state;
-  return withShift(state, { energy: { ...state.shift.energy, percent: next } });
+function clampNeed(value: number): number {
+  return round2(Math.min(100, Math.max(0, value)));
+}
+
+/** 餘量係三項需要最高值的相反數。需要愈高，餘量愈低。 */
+export function reserveOf(needs: { fatigue: number; hunger: number; bladder: number }): number {
+  return clampNeed(100 - Math.max(needs.fatigue, needs.hunger, needs.bladder));
 }
 
 export function changeEnergy(state: GameState, delta: number): GameState {
-  return setEnergy(state, state.shift.energy.percent + delta);
+  const energy = state.shift.energy;
+  const needs = {
+    fatigue: clampNeed(energy.fatigue - delta),
+    hunger: clampNeed(energy.hunger - delta),
+    bladder: clampNeed(energy.bladder - delta),
+  };
+  const percent = reserveOf(needs);
+  if (
+    percent === energy.percent &&
+    needs.fatigue === energy.fatigue &&
+    needs.hunger === energy.hunger &&
+    needs.bladder === energy.bladder
+  ) {
+    return state;
+  }
+  return withShift(state, { energy: { ...energy, ...needs, percent } });
+}
+
+/** 只降低一項需要（進入對應房間）。正數係降低量。 */
+export function relieveNeed(
+  state: GameState,
+  key: 'fatigue' | 'hunger' | 'bladder',
+  amount: number,
+): GameState {
+  const energy = state.shift.energy;
+  const needs = {
+    fatigue: energy.fatigue,
+    hunger: energy.hunger,
+    bladder: energy.bladder,
+    [key]: clampNeed(energy[key] - amount),
+  };
+  return withShift(state, { energy: { ...energy, ...needs, percent: reserveOf(needs) } });
 }
 
 export function energyLevel(percent: number, model: EnergyModelRow | undefined): EnergyLevel {

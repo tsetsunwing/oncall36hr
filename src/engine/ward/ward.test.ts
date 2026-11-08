@@ -197,11 +197,14 @@ describe('來電量（T12）', () => {
     expect(night('HARD') / night('EASY')).toBeCloseTo(1.2, 1);
   });
 
-  it('跑完一更，實際來電數同排程一致（含玩家冇接而過期嘅）', () => {
+  it('跑完一更，可見來電不多過排程（隨機藥房核對唔再佔一個來電）', () => {
     let state = engine.init(wardParams('full-shift', 'MO', 'MEDIUM', 'DAY'));
     const planned = state.ward.plannedCalls;
     state = advance(engine, state, shiftSeconds(config, 'DAY')).state;
-    expect(state.ward.calls.filter((c) => c.direction === 'IN').length).toBe(planned);
+    const incoming = state.ward.calls.filter((c) => c.direction === 'IN');
+    expect(incoming.every((call) => call.templateId !== 'PHARMACY_QUERY')).toBe(true);
+    expect(incoming.length).toBeLessThanOrEqual(planned);
+    expect(incoming.length).toBeGreaterThan(0);
   });
 
   it('來電有標籤，護士來電同低階醫生來電分開', () => {

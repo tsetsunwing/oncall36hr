@@ -233,6 +233,21 @@ export function selectShift(state: GameState, env: ViewEnv, clockLabel: ClockLab
       phase !== 'HANDOVER' &&
       phase !== 'ENDED',
     energy: { percent, level: energyLevel(percent, model) },
+    needs: {
+      fatigue: {
+        percent: state.shift.energy.fatigue,
+        level: energyLevel(100 - state.shift.energy.fatigue, model),
+      },
+      hunger: {
+        percent: state.shift.energy.hunger,
+        level: energyLevel(100 - state.shift.energy.hunger, model),
+      },
+      bladder: {
+        percent: state.shift.energy.bladder,
+        level: energyLevel(100 - state.shift.energy.bladder, model),
+      },
+    },
+    place: state.shift.energy.place,
     rounds: {
       total: roundsAt.length,
       completed: state.shift.rounds.completed,

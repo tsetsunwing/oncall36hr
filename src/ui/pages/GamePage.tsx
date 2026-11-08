@@ -117,9 +117,12 @@ export function GamePage({ view, actions, onExit }: GamePageProps) {
         {...(view.ward
           ? {
               places: {
-                atStation: view.ward.locationBed === null && view.ward.movingToBed === null,
-                onStation: () => {
-                  actions.goToBed(null);
+                here:
+                  view.ward.locationBed === null && view.ward.movingToBed === null
+                    ? (shift.place ?? 'STATION')
+                    : null,
+                onPlace: (place) => {
+                  actions.enterPlace(place);
                 },
               },
             }

@@ -45,6 +45,12 @@ export const wardUi = {
   pantry: '茶水間',
   rest: '休息室',
   wc: '洗手間',
+  placeRelief: {
+    PANTRY: '降低飢餓',
+    REST: '降低疲倦',
+    WC: '降低內急',
+    STATION: '返回護士站',
+  } as Record<string, string>,
   corridor: '走廊',
   occupancy: (used: number, total: number) => `使用中 ${String(used)} ／ ${String(total)}`,
   legendMews: 'MEWS 顏色',

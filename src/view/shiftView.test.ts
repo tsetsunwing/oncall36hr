@@ -181,7 +181,16 @@ describe('更次 ViewModel', () => {
     let state = engine.init(params('ONCALL'));
     state = {
       ...state,
-      shift: { ...state.shift, energy: { ...state.shift.energy, percent: 0.05 } },
+      shift: {
+        ...state.shift,
+        energy: {
+          ...state.shift.energy,
+          percent: 0.05,
+          fatigue: 99.95,
+          hunger: 99.95,
+          bladder: 99.95,
+        },
+      },
     };
     state = advanceTo(state, 600);
     const { shift } = selectGameView(state, env);

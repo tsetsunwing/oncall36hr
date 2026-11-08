@@ -20,6 +20,7 @@ function makeActions() {
     insistOrder: vi.fn(),
     retryAi: vi.fn(),
     goToBed: vi.fn(),
+    enterPlace: vi.fn(),
     respondCall: vi.fn(),
     prepareCall: vi.fn(),
     sendCall: vi.fn(),
@@ -367,13 +368,15 @@ describe('ClockBar', () => {
       <ClockBar
         clock={clock()}
         actions={actions}
-        places={{ atStation: false, onStation: () => actions.goToBed(null) }}
+        places={{ here: null, onPlace: (place) => actions.enterPlace(place) }}
       />,
     );
     expect(screen.getByText(ui.game.ward.pantry)).toBeInTheDocument();
     expect(screen.getByText(ui.game.ward.rest)).toBeInTheDocument();
     expect(screen.getByText(ui.game.ward.wc)).toBeInTheDocument();
     await user.click(screen.getByTestId('landmark-station'));
-    expect(actions.goToBed).toHaveBeenCalledWith(null);
+    expect(actions.enterPlace).toHaveBeenCalledWith('STATION');
+    await user.click(screen.getByTestId('landmark-pantry'));
+    expect(actions.enterPlace).toHaveBeenCalledWith('PANTRY');
   });
 });

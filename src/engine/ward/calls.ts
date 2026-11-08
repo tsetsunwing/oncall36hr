@@ -116,6 +116,84 @@ function callerRankOf(playerRank: string): Rank | null {
   return playerRank === 'MO' ? 'HO' : playerRank === 'RES' ? 'MO' : null;
 }
 
+/** 藥房來電唔再隨機響。只係玩家落咗要核對嘅藥單先開。 */
+export function pharmacyCheckReason(
+  missing: { dose: boolean; route: boolean },
+  categories: readonly string[],
+): string | null {
+  const bits: string[] = [];
+  if (missing.dose) bits.push('冇寫劑量');
+  if (missing.route) bits.push('冇寫途徑');
+  if (categories.includes('DOSE_HIGH') || categories.includes('DOSE_LOW'))
+    bits.push('劑量可能唔啱');
+  if (categories.includes('WRONG_ROUTE')) bits.push('途徑可能唔啱');
+  if (categories.includes('INTERACTION')) bits.push('可能有藥物相互作用');
+  if (categories.includes('OTHER')) bits.push('製劑或者用藥次數要再核對');
+  return bits.length > 0 ? bits.join('、') : null;
+}
+
+export function openPharmacyCheckCall(
+  state: GameState,
+  patientId: string,
+  orderLabel: string,
+  reason: string,
+  ctx: EngineContext,
+): GameState {
+  const already = state.ward.calls.some(
+    (c) =>
+      c.tag === 'PHARMACY' &&
+      c.patientId === patientId &&
+      (c.status === 'RINGING' || c.status === 'DEFERRED'),
+  );
+  const row = callTemplates(ctx).find((r) => r.id === 'PHARMACY_QUERY');
+  const patient = state.patients[patientId];
+  if (already || !row || !patient) return state;
+  const callerName = ctx.config.gate.pharmacyName;
+  const tokenValues: Record<string, string> = {
+    ...vitalTokens(patient, ctx.tables),
+    ...patientTokens(patient),
+    'caller.name': callerName,
+    'order.label': orderLabel,
+    'pharmacy.reason': reason,
+  };
+  const id = `k${String(state.ward.counters.call + 1)}`;
+  const t = state.clock.t;
+  const call: Call = {
+    id,
+    templateId: row.id,
+    direction: 'IN',
+    tag: 'PHARMACY',
+    priority: row.priority,
+    callerName,
+    callerRank: null,
+    patientId,
+    deptId: null,
+    target: null,
+    status: 'RINGING',
+    resolution: null,
+    arrivedAt: t,
+    expiresAt: t + ctx.config.phone.expireSec[row.priority],
+    ringAgainAt: null,
+    defers: 0,
+    delegable: row.delegable,
+    sbar: null,
+    outcome: null,
+    lines: [{ t, speaker: 'CALLER', name: callerName, template: row.text, tokenValues }],
+    purpose: 'GENERAL',
+    exchange: null,
+  };
+  let next: GameState = {
+    ...state,
+    ward: {
+      ...state.ward,
+      counters: { ...state.ward.counters, call: state.ward.counters.call + 1 },
+    },
+  };
+  next = putCall(next, call);
+  next = schedule(next, call.expiresAt, CALL_EXPIRE_EVENT, { callId: id });
+  return interrupt(next, row.priority, ctx);
+}
+
 export function handleCallArrival(state: GameState, ctx: EngineContext): Reduction {
   const eligible = callTemplates(ctx).filter((row) => templateEligible(state, row, ctx));
   const cursor = new RngCursor(state.rng);
@@ -152,6 +230,8 @@ export function handleCallArrival(state: GameState, ctx: EngineContext): Reducti
   }
   if (row.needs !== 'NONE' && patientId === null)
     return { state: { ...next, rng: cursor.rng }, effects: [] };
+  // 隨機藥房來電唔再出現。RNG 照用，等其他來電的次序不變。真正的藥房來電由藥單核對開。
+  if (row.id === 'PHARMACY_QUERY') return { state: { ...next, rng: cursor.rng }, effects: [] };
 
   const patient = patientId ? next.patients[patientId] : undefined;
   const deptPool = row.deptPool ?? [];

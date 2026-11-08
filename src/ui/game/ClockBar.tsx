@@ -10,8 +10,20 @@ export interface ClockBarProps {
   ringing?: number;
   onOpenPhone?: () => void;
   tools?: ReactNode;
-  places?: { atStation: boolean; onStation: () => void };
+  places?: {
+    here: 'STATION' | 'PANTRY' | 'REST' | 'WC' | null;
+    onPlace: (place: 'STATION' | 'PANTRY' | 'REST' | 'WC') => void;
+  };
 }
+
+const PLACE_CHIPS = [
+  { id: 'STATION', icon: Hospital, testId: 'landmark-station' },
+  { id: 'PANTRY', icon: Coffee, testId: 'landmark-pantry' },
+  { id: 'REST', icon: Armchair, testId: 'landmark-rest' },
+  { id: 'WC', icon: Bath, testId: 'landmark-wc' },
+] as const;
+
+const NEED_KEYS = ['fatigue', 'hunger', 'bladder'] as const;
 
 function dayNight(label: string, segment: ShiftView['segment']): string {
   if (segment === 'DAY') return ui.game.day;
@@ -32,7 +44,8 @@ export function ClockBar({
   const g = ui.game;
   const speeds = clock.speeds.filter((s) => s > 0);
   const lockedByFailure = clock.pausedBy === 'ai-failure';
-  const lowEnergy = shift !== undefined && shift.energy.level !== 'NORMAL';
+  const lowEnergy =
+    shift !== undefined && Object.values(shift.needs).some((n) => n.level !== 'NORMAL');
   return (
     <div className="clock-bar">
       {shift ? (
@@ -60,29 +73,35 @@ export function ClockBar({
       ) : null}
       {places ? (
         <div className="place-chips" role="group" aria-label={ui.game.ward.places}>
-          <button
-            type="button"
-            className="place-chip"
-            data-here={places.atStation}
-            data-testid="landmark-station"
-            aria-pressed={places.atStation}
-            onClick={places.onStation}
-          >
-            <Hospital size={14} strokeWidth={2} aria-hidden="true" />
-            <span>{ui.game.ward.station}</span>
-          </button>
-          <span className="place-chip">
-            <Coffee size={14} strokeWidth={2} aria-hidden="true" />
-            <span>{ui.game.ward.pantry}</span>
-          </span>
-          <span className="place-chip">
-            <Armchair size={14} strokeWidth={2} aria-hidden="true" />
-            <span>{ui.game.ward.rest}</span>
-          </span>
-          <span className="place-chip">
-            <Bath size={14} strokeWidth={2} aria-hidden="true" />
-            <span>{ui.game.ward.wc}</span>
-          </span>
+          {PLACE_CHIPS.map((chip) => {
+            const Icon = chip.icon;
+            const label =
+              chip.id === 'STATION'
+                ? ui.game.ward.station
+                : chip.id === 'PANTRY'
+                  ? ui.game.ward.pantry
+                  : chip.id === 'REST'
+                    ? ui.game.ward.rest
+                    : ui.game.ward.wc;
+            const here = places.here === chip.id;
+            return (
+              <button
+                key={chip.id}
+                type="button"
+                className="place-chip"
+                data-here={here}
+                data-testid={chip.testId}
+                aria-pressed={here}
+                title={ui.game.ward.placeRelief[chip.id]}
+                onClick={() => {
+                  places.onPlace(chip.id);
+                }}
+              >
+                <Icon size={14} strokeWidth={2} aria-hidden="true" />
+                <span>{label}</span>
+              </button>
+            );
+          })}
         </div>
       ) : null}
       {tools}
@@ -122,29 +141,31 @@ export function ClockBar({
         ))}
       </div>
       {shift ? (
-        <div
-          className="energy-meter"
-          data-level={shift.energy.level}
-          data-testid="energy-meter"
-          role="meter"
-          aria-label={ui.shift.energy.label}
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuenow={Math.round(shift.energy.percent)}
-          aria-valuetext={`${ui.shift.energy.percent(shift.energy.percent)} ${ui.shift.energy.level[shift.energy.level] ?? ''}`}
-        >
-          <span className="energy-label">{ui.shift.energy.label}</span>
-          <span className="energy-track" aria-hidden="true">
-            <span className="energy-fill" style={{ width: `${String(shift.energy.percent)}%` }} />
-          </span>
-          <strong data-testid="energy-percent">
-            {ui.shift.energy.percent(shift.energy.percent)}
-          </strong>
-          {lowEnergy ? (
-            <span className="energy-state">
-              {ui.shift.energy.level[shift.energy.level]} · {ui.shift.energy.restShort}
-            </span>
-          ) : null}
+        <div className="need-meters">
+          {NEED_KEYS.map((key) => {
+            const need = shift.needs[key];
+            const label = ui.shift.energy.need[key] ?? key;
+            return (
+              <div
+                key={key}
+                className="need-meter energy-meter"
+                data-level={need.level}
+                data-testid={`need-${key}`}
+                role="meter"
+                aria-label={label}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={Math.round(need.percent)}
+                aria-valuetext={`${label} ${ui.shift.energy.percent(need.percent)} ${ui.shift.energy.level[need.level] ?? ''}`}
+              >
+                <span className="energy-label">{label}</span>
+                <span className="energy-track" aria-hidden="true">
+                  <span className="energy-fill" style={{ width: `${String(need.percent)}%` }} />
+                </span>
+              </div>
+            );
+          })}
+          {lowEnergy ? <span className="energy-state">{ui.shift.energy.restShort}</span> : null}
         </div>
       ) : null}
       <p className="clock" aria-label={g.clockLabel}>

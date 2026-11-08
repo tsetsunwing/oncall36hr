@@ -17,9 +17,12 @@ export function SelfCarePanel({ shift, notice, actions }: SelfCarePanelProps) {
         {s.heading}
       </h2>
       <p className="energy-line" data-level={energy.level} data-testid="energy-line">
-        <span className="energy-label">{ui.shift.energy.label}</span>{' '}
-        <strong>{ui.shift.energy.percent(energy.percent)}</strong> ·{' '}
-        {ui.shift.energy.level[energy.level]}
+        {(['fatigue', 'hunger', 'bladder'] as const).map((key, index) => (
+          <span key={key}>
+            {index > 0 ? ' · ' : ''}
+            {ui.shift.energy.need[key]} {ui.shift.energy.percent(shift.needs[key].percent)}
+          </span>
+        ))}
       </p>
       {notice?.kind === 'REST_NUDGE' ? (
         <p className="rest-nudge" role="status" data-testid="rest-nudge">

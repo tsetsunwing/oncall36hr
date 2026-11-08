@@ -82,6 +82,9 @@ export function arriveAt(state: GameState, bed: number | null, ctx: EngineContex
   let next: GameState = {
     ...state,
     ward: { ...state.ward, location: { bed, movingTo: null, arriveAt: null } },
+    ...(bed !== null
+      ? { shift: { ...state.shift, energy: { ...state.shift.energy, place: null } } }
+      : {}),
   };
   if (bed === null) return next;
   const patientId = patientAtBed(next, bed);

@@ -593,6 +593,13 @@ export interface ShiftView {
   /** 等 AI 回應期間遊戲時間自動暫停（C1） */
   waitingForAi: boolean;
   energy: { percent: number; level: EnergyLevelCode };
+  /** 愈高愈差。進入對應房間會降低。 */
+  needs: {
+    fatigue: { percent: number; level: EnergyLevelCode };
+    hunger: { percent: number; level: EnergyLevelCode };
+    bladder: { percent: number; level: EnergyLevelCode };
+  };
+  place: 'STATION' | 'PANTRY' | 'REST' | 'WC' | null;
   rounds: {
     total: number;
     completed: number;
@@ -651,6 +658,7 @@ export interface GameActions {
   insistOrder: (orderId: string) => void;
   retryAi: () => void;
   goToBed: (bed: number | null) => void;
+  enterPlace: (place: 'STATION' | 'PANTRY' | 'REST' | 'WC') => void;
   respondCall: (callId: string, response: CallResponseCode) => void;
   prepareCall: (
     patientId: string,

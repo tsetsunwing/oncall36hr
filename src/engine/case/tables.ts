@@ -540,6 +540,8 @@ export interface EnergyModelRow {
   nudgeBelowPercent: number;
   nudgeCooldownSeconds: number;
   actionCosts: { MOVE: number; CALL: number; DELEGATE: number };
+  placeReliefPercent: number;
+  placeCooldownSeconds: number;
 }
 
 export const SELF_CARE_IDS = ['MEAL', 'NAP', 'TOILET', 'WATER', 'PHONE_CHAT', 'MUSIC'] as const;

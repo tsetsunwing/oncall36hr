@@ -26,6 +26,16 @@ function buildQueue(
   const q = w.queue;
   const items: QueueItem[] = [];
   for (const bed of ward.beds) {
+    if (!bed.newAdmission || bed.patientId === null) continue;
+    items.push({
+      id: `admit-${String(bed.bed)}`,
+      tone: 'n',
+      title: q.bed(bed.bed, bed.name ?? ''),
+      detail: w.newAdmission,
+      when: q.now,
+    });
+  }
+  for (const bed of ward.beds) {
     if (bed.patientId === null || bed.level === 'NORMAL') continue;
     const here = bed.here ? ` · ${w.here}` : '';
     items.push({

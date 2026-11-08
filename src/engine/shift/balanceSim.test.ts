@@ -161,7 +161,9 @@ describe('M9 平衡模擬（T-E）', () => {
         ),
       );
       const end = advance(engine, init, shiftSeconds(engine.config, 'DAY')).state;
-      expect(end.ward.calls.filter((call) => call.direction === 'IN').length).toBe(expected);
+      const incoming = end.ward.calls.filter((call) => call.direction === 'IN');
+      expect(incoming.every((call) => call.templateId !== 'PHARMACY_QUERY')).toBe(true);
+      expect(incoming.length).toBeLessThanOrEqual(expected);
     }
     const easy = engine.init(kitParams('m9-uplift', 'NIGHT', { difficulty: 'EASY' })).ward
       .plannedCalls;

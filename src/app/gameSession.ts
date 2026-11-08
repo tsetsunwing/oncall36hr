@@ -204,6 +204,9 @@ export function createGameSession(options: GameSessionOptions): GameSession {
     goToBed(bed) {
       wardIntent('GO_TO_BED', { bed: bed ?? 0 });
     },
+    enterPlace(place) {
+      dispatch({ type: 'PLAYER_INTENT', intent: shiftIntent('ENTER_PLACE', { place }) });
+    },
     respondCall(callId, response) {
       wardIntent('RESPOND_CALL', { callId, response });
     },

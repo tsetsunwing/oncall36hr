@@ -253,7 +253,7 @@
     "priority": "ROUTINE",
     "needs": "ANY_PATIENT",
     "playerRanks": ["HO", "MO", "RES"],
-    "text": "藥房呢邊，{{patient.bed}} 床張處方想同你核對下。",
+    "text": "藥房呢邊，{{patient.bed}} 床{{order.label}}想同你核對下：{{pharmacy.reason}}。",
     "delegable": true,
     "callerImpression": "NONE",
     "reviewStatus": "PENDING_CLINICAL_REVIEW",

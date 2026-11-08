@@ -12,10 +12,18 @@ import type { EngineContext, EngineModule } from '../core/module';
 import type { GameState } from '../core/state';
 import { CONSEQUENCE_ONSET_EVENT_KIND } from '../gate/gate';
 import { CALL_EXPIRE_EVENT, CALL_RING_AGAIN_EVENT, CONSULT_ARRIVAL_EVENT } from '../ward/calls';
+import { moveTo } from '../ward/movement';
 import { CALL_ARRIVAL_EVENT } from '../ward/generate';
 import { applyRule } from '../score/scoring';
 import { none, noticeEffect, reject, SHIFT_MODULE, withShift } from './common';
-import { actionCostOf, applyDecay, energyModel, shouldNudge } from './energy';
+import {
+  actionCostOf,
+  applyDecay,
+  changeEnergy,
+  energyModel,
+  relieveNeed,
+  shouldNudge,
+} from './energy';
 import { confirmHandover, faint, forceOvertimeEnd, workInFlight } from './handover';
 import {
   answerRound,
@@ -44,6 +52,7 @@ const ENERGY_PRIORITY = 3;
 const payloads = {
   ROUND_ANSWER: z.object({ text: z.string(), viaHint: z.boolean().optional() }).strict(),
   SELF_CARE_START: z.object({ actionId: z.enum(SELF_CARE_IDS) }).strict(),
+  ENTER_PLACE: z.object({ place: z.enum(['STATION', 'PANTRY', 'REST', 'WC']) }).strict(),
   HANDOVER_TOGGLE: z.object({ patientId: z.string().min(1) }).strict(),
 } as const;
 
@@ -97,6 +106,13 @@ function handleExtension(
     }
     case 'SELF_CARE_STOP':
       return stopSelfCare(state, ctx);
+    case 'ENTER_PLACE': {
+      const parsed = payloads.ENTER_PLACE.safeParse(payload);
+      if (!parsed.success) return reject(state, 'SHIFT_NOT_ACTIVE');
+      if (state.clock.phase === 'ENDED') return reject(state, 'SHIFT_NOT_ACTIVE');
+      if (state.ward.location.movingTo !== null) return reject(state, 'PLAYER_MOVING');
+      return enterPlace(state, parsed.data.place, ctx);
+    }
     case 'BEGIN_HANDOVER': {
       if (state.clock.phase !== 'OVERTIME') return reject(state, 'HANDOVER_NOT_AVAILABLE');
       return none(
@@ -212,6 +228,36 @@ function handleShiftEnd(state: GameState, ctx: EngineContext): Reduction {
   return { state: next, effects: [noticeEffect('OVERTIME_STARTED', 'warn')] };
 }
 
+const PLACE_NEED = { PANTRY: 'hunger', REST: 'fatigue', WC: 'bladder' } as const;
+
+function enterPlace(
+  state: GameState,
+  place: 'STATION' | 'PANTRY' | 'REST' | 'WC',
+  ctx: EngineContext,
+): Reduction {
+  let next = state;
+  if (place !== 'STATION') {
+    const model = energyModel(ctx);
+    const last = next.shift.energy.placeAt[place];
+    const cooled = !model || last === null || next.clock.t - last >= model.placeCooldownSeconds;
+    if (model && cooled) {
+      next = relieveNeed(next, PLACE_NEED[place], model.placeReliefPercent);
+      next = withShift(next, {
+        energy: {
+          ...next.shift.energy,
+          placeAt: { ...next.shift.energy.placeAt, [place]: next.clock.t },
+        },
+      });
+    }
+  }
+  next = withShift(next, { energy: { ...next.shift.energy, place } });
+  if (next.ward.location.bed === null && next.ward.location.movingTo === null) {
+    return none(next);
+  }
+  const moved = moveTo(next, null, ctx);
+  return { state: moved.state, effects: moved.effects };
+}
+
 function handleEnergyTick(state: GameState, ctx: EngineContext): Reduction {
   const model = energyModel(ctx);
   if (!model) return none(state);
@@ -236,7 +282,18 @@ export const shiftModule: EngineModule = {
     let next = state;
     const model = energyModel(ctx);
     if (model) {
-      next = withShift(next, { energy: { percent: model.startPercent, lastNudgeAt: null } });
+      const need = Math.round((100 - model.startPercent) * 100) / 100;
+      next = withShift(next, {
+        energy: {
+          percent: model.startPercent,
+          fatigue: need,
+          hunger: need,
+          bladder: need,
+          lastNudgeAt: null,
+          place: null,
+          placeAt: { PANTRY: null, REST: null, WC: null },
+        },
+      });
       next = schedule(next, model.tickSeconds, ENERGY_TICK_EVENT, ENERGY_PRIORITY);
     }
     next = schedule(
@@ -297,12 +354,7 @@ export const shiftModule: EngineModule = {
     if (after.state.clock.phase === 'ENDED') return undefined;
     const cost = actionCostOf(before, after.state, intent, ctx);
     if (cost <= 0) return undefined;
-    const charged = withShift(after.state, {
-      energy: {
-        ...after.state.shift.energy,
-        percent: Math.max(0, Math.round((after.state.shift.energy.percent - cost) * 100) / 100),
-      },
-    });
+    const charged = changeEnergy(after.state, -cost);
     return checkFaint({ state: charged, effects: after.effects }, ctx);
   },
 };

@@ -28,6 +28,8 @@ import {
   requestDanger,
 } from './gateRequest';
 import { scoreOrderCommitted } from '../score/requiredOrders';
+import { openPharmacyCheckCall, pharmacyCheckReason } from '../ward/calls';
+import { composeOrderLabel } from '../orders/label';
 import { scoreConsequence, scoreRelease } from './gateScoring';
 import { EMPTY_REVIEW_TEXT, guardReviewText } from './reviewText';
 import type { GateRecord, GateReview, GateRole } from './gateTypes';
@@ -161,6 +163,22 @@ function applyReview(
   }
 
   let next = state;
+  if (local.role === 'PHARMACY') {
+    const reason = pharmacyCheckReason(
+      { dose: false, route: false },
+      built.map((c) => c.category),
+    );
+    if (reason) {
+      const row = catalogRow(ctx, order);
+      next = openPharmacyCheckCall(
+        next,
+        order.patientId,
+        row ? composeOrderLabel(row, order) : order.catalogId,
+        reason,
+        ctx,
+      );
+    }
+  }
   for (const concern of built) {
     next = appendLine(next, {
       t: state.clock.t,

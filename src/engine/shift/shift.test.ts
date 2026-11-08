@@ -448,7 +448,20 @@ describe('精力同暈倒（T20）', () => {
     ]).state;
     expect(moved.shift.energy.percent).toBeLessThan(init.shift.energy.percent);
 
-    const low = { ...init, shift: { ...init.shift, energy: { percent: 40, lastNudgeAt: null } } };
+    const low = {
+      ...init,
+      shift: {
+        ...init.shift,
+        energy: {
+          ...init.shift.energy,
+          percent: 40,
+          fatigue: 60,
+          hunger: 60,
+          bladder: 60,
+          lastNudgeAt: null,
+        },
+      },
+    };
     const withTick = {
       ...low,
       scheduler: enqueue(low.scheduler, { time: 1, priority: 3, kind: 'ENERGY_TICK' }),
@@ -456,5 +469,30 @@ describe('精力同暈倒（T20）', () => {
     const run = feed(engine, withTick, [{ type: 'TICK', dtRealMs: 5000 }]);
     expect(run.effects).toContainEqual({ type: 'NOTICE', kind: 'REST_NUDGE', tone: 'info' });
     expect(run.state.shift.energy.lastNudgeAt).toBe(1);
+  });
+
+  it('進入茶水間、休息室、洗手間只降低對應需要，冷卻內再入唔會再降', () => {
+    const engine = kitEngine({ 'rounds-topics': [] });
+    const init = engine.init(kitParams('places-1', 'DAY'));
+    const raised = {
+      ...init,
+      shift: {
+        ...init.shift,
+        energy: { ...init.shift.energy, fatigue: 40, hunger: 40, bladder: 40, percent: 60 },
+      },
+    };
+    const pantry = feed(engine, raised, [shiftAct('ENTER_PLACE', { place: 'PANTRY' })]).state;
+    expect(pantry.shift.energy.hunger).toBe(20);
+    expect(pantry.shift.energy.fatigue).toBe(40);
+    expect(pantry.shift.energy.bladder).toBe(40);
+    expect(pantry.shift.energy.place).toBe('PANTRY');
+    const again = feed(engine, pantry, [shiftAct('ENTER_PLACE', { place: 'PANTRY' })]).state;
+    expect(again.shift.energy.hunger).toBe(20);
+    const rest = feed(engine, again, [shiftAct('ENTER_PLACE', { place: 'REST' })]).state;
+    expect(rest.shift.energy.fatigue).toBe(20);
+    expect(rest.shift.energy.hunger).toBe(20);
+    const wc = feed(engine, rest, [shiftAct('ENTER_PLACE', { place: 'WC' })]).state;
+    expect(wc.shift.energy.bladder).toBe(20);
+    expect(wc.shift.energy.percent).toBe(80);
   });
 });

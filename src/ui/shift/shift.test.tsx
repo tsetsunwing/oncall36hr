@@ -22,6 +22,7 @@ function makeActions() {
     insistOrder: vi.fn(),
     retryAi: vi.fn(),
     goToBed: vi.fn(),
+    enterPlace: vi.fn(),
     respondCall: vi.fn(),
     prepareCall: vi.fn(),
     sendCall: vi.fn(),
@@ -77,6 +78,12 @@ const shift = (over: Partial<ShiftView> = {}): ShiftView => ({
   segment: 'DAY',
   waitingForAi: false,
   energy: { percent: 82, level: 'NORMAL' },
+  needs: {
+    fatigue: { percent: 18, level: 'NORMAL' },
+    hunger: { percent: 18, level: 'NORMAL' },
+    bladder: { percent: 18, level: 'NORMAL' },
+  },
+  place: null,
   rounds: { total: 2, completed: 1, nextAtLabel: '14:00', offered: false, active: null },
   selfCare: {
     active: null,
@@ -212,13 +219,22 @@ describe('ClockBar（M6）', () => {
     render(
       <ClockBar
         clock={clock()}
-        shift={shift({ waitingForAi: true, energy: { percent: 38, level: 'LOW' } })}
+        shift={shift({
+          waitingForAi: true,
+          needs: {
+            fatigue: { percent: 62, level: 'LOW' },
+            hunger: { percent: 18, level: 'NORMAL' },
+            bladder: { percent: 18, level: 'NORMAL' },
+          },
+        })}
         actions={makeActions()}
       />,
     );
     expect(screen.getByTestId('mode-badge')).toHaveTextContent(ui.shift.mode.DAY ?? '');
-    expect(screen.getByTestId('energy-meter')).toHaveAttribute('aria-valuenow', '38');
-    expect(screen.getByTestId('energy-meter')).toHaveAttribute('data-level', 'LOW');
+    expect(screen.getByTestId('need-fatigue')).toHaveAttribute('aria-valuenow', '62');
+    expect(screen.getByTestId('need-fatigue')).toHaveAttribute('data-level', 'LOW');
+    expect(screen.getByTestId('need-hunger')).toHaveAttribute('aria-valuenow', '18');
+    expect(screen.getByTestId('need-bladder')).toBeInTheDocument();
     expect(screen.getByTestId('waiting-ai-badge')).toBeInTheDocument();
     expect(screen.getByTestId('round-count')).toHaveTextContent('1 ／ 2');
   });

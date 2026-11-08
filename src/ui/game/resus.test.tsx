@@ -33,6 +33,7 @@ function makeActions() {
     toggleHandover: vi.fn(),
     confirmHandover: vi.fn(),
     goToBed: vi.fn(),
+    enterPlace: vi.fn(),
     respondCall: vi.fn(),
     prepareCall: vi.fn(),
     sendCall: vi.fn(),

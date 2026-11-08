@@ -107,8 +107,23 @@ export const shiftSchema = z
     mealsTaken: z.array(z.number().int().min(0)),
     energy: z
       .object({
+        /** 餘量：100 − 三項需要的最高值。歸零即暈倒。 */
         percent: z.number().min(0).max(100),
+        /** 愈高愈差。休息室降低。 */
+        fatigue: z.number().min(0).max(100),
+        /** 愈高愈差。茶水間降低。 */
+        hunger: z.number().min(0).max(100),
+        /** 愈高愈差。洗手間降低。 */
+        bladder: z.number().min(0).max(100),
         lastNudgeAt: time.nullable(),
+        place: z.enum(['STATION', 'PANTRY', 'REST', 'WC']).nullable(),
+        placeAt: z
+          .object({
+            PANTRY: time.nullable(),
+            REST: time.nullable(),
+            WC: time.nullable(),
+          })
+          .strict(),
       })
       .strict(),
     selfCare: z
@@ -133,7 +148,15 @@ export type ShiftState = z.infer<typeof shiftSchema>;
 export const emptyShift = (): ShiftState => ({
   rounds: { started: 0, completed: 0, offeredAt: null, active: null, history: [] },
   mealsTaken: [],
-  energy: { percent: 100, lastNudgeAt: null },
+  energy: {
+    percent: 100,
+    fatigue: 0,
+    hunger: 0,
+    bladder: 0,
+    lastNudgeAt: null,
+    place: null,
+    placeAt: { PANTRY: null, REST: null, WC: null },
+  },
   selfCare: { active: null, lastEndedAt: {} },
   overtime: { enteredAt: null, workInFlight: false },
   handover: { selected: [] },

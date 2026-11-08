@@ -17,6 +17,7 @@ function makeActions() {
     insistOrder: vi.fn(),
     retryAi: vi.fn(),
     goToBed: vi.fn(),
+    enterPlace: vi.fn(),
     respondCall: vi.fn(),
     prepareCall: vi.fn(),
     sendCall: vi.fn(),

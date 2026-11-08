@@ -6,6 +6,7 @@ import type { BedView, CallRowView, GameActions, SbarDraftView, WardView } from 
 import { DelegationDialog } from './DelegationDialog';
 import { FloorPlan } from './FloorPlan';
 import { PhonePanel } from './PhonePanel';
+import { QueuePanel } from './QueuePanel';
 import { SbarPanel } from './SbarPanel';
 
 function makeActions() {
@@ -17,6 +18,7 @@ function makeActions() {
     insistOrder: vi.fn(),
     retryAi: vi.fn(),
     goToBed: vi.fn(),
+    enterPlace: vi.fn(),
     respondCall: vi.fn(),
     prepareCall: vi.fn(),
     sendCall: vi.fn(),
@@ -156,13 +158,18 @@ describe('FloorPlan', () => {
     expect(occupied).toHaveAttribute('data-level', 'ALARM');
     expect(occupied).not.toHaveTextContent(ui.game.ward.level.ALARM ?? '');
     expect(occupied).not.toHaveTextContent(ui.game.ward.here);
-    expect(screen.getByTestId('bed-8')).toHaveTextContent(ui.game.ward.newAdmission);
+    expect(screen.getByTestId('bed-8')).not.toHaveTextContent(ui.game.ward.newAdmission);
     expect(screen.getByTestId('bed-1')).toHaveTextContent(ui.game.ward.empty);
     expect(screen.getByTestId('occupancy')).toHaveTextContent('2');
     expect(screen.getByText(ui.game.ward.corridor)).toBeInTheDocument();
     expect(screen.queryByTestId('landmark-station')).not.toBeInTheDocument();
     await userEvent.click(occupied);
     expect(actions.goToBed).toHaveBeenCalledWith(7);
+  });
+
+  it('新入院提示放喺待辦，唔塞入床格', () => {
+    render(<QueuePanel ward={ward()} reports={[]} shift={null} />);
+    expect(screen.getByText(ui.game.ward.newAdmission)).toBeInTheDocument();
   });
 
   it('行緊路時顯示狀態；平面圖冇電話地標', () => {

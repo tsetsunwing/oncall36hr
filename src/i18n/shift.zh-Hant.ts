@@ -16,10 +16,11 @@ export const shiftUi = {
   waitingForAi: '等待 AI 回應，時間暫停',
   energy: {
     label: '精力',
-    level: { NORMAL: '正常', LOW: '精力低', VERY_LOW: '精力極低' } as Record<string, string>,
+    level: { NORMAL: '尚可', LOW: '偏高', VERY_LOW: '很高' } as Record<string, string>,
     percent: (value: number) => `${String(Math.round(value))}%`,
-    nudge: '建議稍作休息',
-    restShort: '建議小休',
+    nudge: '建議去對應的房間',
+    restShort: '去房間降低',
+    need: { fatigue: '疲倦', hunger: '飢餓', bladder: '內急' } as Record<string, string>,
   },
   rounds: {
     heading: '巡房',
@@ -66,7 +67,8 @@ export const shiftUi = {
   },
   selfCare: {
     heading: '自我照顧',
-    tooltip: '食飯、小睡等恢復你自己的精力。精力過低會影響表現，動作會用掉遊戲時間。',
+    tooltip:
+      '疲倦、飢餓、內急會隨時間上升。去休息室、茶水間、洗手間可以降低。任一項到 100% 會暈倒。',
     hint: '動作會扣用遊戲時間，病人狀況照常變化；巡房、搶救期間不可使用。',
     action: {
       MEAL: '食飯',
@@ -85,7 +87,7 @@ export const shiftUi = {
       MUSIC: '只是遊戲內動作，沒有聲音',
     } as Record<string, string>,
     cost: (minutes: number, gain: number) =>
-      `約 ${String(minutes)} 分鐘 · 回復 ${String(gain)}% 精力`,
+      `約 ${String(minutes)} 分鐘 · 三項各降低 ${String(gain)}%`,
     start: '開始',
     unavailableMeal: '現時不是用餐時段',
     cooldown: (minutes: number) => `冷卻中，約 ${String(minutes)} 分鐘後可再用`,
@@ -115,7 +117,8 @@ export const shiftUi = {
     noTag: '正常交更',
     tagDetail: {
       OVERTIME: '超時後被強制交更。獨立結局標籤，與六個分項評級並存。',
-      FAINT: '精力 0% 即時暈倒，強制交更並結束。暈倒的一局只有「暈倒」，不另有「超時」。',
+      FAINT:
+        '疲倦、飢餓或內急到 100% 即時暈倒，強制交更並結束。暈倒的一局只有「暈倒」，不另有「超時」。',
       NONE: '在正常時間內完成交更。',
     } as Record<string, string>,
     noTotal: '結局不設總分，分項各自列出',
@@ -228,8 +231,8 @@ export const shiftUi = {
       PRIORITY_MOST_URGENT_FIRST: '先處理最緊急的病人',
       PRIORITY_LOWER_FIRST: '先處理較不緊急的病人',
       SELF_CARE_MEAL_MISSED: '錯過用膳時段',
-      SELF_CARE_ENERGY_LOW_AT_END: '交更時精力偏低',
-      SELF_CARE_ENERGY_VERY_LOW_AT_END: '交更時精力很低',
+      SELF_CARE_ENERGY_LOW_AT_END: '交更時疲倦、飢餓或內急偏高',
+      SELF_CARE_ENERGY_VERY_LOW_AT_END: '交更時疲倦、飢餓或內急很高',
       SELF_CARE_MEAL: '用膳',
       SELF_CARE_NAP: '小睡',
       SELF_CARE_BREAK: '短休',

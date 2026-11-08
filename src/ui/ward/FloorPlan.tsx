@@ -40,7 +40,6 @@ function BedButton({ bed, actions }: { bed: BedView; actions: GameActions }) {
             {bed.age}
             {w.sex[bed.sex ?? 'M']}
           </span>
-          {bed.newAdmission ? <span className="bed-tag">{w.newAdmission}</span> : null}
         </>
       ) : (
         <span className="bed-empty">{w.empty}</span>

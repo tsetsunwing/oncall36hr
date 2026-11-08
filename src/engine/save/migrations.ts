@@ -213,6 +213,29 @@ function migrateV8toV9(raw: RawState): RawState {
   };
 }
 
+/** schema 9 → 10：精力改為三項上升的需要（疲倦、飢餓、內急）。舊餘量換算成三項相同的起點。 */
+function migrateV9toV10(raw: RawState): RawState {
+  const shift = (raw.shift ?? {}) as Record<string, unknown>;
+  const energy = (shift.energy ?? {}) as Record<string, unknown>;
+  const percent = typeof energy.percent === 'number' ? energy.percent : 100;
+  const need = Math.min(100, Math.max(0, Math.round((100 - percent) * 100) / 100));
+  return {
+    ...raw,
+    shift: {
+      ...shift,
+      energy: {
+        ...energy,
+        percent,
+        fatigue: energy.fatigue ?? need,
+        hunger: energy.hunger ?? need,
+        bladder: energy.bladder ?? need,
+        place: energy.place ?? null,
+        placeAt: energy.placeAt ?? { PANTRY: null, REST: null, WC: null },
+      },
+    },
+  };
+}
+
 export const migrations: MigrationRegistry = {
   1: migrateV1toV2,
   2: migrateV2toV3,
@@ -222,6 +245,7 @@ export const migrations: MigrationRegistry = {
   6: migrateV6toV7,
   7: migrateV7toV8,
   8: migrateV8toV9,
+  9: migrateV9toV10,
 };
 
 export type MigrateResult =

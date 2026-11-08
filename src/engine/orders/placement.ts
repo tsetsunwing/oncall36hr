@@ -18,7 +18,9 @@ import { chooseExecutor, executorDurationSec, executorRef } from './executors';
 import type { Order } from './orderTypes';
 import { registerOrder } from './orders';
 import { scoreOrderCommitted } from '../score/requiredOrders';
+import { openPharmacyCheckCall, pharmacyCheckReason } from '../ward/calls';
 import { recordSubordinateOrder, rollSubordinate, taskKindOfCatalog } from '../ward/subRoll';
+import { composeOrderLabel } from './label';
 
 export const ORDER_AWAITING_GATE_CODE = 'AWAITING_GATE';
 
@@ -144,6 +146,21 @@ export function placeCatalogOrder(state: GameState, input: PlaceInput, ctx: Engi
   };
   const gated: Order = { ...base, gate };
   next = { ...next, orders: { ...next.orders, [id]: gated } };
+  if (roles.includes('PHARMACY')) {
+    const reason = pharmacyCheckReason(
+      { dose: input.params.dose === null, route: input.params.route === null },
+      [],
+    );
+    if (reason) {
+      next = openPharmacyCheckCall(
+        next,
+        input.patientId,
+        composeOrderLabel(input.row, base),
+        reason,
+        ctx,
+      );
+    }
+  }
   return { state: next, order: gated, effects };
 }
 

@@ -44,6 +44,9 @@ export const energyModelSchema = z
         DELEGATE: z.number().min(0),
       })
       .strict(),
+    /** 進入茶水間、休息室、洗手間一次降低對應需要 */
+    placeReliefPercent: percent,
+    placeCooldownSeconds: z.number().int().min(0),
     reviewStatus,
     note: z.string(),
   })
