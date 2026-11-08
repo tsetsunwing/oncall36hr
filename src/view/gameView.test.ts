@@ -86,6 +86,10 @@ describe('ViewModel：只映射可見資料', () => {
     expect(withFlags(['aline.in']).lineSlot.kind).toBe('ALINE');
     expect(withFlags(['aline.in', 'cvc.in']).lineSlot.kind).toBe('ALINE');
     expect(withFlags([]).lineSlot).toEqual({ kind: null, reviewPending: false });
+    expect(withFlags([]).lines.etco2).toBe(false);
+    expect(withFlags(['etco2.on']).lines.etco2).toBe(true);
+    expect(withFlags(['airway.secured']).lines.etco2).toBe(true);
+    expect(withFlags(['etco2.on'])).not.toHaveProperty('etco2');
   });
 
   it('警報級別來自 MEWS 表嘅 componentAlert，方向來自表（唔係 view 估）', () => {

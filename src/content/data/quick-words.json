@@ -111,21 +111,21 @@
       "繼續 cpr"
     ],
     "catalogId": "acls.cpr",
-    "chipLabel": "CPR",
+    "chipLabel": "High-Quality CPR",
     "chipGroup": "resus"
   },
   {
     "id": "qw.rhythm",
     "aliases": ["rhythm check", "check rhythm", "rhythm", "睇rhythm", "睇 rhythm"],
     "catalogId": "acls.rhythmcheck",
-    "chipLabel": "Rhythm check",
+    "chipLabel": "Rhythm Check",
     "chipGroup": "resus"
   },
   {
     "id": "qw.defib200",
     "aliases": ["defib", "defibrillate"],
     "catalogId": "acls.defib",
-    "chipLabel": "Defib",
+    "chipLabel": "Defibrillation (Shock)",
     "promptStem": "defib",
     "prompt": ["energy"],
     "params": {
@@ -137,7 +137,7 @@
     "id": "qw.adrenaline",
     "aliases": ["adrenaline", "epinephrine", "adr", "epi"],
     "catalogId": "drug.adrenaline",
-    "chipLabel": "Adrenaline",
+    "chipLabel": "Epinephrine",
     "promptStem": "adrenaline",
     "prompt": ["dose", "route", "frequency"],
     "params": {
@@ -287,14 +287,14 @@
     "id": "qw.intubation",
     "aliases": ["intubation"],
     "catalogId": "proc.intubation",
-    "chipLabel": "Intubation",
+    "chipLabel": "Advanced Airway Insertion",
     "chipGroup": "resus"
   },
   {
     "id": "qw.decompression",
     "aliases": ["needle decompression"],
     "catalogId": "proc.decompression",
-    "chipLabel": "Needle decompression",
+    "chipLabel": "Needle Decompression",
     "chipGroup": "resus"
   },
   {
@@ -359,6 +359,258 @@
     "catalogId": "poct.hba1c",
     "chipLabel": "HbA1c",
     "chipGroup": "tests"
+  },
+  {
+    "id": "qw.resus.pulse",
+    "aliases": ["Pulse Check"],
+    "catalogId": "obs.pulse",
+    "chipLabel": "Pulse Check",
+    "chipGroup": "resus"
+  },
+  {
+    "id": "qw.resus.etco2",
+    "aliases": ["Capnography (EtCO2)"],
+    "catalogId": "monitor.etco2",
+    "chipLabel": "Capnography (EtCO2)",
+    "chipGroup": "resus"
+  },
+  {
+    "id": "qw.resus.ecg",
+    "aliases": ["12-Lead ECG"],
+    "catalogId": "ecg.12lead",
+    "chipLabel": "12-Lead ECG",
+    "chipGroup": "resus"
+  },
+  {
+    "id": "qw.resus.glucose",
+    "aliases": ["Blood Glucose"],
+    "catalogId": "poct.glucose",
+    "chipLabel": "Blood Glucose",
+    "chipGroup": "resus"
+  },
+  {
+    "id": "qw.resus.pocus",
+    "aliases": ["Point-of-Care Ultrasound (POCUS)"],
+    "catalogId": "img.pocus",
+    "chipLabel": "Point-of-Care Ultrasound (POCUS)",
+    "chipGroup": "resus"
+  },
+  {
+    "id": "qw.resus.ct",
+    "aliases": ["Non-Contrast CT Scan"],
+    "catalogId": "proc.ct.noncontrast",
+    "chipLabel": "Non-Contrast CT Scan",
+    "chipGroup": "resus"
+  },
+  {
+    "id": "qw.resus.bvm",
+    "aliases": ["Bag-Valve-Mask (BVM) Ventilation"],
+    "catalogId": "proc.bvm",
+    "chipLabel": "Bag-Valve-Mask (BVM) Ventilation",
+    "chipGroup": "resus"
+  },
+  {
+    "id": "qw.resus.ventilation",
+    "aliases": ["Continuous Ventilation"],
+    "catalogId": "proc.ventilation",
+    "chipLabel": "Continuous Ventilation",
+    "chipGroup": "resus"
+  },
+  {
+    "id": "qw.resus.ivio",
+    "aliases": ["Establish IV / IO Access"],
+    "catalogId": "proc.ivio",
+    "chipLabel": "Establish IV / IO Access",
+    "chipGroup": "resus"
+  },
+  {
+    "id": "qw.resus.ttm",
+    "aliases": ["Targeted Temperature Management"],
+    "catalogId": "proc.ttm",
+    "chipLabel": "Targeted Temperature Management",
+    "chipGroup": "resus"
+  },
+  {
+    "id": "qw.resus.cath",
+    "aliases": ["Activate Cath Lab"],
+    "catalogId": "proc.cathlab",
+    "chipLabel": "Activate Cath Lab",
+    "chipGroup": "resus"
+  },
+  {
+    "id": "qw.resus.lidocaine",
+    "aliases": ["lidocaine"],
+    "catalogId": "drug.lidocaine",
+    "chipLabel": "Lidocaine",
+    "promptStem": "lidocaine",
+    "prompt": ["dose", "route", "frequency"],
+    "params": { "drugFormularyId": "lidocaine" },
+    "chipGroup": "resus"
+  },
+  {
+    "id": "qw.resus.magnesium",
+    "aliases": ["magnesium sulfate"],
+    "catalogId": "drug.magnesium",
+    "chipLabel": "Magnesium Sulfate",
+    "promptStem": "magnesium sulfate",
+    "prompt": ["dose", "route", "frequency"],
+    "params": { "drugFormularyId": "magnesium" },
+    "chipGroup": "resus"
+  },
+  {
+    "id": "qw.resus.atropine",
+    "aliases": ["atropine"],
+    "catalogId": "drug.atropine",
+    "chipLabel": "Atropine",
+    "promptStem": "atropine",
+    "prompt": ["dose", "route", "frequency"],
+    "params": { "drugFormularyId": "atropine" },
+    "chipGroup": "resus"
+  },
+  {
+    "id": "qw.resus.adenosine",
+    "aliases": ["adenosine"],
+    "catalogId": "drug.adenosine",
+    "chipLabel": "Adenosine",
+    "promptStem": "adenosine",
+    "prompt": ["dose", "route", "frequency"],
+    "params": { "drugFormularyId": "adenosine" },
+    "chipGroup": "resus"
+  },
+  {
+    "id": "qw.resus.dopamine",
+    "aliases": ["dopamine"],
+    "catalogId": "drug.dopamine",
+    "chipLabel": "Dopamine",
+    "promptStem": "dopamine",
+    "prompt": ["dose", "route", "frequency"],
+    "params": { "drugFormularyId": "dopamine" },
+    "chipGroup": "resus"
+  },
+  {
+    "id": "qw.resus.norepinephrine",
+    "aliases": ["norepinephrine"],
+    "catalogId": "drug.norepinephrine",
+    "chipLabel": "Norepinephrine",
+    "promptStem": "norepinephrine",
+    "prompt": ["dose", "route", "frequency"],
+    "params": { "drugFormularyId": "norepinephrine" },
+    "chipGroup": "resus"
+  },
+  {
+    "id": "qw.resus.procainamide",
+    "aliases": ["procainamide"],
+    "catalogId": "drug.procainamide",
+    "chipLabel": "Procainamide",
+    "promptStem": "procainamide",
+    "prompt": ["dose", "route", "frequency"],
+    "params": { "drugFormularyId": "procainamide" },
+    "chipGroup": "resus"
+  },
+  {
+    "id": "qw.resus.sotalol",
+    "aliases": ["sotalol"],
+    "catalogId": "drug.sotalol",
+    "chipLabel": "Sotalol",
+    "promptStem": "sotalol",
+    "prompt": ["dose", "route", "frequency"],
+    "params": { "drugFormularyId": "sotalol" },
+    "chipGroup": "resus"
+  },
+  {
+    "id": "qw.resus.aspirin",
+    "aliases": ["aspirin"],
+    "catalogId": "drug.aspirin",
+    "chipLabel": "Aspirin",
+    "promptStem": "aspirin",
+    "prompt": ["dose", "route", "frequency"],
+    "params": { "drugFormularyId": "aspirin" },
+    "chipGroup": "resus"
+  },
+  {
+    "id": "qw.resus.nitroglycerin",
+    "aliases": ["nitroglycerin"],
+    "catalogId": "drug.nitroglycerin",
+    "chipLabel": "Nitroglycerin",
+    "promptStem": "nitroglycerin",
+    "prompt": ["dose", "route", "frequency"],
+    "params": { "drugFormularyId": "nitroglycerin" },
+    "chipGroup": "resus"
+  },
+  {
+    "id": "qw.resus.morphine",
+    "aliases": ["morphine"],
+    "catalogId": "drug.morphine",
+    "chipLabel": "Morphine",
+    "promptStem": "morphine",
+    "prompt": ["dose", "route", "frequency"],
+    "params": { "drugFormularyId": "morphine" },
+    "chipGroup": "resus"
+  },
+  {
+    "id": "qw.resus.alteplase",
+    "aliases": ["alteplase (tpa)"],
+    "catalogId": "drug.alteplase",
+    "chipLabel": "Alteplase (tPA)",
+    "promptStem": "alteplase",
+    "prompt": ["dose", "route", "frequency"],
+    "params": { "drugFormularyId": "alteplase" },
+    "chipGroup": "resus"
+  },
+  {
+    "id": "qw.resus.fluid",
+    "aliases": ["iv fluid bolus"],
+    "catalogId": "fluid.ns500",
+    "chipLabel": "IV Fluid Bolus",
+    "promptStem": "iv fluid bolus",
+    "prompt": ["volume", "rate"],
+    "chipGroup": "resus"
+  },
+  {
+    "id": "qw.resus.bicarbonate",
+    "aliases": ["sodium bicarbonate"],
+    "catalogId": "drug.bicarbonate",
+    "chipLabel": "Sodium Bicarbonate",
+    "promptStem": "sodium bicarbonate",
+    "prompt": ["dose", "route", "frequency"],
+    "params": { "drugFormularyId": "bicarbonate" },
+    "chipGroup": "resus"
+  },
+  {
+    "id": "qw.resus.calciumchloride",
+    "aliases": ["calcium chloride"],
+    "catalogId": "drug.calciumchloride",
+    "chipLabel": "Calcium Chloride",
+    "promptStem": "calcium chloride",
+    "prompt": ["dose", "route", "frequency"],
+    "params": { "drugFormularyId": "calcium-chloride" },
+    "chipGroup": "resus"
+  },
+  {
+    "id": "qw.resus.naloxone",
+    "aliases": ["naloxone"],
+    "catalogId": "drug.naloxone",
+    "chipLabel": "Naloxone",
+    "promptStem": "naloxone",
+    "prompt": ["dose", "route", "frequency"],
+    "params": { "drugFormularyId": "naloxone" },
+    "chipGroup": "resus"
+  },
+  {
+    "id": "qw.resus.cardioversion",
+    "aliases": ["synchronized cardioversion"],
+    "catalogId": "proc.cardioversion",
+    "chipLabel": "Synchronized Cardioversion",
+    "promptStem": "synchronized cardioversion",
+    "prompt": ["energy"],
+    "chipGroup": "resus"
+  },
+  {
+    "id": "qw.resus.pacing",
+    "aliases": ["Transcutaneous Pacing"],
+    "catalogId": "proc.pacing",
+    "chipLabel": "Transcutaneous Pacing",
+    "chipGroup": "resus"
   },
   {
     "id": "qw.mri",

@@ -2,6 +2,7 @@ export * from './startGate';
 export * from './clock';
 export * from './gameView';
 export { composePromptPhrase } from './quickPrompt';
+export { RESUS_MENU, type ResusColumnId } from './resusMenu';
 export {
   knownReportCategory,
   reportCategory,

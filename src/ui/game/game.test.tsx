@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
-import type { GameActions } from '@/view';
+import { RESUS_MENU, type GameActions, type QuickChipView } from '@/view';
 import { ui } from '@/i18n';
 import { AiFailureBanner } from './AiFailureBanner';
 import { ChatPanel } from './ChatPanel';
@@ -334,6 +334,76 @@ describe('ChatPanel', () => {
     await user.click(screen.getByRole('button', { name: ui.game.chat.chipGroup.observe ?? '' }));
     expect(screen.getByRole('menuitem', { name: 'Check vitals' })).toBeInTheDocument();
     expect(screen.queryByTestId('test-col-bucket')).not.toBeInTheDocument();
+  });
+
+  it('搶救選單由左至右只出指定分類同按鈕', async () => {
+    const user = userEvent.setup();
+    const actions = makeActions();
+    const chips: QuickChipView[] = [
+      ...RESUS_MENU.flatMap((column) =>
+        column.items.map((item) => ({
+          id: item.id,
+          label: item.label,
+          text: item.label,
+          category: 'resus' as const,
+          ...(item.id === 'qw.adrenaline'
+            ? {
+                prompt: {
+                  stem: 'adrenaline',
+                  fields: [
+                    {
+                      id: 'dose' as const,
+                      kind: 'amount' as const,
+                      units: ['mg'],
+                      value: null,
+                      unit: 'mg',
+                      required: true,
+                    },
+                    {
+                      id: 'route' as const,
+                      kind: 'select' as const,
+                      options: ['IV', 'IO'],
+                      value: null,
+                      required: true,
+                    },
+                  ],
+                },
+              }
+            : {}),
+        })),
+      ),
+      { id: 'qw.stopcpr', label: 'Stop CPR', text: 'stop cpr', category: 'resus' },
+      { id: 'qw.chesttube', label: 'Chest tube', text: 'chest tube', category: 'resus' },
+      { id: 'qw.ecg', label: 'ECG', text: 'ecg', category: 'tests' },
+      { id: 'vitals', label: 'Check vitals', text: 'check vitals', category: 'observe' },
+    ];
+    render(<ChatPanel chat={chat()} chips={chips} notice={null} actions={actions} />);
+    await user.click(screen.getByRole('button', { name: ui.game.chat.chipGroup.resus ?? '' }));
+    const groups = screen.getByTestId('resus-col-group');
+    expect(
+      within(groups)
+        .getAllByRole('menuitemradio')
+        .map((button) => button.textContent),
+    ).toEqual(RESUS_MENU.map((column) => column.label));
+    expect(screen.queryByTestId('resus-col-action')).not.toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: 'Stop CPR' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: 'Chest tube' })).not.toBeInTheDocument();
+    await user.click(screen.getByTestId('resus-group-drugs'));
+    const drugs = screen.getByTestId('resus-col-action');
+    expect(
+      within(drugs)
+        .getAllByRole('menuitem')
+        .map((button) => button.textContent),
+    ).toEqual(RESUS_MENU.find((column) => column.id === 'drugs')?.items.map((item) => item.label));
+    await user.click(screen.getByTestId('resus-action-qw.adrenaline'));
+    expect(actions.submitChat).not.toHaveBeenCalled();
+    const dose = screen.getByRole('spinbutton', { name: ui.game.chat.prompt.dose });
+    expect(dose).toHaveValue(null);
+    await user.click(screen.getByRole('button', { name: ui.game.chat.chipGroup.observe ?? '' }));
+    expect(screen.getByRole('menuitem', { name: 'Check vitals' })).toBeInTheDocument();
+    expect(screen.queryByTestId('resus-menu')).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: ui.game.chat.chipGroup.tests ?? '' }));
+    expect(screen.getByTestId('test-col-bucket')).toBeInTheDocument();
   });
 
   it('快捷 chips 直接提交其文字', async () => {

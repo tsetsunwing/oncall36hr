@@ -113,7 +113,9 @@ export function selectMonitor(
     lines: {
       abp: patient.hidden.fsm.flags.includes('aline.in'),
       cvp: patient.hidden.fsm.flags.includes('cvc.in'),
-      etco2: patient.hidden.fsm.flags.includes('airway.secured'),
+      etco2:
+        patient.hidden.fsm.flags.includes('airway.secured') ||
+        patient.hidden.fsm.flags.includes('etco2.on'),
     },
     spo2: {
       ...spo2,

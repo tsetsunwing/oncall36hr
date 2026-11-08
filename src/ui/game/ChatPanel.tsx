@@ -10,6 +10,7 @@ import {
 import { Send } from 'lucide-react';
 import { ui } from '@/i18n';
 import {
+  RESUS_MENU,
   TEST_ACTION_ORDER,
   TEST_MENU_BUCKETS,
   TEST_MENU_SECTIONS,
@@ -94,12 +95,14 @@ function ChipMenus({
   const [open, setOpen] = useState<QuickChipCategory | null>(null);
   const [bucket, setBucket] = useState<ReportBucket | null>(null);
   const [section, setSection] = useState<string | null>(null);
+  const [resusColumn, setResusColumn] = useState<string | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
 
   function close() {
     setOpen(null);
     setBucket(null);
     setSection(null);
+    setResusColumn(null);
   }
 
   useEffect(() => {
@@ -141,12 +144,13 @@ function ChipMenus({
                   setOpen(category);
                   setBucket(null);
                   setSection(null);
+                  setResusColumn(null);
                 }
               }}
             >
               {label}
             </button>
-            {shown && category !== 'tests' ? (
+            {shown && category !== 'tests' && category !== 'resus' ? (
               <div
                 id={`chip-menu-${category}`}
                 className="chip-menu"
@@ -250,6 +254,67 @@ function ChipMenus({
                 <p className="chip-empty" data-testid="test-empty">
                   {c.testsEmpty}
                 </p>
+              )}
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+      {open === 'resus' ? (
+        <div
+          id="chip-menu-resus"
+          className="chip-menu chip-menu--tests chip-menu--resus"
+          data-testid="resus-menu"
+        >
+          <div
+            className="chip-col"
+            role="menu"
+            aria-label={c.chipGroup.resus}
+            data-testid="resus-col-group"
+          >
+            {RESUS_MENU.map((column) => (
+              <button
+                key={column.id}
+                type="button"
+                role="menuitemradio"
+                className="chip"
+                aria-checked={resusColumn === column.id}
+                data-testid={`resus-group-${column.id}`}
+                onClick={() => {
+                  setResusColumn(column.id);
+                }}
+              >
+                {column.label}
+              </button>
+            ))}
+          </div>
+          {resusColumn ? (
+            <div
+              className="chip-col"
+              role="menu"
+              aria-label={RESUS_MENU.find((column) => column.id === resusColumn)?.label}
+              data-testid="resus-col-action"
+            >
+              {(RESUS_MENU.find((column) => column.id === resusColumn)?.items ?? []).flatMap(
+                (item) => {
+                  const chip = chips.find((candidate) => candidate.id === item.id);
+                  if (!chip) return [];
+                  return [
+                    <button
+                      key={item.id}
+                      type="button"
+                      role="menuitem"
+                      className="chip"
+                      data-testid={`resus-action-${item.id}`}
+                      onClick={() => {
+                        if (chip.prompt) onPrompt(chip);
+                        else onPick(chip.text);
+                        close();
+                      }}
+                    >
+                      {item.label}
+                    </button>,
+                  ];
+                },
               )}
             </div>
           ) : null}

@@ -1565,7 +1565,8 @@ tr[data-flag='H'] .value-flagged {
   position: relative;
 }
 
-.chip-menu--tests {
+.chip-menu--tests,
+.chip-menu--resus {
   right: auto;
   flex-direction: row;
   align-items: stretch;
@@ -1619,6 +1620,11 @@ tr[data-flag='H'] .value-flagged {
   font-size: 12px;
   line-height: 1.3;
   color: var(--muted);
+}
+
+.frame-desktop .chip-menu--resus,
+.frame-desktop .chip-menu--resus .chip-col {
+  max-height: 520px;
 }
 
 .frame-mobile .chip-col {
