@@ -90,9 +90,15 @@ describe('engine 發出嘅每個 AI context 都符合 ai 契約', () => {
       expect(prompt?.success, JSON.stringify(prompt?.error?.issues)).toBe(true);
       expect(local?.success, JSON.stringify(local?.error?.issues)).toBe(true);
       if (request.kind === DIALOGUE_KIND) {
-        for (const beat of (context.prompt as { beats: { type: string }[] }).beats) {
-          beats.add(beat.type);
-        }
+        const dialogue = context.prompt as {
+          beats: { type: string }[];
+          recent: unknown[];
+          card: { openOrders: unknown[]; active: unknown[] };
+        };
+        expect(dialogue.recent.length).toBeLessThanOrEqual(baseConfig.chat.recentLinesForContext);
+        expect(dialogue.card.openOrders.length).toBeLessThanOrEqual(6);
+        expect(dialogue.card.active.length).toBeLessThanOrEqual(8);
+        for (const beat of dialogue.beats) beats.add(beat.type);
       }
     }
     expect([...beats].sort()).toEqual(

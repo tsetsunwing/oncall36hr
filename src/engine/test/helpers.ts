@@ -32,7 +32,7 @@ export const testConfig: EngineConfig = {
   chat: {
     maxLinesPerTurn: 4,
     maxLineChars: 140,
-    recentLinesForContext: 8,
+    recentLinesForContext: 2,
     playerTextMaxChars: 200,
     alertCooldownSeconds: 600,
   },

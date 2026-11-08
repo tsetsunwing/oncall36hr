@@ -131,6 +131,12 @@ export const dialoguePromptSchema = z.object({
   addressed: z.array(z.string()),
   beats: z.array(beatSchema),
   allowedTokens: z.array(z.string()),
+  card: z
+    .object({
+      openOrders: z.array(z.object({ id: z.string(), catalogId: z.string() })).max(6),
+      active: z.array(z.string()).max(8),
+    })
+    .default({ openOrders: [], active: [] }),
   recent: z.array(z.object({ speaker: z.string(), kind: z.string(), template: z.string() })),
   maxLines: z.number().int().positive(),
   maxLineChars: z.number().int().positive(),

@@ -221,12 +221,58 @@ function scriptedNurseTurn(
   return { state: next, rest };
 }
 
+const CARD_ORDERS = 6;
+const CARD_FLAGS = 8;
+/** 床邊而家進行緊嘅治療。唔包括隱藏狀態（未接來電、巡房、FSM）。 */
+const VISIBLE_FLAGS = new Set([
+  'monitoring.vitals',
+  'monitoring.spo2',
+  'monitoring.io',
+  'oxygen.on',
+  'fluid.bolus',
+  'abx.iv',
+  'ngt.in',
+  'foley.in',
+  'chesttube.in',
+  'cvc.in',
+  'aline.in',
+  'airway.secured',
+  'decompression.done',
+  'pericardiocentesis.done',
+  'rewarm.on',
+]);
+
+/**
+ * 每次對白呼叫只帶固定大小嘅病人卡，加最近幾句。
+ * 完整對話留喺病人紀錄，唔會隨更次變長而再送去模型。
+ */
+function patientCard(state: GameState, patientId: string) {
+  const openOrders = Object.values(state.orders)
+    .filter(
+      (order) =>
+        order.patientId === patientId &&
+        (order.status === 'QUEUED' || order.status === 'GATED' || order.status === 'RUNNING'),
+    )
+    .sort((a, b) => a.createdAt - b.createdAt)
+    .slice(-CARD_ORDERS)
+    .map((order) => ({ id: order.id, catalogId: order.catalogId }));
+  const flags = state.patients[patientId]?.hidden.fsm.flags ?? [];
+  const active = flags
+    .filter((flag) => VISIBLE_FLAGS.has(flag))
+    .sort()
+    .slice(0, CARD_FLAGS);
+  return { openOrders, active };
+}
+
 function recentLines(thread: ChatThread, limit: number) {
-  return thread.lines.slice(-limit).map((line) => ({
-    speaker: line.speaker.id,
-    kind: line.speaker.kind,
-    template: line.template,
-  }));
+  return thread.lines
+    .filter((line) => line.speaker.kind !== 'SYSTEM')
+    .slice(-limit)
+    .map((line) => ({
+      speaker: line.speaker.id,
+      kind: line.speaker.kind,
+      template: line.template,
+    }));
 }
 
 /**
@@ -264,7 +310,11 @@ export function queueDialogue(
       addressed: input.addressed,
       beats,
       allowedTokens,
-      recent: recentLines(thread, ctx.config.chat.recentLinesForContext),
+      card: patientCard(scripted.state, patient.id),
+      recent: recentLines(
+        scripted.state.chats[patient.id] ?? thread,
+        ctx.config.chat.recentLinesForContext,
+      ),
       maxLines: ctx.config.chat.maxLinesPerTurn,
       maxLineChars: ctx.config.chat.maxLineChars,
     },
