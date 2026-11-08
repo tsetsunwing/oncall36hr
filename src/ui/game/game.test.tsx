@@ -50,7 +50,9 @@ describe('MonitorPanel：靜態顏色＋文字警報', () => {
     expect(screen.getByTestId('vital-hr')).toHaveAttribute('data-level', 'ALARM');
     expect(screen.getByTestId('vital-hr')).toHaveTextContent(ui.game.monitor.direction.HIGH);
     expect(screen.getByTestId('vital-spo2')).toHaveTextContent(ui.game.monitor.direction.LOW);
-    expect(screen.getByTestId('vital-map')).toHaveTextContent('71');
+    expect(screen.getByTestId('vital-bp')).toHaveTextContent('96/58 (71)');
+    expect(screen.getByTestId('vital-line')).toBeEmptyDOMElement();
+    expect(screen.queryByTestId('vital-map')).not.toBeInTheDocument();
     const tags = within(screen.getByTestId('alarm-tags')).getAllByRole('listitem');
     expect(tags.length).toBe(5);
     expect(tags[0]).toHaveTextContent(ui.game.monitor.level.ALARM);
@@ -71,6 +73,20 @@ describe('MonitorPanel：靜態顏色＋文字警報', () => {
     expect(screen.getByText(ui.game.monitor.noAlarm)).toBeInTheDocument();
     expect(screen.getByTestId('monitor')).toHaveAttribute('data-level', 'NORMAL');
     expect(screen.queryByText(ui.game.monitor.mewsPending)).not.toBeInTheDocument();
+  });
+
+  it('已插 CVC 先顯示 CVP，冇數字，並標 PENDING_CLINICAL_REVIEW', () => {
+    render(
+      <MonitorPanel
+        patient={patient}
+        monitor={monitor({ lineSlot: { kind: 'CVP', reviewPending: true } })}
+      />,
+    );
+    const cell = screen.getByTestId('vital-line');
+    expect(cell).toHaveAttribute('data-review', 'PENDING_CLINICAL_REVIEW');
+    expect(cell).toHaveTextContent('CVP');
+    expect(cell).toHaveTextContent('PENDING_CLINICAL_REVIEW');
+    expect(cell.textContent).not.toMatch(/\d/);
   });
 
   it('有 Lead II 同 Pleth 兩條波形（canvas）', () => {

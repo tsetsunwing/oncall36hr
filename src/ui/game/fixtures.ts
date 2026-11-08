@@ -35,8 +35,8 @@ export const patient: PatientView = {
 export function monitor(over: Partial<MonitorView> = {}): MonitorView {
   return {
     hr: readout('118', 'ALARM', 'HIGH'),
-    bp: { ...readout('96/58', 'CAUTION', 'LOW'), sbp: 96, dbp: 58 },
-    map: readout('71'),
+    bp: { ...readout('96/58 (71)', 'CAUTION', 'LOW'), sbp: 96, dbp: 58 },
+    lineSlot: { kind: null, reviewPending: false },
     spo2: readout('89', 'ALARM', 'LOW'),
     rr: readout('26', 'CAUTION', 'HIGH'),
     temp: readout('38.4', 'CAUTION', 'HIGH'),

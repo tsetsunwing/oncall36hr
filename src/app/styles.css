@@ -1,19 +1,21 @@
 :root {
-  --bg: #f4f6f8;
+  --bg: #ecf1f2;
   --surface: #ffffff;
-  --text: #1b2733;
-  --muted: #4a5a69;
-  --border: #b8c4cf;
-  --accent: #0b5cad;
+  --text: #1c2933;
+  --muted: #5c6d78;
+  --border: #d5e0e2;
+  --accent: #128d75;
   --accent-text: #ffffff;
-  --ok-bg: #e3f4e8;
-  --ok-text: #14532d;
-  --error-bg: #fde8e8;
-  --error-text: #7f1d1d;
-  --info-bg: #e6eefa;
-  --info-text: #0c3a6b;
-  --blocked-bg: #fff4d6;
-  --blocked-text: #5c3d00;
+  --accent-soft: #e5f5f1;
+  --ok-bg: #e5f5f1;
+  --ok-text: #0f6e5c;
+  --error-bg: #fdecec;
+  --error-text: #9b2c2c;
+  --info-bg: #e8f4f2;
+  --info-text: #0f6e5c;
+  --blocked-bg: #fff6e0;
+  --blocked-text: #7a4e00;
+  --card-shadow: 0 1px 2px rgb(28 41 51 / 4%), 0 8px 20px rgb(28 41 51 / 4%);
   font-family:
     system-ui,
     -apple-system,
@@ -267,7 +269,7 @@ main.wide {
 .btn:disabled {
   color: var(--muted);
   cursor: not-allowed;
-  background: #e8edf1;
+  background: #e6eeef;
 }
 
 .btn[aria-pressed='true'] {
@@ -284,8 +286,8 @@ main.wide {
 
 .btn-primary:disabled {
   color: #ffffff;
-  background: #5b7390;
-  border-color: #5b7390;
+  background: #7aa89e;
+  border-color: #7aa89e;
 }
 
 .btn-small {
@@ -295,7 +297,7 @@ main.wide {
 }
 
 :focus-visible {
-  outline: 3px solid #1a73e8;
+  outline: 3px solid var(--accent);
   outline-offset: 2px;
 }
 
@@ -626,8 +628,8 @@ main.wide {
   padding: 0.25rem;
   overflow-y: auto;
   border: 1px solid var(--border);
-  border-radius: 6px;
-  background: #fafcfd;
+  border-radius: 12px;
+  background: #f7fbfb;
 }
 
 .chat-list {
@@ -642,14 +644,14 @@ main.wide {
 .chat-line {
   max-width: 85%;
   padding: 0.3rem 0.6rem;
-  border-radius: 8px;
-  background: #eef3f7;
+  border-radius: 12px;
+  background: #f4f7f8;
 }
 
 .chat-line--player {
   margin-left: auto;
-  background: var(--info-bg);
-  color: var(--info-text);
+  background: var(--accent-soft);
+  color: var(--text);
 }
 
 .chat-line--nurse {
@@ -789,8 +791,8 @@ main.wide {
 .log-row {
   padding: 0.4rem 0.5rem;
   border: 1px solid var(--border);
-  border-radius: 6px;
-  background: #fafcfd;
+  border-radius: 12px;
+  background: #ffffff;
 }
 
 .order-main,
@@ -1010,8 +1012,8 @@ main.wide {
 .report-row {
   padding: 0.4rem 0.5rem;
   border: 1px solid var(--border);
-  border-radius: 6px;
-  background: #fafcfd;
+  border-radius: 12px;
+  background: #ffffff;
 }
 
 .report-table {

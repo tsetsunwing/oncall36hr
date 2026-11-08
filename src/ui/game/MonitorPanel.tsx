@@ -18,6 +18,30 @@ interface TileProps {
   readout: VitalReadout;
 }
 
+function LineTile({ slot }: { slot: MonitorView['lineSlot'] }) {
+  const m = ui.game.monitor;
+  if (!slot.kind) {
+    return <div className="tile tile-empty" data-testid="vital-line" data-line="none" />;
+  }
+  const label = slot.kind === 'ALINE' ? m.aline : m.cvp;
+  return (
+    <div
+      className="tile"
+      data-level="NORMAL"
+      data-testid="vital-line"
+      data-line={slot.kind}
+      data-review="PENDING_CLINICAL_REVIEW"
+    >
+      <div className="tile-label">{label}</div>
+      <div className="tile-value" />
+      <div className="tile-flag">
+        {m.linePending}
+        <span className="visually-hidden"> PENDING_CLINICAL_REVIEW</span>
+      </div>
+    </div>
+  );
+}
+
 function Tile({ testId, label, unit, readout }: TileProps) {
   const m = ui.game.monitor;
   return (
@@ -138,7 +162,7 @@ export function MonitorPanel({ patient, monitor }: MonitorPanelProps) {
           <Tile testId="vital-hr" label={m.hr} unit={m.hrUnit} readout={monitor.hr} />
           <Tile testId="vital-spo2" label={m.spo2} unit={m.spo2Unit} readout={monitor.spo2} />
           <Tile testId="vital-bp" label={m.bp} unit={m.bpUnit} readout={monitor.bp} />
-          <Tile testId="vital-map" label={m.map} unit={m.bpUnit} readout={monitor.map} />
+          <LineTile slot={monitor.lineSlot} />
           <Tile testId="vital-rr" label={m.rr} unit={m.rrUnit} readout={monitor.rr} />
           <Tile testId="vital-temp" label={m.temp} unit={m.tempUnit} readout={monitor.temp} />
         </div>

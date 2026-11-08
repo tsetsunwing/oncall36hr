@@ -1,6 +1,13 @@
 import type { WaveSpec } from './waveform';
 
-export type VitalName = 'hr' | 'bp' | 'spo2' | 'rr' | 'temp' | 'map';
+export type VitalName = 'hr' | 'bp' | 'spo2' | 'rr' | 'temp';
+
+/** 監察儀騰出嘅一格：只有指定導管在位才顯示。規格冇 A-line／CVP 數值，所以唔帶數字。 */
+export interface LineSlotView {
+  kind: 'ALINE' | 'CVP' | null;
+  /** 有導管但冇經審核嘅讀數時為 true（PENDING_CLINICAL_REVIEW） */
+  reviewPending: boolean;
+}
 export type AlarmLevel = 'NORMAL' | 'CAUTION' | 'ALARM';
 export type Direction = 'LOW' | 'HIGH' | null;
 
@@ -13,8 +20,10 @@ export interface VitalReadout {
 
 export interface MonitorView {
   hr: VitalReadout;
+  /** 一格：SBP/DBP (MAP)。MAP 由狀態機嘅 SBP、DBP 計算。 */
   bp: VitalReadout & { sbp: number; dbp: number };
-  map: VitalReadout;
+  /** A-line 或 CVP。冇對應導管時 kind 為 null，畫面留空。 */
+  lineSlot: LineSlotView;
   spo2: VitalReadout;
   rr: VitalReadout;
   temp: VitalReadout;

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { getConfig, getContent } from '@/content';
 import { createEngine, type EngineEvent, type GameState } from '@/engine';
 import { formatClock } from './clock';
-import { selectGameView, type ViewEnv } from './gameView';
+import { selectGameView, selectMonitor, type ViewEnv } from './gameView';
 
 const baseConfig = getConfig();
 const config = { ...baseConfig, clock: { ...baseConfig.clock, pauseWhileAiPending: false } };
@@ -46,23 +46,39 @@ describe('ViewModel：只映射可見資料', () => {
     }
   });
 
-  it('監察儀數字 ＝ visible vitals（包括 MAP、MEWS）', () => {
+  it('監察儀數字 ＝ visible vitals（血壓一格含 MAP、MEWS）', () => {
     const state = play([tick(1800)]);
     const patient = state.patients.p1;
     const view = selectGameView(state, env).monitor;
+    const sbp = patient?.visible.vitals.sbp ?? 0;
+    const dbp = patient?.visible.vitals.dbp ?? 0;
+    const map = Math.round((sbp + 2 * dbp) / 3);
     expect(view?.hr.text).toBe(String(patient?.visible.vitals.hr));
-    expect(view?.bp.text).toBe(
-      `${String(patient?.visible.vitals.sbp)}/${String(patient?.visible.vitals.dbp)}`,
-    );
+    expect(view?.bp.text).toBe(`${String(sbp)}/${String(dbp)} (${String(map)})`);
     expect(view?.temp.text).toBe(patient?.visible.vitals.temp.toFixed(1));
     expect(view?.mews.score).toBe(patient?.visible.mews.score);
-    expect(view?.map.text).toBe(
-      String(
-        Math.round(
-          ((patient?.visible.vitals.sbp ?? 0) + 2 * (patient?.visible.vitals.dbp ?? 0)) / 3,
-        ),
-      ),
-    );
+    expect(view?.lineSlot).toEqual({ kind: null, reviewPending: false });
+  });
+
+  it('A-line 或 CVP 只跟現有導管 flag；冇讀數，並標待核對', () => {
+    const state = play([]);
+    const patient = state.patients.p1;
+    if (!patient) throw new Error('缺病人');
+    const withFlags = (flags: string[]) =>
+      selectMonitor(
+        {
+          ...patient,
+          hidden: { ...patient.hidden, fsm: { ...patient.hidden.fsm, flags } },
+        },
+        env,
+        () => '21:00',
+      );
+    const cvp = withFlags(['cvc.in']);
+    expect(cvp.lineSlot).toEqual({ kind: 'CVP', reviewPending: true });
+    expect(cvp.lineSlot).not.toHaveProperty('text');
+    expect(withFlags(['aline.in']).lineSlot.kind).toBe('ALINE');
+    expect(withFlags(['aline.in', 'cvc.in']).lineSlot.kind).toBe('ALINE');
+    expect(withFlags([]).lineSlot).toEqual({ kind: null, reviewPending: false });
   });
 
   it('警報級別來自 MEWS 表嘅 componentAlert，方向來自表（唔係 view 估）', () => {

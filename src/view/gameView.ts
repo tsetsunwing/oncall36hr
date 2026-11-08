@@ -22,7 +22,6 @@ import type {
   ChatLineView,
   ChatView,
   GateCardView,
-  Direction,
   GameView,
   MonitorView,
   OrderRowView,
@@ -57,8 +56,13 @@ function rhythmAlarmLevel(alarm: 'NONE' | 'CAUTION' | 'ALARM'): AlarmLevel {
   return alarm === 'NONE' ? 'NORMAL' : alarm;
 }
 
-function readout(text: string, level: AlarmLevel, direction: Direction): VitalReadout {
-  return { text, level, direction };
+/** 綁現有導管狀態。規格冇 A-line／CVP 讀數，呢度只講邊條喉在位，唔發明數字。 */
+const LINE_FLAG = { ALINE: 'aline.in', CVP: 'cvc.in' } as const;
+
+function selectLineSlot(lineFlags: readonly string[]): MonitorView['lineSlot'] {
+  if (lineFlags.includes(LINE_FLAG.ALINE)) return { kind: 'ALINE', reviewPending: true };
+  if (lineFlags.includes(LINE_FLAG.CVP)) return { kind: 'CVP', reviewPending: true };
+  return { kind: null, reviewPending: false };
 }
 
 export function selectMonitor(
@@ -82,15 +86,16 @@ export function selectMonitor(
   const spo2 = component('spo2');
   const rr = component('rr');
   const temp = component('temp');
+  const map = meanArterialPressure(v.sbp, v.dbp);
   return {
     hr: { ...hr, text: pulseless ? dash : String(v.hr) },
     bp: {
       ...sbp,
-      text: pulseless ? dash : `${String(v.sbp)}/${String(v.dbp)}`,
+      text: pulseless ? dash : `${String(v.sbp)}/${String(v.dbp)} (${String(map)})`,
       sbp: v.sbp,
       dbp: v.dbp,
     },
-    map: readout(pulseless ? dash : String(meanArterialPressure(v.sbp, v.dbp)), 'NORMAL', null),
+    lineSlot: selectLineSlot(patient.hidden.fsm.flags),
     spo2: { ...spo2, text: pulseless ? dash : String(v.spo2) },
     rr: { ...rr, text: pulseless ? dash : String(v.rr) },
     temp: { ...temp, text: v.temp.toFixed(1) },
