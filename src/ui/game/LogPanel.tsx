@@ -1,7 +1,15 @@
 import { useState } from 'react';
 import { FlaskConical, ScrollText, X } from 'lucide-react';
 import { ui } from '@/i18n';
-import type { ActionRowView, GameActions, GameView, OrderRowView, ReportView } from '@/view';
+import {
+  sectionsFor,
+  type ActionRowView,
+  type GameActions,
+  type GameView,
+  type OrderRowView,
+  type ReportBucket,
+  type ReportView,
+} from '@/view';
 
 export interface LogPanelProps {
   orders: OrderRowView[];
@@ -168,6 +176,70 @@ function LogItem({ row }: { row: ActionRowView }) {
   );
 }
 
+function ReportFilters({
+  bucket,
+  section,
+  onBucket,
+  onSection,
+}: {
+  bucket: 'all' | ReportBucket;
+  section: string;
+  onBucket: (next: 'all' | ReportBucket) => void;
+  onSection: (next: string) => void;
+}) {
+  const r = ui.game.reports;
+  const buckets = ['all', 'laboratory', 'radiology', 'poct'] as const;
+  return (
+    <>
+      <div className="report-filters" role="group" aria-label={r.filtersLabel}>
+        {buckets.map((id) => (
+          <button
+            key={id}
+            type="button"
+            className="btn btn-small"
+            data-testid={`report-bucket-${id}`}
+            aria-pressed={bucket === id}
+            onClick={() => {
+              onBucket(id);
+            }}
+          >
+            {r.bucket[id]}
+          </button>
+        ))}
+      </div>
+      {bucket === 'all' ? null : (
+        <div className="report-filters" role="group" aria-label={r.sectionsLabel}>
+          <button
+            type="button"
+            className="btn btn-small"
+            data-testid="report-section-all"
+            aria-pressed={section === 'all'}
+            onClick={() => {
+              onSection('all');
+            }}
+          >
+            {r.section.all}
+          </button>
+          {sectionsFor(bucket).map((id) => (
+            <button
+              key={id}
+              type="button"
+              className="btn btn-small"
+              data-testid={`report-section-${id}`}
+              aria-pressed={section === id}
+              onClick={() => {
+                onSection(id);
+              }}
+            >
+              {r.section[id] ?? id}
+            </button>
+          ))}
+        </div>
+      )}
+    </>
+  );
+}
+
 export function LogPanel({
   orders,
   reports = [],
@@ -179,7 +251,14 @@ export function LogPanel({
 }: LogPanelProps) {
   const l = ui.game.log;
   const [scope, setScope] = useState<'all' | 'patient'>('patient');
+  const [bucket, setBucket] = useState<'all' | ReportBucket>('all');
+  const [section, setSection] = useState('all');
   const rows = scope === 'all' ? log.all : log.patient;
+  const shown = reports.filter(
+    (report) =>
+      bucket === 'all' ||
+      (report.bucket === bucket && (section === 'all' || report.section === section)),
+  );
   return (
     <aside
       className="side-panel"
@@ -219,11 +298,22 @@ export function LogPanel({
           <FlaskConical className="heading-icon" size={16} strokeWidth={2} aria-hidden="true" />
           {ui.game.reports.heading}
         </h2>
+        <ReportFilters
+          bucket={bucket}
+          section={section}
+          onBucket={(next) => {
+            setBucket(next);
+            setSection('all');
+          }}
+          onSection={setSection}
+        />
         {reports.length === 0 ? (
           <p className="hint">{ui.game.reports.empty}</p>
+        ) : shown.length === 0 ? (
+          <p className="hint">{ui.game.reports.emptyFiltered}</p>
         ) : (
           <ul className="report-list">
-            {reports.map((report) => (
+            {shown.map((report) => (
               <ReportItem key={report.id} report={report} />
             ))}
           </ul>

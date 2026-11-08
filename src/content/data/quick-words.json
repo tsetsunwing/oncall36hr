@@ -341,5 +341,96 @@
     "catalogId": "proc.rewarm",
     "chipLabel": "Rewarming",
     "chipGroup": "resus"
+  },
+  {
+    "id": "qw.hstix",
+    "aliases": ["hstix"],
+    "catalogId": "poct.glucose",
+    "chipLabel": "H'stix",
+    "chipGroup": "tests"
+  },
+  {
+    "id": "qw.rat",
+    "aliases": ["rapid antigen"],
+    "catalogId": "poct.rat",
+    "chipLabel": "Rapid antigen",
+    "chipGroup": "tests"
+  },
+  {
+    "id": "qw.inr",
+    "aliases": ["poct inr"],
+    "catalogId": "poct.inr",
+    "chipLabel": "INR",
+    "chipGroup": "tests"
+  },
+  {
+    "id": "qw.tropt",
+    "aliases": ["troponin t"],
+    "catalogId": "poct.troponinT",
+    "chipLabel": "Troponin-T",
+    "chipGroup": "tests"
+  },
+  {
+    "id": "qw.urine",
+    "aliases": ["urine dipstick"],
+    "catalogId": "poct.urine",
+    "chipLabel": "Urine dipstick",
+    "chipGroup": "tests"
+  },
+  {
+    "id": "qw.hb",
+    "aliases": ["bedside hb"],
+    "catalogId": "poct.hb",
+    "chipLabel": "Hb",
+    "chipGroup": "tests"
+  },
+  {
+    "id": "qw.hba1c",
+    "aliases": ["hba1c"],
+    "catalogId": "poct.hba1c",
+    "chipLabel": "HbA1c",
+    "chipGroup": "tests"
+  },
+  {
+    "id": "qw.cytology",
+    "aliases": ["cytology"],
+    "catalogId": "lab.cytology",
+    "chipLabel": "Cytology",
+    "chipGroup": "tests"
+  },
+  {
+    "id": "qw.histology",
+    "aliases": ["histology"],
+    "catalogId": "lab.histology",
+    "chipLabel": "Histology",
+    "chipGroup": "tests"
+  },
+  {
+    "id": "qw.serology",
+    "aliases": ["serology"],
+    "catalogId": "lab.serology",
+    "chipLabel": "Serology",
+    "chipGroup": "tests"
+  },
+  {
+    "id": "qw.genetics",
+    "aliases": ["molecular pathology"],
+    "catalogId": "lab.genetics",
+    "chipLabel": "Molecular pathology",
+    "chipGroup": "tests"
+  },
+  {
+    "id": "qw.tox",
+    "aliases": ["toxicology screen"],
+    "catalogId": "lab.toxicology",
+    "chipLabel": "Toxicology",
+    "chipGroup": "tests"
+  },
+  {
+    "id": "qw.mri",
+    "aliases": ["mri brain"],
+    "catalogId": "img.mri",
+    "chipLabel": "MRI",
+    "chipGroup": "tests"
   }
 ]

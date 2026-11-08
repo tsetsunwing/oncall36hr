@@ -1485,6 +1485,7 @@ textarea {
 }
 
 .ladder-step {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -1497,6 +1498,41 @@ textarea {
 
 .ladder-skip {
   flex-basis: 100%;
+}
+
+.ladder-bang {
+  width: 22px;
+  height: 22px;
+  min-height: 22px;
+  padding: 0;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1;
+  color: #ffffff;
+  background: #b91c1c;
+  border: 0;
+  border-radius: 50%;
+}
+
+.ladder-bang:hover::after,
+.ladder-bang:focus-visible::after {
+  content: attr(data-tip);
+  position: absolute;
+  z-index: 5;
+  top: calc(100% + 4px);
+  right: 0;
+  width: max-content;
+  max-width: 200px;
+  padding: 6px 8px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #7f1d1d;
+  text-align: left;
+  white-space: normal;
+  background: #fde8e8;
+  border: 1px solid #b91c1c;
+  border-radius: 8px;
 }
 
 .ladder-step--you {
@@ -1969,6 +2005,26 @@ main:has(.page.setup) {
   width: 100%;
   justify-content: flex-start;
   text-align: left;
+}
+
+.round-hint[aria-pressed='true'] {
+  color: #0f3d36;
+  background: #e5f6f1;
+  border-color: var(--accent);
+}
+
+.report-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0 0 8px;
+}
+
+.report-filters button {
+  height: 28px;
+  min-height: 28px;
+  padding: 0 8px;
+  font-size: 12px;
 }
 
 .round-facts li {

@@ -640,7 +640,6 @@ function bigrams(text: string): Set<string> {
 }
 
 function roundsQuestion(prompt: Record<string, unknown>, mode: ContractMode): string {
-  const facts = (prompt.keyFacts ?? []) as RoundFact[];
   const hintCount = typeof prompt.hintCount === 'number' ? prompt.hintCount : 3;
   const maxHint = typeof prompt.maxHintChars === 'number' ? prompt.maxHintChars : 60;
   const category = typeof prompt.category === 'string' ? prompt.category : 'HISTORY';
@@ -649,9 +648,10 @@ function roundsQuestion(prompt: Record<string, unknown>, mode: ContractMode): st
     PATHOLOGY: '你講下呢個病嘅病理係點樣？',
     PHARMACOLOGY: '用藥方面你會點諗？',
   };
+  const cues = ['風險因素', '近期變化', '用藥重點', '無關細節'];
   const hints = Array.from({ length: hintCount }, (_, i) => {
-    const clause = facts[i] ? firstClause(facts[i].text) : `暫時冇更多提示${'丙丁戊己庚'[i] ?? ''}`;
-    return clause.slice(0, maxHint);
+    const cue = i === hintCount - 1 ? '無關細節' : (cues[i] ?? `提示${String(i)}`);
+    return cue.slice(0, maxHint);
   });
   let question = stem[category] ?? stem.HISTORY ?? '';
   if (mode === 'numbers') question = `${question}（答 3 點）`;
@@ -670,6 +670,14 @@ function roundsGrade(prompt: Record<string, unknown>, mode: ContractMode): strin
   const answerGrams = bigrams(answer);
   let verdict: 'CORRECT' | 'PARTIAL' | 'WRONG' = 'WRONG';
   const matched: string[] = [];
+  const cueIndex: Record<string, number> = { 風險因素: 0, 近期變化: 1, 用藥重點: 2 };
+  let distractor = false;
+  for (const line of answer.split('\n')) {
+    const cue = line.trim();
+    if (cue === '無關細節') distractor = true;
+    const fact = facts[cueIndex[cue] ?? -1];
+    if (fact && !matched.includes(fact.id)) matched.push(fact.id);
+  }
   for (const fact of facts) {
     const clause = norm(firstClause(fact.text));
     const said = norm(answer);
@@ -677,10 +685,11 @@ function roundsGrade(prompt: Record<string, unknown>, mode: ContractMode): strin
       clause.length > 0 &&
       (said.includes(clause) || (said.length >= 4 && clause.startsWith(said)))
     ) {
-      matched.push(fact.id);
+      if (!matched.includes(fact.id)) matched.push(fact.id);
       verdict = 'CORRECT';
     }
   }
+  if (matched.length > 0) verdict = distractor ? 'PARTIAL' : 'CORRECT';
   if (verdict === 'WRONG') {
     for (const fact of facts) {
       const shared = [...bigrams(fact.text)].filter((g) => answerGrams.has(g)).length;

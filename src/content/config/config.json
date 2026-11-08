@@ -30,7 +30,7 @@
     "arrestDeferMaxSeconds": 1800,
     "hostRank": "AC",
     "questionMaxChars": 120,
-    "hintMaxChars": 60
+    "hintMaxChars": 16
   },
   "meals": { "lunchHour": 12, "dinnerHour": 20, "windowSeconds": 5400 },
   "vitals": {

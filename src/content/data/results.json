@@ -356,5 +356,200 @@
         "abnormal": true
       }
     }
+  },
+  {
+    "id": "res.glucose",
+    "kind": "REPORT",
+    "label": "Blood glucose (H'stix)",
+    "reportDelaySec": 0,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "Bedside glucose (Hemoglucostix): placeholder reading pending clinical review.",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.rat",
+    "kind": "REPORT",
+    "label": "Rapid antigen",
+    "reportDelaySec": 0,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "Rapid antigen: placeholder result pending clinical review.",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.inr",
+    "kind": "REPORT",
+    "label": "INR",
+    "reportDelaySec": 0,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "INR: placeholder result pending clinical review.",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.troponinT",
+    "kind": "REPORT",
+    "label": "Troponin-T",
+    "reportDelaySec": 60,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "Troponin-T: placeholder result pending clinical review.",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.urine",
+    "kind": "REPORT",
+    "label": "Urine dipstick",
+    "reportDelaySec": 0,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "Urine dipstick: placeholder result pending clinical review.",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.hb",
+    "kind": "REPORT",
+    "label": "Haemoglobin",
+    "reportDelaySec": 0,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "Haemoglobin (bedside): placeholder result pending clinical review.",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.hba1c",
+    "kind": "REPORT",
+    "label": "HbA1c",
+    "reportDelaySec": 60,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "HbA1c: placeholder result pending clinical review.",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.cytology",
+    "kind": "REPORT",
+    "label": "Cytology",
+    "reportDelaySec": 1800,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "Cytology: placeholder report pending clinical review.",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.histology",
+    "kind": "REPORT",
+    "label": "Pathology & Histology",
+    "reportDelaySec": 1800,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "Pathology and histology: placeholder report pending clinical review.",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.serology",
+    "kind": "REPORT",
+    "label": "Immunology & Serology",
+    "reportDelaySec": 1800,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "Immunology and serology: placeholder report pending clinical review.",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.genetics",
+    "kind": "REPORT",
+    "label": "Genetics & Molecular Pathology",
+    "reportDelaySec": 1800,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "Genetics and molecular pathology: placeholder report pending clinical review.",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.toxicology",
+    "kind": "REPORT",
+    "label": "Toxicology",
+    "reportDelaySec": 1800,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "Toxicology: placeholder report pending clinical review.",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.mri",
+    "kind": "REPORT",
+    "label": "MRI",
+    "reportDelaySec": 1800,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "MRI: placeholder report pending clinical review. No verified finding in this placeholder.",
+        "abnormal": false
+      }
+    }
   }
 ]

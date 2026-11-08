@@ -322,6 +322,15 @@ export function handleRoundTimer(
   return phase === 'ASKING' ? reveal(state, ctx, 'UNANSWERED', {}) : advance(state, ctx);
 }
 
+/** 提交內容每一行都係提示選項（可多選），先記為使用提示。 */
+function selectedHints(text: string, hints: readonly string[]): boolean {
+  const parts = text
+    .split('\n')
+    .map((part) => part.trim())
+    .filter((part) => part.length > 0);
+  return parts.length > 0 && parts.every((part) => hints.includes(part));
+}
+
 export function answerRound(
   state: GameState,
   raw: { text: string; viaHint?: boolean | undefined },
@@ -336,7 +345,7 @@ export function answerRound(
   }
   const topic = topicById(ctx, current.topicId);
   if (!topic) return reject(state, 'ROUND_ANSWER_INVALID');
-  const viaHint = raw.viaHint === true && current.hints.includes(text);
+  const viaHint = raw.viaHint === true && selectedHints(text, current.hints);
   const request = requestAi(state, ROUNDS_GRADE_KIND, {
     prompt: {
       hostRank: ctx.config.rounds.hostRank,

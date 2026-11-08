@@ -156,6 +156,9 @@ export interface ReportView {
   text: string | null;
   /** 數值係佔位，未經臨床審閱（PENDING_CLINICAL_REVIEW） */
   reviewPending: boolean;
+  /** 報告分類：化驗、影像或即場，再用 section 分部門 */
+  bucket: 'laboratory' | 'radiology' | 'poct';
+  section: string;
 }
 
 export interface ActionRowView {

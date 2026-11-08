@@ -131,6 +131,39 @@ describe('LogPanel：報告同執行者', () => {
     expect(screen.getByText(ui.game.reports.pending)).toBeInTheDocument();
   });
 
+  it('報告可以按化驗、影像、即場篩選', async () => {
+    const user = userEvent.setup();
+    render(
+      <LogPanel
+        orders={[]}
+        reports={[
+          report({ id: 'a', label: 'CBC' }),
+          report({
+            id: 'b',
+            label: 'Chest X-ray',
+            bucket: 'radiology',
+            section: 'xr',
+            kind: 'REPORT',
+            items: [],
+            text: 'XR 佔位。',
+          }),
+        ]}
+        log={{ all: [], patient: [] }}
+        actions={makeActions()}
+        open
+        onClose={() => undefined}
+      />,
+    );
+    expect(screen.getByRole('heading', { name: ui.game.reports.heading })).toBeInTheDocument();
+    expect(screen.getByText('CBC')).toBeInTheDocument();
+    expect(screen.getByText('XR 佔位。')).toBeInTheDocument();
+    await user.click(screen.getByTestId('report-bucket-radiology'));
+    expect(screen.queryByText('CBC')).not.toBeInTheDocument();
+    expect(screen.getByText('XR 佔位。')).toBeInTheDocument();
+    await user.click(screen.getByTestId('report-section-ct'));
+    expect(screen.getByText(ui.game.reports.emptyFiltered)).toBeInTheDocument();
+  });
+
   it('REPORT 型報告顯示文字；冇報告顯示空狀態', () => {
     const { rerender } = render(
       <LogPanel

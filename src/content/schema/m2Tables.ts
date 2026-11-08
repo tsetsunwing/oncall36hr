@@ -147,6 +147,8 @@ export const ORDER_TYPES = [
   'XRAY',
   'CT',
   'ULTRASOUND',
+  'MRI',
+  'POCT',
   'ABG',
   'BLOOD_CULTURE',
   'CROSSMATCH',

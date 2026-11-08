@@ -16,6 +16,7 @@ import {
   type Patient,
 } from '@/engine';
 import { formatClock } from './clock';
+import { reportCategory } from './reportGroup';
 import type {
   ActionRowView,
   AlarmLevel,
@@ -279,17 +280,22 @@ function selectGates(state: GameState, patientId: string, env: ViewEnv): GateCar
 }
 
 function selectReports(patient: Patient, clockLabel: (t: number) => string): ReportView[] {
-  return [...patient.visible.reports].reverse().map((report) => ({
-    id: report.id,
-    orderId: report.orderId,
-    label: report.label,
-    timeLabel: clockLabel(report.reportedAt),
-    kind: report.kind,
-    abnormal: report.abnormal,
-    items: report.items.map((item) => ({ ...item })),
-    text: report.text,
-    reviewPending: report.reviewStatus !== 'REVIEWED',
-  }));
+  return [...patient.visible.reports].reverse().map((report) => {
+    const category = reportCategory(report.resultId);
+    return {
+      id: report.id,
+      orderId: report.orderId,
+      label: report.label,
+      timeLabel: clockLabel(report.reportedAt),
+      kind: report.kind,
+      abnormal: report.abnormal,
+      items: report.items.map((item) => ({ ...item })),
+      text: report.text,
+      reviewPending: report.reviewStatus !== 'REVIEWED',
+      bucket: category.bucket,
+      section: category.section,
+    };
+  });
 }
 
 type LogGroup = NonNullable<ActionRowView['group']>;

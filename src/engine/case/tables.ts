@@ -62,6 +62,8 @@ export type OrderType =
   | 'XRAY'
   | 'CT'
   | 'ULTRASOUND'
+  | 'MRI'
+  | 'POCT'
   | 'ABG'
   | 'BLOOD_CULTURE'
   | 'CROSSMATCH'

@@ -809,12 +809,12 @@ h2,
 
 .bed-dx {
   max-width: 100%;
-  overflow: hidden;
   font-size: 9px;
   line-height: 1.15;
   color: #596273;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .bed-no,

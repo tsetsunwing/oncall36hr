@@ -47,7 +47,8 @@ export const shiftUi = {
     answerPlaceholder: '輸入你的回答',
     answerSubmit: '回答',
     pass: '不作答',
-    hintsHeading: '提示選項（選用後仍會被評分，並記為「提示」）',
+    hintsHeading: '提示（可選多於一項再提交；不是每項都正確）',
+    hintSubmit: '提交已選提示',
     hintUse: (text: string) => `採用：${text}`,
     timeLeft: (seconds: number) => `剩餘 ${String(seconds)} 秒`,
     verdict: {

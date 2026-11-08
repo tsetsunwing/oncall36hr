@@ -2,6 +2,7 @@ export * from './startGate';
 export * from './clock';
 export * from './gameView';
 export { composePromptPhrase } from './quickPrompt';
+export { reportCategory, sectionsFor, type ReportBucket } from './reportGroup';
 export * from './types';
 export * from './waveform';
 export * from './wardView';

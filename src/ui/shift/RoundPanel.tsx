@@ -10,7 +10,14 @@ export interface RoundPanelProps {
 export function RoundPanel({ round, actions }: RoundPanelProps) {
   const r = ui.shift.rounds;
   const [text, setText] = useState('');
+  const [picked, setPicked] = useState<string[]>([]);
+  const [hintKey, setHintKey] = useState(round.hints.join('\n'));
   const reveal = round.phase === 'REVEAL';
+  const nextHintKey = round.hints.join('\n');
+  if (nextHintKey !== hintKey) {
+    setHintKey(nextHintKey);
+    setPicked([]);
+  }
 
   function submit(event: FormEvent) {
     event.preventDefault();
@@ -106,9 +113,13 @@ export function RoundPanel({ round, actions }: RoundPanelProps) {
                     type="button"
                     className="btn round-hint"
                     data-testid={`round-hint-${String(index)}`}
+                    aria-pressed={picked.includes(hint)}
                     onClick={() => {
-                      actions.answerRound(hint, true);
-                      setText('');
+                      setPicked((current) =>
+                        current.includes(hint)
+                          ? current.filter((item) => item !== hint)
+                          : [...current, hint],
+                      );
                     }}
                   >
                     {hint}
@@ -116,6 +127,21 @@ export function RoundPanel({ round, actions }: RoundPanelProps) {
                 </li>
               ))}
             </ul>
+            <button
+              type="button"
+              className="btn"
+              data-testid="round-hints-submit"
+              disabled={picked.length === 0}
+              onClick={() => {
+                const chosen = round.hints.filter((hint) => picked.includes(hint));
+                if (chosen.length === 0) return;
+                actions.answerRound(chosen.join('\n'), true);
+                setPicked([]);
+                setText('');
+              }}
+            >
+              {r.hintSubmit}
+            </button>
           </div>
         </>
       ) : null}

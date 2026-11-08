@@ -328,9 +328,16 @@ function Ladder({
           ) : null}
           {step.contacted ? <span className="ladder-note">{e.contacted}</span> : null}
           {step.skips.length > 0 ? (
-            <span className="ladder-skip" data-testid={`skip-${step.rank}`}>
-              {e.skipWarning(step.skips.join('、'))}
-            </span>
+            <button
+              type="button"
+              className="ladder-bang"
+              data-testid={`skip-${step.rank}`}
+              data-tip={e.skipWarning(step.skips.join('、'))}
+              title={e.skipWarning(step.skips.join('、'))}
+              aria-label={e.skipWarning(step.skips.join('、'))}
+            >
+              !
+            </button>
           ) : null}
         </li>
       ))}

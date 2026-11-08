@@ -135,8 +135,11 @@ describe('RoundPanel', () => {
     await userEvent.click(screen.getByTestId('round-submit'));
     expect(actions.answerRound).toHaveBeenCalledWith('我會先核對過敏', false);
 
+    await userEvent.click(screen.getByTestId('round-hint-0'));
     await userEvent.click(screen.getByTestId('round-hint-1'));
-    expect(actions.answerRound).toHaveBeenLastCalledWith('提示乙', true);
+    expect(actions.answerRound).toHaveBeenCalledTimes(1);
+    await userEvent.click(screen.getByTestId('round-hints-submit'));
+    expect(actions.answerRound).toHaveBeenLastCalledWith('提示甲\n提示乙', true);
     await userEvent.click(screen.getByTestId('round-pass'));
     expect(actions.passRound).toHaveBeenCalledOnce();
   });

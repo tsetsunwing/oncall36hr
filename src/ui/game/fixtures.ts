@@ -198,6 +198,8 @@ export function report(over: Partial<ReportView> = {}): ReportView {
     ],
     text: null,
     reviewPending: true,
+    bucket: 'laboratory',
+    section: 'haem',
     ...over,
   };
 }
