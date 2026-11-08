@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { ui } from '@/i18n';
-import type { SaveSlotView, Settings } from '@/storage';
+import { normalizeSettings, validateSettings, type SaveSlotView, type Settings } from '@/storage';
 import type { StartGate } from '@/view';
 import { SaveLibrary } from '../saves/SaveLibrary';
 import { AiSettingsFields } from './AiSettingsFields';
+import { describeOutcome, type ConnectionOutcome } from './SettingsPage';
 
 export type SetupRank = 'HO' | 'MO' | 'RES';
 export type SetupDifficulty = 'EASY' | 'MEDIUM' | 'HARD';
@@ -26,6 +27,7 @@ export interface StartPageProps {
   onDelete?: (id: string) => void;
   onExport?: (id: string) => void;
   onImport?: (slot: number, json: string) => void;
+  onTestConnection?: (settings: Settings) => Promise<ConnectionOutcome>;
 }
 
 const missingMessage = {
@@ -97,12 +99,28 @@ export function StartPage({
   onDelete,
   onExport,
   onImport,
+  onTestConnection,
 }: StartPageProps) {
   const s = ui.shift.setup;
   const [rank, setRank] = useState<SetupRank>('MO');
   const [difficulty, setDifficulty] = useState<SetupDifficulty>('MEDIUM');
   const [mode, setMode] = useState<SetupMode>('NIGHT');
   const [draft, setDraft] = useState<Settings | null>(settings ?? null);
+  const [test, setTest] = useState<
+    { phase: 'idle' } | { phase: 'running' } | { phase: 'done'; message: string; ok: boolean }
+  >({ phase: 'idle' });
+
+  const handleTest = async () => {
+    if (!draft || !onTestConnection) return;
+    const problems = validateSettings(draft);
+    if (problems.length > 0) {
+      setTest({ phase: 'done', message: ui.settings.testResult.invalidConfig, ok: false });
+      return;
+    }
+    setTest({ phase: 'running' });
+    const outcome = await onTestConnection(normalizeSettings(draft));
+    setTest({ phase: 'done', ...describeOutcome(outcome) });
+  };
 
   const summary = s.summary(
     s.rank[rank]?.name ?? rank,
@@ -112,12 +130,32 @@ export function StartPage({
 
   return (
     <section aria-labelledby="start-heading" className="page setup">
+      <header className="setup-bar">
+        <div className="setup-title">
+          <h1 id="start-heading">{ui.start.heading}</h1>
+          <p className="setup-tagline">{ui.start.tagline}</p>
+          <p className="hint" id="setup-disclaimer">
+            {ui.settings.disclaimer}
+          </p>
+        </div>
+        <div className="setup-bar-actions">
+          <p className="setup-summary" data-testid="setup-summary">
+            {summary}
+          </p>
+          <button
+            type="button"
+            className="primary"
+            disabled={!gate.canStart}
+            onClick={() => {
+              if (gate.canStart) onStart({ rank, difficulty, mode });
+            }}
+          >
+            {ui.start.startButton}
+          </button>
+        </div>
+      </header>
       <div className="setup-grid">
         <div className="soft-panel setup-main">
-          <header className="setup-title">
-            <h1 id="start-heading">{ui.start.heading}</h1>
-            <p className="setup-tagline">{ui.start.tagline}</p>
-          </header>
           <ChoiceGroup
             name="rank"
             legend={`① ${s.rankHeading}`}
@@ -156,59 +194,62 @@ export function StartPage({
               line2: s.modeCard[id]?.desc,
             }))}
           />
-          <div className="setup-footer">
-            <p className="setup-summary" data-testid="setup-summary">
-              {summary}
-            </p>
-            {gate.canStart ? (
-              <button
-                type="button"
-                className="primary"
-                onClick={() => {
-                  onStart({ rank, difficulty, mode });
-                }}
-              >
-                {ui.start.startButton}
-              </button>
-            ) : null}
-          </div>
         </div>
-        <aside className="setup-side" aria-label={s.apiHeading}>
-          {draft ? (
-            <fieldset className="soft-panel setup-api">
-              <legend>{`④ ${s.apiHeading}`}</legend>
-              <AiSettingsFields
-                draft={draft}
-                idPrefix="setup"
-                includeNurseConfirm
-                onChange={(next) => {
-                  setDraft(next);
-                  onSettingsChange?.(next);
-                }}
-              />
-            </fieldset>
-          ) : null}
+        {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- 可捲動設定要俾鍵盤聚焦 */}
+        <aside className="setup-side" aria-label={s.apiHeading} tabIndex={0}>
           {gate.canStart ? null : (
-            <div className="soft-panel notice notice-blocked" data-testid="start-blocked">
-              <h2>{ui.start.blockedTitle}</h2>
+            <div className="notice notice-blocked" data-testid="start-blocked">
+              <p>{ui.start.blockedTitle}</p>
               <ul>
                 {gate.missing.map((field) => (
                   <li key={field}>{missingMessage[field]}</li>
                 ))}
               </ul>
-              <button type="button" className="primary" disabled>
-                {ui.start.startButton}
-              </button>{' '}
               <a className="button-link" href="#/settings">
                 {ui.start.settingsLink}
               </a>
             </div>
           )}
-          <section className="soft-panel setup-note" aria-labelledby="setup-disclaimer">
-            <h2 id="setup-disclaimer">{ui.settings.disclaimerHeading}</h2>
-            <p>{ui.settings.disclaimer}</p>
-            <p>{ui.settings.privacy}</p>
-          </section>
+          {draft ? (
+            <fieldset className="soft-panel setup-api">
+              <legend>{`④ ${s.apiHeading}`}</legend>
+              {onTestConnection ? (
+                <div className="setup-test">
+                  <button
+                    type="button"
+                    data-testid="setup-test-connection"
+                    disabled={test.phase === 'running'}
+                    onClick={() => {
+                      void handleTest();
+                    }}
+                  >
+                    {test.phase === 'running' ? ui.settings.testing : ui.settings.testConnection}
+                  </button>
+                  {test.phase === 'done' ? (
+                    <p
+                      className={`notice ${test.ok ? 'notice-ok' : 'notice-error'}`}
+                      data-testid="connection-result"
+                      data-ok={test.ok}
+                    >
+                      {test.message}
+                    </p>
+                  ) : null}
+                </div>
+              ) : null}
+              <div className="setup-api-fields">
+                <AiSettingsFields
+                  draft={draft}
+                  idPrefix="setup"
+                  includeNurseConfirm
+                  onChange={(next) => {
+                    setDraft(next);
+                    onSettingsChange?.(next);
+                    setTest({ phase: 'idle' });
+                  }}
+                />
+              </div>
+            </fieldset>
+          ) : null}
         </aside>
       </div>
       {slots && onContinue && onDelete && onExport && onImport ? (

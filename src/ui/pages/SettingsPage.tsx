@@ -31,7 +31,7 @@ function requested(url: string | undefined): string {
   return url ? `${ui.settings.testResult.requested}${url}。` : '';
 }
 
-function describeOutcome(outcome: ConnectionOutcome): { message: string; ok: boolean } {
+export function describeOutcome(outcome: ConnectionOutcome): { message: string; ok: boolean } {
   const t = ui.settings.testResult;
   switch (outcome.kind) {
     case 'ok':

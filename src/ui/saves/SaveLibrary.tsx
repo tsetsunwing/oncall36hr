@@ -60,7 +60,8 @@ export function SaveLibrary({
           {message}
         </p>
       ) : null}
-      <ul className="save-list">
+      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- 可捲動清單要俾鍵盤聚焦 */}
+      <ul className="save-list" tabIndex={0} aria-label={s.libraryHeading}>
         {slots.map((slot) => (
           <li
             key={slot.id}
@@ -123,7 +124,7 @@ export function SaveLibrary({
               ) : (
                 <button
                   type="button"
-                  className="btn"
+                  className="btn btn-danger"
                   disabled={slot.status === 'EMPTY'}
                   data-testid={`delete-${slot.id}`}
                   onClick={() => {

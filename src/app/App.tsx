@@ -107,6 +107,7 @@ export function App() {
             downloadJson(result.filename, result.payload);
           });
         }}
+        onTestConnection={handleTest}
         onImport={(slot, json) => {
           void saves.importManual(slot, json).then((result) => {
             if (!result.ok) {

@@ -17,6 +17,28 @@ describe('StartPage', () => {
     expect(onStart).not.toHaveBeenCalled();
   });
 
+  it('tests the connection from the setup AI panel', async () => {
+    const onTestConnection = vi.fn().mockResolvedValue({ kind: 'ok', jsonMode: true });
+    render(
+      <StartPage
+        gate={{ canStart: true }}
+        onStart={vi.fn()}
+        settings={{
+          provider: 'grok',
+          baseUrl: 'https://api.x.ai/v1',
+          apiKey: 'test-key',
+          model: 'grok-4.7',
+          thinkingLevel: 'low',
+          nurseConfirmHighRisk: true,
+        }}
+        onTestConnection={onTestConnection}
+      />,
+    );
+    await userEvent.click(screen.getByTestId('setup-test-connection'));
+    expect(await screen.findByTestId('connection-result')).toHaveAttribute('data-ok', 'true');
+    expect(onTestConnection).toHaveBeenCalledOnce();
+  });
+
   it('starts when the gate is open', async () => {
     const onStart = vi.fn();
     render(<StartPage gate={{ canStart: true }} onStart={onStart} />);

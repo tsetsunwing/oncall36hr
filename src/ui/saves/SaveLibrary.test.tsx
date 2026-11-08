@@ -40,8 +40,11 @@ describe('SaveLibrary', () => {
     expect(screen.getByTestId('continue-manual-2')).toBeDisabled();
     await user.click(screen.getByTestId('continue-manual-1'));
     expect(onContinue).toHaveBeenCalledWith('manual-1');
-    await user.click(screen.getByTestId('delete-manual-1'));
+    const remove = screen.getByTestId('delete-manual-1');
+    expect(remove).toHaveClass('btn-danger');
+    await user.click(remove);
     expect(onDelete).not.toHaveBeenCalled();
+    expect(screen.getByTestId('confirm-delete-manual-1')).toHaveTextContent(ui.saves.confirmDelete);
     await user.click(screen.getByTestId('confirm-delete-manual-1'));
     expect(onDelete).toHaveBeenCalledWith('manual-1');
   });
