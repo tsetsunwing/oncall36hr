@@ -91,4 +91,41 @@ describe('suggestTreatmentDrugs', () => {
     ]);
     expect(suggestTreatmentDrugs('zzz', medications)).toEqual([]);
   });
+
+  it('類別篩選只收窄已夠三個英文字的治療建議', () => {
+    const rows: MedicationOption[] = [
+      {
+        id: 'hyoscine',
+        label: 'Hyoscine',
+        stem: 'hyoscine',
+        catalogId: '',
+        classes: ['ANTISPASMODICS AND OTHER DRUGS ALTERING GUT MOTILITY', 'GENERAL ANAESTHESIA'],
+      },
+      {
+        id: 'cefaclor',
+        label: 'Cefaclor',
+        stem: 'cefaclor',
+        catalogId: '',
+        classes: ['ANTIBACTERIAL DRUGS'],
+      },
+      {
+        id: 'acetamide',
+        label: 'Acetamide',
+        stem: 'acetamide',
+        catalogId: '',
+        classes: [],
+      },
+    ];
+    expect(suggestTreatmentDrugs('hy', rows, 'GENERAL ANAESTHESIA')).toEqual([]);
+    expect(suggestTreatmentDrugs('hyo', rows).map((item) => item.id)).toEqual(['hyoscine']);
+    expect(
+      suggestTreatmentDrugs('hyo', rows, 'GENERAL ANAESTHESIA').map((item) => item.id),
+    ).toEqual(['hyoscine']);
+    expect(
+      suggestTreatmentDrugs('hyo', rows, 'ANTIBACTERIAL DRUGS').map((item) => item.id),
+    ).toEqual([]);
+    expect(suggestTreatmentDrugs('ace', rows).map((item) => item.id)).toEqual(['acetamide']);
+    expect(suggestTreatmentDrugs('ace', rows, 'ANTIBACTERIAL DRUGS')).toEqual([]);
+    expect(suggestTreatmentDrugs('cef', rows, null).map((item) => item.id)).toEqual(['cefaclor']);
+  });
 });

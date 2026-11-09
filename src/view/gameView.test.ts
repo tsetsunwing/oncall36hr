@@ -133,8 +133,15 @@ describe('ViewModel：只映射可見資料', () => {
     expect(view.medications.every((item) => item.catalogId.startsWith('drug.'))).toBe(true);
     expect(view.medications.some((item) => item.id === 'defibrillation')).toBe(false);
     expect(view.treatmentMedications.length).toBeGreaterThan(view.medications.length);
-    expect(view.treatmentMedications.some((item) => item.label === 'Amoxycillin')).toBe(true);
-    expect(view.treatmentMedications.some((item) => item.label === 'Cefaclor')).toBe(true);
+    expect(view.medications.every((item) => item.classes === undefined)).toBe(true);
+    const amox = view.treatmentMedications.find((item) => item.label === 'Amoxycillin');
+    const hyoscine = view.treatmentMedications.find((item) => item.label === 'Hyoscine');
+    const acetamide = view.treatmentMedications.find((item) => item.label === 'Acetamide');
+    expect(amox?.classes).toEqual(
+      tables['treatment-drugs'].find((row) => row.name === 'Amoxycillin')?.classes,
+    );
+    expect(hyoscine?.classes?.length).toBeGreaterThan(1);
+    expect(acetamide?.classes).toEqual([]);
     const labels = view.treatmentMedications.map((item) => item.label.toLowerCase());
     expect(new Set(labels).size).toBe(labels.length);
     expect(view.treatmentMedications.some((item) => item.label.includes('DYSPEPSIA'))).toBe(false);

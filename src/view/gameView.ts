@@ -451,6 +451,7 @@ function selectTreatmentMedications(tables: EngineTables): MedicationOption[] {
         label,
         stem: key,
         catalogId: '',
+        classes: drug.classes,
       },
     ];
   });

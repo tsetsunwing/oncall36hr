@@ -65,10 +65,11 @@ export function isInfusionRoute(route: string | null): boolean {
   return route?.startsWith('IV Infusion') ?? false;
 }
 
-/** 未滿三個英文字母不顯示建議。只搜尋呼叫者傳入的治療藥表。 */
+/** 未滿三個英文字母不顯示建議。只搜尋呼叫者傳入的治療藥表，再按所選類別收窄。 */
 export function suggestTreatmentDrugs(
   query: string,
   medications: readonly MedicationOption[],
+  drugClass: string | null = null,
 ): MedicationOption[] {
   const normalized = query.normalize('NFKC');
   const letters = normalized.match(/[A-Za-z]/g);
@@ -76,8 +77,12 @@ export function suggestTreatmentDrugs(
   const needle = normalized.trim().toLowerCase();
   if (needle.length === 0) return [];
   return medications.filter((item) => {
-    if (item.label.toLowerCase().includes(needle)) return true;
-    return (item.aliases ?? []).some((alias) => alias.toLowerCase().includes(needle));
+    const named =
+      item.label.toLowerCase().includes(needle) ||
+      (item.aliases ?? []).some((alias) => alias.toLowerCase().includes(needle));
+    if (!named) return false;
+    if (!drugClass) return true;
+    return (item.classes ?? []).includes(drugClass);
   });
 }
 

@@ -2529,7 +2529,7 @@ tr[data-flag='H'] .value-flagged {
   position: relative;
   z-index: 20;
   flex: 0 0 auto;
-  max-height: 6.5rem;
+  max-height: 9rem;
   margin: 0;
   padding: 0;
   overflow: auto;
@@ -2539,12 +2539,35 @@ tr[data-flag='H'] .value-flagged {
 }
 
 .drug-order-matches button {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15rem 0.35rem;
+  align-items: center;
   width: 100%;
   min-height: 28px;
-  padding: 0.15rem 0.4rem;
+  padding: 0.2rem 0.4rem;
   text-align: left;
+  white-space: normal;
   background: transparent;
   border: 0;
+}
+
+.drug-order-match-name {
+  flex: 1 0 100%;
+}
+
+.drug-order-class {
+  max-width: 100%;
+  padding: 0 0.4rem;
+  overflow: hidden;
+  font-size: 0.68rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--ok-text);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  background: var(--accent-soft);
+  border-radius: 999px;
 }
 
 .drug-order-actions {

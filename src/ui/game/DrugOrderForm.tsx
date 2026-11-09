@@ -79,6 +79,7 @@ export function DrugOrderForm({
   const [query, setQuery] = useState(initial?.label ?? '');
   const [selectedId, setSelectedId] = useState<string | null>(initial?.id ?? null);
   const [listOpen, setListOpen] = useState(false);
+  const [drugClass, setDrugClass] = useState<string | null>(null);
   const [route, setRoute] = useState<string | null>(null);
   const [doseValue, setDoseValue] = useState('');
   const [doseUnit, setDoseUnit] = useState<string | null>(null);
@@ -95,13 +96,26 @@ export function DrugOrderForm({
 
   const selected = choices.find((item) => item.id === selectedId) ?? null;
   const infusion = isInfusionRoute(route);
+  const treatmentClasses = useMemo(() => {
+    if (!treatmentSearch) return [];
+    const seen = new Set<string>();
+    const names: string[] = [];
+    for (const item of choices) {
+      for (const name of item.classes ?? []) {
+        if (seen.has(name)) continue;
+        seen.add(name);
+        names.push(name);
+      }
+    }
+    return names;
+  }, [choices, treatmentSearch]);
   const matches = useMemo(() => {
-    if (treatmentSearch) return suggestTreatmentDrugs(query, choices);
+    if (treatmentSearch) return suggestTreatmentDrugs(query, choices, drugClass);
     const needle = query.trim().toLowerCase();
     return choices.filter(
       (item) => needle.length === 0 || item.label.toLowerCase().includes(needle),
     );
-  }, [choices, query, treatmentSearch]);
+  }, [choices, drugClass, query, treatmentSearch]);
   const suggestionsOpen = treatmentSearch ? listOpen && matches.length > 0 : listOpen;
 
   const draft: DrugOrderDraft = {
@@ -172,7 +186,12 @@ export function DrugOrderForm({
           }}
           onBlur={(event) => {
             const next = event.relatedTarget;
-            if (next instanceof Element && next.closest('.chips')) return;
+            if (
+              next instanceof Element &&
+              (next.closest('.chips') || next.closest('.drug-order-class-filter'))
+            ) {
+              return;
+            }
             setListOpen(false);
           }}
           onChange={(event) => {
@@ -186,6 +205,21 @@ export function DrugOrderForm({
           }}
         />
       </label>
+      {treatmentSearch ? (
+        <label className="drug-order-field drug-order-class-filter">
+          {t.drugClass}
+          <ChoiceSelect
+            testId="drug-order-class"
+            value={drugClass ?? ''}
+            blankLabel={t.everyClass}
+            options={treatmentClasses}
+            onValue={(next) => {
+              setDrugClass(next.length > 0 ? next : null);
+              setListOpen(true);
+            }}
+          />
+        </label>
+      ) : null}
       {suggestionsOpen ? (
         <ul
           id="drug-order-matches"
@@ -199,6 +233,11 @@ export function DrugOrderForm({
                 type="button"
                 role="option"
                 aria-selected={item.id === selectedId}
+                aria-label={
+                  treatmentSearch && (item.classes ?? []).length > 0
+                    ? [item.label, ...(item.classes ?? [])].join(', ')
+                    : item.label
+                }
                 onMouseDown={(event) => {
                   event.preventDefault();
                   setSelectedId(item.id);
@@ -206,7 +245,14 @@ export function DrugOrderForm({
                   setListOpen(false);
                 }}
               >
-                {item.label}
+                <span className="drug-order-match-name">{item.label}</span>
+                {treatmentSearch
+                  ? (item.classes ?? []).map((name) => (
+                      <span key={name} className="drug-order-class">
+                        {name}
+                      </span>
+                    ))
+                  : null}
               </button>
             </li>
           ))}

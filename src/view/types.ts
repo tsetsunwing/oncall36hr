@@ -230,6 +230,8 @@ export interface MedicationOption {
   catalogId: string;
   /** 遊戲藥典別名，只用於搜尋，唔顯示。 */
   aliases?: readonly string[];
+  /** 醫管局類別。只在治療「藥物」建議顯示，一種藥可屬於多於一個類別。 */
+  classes?: readonly string[];
 }
 
 /** 菜單或藥物表直接落單嘅欄位。自由文字唔用呢個。 */

@@ -6,6 +6,7 @@ import { RESUS_MENU, type GameActions, type QuickChipView } from '@/view';
 import { ui } from '@/i18n';
 import { AiFailureBanner } from './AiFailureBanner';
 import { ChatPanel } from './ChatPanel';
+import { DrugOrderForm } from './DrugOrderForm';
 import { ClockBar } from './ClockBar';
 import { LogPanel } from './LogPanel';
 import { MonitorPanel } from './MonitorPanel';
@@ -569,6 +570,24 @@ describe('ChatPanel', () => {
             stem: 'amoxicillin',
             catalogId: 'drug.amoxicillin',
             aliases: ['amoxil'],
+            classes: ['ANTIBACTERIAL DRUGS'],
+          },
+          {
+            id: 'hyoscine',
+            label: 'Hyoscine',
+            stem: 'hyoscine',
+            catalogId: '',
+            classes: [
+              'ANTISPASMODICS AND OTHER DRUGS ALTERING GUT MOTILITY',
+              'GENERAL ANAESTHESIA',
+            ],
+          },
+          {
+            id: 'acetamide',
+            label: 'Acetamide',
+            stem: 'acetamide',
+            catalogId: '',
+            classes: [],
           },
         ]}
         notice={null}
@@ -600,16 +619,64 @@ describe('ChatPanel', () => {
     await user.clear(name);
     await user.type(name, 'amo');
     const list = screen.getByRole('listbox', { name: ui.game.chat.drugOrder.matches });
-    expect(within(list).getByRole('option', { name: 'Amoxicillin' })).toHaveTextContent(
+    expect(within(list).getByRole('option', { name: /^Amoxicillin/ })).toHaveTextContent(
       'Amoxicillin',
     );
     expect(list).not.toHaveTextContent('Cephalosporin');
     expect(within(list).queryByRole('option', { name: 'Ceftriaxone' })).not.toBeInTheDocument();
-    await user.click(within(list).getByRole('option', { name: 'Amoxicillin' }));
+    expect(within(list).getByText('ANTIBACTERIAL DRUGS')).toBeInTheDocument();
+    const classFilter = screen.getByTestId('drug-order-class');
+    expect(classFilter).toHaveValue('');
+    await user.selectOptions(classFilter, 'GENERAL ANAESTHESIA');
+    expect(screen.queryByRole('option', { name: /^Amoxicillin/ })).not.toBeInTheDocument();
+    await user.selectOptions(classFilter, '');
+    await user.click(screen.getByRole('option', { name: /^Amoxicillin/ }));
     expect(name).toHaveValue('Amoxicillin');
     expect(screen.getByTestId('drug-order-route')).toHaveValue('');
     expect(screen.getByTestId('drug-order-dose')).toHaveValue('');
     expect(screen.getByTestId('drug-order-confirm')).toBeDisabled();
+
+    await user.clear(name);
+    await user.type(name, 'hyo');
+    const hyoscine = screen.getByRole('option', { name: /Hyoscine/ });
+    expect(
+      within(hyoscine).getByText('ANTISPASMODICS AND OTHER DRUGS ALTERING GUT MOTILITY'),
+    ).toBeInTheDocument();
+    expect(within(hyoscine).getByText('GENERAL ANAESTHESIA')).toBeInTheDocument();
+    await user.selectOptions(classFilter, 'GENERAL ANAESTHESIA');
+    expect(screen.getByRole('option', { name: /Hyoscine/ })).toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: /Amoxicillin/ })).not.toBeInTheDocument();
+
+    await user.selectOptions(classFilter, '');
+    await user.clear(name);
+    await user.type(name, 'ace');
+    expect(screen.getByRole('option', { name: 'Acetamide' })).toBeInTheDocument();
+    await user.selectOptions(classFilter, 'ANTIBACTERIAL DRUGS');
+    expect(screen.queryByRole('option', { name: 'Acetamide' })).not.toBeInTheDocument();
+  });
+
+  it('搶救藥物表不顯示類別徽章或篩選', async () => {
+    const user = userEvent.setup();
+    render(
+      <DrugOrderForm
+        drugId="adrenaline"
+        medications={[
+          {
+            id: 'adrenaline',
+            label: 'Adrenaline',
+            stem: 'adrenaline',
+            catalogId: 'drug.adrenaline',
+            classes: ['ANTIBACTERIAL DRUGS'],
+          },
+        ]}
+        onSubmit={() => undefined}
+        onClose={() => undefined}
+      />,
+    );
+    expect(screen.queryByTestId('drug-order-class')).not.toBeInTheDocument();
+    await user.click(screen.getByTestId('drug-order-name'));
+    expect(screen.getByRole('option', { name: 'Adrenaline' })).toBeInTheDocument();
+    expect(screen.queryByText('ANTIBACTERIAL DRUGS')).not.toBeInTheDocument();
   });
 
   it('被拒絕嘅動作顯示 notice（role=status）', () => {
