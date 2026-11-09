@@ -3,6 +3,7 @@
  * 要把關嘅 order 以 GATED 狀態等候（唔生效、唔排程完成），
  * 藥房（有 pharmacyGate 嘅藥物一律）同護士（資歷 NEW 唔會、其餘按 nurseGate）並行審視。
  */
+import { aclsNurseDecision } from '../acls/orders';
 import { queueBeatsForOrders } from '../bedside/queue';
 import type { Present } from '../chat/chatTypes';
 import type { Patient } from '../case/patient';
@@ -181,8 +182,12 @@ export function placeAndAck(
     effects.push(...placed.effects);
     if (placed.order.status === 'RUNNING') running.push(placed.order);
   }
-  if (running.length === 0) return { state: next, effects };
-  const { beats, tokens } = ackBeatsFor(running, ctx);
+  const accepted = running.filter((order) => {
+    const row = ctx.tables['order-catalog'].find((item) => item.id === order.catalogId);
+    return aclsNurseDecision(next, order.patientId, row?.acls?.action, ctx.tables) === 'PROCEED';
+  });
+  if (accepted.length === 0) return { state: next, effects };
+  const { beats, tokens } = ackBeatsFor(accepted, ctx);
   const dialogue = queueBeatsForOrders(next, patient, beats, tokens, addressed, ctx);
   return { state: dialogue.state, effects: [...effects, ...dialogue.effects] };
 }

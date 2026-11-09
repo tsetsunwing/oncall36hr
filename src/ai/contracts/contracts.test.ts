@@ -198,6 +198,12 @@ describe('dialogue.turn：搶救／死亡 beats', () => {
     { type: 'ACLS_ROSC', speaker: 'NURSE' },
     { type: 'ACLS_STOP_REFUSED', speaker: 'NURSE', tokens: ['acls.cycles', 'acls.minCycles'] },
     { type: 'ACLS_NOT_APPLICABLE', speaker: 'NURSE', labelToken: 'order.1.label' },
+    {
+      type: 'ACLS_SHOCK_REFUSED',
+      speaker: 'NURSE',
+      labelToken: 'order.1.label',
+      tokens: ['rhythm.label'],
+    },
     { type: 'DEATH_PRONOUNCED', speaker: 'NURSE', tokens: ['patient.name', 'patient.bed'] },
   ];
   const prompt: DialoguePrompt = {

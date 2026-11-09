@@ -112,6 +112,12 @@ const beatSchema = z.discriminatedUnion('type', [
     labelToken: z.string(),
   }),
   z.object({
+    type: z.literal('ACLS_SHOCK_REFUSED'),
+    speaker: z.literal('NURSE'),
+    labelToken: z.string(),
+    tokens: z.array(z.string()),
+  }),
+  z.object({
     type: z.literal('DEATH_PRONOUNCED'),
     speaker: z.literal('NURSE'),
     tokens: z.array(z.string()),

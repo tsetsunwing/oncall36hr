@@ -304,6 +304,9 @@ function dialogue(prompt: Record<string, unknown>, mode: ContractMode): string {
       case 'ACLS_NOT_APPLICABLE':
         text = `醫生，病人而家唔係心臟停頓，{{${beat.labelToken ?? ''}}} 我暫時唔做。`;
         break;
+      case 'ACLS_SHOCK_REFUSED':
+        text = `醫生，而家節律係 {{rhythm.label}}，無脈搏，唔可以電擊，所以我唔會做 {{${beat.labelToken ?? ''}}}。`;
+        break;
       case 'DEATH_PRONOUNCED':
         text = '{{patient.name}} 已經宣佈死亡，麻煩你跟返死亡流程。';
         break;

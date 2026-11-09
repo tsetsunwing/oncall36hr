@@ -70,6 +70,7 @@ export type Beat =
   | { type: 'ACLS_ROSC'; speaker: 'NURSE' }
   | { type: 'ACLS_STOP_REFUSED'; speaker: 'NURSE'; tokens: string[] }
   | { type: 'ACLS_NOT_APPLICABLE'; speaker: 'NURSE'; labelToken: string }
+  | { type: 'ACLS_SHOCK_REFUSED'; speaker: 'NURSE'; labelToken: string; tokens: string[] }
   | { type: 'DEATH_PRONOUNCED'; speaker: 'NURSE'; tokens: string[] };
 
 export const ACLS_ACTIONS_DONE = [

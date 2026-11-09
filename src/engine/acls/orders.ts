@@ -2,7 +2,7 @@
  * Order 完成時嘅搶救鉤子：由 orders 模組喺 `completeOrder` 呼叫。
  * 只有「落咗 order 並且完成」先會影響搶救；完成時間＝玩家落單時間＋執行者固定時長，所以時機由 engine 決定。
  */
-import type { OrderCatalogRow } from '../case/tables';
+import type { AclsAction, EngineTables, OrderCatalogRow, RhythmRow } from '../case/tables';
 import type { EngineContext } from '../core/module';
 import type { GameState } from '../core/state';
 import { beginDeath } from '../death/death';
@@ -11,6 +11,7 @@ import { composeOrderLabel } from '../orders/label';
 import type { Order } from '../orders/orderTypes';
 import { applyRule } from '../score/scoring';
 import {
+  beginArrest,
   deliverShock,
   giveDrug,
   isArrestOf,
@@ -21,12 +22,64 @@ import {
   type OrderLabel,
   type Step,
 } from './arrest';
-import { aclsModelOf, causeRowsOf, doseMatches } from './model';
+import { aclsModelOf, causeRowsOf, doseMatches, rhythmOf } from './model';
 import type { Resus } from './resusState';
 
 const LABEL_TOKEN = 'order.1.label';
 
 const none = (state: GameState): Step => ({ state, effects: [] });
+
+export type AclsNurseDecision = 'PROCEED' | 'NOT_ARREST' | 'NON_SHOCKABLE';
+
+function shownRhythm(
+  state: GameState,
+  patientId: string,
+  tables: EngineTables,
+): RhythmRow | undefined {
+  const visible = state.patients[patientId]?.visible.rhythm;
+  if (visible) return rhythmOf(tables, visible);
+  if (isArrestOf(state, patientId)) return rhythmOf(tables, state.resus.rhythm);
+  return undefined;
+}
+
+/** 監察儀 Asystole 或無脈搏就係心跳停搏，唔好當病人仲有脈搏。 */
+function monitorShowsArrest(rhythm: RhythmRow | undefined): rhythm is RhythmRow {
+  return rhythm != null && (rhythm.id === 'ASYSTOLE' || !rhythm.pulse);
+}
+
+/**
+ * 護士應唔應該做呢個 ACLS order。
+ * 無脈搏（包括 asystole）係心跳停搏：CPR 要做。
+ * Asystole 同其他不可電擊節律唔好電擊，原因要跟返監察儀，唔好話唔係心跳停搏。
+ */
+export function aclsNurseDecision(
+  state: GameState,
+  patientId: string,
+  action: AclsAction | undefined,
+  tables: EngineTables,
+): AclsNurseDecision {
+  if (!action) return 'PROCEED';
+  const rhythm = shownRhythm(state, patientId, tables);
+  const arrest = isArrestOf(state, patientId) || monitorShowsArrest(rhythm);
+  if (!arrest) return 'NOT_ARREST';
+  if (
+    action === 'DEFIB' &&
+    rhythm != null &&
+    (rhythm.id === 'ASYSTOLE' || (!rhythm.pulse && !rhythm.shockable))
+  ) {
+    return 'NON_SHOCKABLE';
+  }
+  return 'PROCEED';
+}
+
+function ensureShownArrest(state: GameState, patientId: string, ctx: EngineContext): Step {
+  if (isArrestOf(state, patientId)) return none(state);
+  const rhythm = shownRhythm(state, patientId, ctx.tables);
+  if (!monitorShowsArrest(rhythm)) return none(state);
+  return beginArrest(state, patientId, rhythm.id, ctx, {
+    rearrest: state.resus?.patientId === patientId,
+  });
+}
 
 function recordCauseOrders(
   state: GameState,
@@ -71,9 +124,35 @@ export function applyAclsOrder(
   if (!model) return none(state);
   const label: OrderLabel = { token: LABEL_TOKEN, text: composeOrderLabel(row, order) };
   const action = row.acls?.action;
+  if (!action) {
+    if (!isArrestOf(state, order.patientId)) return none(state);
+    return none(recordCauseOrders(state, state.resus, order, ctx).state);
+  }
+  const decision = aclsNurseDecision(state, order.patientId, action, ctx.tables);
 
-  if (!isArrestOf(state, order.patientId)) {
-    if (!action) return none(state);
+  if (decision === 'NON_SHOCKABLE') {
+    const rhythm = shownRhythm(state, order.patientId, ctx.tables);
+    return narrate(
+      state,
+      order.patientId,
+      [
+        {
+          type: 'ACLS_SHOCK_REFUSED',
+          speaker: 'NURSE',
+          labelToken: label.token,
+          tokens: ['rhythm.label'],
+        },
+      ],
+      {
+        [label.token]: label.text,
+        'rhythm.label': rhythm?.label ?? '',
+      },
+      ctx,
+      { catalogId: row.id, label: label.text },
+    );
+  }
+
+  if (decision === 'NOT_ARREST') {
     return narrate(
       state,
       order.patientId,
@@ -84,57 +163,84 @@ export function applyAclsOrder(
     );
   }
 
-  const recorded = recordCauseOrders(state, state.resus, order, ctx);
+  const ensured = ensureShownArrest(state, order.patientId, ctx);
+  if (!isArrestOf(ensured.state, order.patientId)) {
+    if (monitorShowsArrest(shownRhythm(ensured.state, order.patientId, ctx.tables))) return ensured;
+    const refused = narrate(
+      ensured.state,
+      order.patientId,
+      [{ type: 'ACLS_NOT_APPLICABLE', speaker: 'NURSE', labelToken: label.token }],
+      { [label.token]: label.text },
+      ctx,
+      { catalogId: row.id, label: label.text },
+    );
+    return { state: refused.state, effects: [...ensured.effects, ...refused.effects] };
+  }
+
+  const recorded = recordCauseOrders(ensured.state, ensured.state.resus, order, ctx);
   const resus = recorded.resus;
   const next = recorded.state;
-  if (!action) return none(next);
+
+  const finish = (step: Step): Step => ({
+    state: step.state,
+    effects: [...ensured.effects, ...step.effects],
+  });
 
   switch (action) {
     case 'CPR_START':
-      return startOrResumeCpr(next, resus, ctx, label);
+      return finish(startOrResumeCpr(next, resus, ctx, label));
     case 'RHYTHM_CHECK':
-      return performRhythmCheck(next, resus, ctx, Math.max(0, order.completesAt - order.startsAt));
+      return finish(
+        performRhythmCheck(next, resus, ctx, Math.max(0, order.completesAt - order.startsAt)),
+      );
     case 'DEFIB': {
       const energy = order.params.dose?.value ?? model.shock.defaultEnergyJ;
-      return deliverShock(next, resus, energy, ctx, label);
+      return finish(deliverShock(next, resus, energy, ctx, label));
     }
     case 'DRUG': {
       const rule = model.drugs.find((d) => d.formularyId === order.params.drugFormularyId);
-      return giveDrug(
-        next,
-        resus,
-        {
-          formularyId: order.params.drugFormularyId ?? order.catalogId,
-          dose: order.params.dose,
-          at: next.clock.t,
-          doseOk: rule ? doseMatches(order.params.dose, rule.dose) : true,
-        },
-        ctx,
-        label,
+      return finish(
+        giveDrug(
+          next,
+          resus,
+          {
+            formularyId: order.params.drugFormularyId ?? order.catalogId,
+            dose: order.params.dose,
+            at: next.clock.t,
+            doseOk: rule ? doseMatches(order.params.dose, rule.dose) : true,
+          },
+          ctx,
+          label,
+        ),
       );
     }
     case 'TERMINATE': {
       if (resus.cycles < ctx.config.acls.minCyclesBeforeStop) {
-        return narrate(
-          logEvent(next, { patientId: resus.patientId, reasonCode: 'STOP_REFUSED' }),
-          resus.patientId,
-          [
+        return finish(
+          narrate(
+            logEvent(next, { patientId: resus.patientId, reasonCode: 'STOP_REFUSED' }),
+            resus.patientId,
+            [
+              {
+                type: 'ACLS_STOP_REFUSED',
+                speaker: 'NURSE',
+                tokens: ['acls.cycles', 'acls.minCycles'],
+              },
+            ],
             {
-              type: 'ACLS_STOP_REFUSED',
-              speaker: 'NURSE',
-              tokens: ['acls.cycles', 'acls.minCycles'],
+              'acls.cycles': String(resus.cycles),
+              'acls.minCycles': String(ctx.config.acls.minCyclesBeforeStop),
             },
-          ],
-          {
-            'acls.cycles': String(resus.cycles),
-            'acls.minCycles': String(ctx.config.acls.minCyclesBeforeStop),
-          },
-          ctx,
+            ctx,
+          ),
         );
       }
       const stopped = stopResus(next, resus, ctx);
       const died = beginDeath(stopped.state, resus.patientId, ctx);
-      return { state: died.state, effects: [...stopped.effects, ...died.effects] };
+      return {
+        state: died.state,
+        effects: [...ensured.effects, ...stopped.effects, ...died.effects],
+      };
     }
   }
 }

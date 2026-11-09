@@ -3,9 +3,37 @@ import { describe, expect, it } from 'vitest';
 import { aclsModelOf } from './model';
 import { beginCprSlow, endCprSlow, interruptSpeed } from '../core/clock';
 import { DEATH_STEP_IDS } from '../case/tables';
+import { renderTemplate } from '../chat/tokens';
 import { CURRENT_SCHEMA } from '../core/state';
+import type { GameState } from '../core/state';
 import { feed, intentEvent } from '../test/realEngine';
 import { config, give, ratePerRealMs, standardCycle, start, untilArrest, wait } from './kit';
+import type { Session } from './kit';
+
+const SHOCK_REFUSAL =
+  '醫生，而家節律係 Asystole，無脈搏，唔可以電擊，所以我唔會做 Defibrillation 600 J。';
+
+function nurseSaid(state: GameState): string[] {
+  return (state.chats.p1?.lines ?? [])
+    .filter((line) => line.speaker.kind === 'NURSE')
+    .map((line) => renderTemplate(line.template, line.tokenValues));
+}
+
+function showAsystole(session: Session): Session {
+  const patient = session.state.patients.p1;
+  if (!patient) throw new Error('缺病人');
+  return {
+    ...session,
+    state: {
+      ...session.state,
+      resus: null,
+      patients: {
+        ...session.state.patients,
+        p1: { ...patient, visible: { ...patient.visible, rhythm: 'ASYSTOLE' } },
+      },
+    },
+  };
+}
 
 const baseRate = 60 / (config.clock.realSecondsPerGameMinuteAt1x * 1000);
 
@@ -126,12 +154,50 @@ describe('ROSC 只由 engine 按 order 時機同正確程度決定', () => {
     expect(wrong.state.resus?.lastRoll?.terms.shock).toBeLessThan(0);
   });
 
-  it('不可電擊節律（asystole）電擊係不適當，只會扣機率', () => {
+  it('不可電擊節律（asystole）護士拒絕電擊，CPR 照做，200 J 常數不變', () => {
+    expect(aclsModelOf(start('rosc-asy', 'terminal-01').engine.tables)?.shock.defaultEnergyJ).toBe(
+      200,
+    );
     let s = untilArrest(start('rosc-asy', 'terminal-01'));
-    s = give(give(s, 'cpr', 10), 'defib 200 j', 15);
-    expect(s.state.resus?.shocks).toBe(1);
-    const roll = give(s, 'rhythm check', 15).state.resus?.lastRoll;
-    expect(roll?.terms.inappropriateShock).toBeLessThan(0);
+    s = give(s, 'cpr', 10);
+    s = give(s, 'defibrillation 600 j', 15);
+    expect(s.state.resus?.status).toBe('ARREST');
+    expect(s.state.resus?.cpr.state).toBe('ACTIVE');
+    expect(s.state.resus?.shocks).toBe(0);
+    expect(s.state.resus?.cycle.shocksOnNonShockable).toBe(0);
+    const said = nurseSaid(s.state);
+    expect(said.some((line) => line.includes('收到，我即刻做') && line.includes('CPR'))).toBe(true);
+    expect(said.some((line) => line.includes('我唔會做') && line.includes('CPR'))).toBe(false);
+    expect(said.some((line) => line.includes('心跳停搏'))).toBe(false);
+    expect(said).toContain(SHOCK_REFUSAL);
+    expect(
+      said.some((line) => line.includes('收到，我即刻做') && line.includes('Defibrillation')),
+    ).toBe(false);
+  });
+
+  it('監察儀 Asystole、無脈搏但未入搶救：CPR 要做，電擊用同一句拒絕', () => {
+    const shown = showAsystole(start('monitor-asy', 'pna-sepsis-02'));
+    expect(shown.state.resus).toBeNull();
+    expect(shown.state.patients.p1?.visible.rhythm).toBe('ASYSTOLE');
+    const cpr = give(shown, 'cpr', 10);
+    expect(cpr.state.resus?.status).toBe('ARREST');
+    expect(cpr.state.resus?.rhythm).toBe('ASYSTOLE');
+    expect(cpr.state.resus?.cpr.state).toBe('ACTIVE');
+    const afterCpr = nurseSaid(cpr.state);
+    expect(afterCpr.some((line) => line === '收到，我即刻做 CPR。')).toBe(true);
+    expect(afterCpr.some((line) => line.includes('我唔會做'))).toBe(false);
+    expect(afterCpr.some((line) => line.includes('心跳停搏'))).toBe(false);
+
+    const shocked = give(shown, 'defibrillation 600 j', 15);
+    expect(shocked.state.resus?.shocks ?? 0).toBe(0);
+    expect(shocked.state.resus?.status ?? null).toBeNull();
+    const afterShock = nurseSaid(shocked.state);
+    expect(afterShock).toContain(SHOCK_REFUSAL);
+    expect(afterShock.some((line) => line.includes('心跳停搏'))).toBe(false);
+    expect(
+      afterShock.some((line) => line.includes('收到，我即刻做') && line.includes('Defibrillation')),
+    ).toBe(false);
+    expect(aclsModelOf(shocked.engine.tables)?.shock.defaultEnergyJ).toBe(200);
   });
 
   it('不可挽救個案：ROSC 機率上限 ＝ unsalvageableCap，永遠唔會 ROSC', () => {

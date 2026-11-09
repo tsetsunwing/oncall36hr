@@ -19,6 +19,12 @@ const beats: Beat[] = [
   { type: 'ASK_REPHRASE', speaker: 'NURSE', reason: 'UNSUPPORTED' },
   { type: 'ACK_ORDER', speaker: 'NURSE', labelToken: 'order.1.label', executor: null },
   {
+    type: 'ACLS_SHOCK_REFUSED',
+    speaker: 'NURSE',
+    labelToken: 'order.1.label',
+    tokens: ['rhythm.label'],
+  },
+  {
     type: 'REPORT_RESULT',
     speaker: 'NURSE',
     labelToken: 'order.1.label',
