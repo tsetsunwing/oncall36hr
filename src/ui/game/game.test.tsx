@@ -599,6 +599,12 @@ describe('ChatPanel', () => {
     expect(within(menu).getByTestId('treat-drug')).toHaveTextContent('藥物');
     await user.click(within(menu).getByTestId('treat-drug'));
     expect(actions.placeOrder).not.toHaveBeenCalled();
+    expect(
+      screen.queryByRole('menu', { name: ui.game.chat.chipGroup.treat ?? '' }),
+    ).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: ui.game.chat.chipGroup.treat ?? '' }));
+    expect(screen.queryByRole('menuitem', { name: 'Oxygen NRB' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: '藥物' })).not.toBeInTheDocument();
     const name = screen.getByTestId('drug-order-name');
     expect(name).toHaveValue('');
     expect(screen.getByTestId('drug-order-route')).toHaveValue('');

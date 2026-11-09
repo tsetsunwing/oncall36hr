@@ -186,12 +186,7 @@ export function DrugOrderForm({
           }}
           onBlur={(event) => {
             const next = event.relatedTarget;
-            if (
-              next instanceof Element &&
-              (next.closest('.chips') || next.closest('.drug-order-class-filter'))
-            ) {
-              return;
-            }
+            if (next instanceof Element && next.closest('.drug-order-class-filter')) return;
             setListOpen(false);
           }}
           onChange={(event) => {
