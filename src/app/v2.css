@@ -2452,6 +2452,18 @@ tr[data-flag='H'] .value-flagged {
   width: 8.5rem;
 }
 
+.drug-order-field {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.15rem;
+  font-size: 0.78rem;
+}
+
+.drug-order-field select {
+  width: 100%;
+}
+
 .drug-order input[type='text'],
 .drug-order select {
   min-width: 0;

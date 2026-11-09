@@ -400,7 +400,12 @@ describe('ChatPanel', () => {
     expect(actions.submitChat).not.toHaveBeenCalled();
     expect(screen.getByTestId('drug-order-name')).toHaveValue('Adrenaline');
     expect(screen.getByRole('textbox', { name: ui.game.chat.drugOrder.dose })).toHaveValue('');
-    expect(screen.getByRole('radio', { name: 'IV (Intravenous bolus/push)' })).not.toBeChecked();
+    const form = screen.getByTestId('drug-order');
+    expect(within(form).queryByRole('radio')).not.toBeInTheDocument();
+    expect(screen.getByTestId('drug-order-route')).toHaveValue('');
+    expect(screen.getByTestId('drug-order-frequency')).toHaveValue('');
+    expect(screen.getByTestId('drug-order-prn')).toHaveValue('');
+    expect(screen.queryByTestId('drug-order-titration')).not.toBeInTheDocument();
     expect(screen.getByTestId('drug-order-confirm')).toBeDisabled();
     await user.click(screen.getByRole('button', { name: ui.game.chat.drugOrder.cancel }));
     await user.click(screen.getByRole('button', { name: ui.game.chat.chipGroup.observe ?? '' }));

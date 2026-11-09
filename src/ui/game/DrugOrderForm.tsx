@@ -72,8 +72,9 @@ export function DrugOrderForm({ drugId, medications, onSubmit, onClose }: DrugOr
   const ready = drugOrderReady(draft);
 
   function chooseRoute(phrase: string) {
-    setRoute(phrase);
-    if (phrase.startsWith('IV Infusion')) {
+    const next = phrase.length > 0 ? phrase : null;
+    setRoute(next);
+    if (next?.startsWith('IV Infusion')) {
       setFrequency(null);
       setPrn(null);
     } else {
@@ -157,25 +158,23 @@ export function DrugOrderForm({ drugId, medications, onSubmit, onClose }: DrugOr
         </ul>
       ) : null}
 
-      <fieldset>
-        <legend>{t.route}</legend>
-        <div className="drug-order-options">
+      <label className="drug-order-field">
+        {t.route}
+        <select
+          value={route ?? ''}
+          data-testid="drug-order-route"
+          onChange={(event) => {
+            chooseRoute(event.target.value);
+          }}
+        >
+          <option value="" />
           {DRUG_ROUTES.map((item) => (
-            <label key={item.id}>
-              <input
-                type="radio"
-                name="drug-route"
-                checked={route === item.phrase}
-                data-testid={`drug-route-${item.id}`}
-                onChange={() => {
-                  chooseRoute(item.phrase);
-                }}
-              />
+            <option key={item.id} value={item.phrase}>
               {item.phrase}
-            </label>
+            </option>
           ))}
-        </div>
-      </fieldset>
+        </select>
+      </label>
 
       <div className="drug-order-dose">
         <label>
@@ -211,42 +210,40 @@ export function DrugOrderForm({ drugId, medications, onSubmit, onClose }: DrugOr
 
       {infusion ? (
         <>
-          <fieldset>
-            <legend>{t.diluent}</legend>
-            <div className="drug-order-options">
+          <label className="drug-order-field">
+            {t.diluent}
+            <select
+              value={diluent ?? ''}
+              data-testid="drug-order-diluent"
+              onChange={(event) => {
+                setDiluent(event.target.value.length > 0 ? event.target.value : null);
+              }}
+            >
+              <option value="" />
               {DILUENTS.map((item) => (
-                <label key={item}>
-                  <input
-                    type="radio"
-                    name="drug-diluent"
-                    checked={diluent === item}
-                    onChange={() => {
-                      setDiluent(item);
-                    }}
-                  />
+                <option key={item} value={item}>
                   {item}
-                </label>
+                </option>
               ))}
-            </div>
-          </fieldset>
-          <fieldset>
-            <legend>{t.volume}</legend>
-            <div className="drug-order-options">
+            </select>
+          </label>
+          <label className="drug-order-field">
+            {t.volume}
+            <select
+              value={volume ?? ''}
+              data-testid="drug-order-volume"
+              onChange={(event) => {
+                setVolume(event.target.value.length > 0 ? event.target.value : null);
+              }}
+            >
+              <option value="" />
               {INFUSION_VOLUMES.map((item) => (
-                <label key={item}>
-                  <input
-                    type="radio"
-                    name="drug-volume"
-                    checked={volume === item}
-                    onChange={() => {
-                      setVolume(item);
-                    }}
-                  />
+                <option key={item} value={item}>
                   {item}
-                </label>
+                </option>
               ))}
-            </div>
-          </fieldset>
+            </select>
+          </label>
           <div className="drug-order-dose">
             <label>
               {t.rate}
@@ -278,63 +275,60 @@ export function DrugOrderForm({ drugId, medications, onSubmit, onClose }: DrugOr
               </select>
             </label>
           </div>
-          <fieldset>
-            <legend>{t.titration}</legend>
-            <div className="drug-order-options">
+          <label className="drug-order-field">
+            {t.titration}
+            <select
+              value={titration ?? ''}
+              data-testid="drug-order-titration"
+              onChange={(event) => {
+                setTitration(event.target.value.length > 0 ? event.target.value : null);
+              }}
+            >
+              <option value="" />
               {TITRATION_TARGETS.map((item) => (
-                <label key={item}>
-                  <input
-                    type="radio"
-                    name="drug-titration"
-                    checked={titration === item}
-                    onChange={() => {
-                      setTitration(item);
-                    }}
-                  />
+                <option key={item} value={item}>
                   {item}
-                </label>
+                </option>
               ))}
-            </div>
-          </fieldset>
+            </select>
+          </label>
         </>
       ) : (
         <>
-          <fieldset>
-            <legend>{t.frequency}</legend>
-            <div className="drug-order-options">
+          <label className="drug-order-field">
+            {t.frequency}
+            <select
+              value={frequency ?? ''}
+              data-testid="drug-order-frequency"
+              onChange={(event) => {
+                setFrequency(event.target.value.length > 0 ? event.target.value : null);
+              }}
+            >
+              <option value="" />
               {FREQUENCIES.map((item) => (
-                <label key={item}>
-                  <input
-                    type="radio"
-                    name="drug-frequency"
-                    checked={frequency === item}
-                    onChange={() => {
-                      setFrequency(item);
-                    }}
-                  />
+                <option key={item} value={item}>
                   {item}
-                </label>
+                </option>
               ))}
-            </div>
-          </fieldset>
-          <fieldset>
-            <legend>{t.prn}</legend>
-            <div className="drug-order-options">
+            </select>
+          </label>
+          <label className="drug-order-field">
+            {t.prn}
+            <select
+              value={prn ?? ''}
+              data-testid="drug-order-prn"
+              onChange={(event) => {
+                setPrn(event.target.value.length > 0 ? event.target.value : null);
+              }}
+            >
+              <option value="" />
               {PRN_REASONS.map((item) => (
-                <label key={item}>
-                  <input
-                    type="radio"
-                    name="drug-prn"
-                    checked={prn === item}
-                    onChange={() => {
-                      setPrn(item);
-                    }}
-                  />
+                <option key={item} value={item}>
                   {item}
-                </label>
+                </option>
               ))}
-            </div>
-          </fieldset>
+            </select>
+          </label>
         </>
       )}
 
