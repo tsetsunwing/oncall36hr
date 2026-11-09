@@ -599,16 +599,22 @@ describe('ChatPanel', () => {
     expect(within(menu).getByTestId('treat-drug')).toHaveTextContent('Drugs');
     await user.click(within(menu).getByTestId('treat-drug'));
     expect(actions.placeOrder).not.toHaveBeenCalled();
-    expect(screen.getByRole('dialog', { name: ui.game.chat.drugOrder.title })).toBeInTheDocument();
-    expect(screen.getByTestId('treat-drug')).toHaveTextContent('Drugs');
-    await user.click(screen.getByRole('button', { name: ui.game.chat.drugOrder.cancel }));
+    const dialog = screen.getByRole('dialog', { name: ui.game.chat.drugOrder.title });
+    expect(dialog).toBeInTheDocument();
     expect(
-      screen.queryByRole('dialog', { name: ui.game.chat.drugOrder.title }),
+      screen.queryByRole('menu', { name: ui.game.chat.chipGroup.treat ?? '' }),
     ).not.toBeInTheDocument();
-    expect(actions.placeOrder).not.toHaveBeenCalled();
-    await user.click(screen.getByRole('button', { name: ui.game.chat.chipGroup.treat ?? '' }));
-    await user.click(within(screen.getByRole('menu')).getByTestId('treat-drug'));
+    expect(screen.queryByRole('menuitem', { name: 'Oxygen NRB' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: 'Drugs' })).not.toBeInTheDocument();
     expect(screen.queryByRole('menuitem', { name: '藥物' })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: ui.game.chat.chipGroup.treat ?? '' }));
+    expect(screen.queryByRole('menuitem', { name: 'Oxygen NRB' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: 'Drugs' })).not.toBeInTheDocument();
+    expect(dialog.contains(document.activeElement)).toBe(true);
+    await user.tab({ shift: true });
+    expect(screen.getByRole('button', { name: ui.game.chat.drugOrder.cancel })).toHaveFocus();
+    await user.tab();
+    expect(screen.getByTestId('drug-order-name')).toHaveFocus();
     const name = screen.getByTestId('drug-order-name');
     expect(name).toHaveValue('');
     expect(screen.getByTestId('drug-order-route')).toHaveValue('');
@@ -671,6 +677,28 @@ describe('ChatPanel', () => {
     expect(screen.getByRole('option', { name: 'Acetamide' })).toBeInTheDocument();
     await user.selectOptions(classFilter, 'ANTIBACTERIAL DRUGS');
     expect(screen.queryByRole('option', { name: 'Acetamide' })).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: ui.game.chat.drugOrder.cancel }));
+    expect(
+      screen.queryByRole('dialog', { name: ui.game.chat.drugOrder.title }),
+    ).not.toBeInTheDocument();
+    expect(actions.placeOrder).not.toHaveBeenCalled();
+
+    await user.click(screen.getByRole('button', { name: ui.game.chat.chipGroup.treat ?? '' }));
+    await user.click(screen.getByTestId('treat-drug'));
+    await user.keyboard('{Escape}');
+    expect(
+      screen.queryByRole('dialog', { name: ui.game.chat.drugOrder.title }),
+    ).not.toBeInTheDocument();
+    expect(actions.placeOrder).not.toHaveBeenCalled();
+
+    await user.click(screen.getByRole('button', { name: ui.game.chat.chipGroup.treat ?? '' }));
+    await user.click(screen.getByTestId('treat-drug'));
+    await user.click(screen.getByTestId('drug-order-backdrop'));
+    expect(
+      screen.queryByRole('dialog', { name: ui.game.chat.drugOrder.title }),
+    ).not.toBeInTheDocument();
+    expect(actions.placeOrder).not.toHaveBeenCalled();
   });
 
   it('搶救藥物表不顯示類別徽章或篩選', async () => {

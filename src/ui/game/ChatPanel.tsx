@@ -6,7 +6,9 @@ import {
   useState,
   type FormEvent,
   type KeyboardEvent,
+  type ReactNode,
 } from 'react';
+import { createPortal } from 'react-dom';
 import { Send } from 'lucide-react';
 import { ui } from '@/i18n';
 import {
@@ -103,16 +105,107 @@ function actionsIn(chips: readonly QuickChipView[], bucket: ReportBucket, sectio
     });
 }
 
+const FOCUSABLE =
+  'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled])';
+
+function DrugOrderPopup({ onClose, children }: { onClose: () => void; children: ReactNode }) {
+  const layerRef = useRef<HTMLDivElement>(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+  const [mount] = useState(
+    () => document.querySelector<HTMLElement>('[data-testid="play-frame"]') ?? document.body,
+  );
+
+  useEffect(() => {
+    const layer = layerRef.current;
+    if (!layer) return;
+    const root = layer;
+    const previously = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+
+    function focusable(): HTMLElement[] {
+      return [...root.querySelectorAll<HTMLElement>(FOCUSABLE)].filter(
+        (el) => el.tabIndex >= 0 && !el.classList.contains('drug-order-backdrop'),
+      );
+    }
+
+    focusable()[0]?.focus();
+
+    function onFocusIn(event: FocusEvent) {
+      if (root.contains(event.target as Node)) return;
+      focusable()[0]?.focus();
+    }
+
+    function onKey(event: globalThis.KeyboardEvent) {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        event.stopPropagation();
+        onCloseRef.current();
+        return;
+      }
+      if (event.key !== 'Tab') return;
+      const list = focusable();
+      if (list.length === 0) {
+        event.preventDefault();
+        return;
+      }
+      const first = list[0];
+      const last = list[list.length - 1];
+      if (!first || !last) return;
+      const active = document.activeElement;
+      if (event.shiftKey) {
+        if (active === first || !root.contains(active)) {
+          event.preventDefault();
+          last.focus();
+        }
+      } else if (active === last || !root.contains(active)) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+
+    document.addEventListener('focusin', onFocusIn);
+    document.addEventListener('keydown', onKey, true);
+    return () => {
+      document.removeEventListener('focusin', onFocusIn);
+      document.removeEventListener('keydown', onKey, true);
+      if (previously && document.contains(previously)) previously.focus();
+    };
+  }, []);
+
+  return createPortal(
+    <div className="drug-order-popup" ref={layerRef} data-testid="drug-order-popup">
+      <button
+        type="button"
+        className="drug-order-backdrop"
+        data-testid="drug-order-backdrop"
+        aria-label={ui.game.log.close}
+        tabIndex={-1}
+        onMouseDown={(event) => {
+          event.preventDefault();
+        }}
+        onClick={() => {
+          onClose();
+        }}
+      />
+      {children}
+    </div>,
+    mount,
+  );
+}
+
 function ChipMenus({
   chips,
   onPick,
   onPrompt,
   onDrug,
+  suspended = false,
 }: {
   chips: QuickChipView[];
   onPick: (chip: QuickChipView) => void;
   onPrompt: (chip: QuickChipView) => void;
   onDrug: (chip: QuickChipView) => void;
+  /** 藥物視窗開啟時收起治療選單，並保持關閉。 */
+  suspended?: boolean;
 }) {
   const c = ui.game.chat;
   const r = ui.game.reports;
@@ -130,11 +223,20 @@ function ChipMenus({
   }
 
   function choose(chip: QuickChipView) {
+    if (suspended) return;
     if (chip.medicationId) onDrug(chip);
     else if (chip.prompt) onPrompt(chip);
     else onPick(chip);
     close();
   }
+
+  useEffect(() => {
+    if (!suspended) return;
+    setOpen(null);
+    setBucket(null);
+    setSection(null);
+    setResusColumn(null);
+  }, [suspended]);
 
   useEffect(() => {
     if (!open) return;
@@ -170,6 +272,7 @@ function ChipMenus({
               aria-expanded={shown}
               aria-controls={`chip-menu-${category}`}
               onClick={() => {
+                if (suspended) return;
                 if (shown) close();
                 else {
                   setOpen(category);
@@ -181,7 +284,7 @@ function ChipMenus({
             >
               {label}
             </button>
-            {shown && category !== 'tests' && category !== 'resus' ? (
+            {shown && !suspended && category !== 'tests' && category !== 'resus' ? (
               <div
                 id={`chip-menu-${category}`}
                 className="chip-menu"
@@ -208,6 +311,7 @@ function ChipMenus({
                     className="chip"
                     data-testid="treat-drug"
                     onClick={() => {
+                      close();
                       onDrug({
                         id: 'treat.drug',
                         label: c.drugOrder.menu,
@@ -224,7 +328,7 @@ function ChipMenus({
           </div>
         );
       })}
-      {open === 'tests' ? (
+      {open === 'tests' && !suspended ? (
         <div id="chip-menu-tests" className="chip-menu chip-menu--tests" data-testid="test-menu">
           <div
             className="chip-col"
@@ -304,7 +408,7 @@ function ChipMenus({
           ) : null}
         </div>
       ) : null}
-      {open === 'resus' ? (
+      {open === 'resus' && !suspended ? (
         <div
           id="chip-menu-resus"
           className="chip-menu chip-menu--tests chip-menu--resus"
@@ -564,6 +668,7 @@ export function ChatPanel({
         ) : null}
         <ChipMenus
           chips={chips}
+          suspended={drugChip !== null}
           onPick={placeChip}
           onPrompt={(chip) => {
             setPromptChip(chip);
@@ -574,7 +679,11 @@ export function ChatPanel({
         />
       </div>
       {drugChip ? (
-        <div className="drug-order-popup" data-testid="drug-order-popup">
+        <DrugOrderPopup
+          onClose={() => {
+            setDrugChip(null);
+          }}
+        >
           <DrugOrderForm
             key={drugChip.medicationId ?? drugChip.id}
             drugId={drugChip.medicationId ?? ''}
@@ -592,7 +701,7 @@ export function ChatPanel({
               setDrugChip(null);
             }}
           />
-        </div>
+        </DrugOrderPopup>
       ) : null}
     </section>
   );
