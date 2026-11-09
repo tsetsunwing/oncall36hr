@@ -1402,12 +1402,15 @@ tr[data-flag='H'] .value-flagged {
 
 .tile[data-band='mild'] .tile-value,
 .tile[data-band='moderate'] .tile-value,
+.tile[data-band='moderate'] .vital-mark,
 .tile[data-band='severe'] .tile-value,
+.tile[data-band='severe'] .vital-mark,
 .monitor-rhythm:not([data-level='NORMAL']) .rhythm-text {
   animation: monitor-blink 1.4s steps(1, end) infinite;
 }
 
 .tile[data-band='severe'] .tile-value,
+.tile[data-band='severe'] .vital-mark,
 .monitor-rhythm[data-level='ALARM'] .rhythm-text {
   animation-duration: 0.7s;
 }
@@ -1426,6 +1429,7 @@ tr[data-flag='H'] .value-flagged {
 
 @media (prefers-reduced-motion: reduce) {
   .tile .tile-value,
+  .tile .vital-mark,
   .monitor-rhythm .rhythm-text {
     animation: none;
   }

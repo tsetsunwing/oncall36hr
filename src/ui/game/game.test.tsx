@@ -213,13 +213,37 @@ describe('閃爍數值：只由 CSS 驅動，並尊重 reduced-motion', () => {
     );
     expect(css).not.toMatch(/text-decoration\s*:[^;]*blink/);
   });
-  it('只有偏離正常嘅數值會閃，驚嘆號唔受動畫影響', () => {
+  it('同一格嘅驚嘆號跟數值嘅動畫時長同延遲', () => {
+    const rules = [...css.matchAll(/([^{}@]+)\{([^{}]*)\}/g)].map((match) => ({
+      selectors: (match[1] ?? '').split(',').map((part) => part.trim()),
+      body: (match[2] ?? '').trim(),
+    }));
+    const bodies = (selector: string) =>
+      rules.filter((rule) => rule.selectors.includes(selector)).map((rule) => rule.body);
+
+    expect(bodies(".tile[data-band='moderate'] .vital-mark")).toEqual(
+      bodies(".tile[data-band='moderate'] .tile-value"),
+    );
+    expect(bodies(".tile[data-band='severe'] .vital-mark")).toEqual(
+      bodies(".tile[data-band='severe'] .tile-value"),
+    );
+    expect(bodies(".tile[data-band='moderate'] .vital-mark").join('\n')).toMatch(/1\.4s/);
+    expect(bodies(".tile[data-band='severe'] .vital-mark").join('\n')).toMatch(
+      /animation-duration:\s*0\.7s/,
+    );
+    expect(bodies(".tile[data-band='moderate'] .tile-value").join('\n')).not.toMatch(
+      /animation-delay/,
+    );
+    expect(bodies(".tile[data-band='severe'] .tile-value").join('\n')).not.toMatch(
+      /animation-delay/,
+    );
     expect(css).toMatch(/\.tile\[data-band='mild'\] \.tile-value/);
-    expect(css).toMatch(/\.tile\[data-band='moderate'\] \.tile-value/);
-    expect(css).toMatch(/\.tile\[data-band='severe'\] \.tile-value/);
     expect(css).toMatch(/\.vital-mark\[data-band='severe'\]/);
     expect(css).not.toMatch(/\.tile\[data-band='normal'\] \.tile-value/);
-    expect(css).not.toMatch(/\.vital-mark[^{]*\{[^}]*animation/);
+    expect(css).not.toMatch(/\.tile\[data-band='mild'\] \.vital-mark/);
+    expect(css).toMatch(
+      /prefers-reduced-motion: reduce\)\s*\{[^}]*\.tile \.vital-mark[^}]*\{\s*animation:\s*none/,
+    );
   });
   it('組件原始碼冇用 setInterval 切換 alarm 樣式', () => {
     const src = readFileSync('src/ui/game/MonitorPanel.tsx', 'utf8');
