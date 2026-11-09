@@ -87,20 +87,20 @@ export function RoundPanel({ round, actions }: RoundPanelProps) {
                 }}
               />
               <button
-                type="submit"
-                className="btn btn-primary"
-                data-testid="round-submit"
-                disabled={text.trim().length === 0}
-              >
-                {r.answerSubmit}
-              </button>
-              <button
                 type="button"
                 className="btn"
                 data-testid="round-pass"
                 onClick={actions.passRound}
               >
                 {r.pass}
+              </button>
+              <button
+                type="submit"
+                className="btn btn-primary"
+                data-testid="round-submit"
+                disabled={text.trim().length === 0}
+              >
+                {r.answerSubmit}
               </button>
             </div>
           </form>

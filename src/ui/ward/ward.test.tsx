@@ -294,6 +294,11 @@ describe('房間取代平面圖', () => {
     );
     expect(screen.getByTestId('room-REST')).toBeInTheDocument();
     expect(screen.queryByTestId('floor-plan')).not.toBeInTheDocument();
+    expect(screen.getByTestId('selfcare-NAP')).toHaveAttribute('data-active', 'true');
+    expect(screen.getByTestId('selfcare-NAP')).toBeDisabled();
+    expect(screen.getByTestId('selfcare-PHONE_CHAT')).toBeDisabled();
+    expect(screen.getByTestId('selfcare-PHONE_CHAT')).toHaveAttribute('data-active', 'false');
+    expect(screen.getByTestId('selfcare-MUSIC')).toHaveAttribute('data-active', 'false');
     await userEvent.click(screen.getByTestId('selfcare-stop'));
     expect(actions.stopSelfCare).toHaveBeenCalledOnce();
 
@@ -355,6 +360,10 @@ describe('PhonePanel', () => {
     );
     expect(screen.queryByTestId('skip-RES')).toBeNull();
     expect(within(screen.getByTestId('ladder')).getByTestId('skip-AC')).toBeInTheDocument();
+    expect(
+      screen.getByTestId('dept-toggle').compareDocumentPosition(screen.getByTestId('ladder')) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
     await userEvent.click(screen.getByTestId('call-rank-AC'));
     expect(actions.prepareCall).toHaveBeenCalledWith('p1', { kind: 'RANK', rank: 'AC' });
     await userEvent.click(screen.getByTestId('dept-toggle'));
@@ -574,6 +583,30 @@ describe('雙向通話（M4b）', () => {
     expect(status).toHaveTextContent(ui.game.ward.phone.exchange.waiting);
     expect(screen.queryByTestId('followup-send')).toBeNull();
     expect(screen.queryByTestId('hang-up')).toBeNull();
+  });
+
+  it('家屬分頁標題係家屬，電話分頁仍係來電列表', () => {
+    const { rerender } = render(
+      <PhonePanel
+        ward={ward()}
+        actions={makeActions()}
+        currentPatientId="p1"
+        onDelegateCall={vi.fn()}
+        scope="family"
+      />,
+    );
+    expect(screen.getByRole('heading', { name: '家屬' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: ui.game.ward.phone.listLabel })).toBeNull();
+    rerender(
+      <PhonePanel
+        ward={ward()}
+        actions={makeActions()}
+        currentPatientId="p1"
+        onDelegateCall={vi.fn()}
+        scope="phone"
+      />,
+    );
+    expect(screen.getByRole('heading', { name: ui.game.ward.phone.listLabel })).toBeInTheDocument();
   });
 
   it('家屬電話：揀預設講法或自己輸入', async () => {

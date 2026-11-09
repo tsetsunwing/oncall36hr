@@ -120,7 +120,8 @@ function DrugOrderPopup({ onClose, children }: { onClose: () => void; children: 
     const layer = layerRef.current;
     if (!layer) return;
     const root = layer;
-    const previously = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const previously =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null;
 
     function focusable(): HTMLElement[] {
       return [...root.querySelectorAll<HTMLElement>(FOCUSABLE)].filter(
@@ -330,6 +331,18 @@ function ChipMenus({
       })}
       {open === 'tests' && !suspended ? (
         <div id="chip-menu-tests" className="chip-menu chip-menu--tests" data-testid="test-menu">
+          {bucket ? (
+            <button
+              type="button"
+              className="chip chip-back"
+              onClick={() => {
+                if (section) setSection(null);
+                else setBucket(null);
+              }}
+            >
+              {c.menuBack}
+            </button>
+          ) : null}
           <div
             className="chip-col"
             role="menu"
@@ -414,6 +427,17 @@ function ChipMenus({
           className="chip-menu chip-menu--tests chip-menu--resus"
           data-testid="resus-menu"
         >
+          {resusColumn ? (
+            <button
+              type="button"
+              className="chip chip-back"
+              onClick={() => {
+                setResusColumn(null);
+              }}
+            >
+              {c.menuBack}
+            </button>
+          ) : null}
           <div
             className="chip-col"
             role="menu"

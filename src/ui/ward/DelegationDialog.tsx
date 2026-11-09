@@ -198,6 +198,9 @@ export function DelegationDialog({
             </p>
             <p className="muted">{d.responsibility}</p>
             <div className="call-actions">
+              <button type="button" className="btn" onClick={onClose}>
+                {d.cancel}
+              </button>
               <button
                 type="button"
                 className="btn btn-primary"
@@ -215,9 +218,6 @@ export function DelegationDialog({
                 }}
               >
                 {d.submit}
-              </button>
-              <button type="button" className="btn" onClick={onClose}>
-                {d.cancel}
               </button>
             </div>
           </section>

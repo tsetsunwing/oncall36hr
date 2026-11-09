@@ -579,21 +579,62 @@ main.wide {
 .chip-prompt label {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: 4px 8px;
   align-items: center;
   margin: 0;
+  font-family: 'DM Sans', 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
   font-size: 12px;
   font-weight: 600;
+  line-height: 16px;
+  color: #1d2933;
+}
+
+.chip-prompt-name {
+  flex: 1 0 100%;
+}
+
+.chip-prompt-unit {
+  font-size: 12px;
+  font-weight: 400;
+  color: #596273;
 }
 
 .chip-prompt input,
 .chip-prompt select {
   width: auto;
-  min-width: 4.5rem;
-  min-height: 0;
-  height: 28px;
-  padding: 0 6px;
+  min-width: 6rem;
+  height: 32px;
+  min-height: 32px;
+  padding: 0 10px;
+  font-family: 'DM Sans', 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
   font-size: 13px;
+  font-weight: 400;
+  color: #1d2933;
+  background: #fff;
+  border: 1px solid #596273;
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+.chip-prompt input[type='number'] {
+  width: 8rem;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.chip-prompt input[type='number']::-webkit-outer-spin-button,
+.chip-prompt input[type='number']::-webkit-inner-spin-button {
+  margin: 0;
+  appearance: none;
+}
+
+.chip-prompt .hint {
+  flex: 1 0 100%;
+  margin: 0;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+  color: #596273;
 }
 
 .chip-prompt-actions {
@@ -603,10 +644,13 @@ main.wide {
 }
 
 .chip-prompt .chip-btn {
-  min-height: 0;
-  height: 28px;
-  padding: 0 10px;
-  font-size: 12px;
+  height: 32px;
+  min-height: 32px;
+  padding: 0 12px;
+  font-family: 'DM Sans', 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 8px;
 }
 
 .round-offer {

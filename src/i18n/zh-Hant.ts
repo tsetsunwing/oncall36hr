@@ -142,6 +142,7 @@ export const ui = {
         resus: '搶救',
       } as Record<string, string>,
       testsEmpty: '尚未有項目',
+      menuBack: '返回',
       prompt: {
         dose: '劑量',
         route: '途徑',

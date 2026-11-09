@@ -252,19 +252,19 @@ export function GamePage({ view, actions, onExit }: GamePageProps) {
               <button
                 type="button"
                 className="btn"
-                data-testid="pause-leave"
-                onClick={pauseAndLeave}
-              >
-                {ui.saves.pauseLeave}
-              </button>
-              <button
-                type="button"
-                className="btn"
                 onClick={() => {
                   setSaveOpen(false);
                 }}
               >
                 {ui.saves.close}
+              </button>
+              <button
+                type="button"
+                className="btn"
+                data-testid="pause-leave"
+                onClick={pauseAndLeave}
+              >
+                {ui.saves.pauseLeave}
               </button>
             </div>
           </div>

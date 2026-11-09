@@ -396,7 +396,9 @@ export function PhonePanel({
     <div className="phone-panel" data-testid="phone-panel">
       <div className="phone-columns">
         <section aria-labelledby="call-list-heading" className="call-list-col">
-          <h3 id="call-list-heading">{p.listLabel}</h3>
+          <h3 id="call-list-heading">
+            {scope === 'family' ? ui.game.ward.tabs.family : p.listLabel}
+          </h3>
           {visibleCalls.length === 0 ? (
             <p className="muted" data-testid="call-empty">
               {scope === 'family' ? p.emptyFamily : p.empty}
@@ -465,14 +467,6 @@ export function PhonePanel({
                   ))}
                 </select>
               </div>
-              <Ladder
-                steps={steps}
-                playerRank={ward.playerRank}
-                disabled={patientId === ''}
-                onCall={(rank) => {
-                  actions.prepareCall(patientId, { kind: 'RANK', rank });
-                }}
-              />
               <button
                 type="button"
                 className="btn btn-small dept-toggle"
@@ -502,6 +496,14 @@ export function PhonePanel({
                   ))}
                 </div>
               ) : null}
+              <Ladder
+                steps={steps}
+                playerRank={ward.playerRank}
+                disabled={patientId === ''}
+                onCall={(rank) => {
+                  actions.prepareCall(patientId, { kind: 'RANK', rank });
+                }}
+              />
             </div>
           )}
         </section>

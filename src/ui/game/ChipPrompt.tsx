@@ -144,7 +144,7 @@ export function ChipPrompt({ chip, onSubmit, onClose }: ChipPromptProps) {
         if (field.kind === 'amount') {
           return (
             <label key={field.id}>
-              {name}
+              <span className="chip-prompt-name">{name}</span>
               <input
                 type="number"
                 min={field.min ?? 0}
@@ -157,9 +157,6 @@ export function ChipPrompt({ chip, onSubmit, onClose }: ChipPromptProps) {
                   update(field.id, { value: event.target.value });
                 }}
               />
-              {field.min !== undefined && field.max !== undefined ? (
-                <span className="hint">{c.outOfRange(field.min, field.max)}</span>
-              ) : null}
               {field.units.length > 1 ? (
                 <select
                   aria-label={`${name} unit`}
@@ -175,8 +172,11 @@ export function ChipPrompt({ chip, onSubmit, onClose }: ChipPromptProps) {
                   ))}
                 </select>
               ) : (
-                <span>{field.unit}</span>
+                <span className="chip-prompt-unit">{field.unit}</span>
               )}
+              {field.min !== undefined && field.max !== undefined ? (
+                <span className="hint">{c.outOfRange(field.min, field.max)}</span>
+              ) : null}
             </label>
           );
         }

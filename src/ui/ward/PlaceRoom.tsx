@@ -33,6 +33,7 @@ export function PlaceRoom({
         ? ui.game.ward.rest
         : ui.game.ward.wc;
   const active = shift.selfCare.active;
+  const activeId = active?.id ?? null;
   const ids: readonly string[] = ROOM_ACTIONS[place];
   const choices = shift.selfCare.actions.filter((action) => ids.includes(action.id));
   const Icon = ROOM_ICON[place];
@@ -68,13 +69,18 @@ export function PlaceRoom({
               type="button"
               className="place-room-action"
               data-testid={`selfcare-${action.id}`}
-              disabled={!action.available || active !== null}
+              data-active={action.id === activeId ? 'true' : 'false'}
+              disabled={!action.available || activeId !== null}
               onClick={() => {
                 actions.startSelfCare(action.id);
               }}
             >
               <strong>{s.action[action.id]}</strong>
-              <span>{s.cost(Math.round(action.durationSec / 60), action.gainPercent)}</span>
+              <span>
+                {action.id === activeId && active
+                  ? `預計 ${active.endsLabel} 完成`
+                  : s.cost(Math.round(action.durationSec / 60), action.gainPercent)}
+              </span>
             </button>
           </li>
         ))}
