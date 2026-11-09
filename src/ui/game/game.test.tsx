@@ -596,14 +596,18 @@ describe('ChatPanel', () => {
     );
     await user.click(screen.getByRole('button', { name: ui.game.chat.chipGroup.treat ?? '' }));
     const menu = screen.getByRole('menu', { name: ui.game.chat.chipGroup.treat ?? '' });
-    expect(within(menu).getByTestId('treat-drug')).toHaveTextContent('藥物');
+    expect(within(menu).getByTestId('treat-drug')).toHaveTextContent('Drugs');
     await user.click(within(menu).getByTestId('treat-drug'));
     expect(actions.placeOrder).not.toHaveBeenCalled();
+    expect(screen.getByRole('dialog', { name: ui.game.chat.drugOrder.title })).toBeInTheDocument();
+    expect(screen.getByTestId('treat-drug')).toHaveTextContent('Drugs');
+    await user.click(screen.getByRole('button', { name: ui.game.chat.drugOrder.cancel }));
     expect(
-      screen.queryByRole('menu', { name: ui.game.chat.chipGroup.treat ?? '' }),
+      screen.queryByRole('dialog', { name: ui.game.chat.drugOrder.title }),
     ).not.toBeInTheDocument();
+    expect(actions.placeOrder).not.toHaveBeenCalled();
     await user.click(screen.getByRole('button', { name: ui.game.chat.chipGroup.treat ?? '' }));
-    expect(screen.queryByRole('menuitem', { name: 'Oxygen NRB' })).not.toBeInTheDocument();
+    await user.click(within(screen.getByRole('menu')).getByTestId('treat-drug'));
     expect(screen.queryByRole('menuitem', { name: '藥物' })).not.toBeInTheDocument();
     const name = screen.getByTestId('drug-order-name');
     expect(name).toHaveValue('');

@@ -163,6 +163,7 @@ export const ui = {
       drugOrder: {
         title: '藥物醫囑',
         drug: '藥物',
+        menu: 'Drugs',
         search: '搜尋藥物',
         matches: '符合的藥物',
         drugClass: '類別',

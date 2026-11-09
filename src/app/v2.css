@@ -2418,14 +2418,33 @@ tr[data-flag='H'] .value-flagged {
   border-radius: 10px;
 }
 
-.chat > .drug-order {
-  z-index: 10;
-  bottom: 3.25rem;
+/* 治療藥物輸入是彈出視窗，四邊留白，不貼著畫面邊緣。 */
+.drug-order-popup {
+  position: fixed;
+  z-index: 40;
+  top: 3.5rem;
+  right: 1rem;
+  bottom: 15rem;
+  left: 1rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  pointer-events: none;
 }
 
-/* 藥物表開啟時，治療選單不可留在表格後面遮住途徑。 */
-.chat:has(> .drug-order) .chip-menu {
-  display: none;
+.frame-mobile .drug-order-popup {
+  top: 4.75rem;
+}
+
+.drug-order-popup .drug-order {
+  position: relative;
+  inset: auto;
+  flex: 0 1 auto;
+  width: min(32rem, 100%);
+  max-height: 100%;
+  pointer-events: auto;
+  border: 1px solid var(--border);
+  box-shadow: 0 18px 48px rgb(20 32 36 / 28%);
 }
 
 .drug-order h3 {

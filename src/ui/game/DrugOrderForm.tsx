@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ui } from '@/i18n';
 import {
   composeDrugOrderPhrase,
@@ -140,6 +140,18 @@ export function DrugOrderForm({
   };
   const ready = drugOrderReady(draft);
 
+  useEffect(() => {
+    function onKey(event: KeyboardEvent) {
+      if (event.key !== 'Escape') return;
+      event.preventDefault();
+      onClose();
+    }
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [onClose]);
+
   function chooseRoute(phrase: string) {
     const next = phrase.length > 0 ? phrase : null;
     setRoute(next);
@@ -166,6 +178,8 @@ export function DrugOrderForm({
   return (
     <form
       className="drug-order"
+      role="dialog"
+      aria-modal="true"
       data-testid="drug-order"
       data-infusion={infusion ? 'yes' : 'no'}
       aria-labelledby="drug-order-title"

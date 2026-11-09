@@ -108,14 +108,11 @@ function ChipMenus({
   onPick,
   onPrompt,
   onDrug,
-  suspended = false,
 }: {
   chips: QuickChipView[];
   onPick: (chip: QuickChipView) => void;
   onPrompt: (chip: QuickChipView) => void;
   onDrug: (chip: QuickChipView) => void;
-  /** 藥物輸入開啟時收起治療選單，避免氧氣、導管和「藥物」按鈕混進建議列。 */
-  suspended?: boolean;
 }) {
   const c = ui.game.chat;
   const r = ui.game.reports;
@@ -133,20 +130,11 @@ function ChipMenus({
   }
 
   function choose(chip: QuickChipView) {
-    if (suspended) return;
     if (chip.medicationId) onDrug(chip);
     else if (chip.prompt) onPrompt(chip);
     else onPick(chip);
     close();
   }
-
-  useEffect(() => {
-    if (!suspended) return;
-    setOpen(null);
-    setBucket(null);
-    setSection(null);
-    setResusColumn(null);
-  }, [suspended]);
 
   useEffect(() => {
     if (!open) return;
@@ -182,7 +170,6 @@ function ChipMenus({
               aria-expanded={shown}
               aria-controls={`chip-menu-${category}`}
               onClick={() => {
-                if (suspended) return;
                 if (shown) close();
                 else {
                   setOpen(category);
@@ -194,7 +181,7 @@ function ChipMenus({
             >
               {label}
             </button>
-            {shown && !suspended && category !== 'tests' && category !== 'resus' ? (
+            {shown && category !== 'tests' && category !== 'resus' ? (
               <div
                 id={`chip-menu-${category}`}
                 className="chip-menu"
@@ -221,16 +208,15 @@ function ChipMenus({
                     className="chip"
                     data-testid="treat-drug"
                     onClick={() => {
-                      close();
                       onDrug({
                         id: 'treat.drug',
-                        label: c.drugOrder.drug,
+                        label: c.drugOrder.menu,
                         text: '',
                         category: 'treat',
                       });
                     }}
                   >
-                    {c.drugOrder.drug}
+                    {c.drugOrder.menu}
                   </button>
                 ) : null}
               </div>
@@ -578,7 +564,6 @@ export function ChatPanel({
         ) : null}
         <ChipMenus
           chips={chips}
-          suspended={drugChip !== null}
           onPick={placeChip}
           onPrompt={(chip) => {
             setPromptChip(chip);
@@ -589,23 +574,25 @@ export function ChatPanel({
         />
       </div>
       {drugChip ? (
-        <DrugOrderForm
-          key={drugChip.medicationId ?? drugChip.id}
-          drugId={drugChip.medicationId ?? ''}
-          treatmentSearch={drugChip.id === 'treat.drug'}
-          medications={
-            drugChip.id === 'treat.drug'
-              ? treatmentMedications
-              : medicationChoices(medications, drugChip)
-          }
-          onSubmit={(order) => {
-            actions.placeOrder(chat.patientId, order.catalogId, order.text, order.params);
-            setDrugChip(null);
-          }}
-          onClose={() => {
-            setDrugChip(null);
-          }}
-        />
+        <div className="drug-order-popup" data-testid="drug-order-popup">
+          <DrugOrderForm
+            key={drugChip.medicationId ?? drugChip.id}
+            drugId={drugChip.medicationId ?? ''}
+            treatmentSearch={drugChip.id === 'treat.drug'}
+            medications={
+              drugChip.id === 'treat.drug'
+                ? treatmentMedications
+                : medicationChoices(medications, drugChip)
+            }
+            onSubmit={(order) => {
+              actions.placeOrder(chat.patientId, order.catalogId, order.text, order.params);
+              setDrugChip(null);
+            }}
+            onClose={() => {
+              setDrugChip(null);
+            }}
+          />
+        </div>
       ) : null}
     </section>
   );
