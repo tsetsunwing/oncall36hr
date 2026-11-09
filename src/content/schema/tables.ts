@@ -75,13 +75,13 @@ export type ContentRecord = z.infer<typeof baseRecordSchema>;
 
 const looseRecords = z.array(baseRecordSchema);
 
-/** 治療「藥物」建議。類別讀自每一列的 drugClass，不另造類別，亦不載劑量。 */
+/** 治療「藥物」建議。類別讀自每一列的 classes，不另造類別。 */
 const treatmentDrugSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
   listedName: z.string().min(1),
   chapter: z.string().min(1),
-  drugClass: z.string().min(1),
+  classes: z.array(z.string().min(1)),
   column: z.string().min(1).nullable(),
 });
 

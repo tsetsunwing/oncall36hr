@@ -133,21 +133,20 @@ describe('ViewModel：只映射可見資料', () => {
     expect(view.medications.every((item) => item.catalogId.startsWith('drug.'))).toBe(true);
     expect(view.medications.some((item) => item.id === 'defibrillation')).toBe(false);
     expect(tables['treatment-drugs']).toHaveLength(1587);
+    expect(tables['treatment-drugs'].filter((row) => row.classes.length === 0)).toHaveLength(63);
     expect(view.treatmentMedications.length).toBeGreaterThan(view.medications.length);
     expect(view.medications.every((item) => item.classes === undefined)).toBe(true);
-    const classesFor = (name: string) => {
-      const found: string[] = [];
-      for (const row of tables['treatment-drugs']) {
-        if (row.name !== name || found.includes(row.drugClass)) continue;
-        found.push(row.drugClass);
-      }
-      return found;
-    };
-    const amox = view.treatmentMedications.find((item) => item.label === 'Amoxycillin');
-    const hyoscine = view.treatmentMedications.find((item) => item.label === 'Hyoscine');
-    expect(amox?.classes).toEqual(classesFor('Amoxycillin'));
-    expect(hyoscine?.classes).toEqual(classesFor('Hyoscine'));
-    expect(hyoscine?.classes?.length).toBeGreaterThan(1);
+    expect(view.treatmentMedications.find((item) => item.label === 'Aspirin')?.classes).toEqual([
+      'ANTIPLATELET DRUGS',
+      'ANALGESICS',
+    ]);
+    expect(view.treatmentMedications.find((item) => item.label === 'Adrenaline')?.classes).toEqual([
+      'SYMPATHOMIMETICS',
+      'ANTIHISTAMINES, HYPOSENSITISATION AND ALLERGIC EMERGENCIES',
+    ]);
+    expect(
+      view.treatmentMedications.filter((item) => (item.classes ?? []).length === 0),
+    ).toHaveLength(63);
     expect(
       view.treatmentMedications.some((item) =>
         ['Oxygen NRB', 'Oxygen nasal', 'NG tube', 'Foley', 'CVC', 'Arterial line', '藥物'].includes(

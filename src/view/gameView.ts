@@ -446,15 +446,11 @@ function selectTreatmentMedications(tables: EngineTables): MedicationOption[] {
     if (label.length === 0) continue;
     const current = grouped.get(key);
     if (!current) {
-      grouped.set(key, {
-        id: drug.id,
-        label,
-        classes: drug.drugClass.length > 0 ? [drug.drugClass] : [],
-      });
+      grouped.set(key, { id: drug.id, label, classes: [...drug.classes] });
       continue;
     }
-    if (drug.drugClass.length > 0 && !current.classes.includes(drug.drugClass)) {
-      current.classes.push(drug.drugClass);
+    for (const name of drug.classes) {
+      if (!current.classes.includes(name)) current.classes.push(name);
     }
   }
   return [...grouped.values()].map((drug) => ({
