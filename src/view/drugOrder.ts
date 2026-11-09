@@ -1,4 +1,4 @@
-import type { PlacedOrderParams } from './types';
+import type { MedicationOption, PlacedOrderParams } from './types';
 
 /** 藥物醫囑表組句。只拼玩家揀嘅字，唔查劑量表。 */
 export const DRUG_ROUTES = [
@@ -63,6 +63,22 @@ export interface DrugOrderDraft {
 
 export function isInfusionRoute(route: string | null): boolean {
   return route?.startsWith('IV Infusion') ?? false;
+}
+
+/** 未夠三個英文字唔出建議。只對遊戲藥典嘅名稱同別名。 */
+export function suggestFormularyDrugs(
+  query: string,
+  medications: readonly MedicationOption[],
+): MedicationOption[] {
+  const normalized = query.normalize('NFKC');
+  const letters = normalized.match(/[A-Za-z]/g);
+  if (!letters || letters.length < 3) return [];
+  const needle = normalized.trim().toLowerCase();
+  if (needle.length === 0) return [];
+  return medications.filter((item) => {
+    if (item.label.toLowerCase().includes(needle)) return true;
+    return (item.aliases ?? []).some((alias) => alias.toLowerCase().includes(needle));
+  });
 }
 
 function positiveNumber(value: string): boolean {

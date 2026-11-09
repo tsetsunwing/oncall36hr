@@ -200,6 +200,25 @@ function ChipMenus({
                     {chip.label}
                   </button>
                 ))}
+                {category === 'treat' ? (
+                  <button
+                    type="button"
+                    role="menuitem"
+                    className="chip"
+                    data-testid="treat-drug"
+                    onClick={() => {
+                      onDrug({
+                        id: 'treat.drug',
+                        label: c.drugOrder.drug,
+                        text: '',
+                        category: 'treat',
+                      });
+                      close();
+                    }}
+                  >
+                    {c.drugOrder.drug}
+                  </button>
+                ) : null}
               </div>
             ) : null}
           </div>
@@ -553,9 +572,10 @@ export function ChatPanel({
           }}
         />
       </div>
-      {drugChip?.medicationId ? (
+      {drugChip ? (
         <DrugOrderForm
-          drugId={drugChip.medicationId}
+          key={drugChip.medicationId ?? drugChip.id}
+          drugId={drugChip.medicationId ?? ''}
           medications={medicationChoices(medications, drugChip)}
           onSubmit={(order) => {
             actions.placeOrder(chat.patientId, order.catalogId, order.text, order.params);

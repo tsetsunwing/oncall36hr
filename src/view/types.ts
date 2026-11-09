@@ -228,6 +228,8 @@ export interface MedicationOption {
   label: string;
   stem: string;
   catalogId: string;
+  /** 遊戲藥典別名，只用於搜尋，唔顯示。 */
+  aliases?: readonly string[];
 }
 
 /** 菜單或藥物表直接落單嘅欄位。自由文字唔用呢個。 */

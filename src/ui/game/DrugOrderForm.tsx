@@ -7,6 +7,7 @@ import {
   DOSE_UNITS,
   DRUG_ROUTES,
   drugOrderReady,
+  suggestFormularyDrugs,
   FREQUENCIES,
   INFUSION_VOLUMES,
   isInfusionRoute,
@@ -86,12 +87,8 @@ export function DrugOrderForm({ drugId, medications, onSubmit, onClose }: DrugOr
 
   const selected = choices.find((item) => item.id === selectedId) ?? null;
   const infusion = isInfusionRoute(route);
-  const matches = useMemo(() => {
-    const needle = query.trim().toLowerCase();
-    return choices.filter(
-      (item) => needle.length === 0 || item.label.toLowerCase().includes(needle),
-    );
-  }, [choices, query]);
+  const matches = useMemo(() => suggestFormularyDrugs(query, choices), [choices, query]);
+  const suggestionsOpen = listOpen && matches.length > 0;
 
   const draft: DrugOrderDraft = {
     stem: selected?.stem ?? '',
@@ -150,7 +147,7 @@ export function DrugOrderForm({ drugId, medications, onSubmit, onClose }: DrugOr
         {t.drug}
         <input
           role="combobox"
-          aria-expanded={listOpen}
+          aria-expanded={suggestionsOpen}
           aria-controls="drug-order-matches"
           aria-autocomplete="list"
           value={query}
@@ -159,7 +156,9 @@ export function DrugOrderForm({ drugId, medications, onSubmit, onClose }: DrugOr
           onFocus={() => {
             setListOpen(true);
           }}
-          onBlur={() => {
+          onBlur={(event) => {
+            const next = event.relatedTarget;
+            if (next instanceof Element && next.closest('.chips')) return;
             setListOpen(false);
           }}
           onChange={(event) => {
@@ -173,7 +172,7 @@ export function DrugOrderForm({ drugId, medications, onSubmit, onClose }: DrugOr
           }}
         />
       </label>
-      {listOpen ? (
+      {suggestionsOpen ? (
         <ul
           id="drug-order-matches"
           className="drug-order-matches"

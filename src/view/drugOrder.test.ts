@@ -3,8 +3,10 @@ import {
   composeDrugOrderPhrase,
   placedDrugParams,
   shortOptionLabel,
+  suggestFormularyDrugs,
   type DrugOrderDraft,
 } from './drugOrder';
+import type { MedicationOption } from './types';
 
 const draft = (patch: Partial<DrugOrderDraft>): DrugOrderDraft => ({
   stem: 'adrenaline',
@@ -52,5 +54,41 @@ describe('藥物選項括號', () => {
       'adrenaline 1 mg IV Infusion 5 mL/hr | Neat, 50 mL',
     );
     expect(placedDrugParams('adrenaline', infusion)?.route).toBe('IV Infusion');
+  });
+});
+
+const medications: MedicationOption[] = [
+  {
+    id: 'ceftriaxone',
+    label: 'Ceftriaxone',
+    stem: 'ceftriaxone',
+    catalogId: 'drug.ceftriaxone',
+    aliases: ['ceftriaxone', 'rocephin'],
+  },
+  {
+    id: 'adrenaline',
+    label: 'Adrenaline',
+    stem: 'adrenaline',
+    catalogId: 'drug.adrenaline',
+    aliases: ['adrenaline', 'epinephrine', 'epi'],
+  },
+];
+
+describe('suggestFormularyDrugs', () => {
+  it('少過三個英文字唔出名單，夠三個先對名稱同別名', () => {
+    expect(suggestFormularyDrugs('', medications)).toEqual([]);
+    expect(suggestFormularyDrugs('ce', medications)).toEqual([]);
+    expect(suggestFormularyDrugs('藥物', medications)).toEqual([]);
+    expect(suggestFormularyDrugs('12', medications)).toEqual([]);
+    expect(suggestFormularyDrugs('cef', medications).map((item) => item.id)).toEqual([
+      'ceftriaxone',
+    ]);
+    expect(suggestFormularyDrugs('EPI', medications).map((item) => item.id)).toEqual([
+      'adrenaline',
+    ]);
+    expect(suggestFormularyDrugs('roc', medications).map((item) => item.id)).toEqual([
+      'ceftriaxone',
+    ]);
+    expect(suggestFormularyDrugs('zzz', medications)).toEqual([]);
   });
 });

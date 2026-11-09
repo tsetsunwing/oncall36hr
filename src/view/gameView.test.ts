@@ -124,6 +124,19 @@ describe('ViewModel：只映射可見資料', () => {
     });
     expect(chips.some((chip) => chip.report?.section === 'cytology')).toBe(false);
   });
+
+  it('藥物建議只來自動戲藥典，除顫唔入名單', () => {
+    const medications = selectGameView(play([]), env).medications;
+    expect(medications.length).toBeGreaterThan(0);
+    expect(medications.every((item) => item.catalogId.startsWith('drug.'))).toBe(true);
+    expect(medications.some((item) => item.id === 'defibrillation')).toBe(false);
+    expect(medications.find((item) => item.id === 'ceftriaxone')).toMatchObject({
+      label: 'Ceftriaxone',
+      catalogId: 'drug.ceftriaxone',
+    });
+    expect(medications.find((item) => item.id === 'ceftriaxone')?.aliases).toContain('rocephin');
+    expect(medications.some((item) => 'drugClass' in item)).toBe(false);
+  });
 });
 
 describe('聊天 ViewModel', () => {

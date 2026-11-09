@@ -531,6 +531,87 @@ describe('ChatPanel', () => {
     expect(actions.submitChat).not.toHaveBeenCalled();
   });
 
+  it('治療嘅藥物掣開空白醫囑表，三個英文字先出遊戲藥典建議', async () => {
+    const user = userEvent.setup();
+    const actions = makeActions();
+    render(
+      <ChatPanel
+        chat={chat()}
+        chips={[
+          {
+            id: 'nrb',
+            label: 'Oxygen NRB',
+            text: 'oxygen nrb',
+            category: 'treat',
+            catalogId: 'oxygen.nrb',
+          },
+        ]}
+        medications={[
+          {
+            id: 'ceftriaxone',
+            label: 'Ceftriaxone',
+            stem: 'ceftriaxone',
+            catalogId: 'drug.ceftriaxone',
+            aliases: ['ceftriaxone', 'rocephin'],
+          },
+          {
+            id: 'adrenaline',
+            label: 'Adrenaline',
+            stem: 'adrenaline',
+            catalogId: 'drug.adrenaline',
+            aliases: ['adrenaline', 'epinephrine', 'epi'],
+          },
+        ]}
+        notice={null}
+        actions={actions}
+      />,
+    );
+    await user.click(screen.getByRole('button', { name: ui.game.chat.chipGroup.treat ?? '' }));
+    const menu = screen.getByRole('menu', { name: ui.game.chat.chipGroup.treat ?? '' });
+    expect(within(menu).getByTestId('treat-drug')).toHaveTextContent('藥物');
+    await user.click(within(menu).getByTestId('treat-drug'));
+    expect(actions.placeOrder).not.toHaveBeenCalled();
+    const name = screen.getByTestId('drug-order-name');
+    expect(name).toHaveValue('');
+    expect(screen.getByTestId('drug-order-route')).toHaveValue('');
+    expect(screen.getByTestId('drug-order-dose')).toHaveValue('');
+    expect(
+      screen.queryByRole('listbox', { name: ui.game.chat.drugOrder.matches }),
+    ).not.toBeInTheDocument();
+    await user.type(name, 'ce');
+    expect(
+      screen.queryByRole('listbox', { name: ui.game.chat.drugOrder.matches }),
+    ).not.toBeInTheDocument();
+    await user.type(name, 'f');
+    const list = screen.getByRole('listbox', { name: ui.game.chat.drugOrder.matches });
+    expect(within(list).getByRole('option', { name: 'Ceftriaxone' })).toHaveTextContent(
+      'Ceftriaxone',
+    );
+    expect(within(list).queryByRole('option', { name: 'Adrenaline' })).not.toBeInTheDocument();
+    expect(list).not.toHaveTextContent('Cephalosporin');
+    await user.click(within(list).getByRole('option', { name: 'Ceftriaxone' }));
+    expect(name).toHaveValue('Ceftriaxone');
+    expect(
+      screen.queryByRole('listbox', { name: ui.game.chat.drugOrder.matches }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByTestId('drug-order-route')).toHaveValue('');
+    expect(screen.getByTestId('drug-order-dose')).toHaveValue('');
+    expect(screen.getByTestId('drug-order-frequency')).toHaveValue('');
+    expect(screen.getByTestId('drug-order-confirm')).toBeDisabled();
+    await user.clear(name);
+    await user.type(name, 'ep');
+    expect(
+      screen.queryByRole('listbox', { name: ui.game.chat.drugOrder.matches }),
+    ).not.toBeInTheDocument();
+    await user.type(name, 'i');
+    expect(
+      within(screen.getByRole('listbox', { name: ui.game.chat.drugOrder.matches })).getByRole(
+        'option',
+        { name: 'Adrenaline' },
+      ),
+    ).toBeInTheDocument();
+  });
+
   it('被拒絕嘅動作顯示 notice（role=status）', () => {
     render(
       <ChatPanel
