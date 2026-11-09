@@ -83,7 +83,9 @@ describe('order.parse 契約', () => {
   });
 
   it('guard：虛構 catalogId／formulary／劑量／單位／cancel 目標都會被報告', () => {
-    expect(guard({ intent: 'ORDER', actions: [{ catalogId: 'drug.morphine' }] })).toHaveLength(1);
+    expect(
+      guard({ intent: 'ORDER', actions: [{ catalogId: 'drug.not-in-catalog' }] }),
+    ).toHaveLength(1);
     expect(
       guard({
         intent: 'ORDER',

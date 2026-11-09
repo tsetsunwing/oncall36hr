@@ -12,6 +12,7 @@ import { clock, monitor, patient } from './fixtures';
 function makeActions() {
   return {
     submitChat: vi.fn(),
+    placeOrder: vi.fn(),
     togglePause: vi.fn(),
     setSpeed: vi.fn(),
     cancelOrder: vi.fn(),
@@ -56,6 +57,7 @@ const chips = [
   id,
   label: `chip ${id}`,
   text: `text ${id}`,
+  catalogId: id,
   category: id === 'qw.ecg' ? ('tests' as const) : ('resus' as const),
 }));
 
@@ -165,7 +167,11 @@ describe('ResusPanel', () => {
     expect(screen.queryByTestId('resus-qw.ecg')).not.toBeInTheDocument();
     expect(screen.getByText(ui.game.resus.ordersHint)).toBeInTheDocument();
     await user.click(screen.getByTestId('resus-qw.defib200'));
-    expect(actions.submitChat).toHaveBeenCalledWith('p1', 'text qw.defib200');
+    expect(actions.placeOrder).toHaveBeenCalledWith('p1', 'qw.defib200', 'chip qw.defib200', {
+      drugFormularyId: null,
+      dose: null,
+      route: null,
+    });
     expect(screen.getByText(ui.game.resus.stopHint(1, 3))).toBeInTheDocument();
   });
 

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ui } from '@/i18n';
 import {
+  EMPTY_PLACED_PARAMS,
   formatDuration,
   type GameActions,
   type MedicationOption,
@@ -108,7 +109,14 @@ export function ResusPanel({
                   onClick={() => {
                     if (chip.medicationId) setDrugChip(chip);
                     else if (chip.prompt) setPromptChip(chip);
-                    else actions.submitChat(patientId, chip.text);
+                    else if (chip.catalogId) {
+                      actions.placeOrder(
+                        patientId,
+                        chip.catalogId,
+                        chip.label,
+                        EMPTY_PLACED_PARAMS,
+                      );
+                    }
                   }}
                 >
                   {chip.label}
@@ -116,8 +124,9 @@ export function ResusPanel({
                 {promptChip?.id === chip.id && promptChip.prompt ? (
                   <ChipPrompt
                     chip={promptChip}
-                    onSubmit={(text) => {
-                      actions.submitChat(patientId, text);
+                    onSubmit={(text, params) => {
+                      if (!promptChip.catalogId) return;
+                      actions.placeOrder(patientId, promptChip.catalogId, text, params);
                     }}
                     onClose={() => {
                       setPromptChip(null);
@@ -193,12 +202,13 @@ export function ResusPanel({
                     id: drugChip.medicationId,
                     label: drugChip.label,
                     stem: drugChip.prompt?.stem ?? drugChip.label.toLowerCase(),
+                    catalogId: drugChip.catalogId ?? '',
                   },
                   ...medications,
                 ]
           }
-          onSubmit={(text) => {
-            actions.submitChat(patientId, text);
+          onSubmit={(order) => {
+            actions.placeOrder(patientId, order.catalogId, order.text, order.params);
             setDrugChip(null);
           }}
           onClose={() => {

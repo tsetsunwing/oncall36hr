@@ -227,6 +227,17 @@ export interface MedicationOption {
   id: string;
   label: string;
   stem: string;
+  catalogId: string;
+}
+
+/** 菜單或藥物表直接落單嘅欄位。自由文字唔用呢個。 */
+export interface PlacedOrderParams {
+  drugFormularyId: string | null;
+  dose: { value: number; unit: string } | null;
+  route: string | null;
+  frequency?: string;
+  times?: number;
+  rate?: { value: number; unit: string };
 }
 
 export interface QuickChipView {
@@ -718,6 +729,13 @@ export interface GameView {
 /** UI 通過呢個介面嘅動作同 engine 溝通（UI 唔直接 import engine） */
 export interface GameActions {
   submitChat: (patientId: string, text: string) => void;
+  /** 觀察、治療、檢查、搶救同藥物表：按 catalog id 落單，唔經 order.parse。 */
+  placeOrder: (
+    patientId: string,
+    catalogId: string,
+    text: string,
+    params: PlacedOrderParams,
+  ) => void;
   togglePause: () => void;
   setSpeed: (speed: number) => void;
   cancelOrder: (orderId: string) => void;

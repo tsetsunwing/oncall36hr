@@ -8,6 +8,7 @@ import {
   energyModel,
   mealWindowFor,
   overtimeEndOf,
+  pendingPausesClock,
   roundTimes,
   segmentAt,
   selfCareAvailable,
@@ -229,7 +230,7 @@ export function selectShift(state: GameState, env: ViewEnv, clockLabel: ClockLab
     segment: segmentAt(config, state.mode, Math.min(state.clock.t, regular - 1))?.kind ?? null,
     waitingForAi:
       config.clock.pauseWhileAiPending &&
-      state.pendingAi.length > 0 &&
+      pendingPausesClock(state.pendingAi) &&
       phase !== 'HANDOVER' &&
       phase !== 'ENDED',
     energy: { percent, level: energyLevel(percent, model) },

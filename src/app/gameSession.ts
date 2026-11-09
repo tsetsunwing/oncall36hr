@@ -171,6 +171,12 @@ export function createGameSession(options: GameSessionOptions): GameSession {
     submitChat(patientId, text) {
       dispatch({ type: 'PLAYER_INTENT', intent: { type: 'SUBMIT_CHAT', patientId, text } });
     },
+    placeOrder(patientId, catalogId, text, params) {
+      dispatch({
+        type: 'PLAYER_INTENT',
+        intent: { type: 'PLACE_CATALOG', patientId, catalogId, text, params },
+      });
+    },
     togglePause() {
       const state = runtime.getState();
       if (state.paused?.by === 'ai-failure') return;

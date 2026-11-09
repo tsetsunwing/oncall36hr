@@ -10,7 +10,7 @@ export interface EngineBoundaryInfo {
 }
 
 export type { EngineConfig } from './core/config';
-export { gameSecondsPerRealMs } from './core/clock';
+export { gameSecondsPerRealMs, pendingPausesClock } from './core/clock';
 export {
   createEventQueue,
   enqueue,

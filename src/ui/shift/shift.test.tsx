@@ -16,6 +16,7 @@ import { SelfCarePanel } from './SelfCarePanel';
 function makeActions() {
   return {
     submitChat: vi.fn(),
+    placeOrder: vi.fn(),
     togglePause: vi.fn(),
     setSpeed: vi.fn(),
     cancelOrder: vi.fn(),

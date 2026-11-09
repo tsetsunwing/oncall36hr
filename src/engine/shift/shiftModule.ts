@@ -157,9 +157,10 @@ function gateIntent(state: GameState, intent: PlayerIntent): Reduction | undefin
   if (phase === 'ENDED' || phase === 'HANDOVER') return reject(state, 'SHIFT_NOT_ACTIVE');
 
   const wardAction = intent.type === 'EXTENSION' && intent.module === 'ward';
+  const bedsideOrder = intent.type === 'SUBMIT_CHAT' || intent.type === 'PLACE_CATALOG';
   const newWork =
     intent.type === 'PLACE_ORDER' ||
-    intent.type === 'SUBMIT_CHAT' ||
+    bedsideOrder ||
     (wardAction && OVERTIME_BLOCKED_WARD.includes(intent.name));
   const movement =
     intent.type === 'ENTER_BED' ||
@@ -167,11 +168,11 @@ function gateIntent(state: GameState, intent: PlayerIntent): Reduction | undefin
     (wardAction && intent.name === 'GO_TO_BED');
 
   if (phase === 'OVERTIME' && newWork) {
-    if (!(state.resus?.status === 'ARREST' && intent.type === 'SUBMIT_CHAT')) {
+    if (!(state.resus?.status === 'ARREST' && bedsideOrder)) {
       return reject(state, 'OVERTIME_FROZEN');
     }
   }
-  const resuscitating = state.resus?.status === 'ARREST' && intent.type === 'SUBMIT_CHAT';
+  const resuscitating = state.resus?.status === 'ARREST' && bedsideOrder;
   if (state.shift.rounds.active && (newWork || movement || wardAction) && !resuscitating) {
     return reject(state, 'ROUND_ACTIVE');
   }

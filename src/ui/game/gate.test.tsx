@@ -11,6 +11,7 @@ import { chat, gate, order, report } from './fixtures';
 function makeActions() {
   return {
     submitChat: vi.fn(),
+    placeOrder: vi.fn(),
     togglePause: vi.fn(),
     setSpeed: vi.fn(),
     cancelOrder: vi.fn(),

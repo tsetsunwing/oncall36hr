@@ -12,9 +12,20 @@ export function queueBeatsForOrders(
   extraTokens: Record<string, string>,
   addressed: string[],
   ctx: EngineContext,
+  resolvedOrder?: { catalogId: string; label: string },
 ): Reduction {
   const tokens = { ...vitalTokens(patient, ctx.tables), ...patientTokens(patient), ...extraTokens };
-  const queued = queueDialogue(state, { patientId: patient.id, beats, tokens, addressed }, ctx);
+  const queued = queueDialogue(
+    state,
+    {
+      patientId: patient.id,
+      beats,
+      tokens,
+      addressed,
+      ...(resolvedOrder ? { resolvedOrder } : {}),
+    },
+    ctx,
+  );
   return queued
     ? { state: queued.state, effects: queued.effect ? [queued.effect] : [] }
     : { state, effects: [] };

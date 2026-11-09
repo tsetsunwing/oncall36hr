@@ -1,9 +1,11 @@
 export * from './startGate';
 export * from './clock';
 export * from './gameView';
-export { composePromptPhrase } from './quickPrompt';
+export { composePromptPhrase, placedPromptParams } from './quickPrompt';
 export {
   composeDrugOrderPhrase,
+  EMPTY_PLACED_PARAMS,
+  placedDrugParams,
   DILUENTS,
   DOSE_UNITS,
   DRUG_ROUTES,

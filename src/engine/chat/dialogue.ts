@@ -43,6 +43,8 @@ export type Beat =
       labelToken: string;
       tokens: string[];
       abnormal: Abnormal[];
+      /** 目錄已經寫好嘅結果句。有呢句就本地講，唔再叫模型認 order。 */
+      preset?: string;
     }
   | { type: 'REPORT_STATUS'; speaker: 'NURSE'; tokens: string[]; abnormal: Abnormal[] }
   | {
@@ -134,6 +136,8 @@ export interface DialogueTurnInput {
   /** 發言當刻凍結嘅 token 值；key 即係 AI 可以用嘅 allowedTokens */
   tokens: Record<string, string>;
   addressed: string[];
+  /** 已經落定嘅一張 order。提醒呼叫只帶呢張，唔帶目錄。 */
+  resolvedOrder?: { catalogId: string; label: string };
 }
 
 interface SpeakerLike {
@@ -198,7 +202,9 @@ function scriptedNurseTurn(
     if (!nurse) continue;
     const needed = extractTokens(template);
     const limit = beat.type === 'ALERT_DETERIORATION' ? 220 : ctx.config.chat.maxLineChars;
-    if (validateTemplate(template, new Set(needed), limit) !== null) {
+    const catalogSentence =
+      beat.type === 'REPORT_RESULT' && beat.preset !== undefined && template === beat.preset;
+    if (!catalogSentence && validateTemplate(template, new Set(needed), limit) !== null) {
       continue;
     }
     const tokenValues: Record<string, string> = {};
@@ -311,6 +317,7 @@ export function queueDialogue(
       beats,
       allowedTokens,
       card: patientCard(scripted.state, patient.id),
+      ...(input.resolvedOrder ? { order: input.resolvedOrder } : {}),
       recent: recentLines(
         scripted.state.chats[patient.id] ?? thread,
         ctx.config.chat.recentLinesForContext,

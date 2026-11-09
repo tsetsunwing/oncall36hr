@@ -149,7 +149,11 @@ function orderParse(prompt: Record<string, unknown>, mode: ContractMode): string
       if (mode === 'inject') data.intent = 'ORDER';
       break;
     case 'unknown-catalog':
-      data = { intent: 'ORDER', actions: [{ catalogId: 'drug.morphine' }], cancelTargets: [] };
+      data = {
+        intent: 'ORDER',
+        actions: [{ catalogId: 'drug.not-in-catalog' }],
+        cancelTargets: [],
+      };
       break;
     case 'invented-dose':
       data = {

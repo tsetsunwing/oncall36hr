@@ -129,6 +129,7 @@ export function completeOrder(state: GameState, order: Order, ctx: EngineContext
       labelToken: 'order.1.label',
       tokens: resultTokens,
       abnormal: abnormalOf(withFlags, ctx.tables),
+      preset: row.resultTemplate,
     };
     const queued = queueDialogue(
       next,
@@ -137,6 +138,7 @@ export function completeOrder(state: GameState, order: Order, ctx: EngineContext
         beats: [beat],
         tokens: { ...tokens, 'order.1.label': label },
         addressed: [],
+        resolvedOrder: { catalogId: row.id, label },
       },
       ctx,
     );

@@ -10,6 +10,7 @@ import {
 import { Send } from 'lucide-react';
 import { ui } from '@/i18n';
 import {
+  EMPTY_PLACED_PARAMS,
   RESUS_MENU,
   TEST_ACTION_ORDER,
   TEST_MENU_BUCKETS,
@@ -40,6 +41,7 @@ function medicationChoices(
       id,
       label: chip.label,
       stem: chip.prompt?.stem ?? chip.label.toLowerCase(),
+      catalogId: chip.catalogId ?? '',
     },
     ...medications,
   ];
@@ -107,7 +109,7 @@ function ChipMenus({
   onDrug,
 }: {
   chips: QuickChipView[];
-  onPick: (text: string) => void;
+  onPick: (chip: QuickChipView) => void;
   onPrompt: (chip: QuickChipView) => void;
   onDrug: (chip: QuickChipView) => void;
 }) {
@@ -129,7 +131,7 @@ function ChipMenus({
   function choose(chip: QuickChipView) {
     if (chip.medicationId) onDrug(chip);
     else if (chip.prompt) onPrompt(chip);
-    else onPick(chip.text);
+    else onPick(chip);
     close();
   }
 
@@ -416,6 +418,11 @@ export function ChatPanel({
     setDismissed(false);
   }
 
+  function placeChip(chip: QuickChipView) {
+    if (!chip.catalogId) return;
+    actions.placeOrder(chat.patientId, chip.catalogId, chip.label, EMPTY_PLACED_PARAMS);
+  }
+
   function onSubmit(event: FormEvent) {
     event.preventDefault();
     submit(text);
@@ -526,7 +533,10 @@ export function ChatPanel({
         {promptChip?.prompt ? (
           <ChipPrompt
             chip={promptChip}
-            onSubmit={submit}
+            onSubmit={(text, params) => {
+              if (!promptChip.catalogId) return;
+              actions.placeOrder(chat.patientId, promptChip.catalogId, text, params);
+            }}
             onClose={() => {
               setPromptChip(null);
             }}
@@ -534,7 +544,7 @@ export function ChatPanel({
         ) : null}
         <ChipMenus
           chips={chips}
-          onPick={submit}
+          onPick={placeChip}
           onPrompt={(chip) => {
             setPromptChip(chip);
           }}
@@ -547,8 +557,8 @@ export function ChatPanel({
         <DrugOrderForm
           drugId={drugChip.medicationId}
           medications={medicationChoices(medications, drugChip)}
-          onSubmit={(phrase) => {
-            submit(phrase);
+          onSubmit={(order) => {
+            actions.placeOrder(chat.patientId, order.catalogId, order.text, order.params);
             setDrugChip(null);
           }}
           onClose={() => {

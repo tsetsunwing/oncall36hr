@@ -431,6 +431,7 @@ function selectMedications(tables: EngineTables): MedicationOption[] {
         id: drug.id,
         label: drug.label,
         stem: word?.promptStem ?? drug.label.toLowerCase(),
+        catalogId: drug.catalogId,
       },
     ];
   });

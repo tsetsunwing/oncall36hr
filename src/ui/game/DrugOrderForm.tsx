@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { ui } from '@/i18n';
 import {
   composeDrugOrderPhrase,
+  placedDrugParams,
   DILUENTS,
   DOSE_UNITS,
   DRUG_ROUTES,
@@ -14,12 +15,13 @@ import {
   TITRATION_TARGETS,
   type DrugOrderDraft,
   type MedicationOption,
+  type PlacedOrderParams,
 } from '@/view';
 
 export interface DrugOrderFormProps {
   drugId: string;
   medications: readonly MedicationOption[];
-  onSubmit: (text: string) => void;
+  onSubmit: (order: { catalogId: string; text: string; params: PlacedOrderParams }) => void;
   onClose: () => void;
 }
 
@@ -87,9 +89,11 @@ export function DrugOrderForm({ drugId, medications, onSubmit, onClose }: DrugOr
   }
 
   function submit() {
+    if (!selected || selected.catalogId.length === 0) return;
+    const params = placedDrugParams(selected.id, draft);
     const phrase = composeDrugOrderPhrase(draft);
-    if (!phrase) return;
-    onSubmit(phrase);
+    if (!params || !phrase) return;
+    onSubmit({ catalogId: selected.catalogId, text: phrase, params });
   }
 
   return (

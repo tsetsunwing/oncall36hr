@@ -1,13 +1,15 @@
 /**
  * 床邊模組：床邊對話（設計 B）、玩家落字入口、AI 結果分派。
- * 玩家文字先試本地快捷詞 parser（唔經 AI）；唔中先發 order.parse。
+ * 自由文字先試本地快捷詞（別名只留喺呢條路）；唔中先發 order.parse。
+ * 菜單同藥物表用 PLACE_CATALOG，按 catalog id 直接落單，唔解析、唔叫模型認 order。
  */
+import { z } from 'zod';
 import type { Patient } from '../case/patient';
 import type { Present } from '../chat/chatTypes';
 import { appendLine, DIALOGUE_KIND, handleDialogueResult } from '../chat/dialogue';
 import { parseMentions } from '../chat/mentions';
 import { requestAi } from '../core/ai';
-import type { Reduction } from '../core/events';
+import type { PlayerIntent, Reduction } from '../core/events';
 import type { EngineContext, EngineModule } from '../core/module';
 import type { GameState } from '../core/state';
 import { handleOrderParseResult, ORDER_PARSE_KIND } from '../orders/orderParse';
@@ -17,11 +19,103 @@ import { nurseForBed } from '../ward/nurses';
 
 const reject = (
   state: GameState,
-  kind: 'CHAT_EMPTY' | 'CHAT_TOO_LONG' | 'PATIENT_UNKNOWN' | 'ORDER_BLOCKED_PAUSED',
+  kind:
+    | 'CHAT_EMPTY'
+    | 'CHAT_TOO_LONG'
+    | 'PATIENT_UNKNOWN'
+    | 'ORDER_BLOCKED_PAUSED'
+    | 'ORDER_UNKNOWN'
+    | 'ORDER_INVALID',
 ): Reduction => ({
   state,
   effects: [{ type: 'NOTICE', kind, tone: 'warn' }],
 });
+
+const placedParamsSchema = z
+  .object({
+    drugFormularyId: z.string().nullable(),
+    dose: z
+      .object({ value: z.number().positive(), unit: z.string().min(1) })
+      .strict()
+      .nullable(),
+    route: z.string().min(1).nullable(),
+    frequency: z.string().min(1).optional(),
+    times: z.number().int().min(1).max(3).optional(),
+    rate: z
+      .object({ value: z.number().positive(), unit: z.string().min(1) })
+      .strict()
+      .optional(),
+  })
+  .strict();
+
+function oxygenFlowRejected(
+  catalogId: string,
+  dose: { value: number; unit: string } | null,
+): boolean {
+  if (catalogId !== 'oxygen.nasal' && catalogId !== 'oxygen.nrb') return false;
+  if (dose?.unit !== 'L/min') return true;
+  if (catalogId === 'oxygen.nasal') return dose.value < 1 || dose.value > 6;
+  return dose.value < 10 || dose.value > 15;
+}
+
+function placeCatalog(
+  state: GameState,
+  intent: Extract<PlayerIntent, { type: 'PLACE_CATALOG' }>,
+  ctx: EngineContext,
+): Reduction {
+  if (state.paused) return reject(state, 'ORDER_BLOCKED_PAUSED');
+  const text = intent.text.trim();
+  if (text.length === 0) return reject(state, 'CHAT_EMPTY');
+  if (text.length > ctx.config.chat.playerTextMaxChars) return reject(state, 'CHAT_TOO_LONG');
+  const patient = state.patients[intent.patientId];
+  const thread = state.chats[intent.patientId];
+  if (!patient || !thread) return reject(state, 'PATIENT_UNKNOWN');
+  const row = ctx.tables['order-catalog'].find((item) => item.id === intent.catalogId);
+  if (!row) return reject(state, 'ORDER_UNKNOWN');
+  const parsed = placedParamsSchema.safeParse(intent.params);
+  if (!parsed.success) return reject(state, 'ORDER_INVALID');
+  const params = parsed.data;
+  if (row.formularyId) {
+    if (params.drugFormularyId !== row.formularyId) return reject(state, 'ORDER_INVALID');
+  } else if (params.drugFormularyId !== null) {
+    return reject(state, 'ORDER_INVALID');
+  }
+  if (oxygenFlowRejected(row.id, params.dose)) return reject(state, 'ORDER_INVALID');
+  const stored = {
+    drugFormularyId: params.drugFormularyId,
+    dose: params.dose,
+    route: params.route,
+    ...(params.frequency ? { frequency: params.frequency } : {}),
+    ...(params.times ? { times: params.times } : {}),
+    ...(params.rate ? { rate: params.rate } : {}),
+  };
+
+  const submittedAt = state.clock.t;
+  const withPlayerLine = appendLine(state, {
+    t: submittedAt,
+    patientId: patient.id,
+    speaker: { kind: 'PLAYER', id: 'player' },
+    template: text,
+    tokenValues: {},
+    orderId: null,
+  });
+  return placeAndAck(
+    withPlayerLine,
+    patient,
+    [
+      {
+        patientId: patient.id,
+        row,
+        params: stored,
+        source: 'QUICKWORD',
+        preferredExecutor: null,
+        submittedAt,
+      },
+    ],
+    parseMentions(text, thread.present),
+    ctx,
+  );
+}
 
 export const MENTION_KEYS = { NURSE: ['RN', '護士'], PATIENT: ['病人'] } as const;
 
@@ -199,6 +293,9 @@ export const bedsideModule: EngineModule = {
         const queued = requestAi(withPlayerLine, ORDER_PARSE_KIND, context);
         return { state: queued.state, effects: [queued.effect] };
       }
+
+      case 'PLACE_CATALOG':
+        return placeCatalog(state, intent, ctx);
 
       default:
         return undefined;

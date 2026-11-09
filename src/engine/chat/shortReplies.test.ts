@@ -45,6 +45,30 @@ describe('shortReplyTemplate', () => {
     }
   });
 
+  it('目錄已經寫好嘅結果句本地使用，唔交模型', () => {
+    const beat: Beat = {
+      type: 'REPORT_RESULT',
+      speaker: 'NURSE',
+      labelToken: 'order.1.label',
+      tokens: ['vital.hr', 'rhythm.label'],
+      abnormal: [],
+      preset: 'Pulse {{vital.hr}}/min, {{rhythm.label}}',
+    };
+    expect(shortReplyTemplate(beat)).toBe('Pulse {{vital.hr}}/min, {{rhythm.label}}');
+  });
+
+  it('生命表徵結果沿用既有量度句，唔改成目錄英文', () => {
+    const beat: Beat = {
+      type: 'REPORT_RESULT',
+      speaker: 'NURSE',
+      labelToken: 'order.1.label',
+      tokens: vitalTokens,
+      abnormal: [],
+      preset: 'HR {{vital.hr}}',
+    };
+    expect(shortReplyTemplate(beat)).toContain('量完生命體徵');
+  });
+
   it('含其他數值嘅結果交返模型', () => {
     const beat: Beat = {
       type: 'REPORT_RESULT',

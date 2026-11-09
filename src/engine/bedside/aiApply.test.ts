@@ -118,8 +118,11 @@ describe('order.parse 套用', () => {
   });
 
   it('虛構 catalogId 唔建 order，反問玩家再講一次', () => {
-    const { run, reqId } = ask('俾 morphine');
-    const done = answer(run, reqId, { intent: 'ORDER', actions: [{ catalogId: 'drug.morphine' }] });
+    const { run, reqId } = ask('俾呢樣');
+    const done = answer(run, reqId, {
+      intent: 'ORDER',
+      actions: [{ catalogId: 'drug.not-in-catalog' }],
+    });
     expect(Object.keys(done.state.orders)).toHaveLength(0);
     expect(aiRequests(done.effects)).toHaveLength(0);
     const lines = Object.values(done.state.chats).flatMap((chat) => chat.lines);
@@ -265,9 +268,7 @@ describe('dialogue.turn：token 凍結與即時', () => {
 
   it('惡化提示用固定 SBAR，數值在寫入當刻凍結，之後生命表徵改變唔會改寫', () => {
     const run = advance(engine, fresh('freeze-1'), 1800);
-    expect(aiRequests(run.effects).some((request) => request.kind === 'dialogue.turn')).toBe(
-      false,
-    );
+    expect(aiRequests(run.effects).some((request) => request.kind === 'dialogue.turn')).toBe(false);
     const line = run.state.chats.p1?.lines.find((item) => item.template.startsWith('S：'));
     expect(line?.template).toContain('{{vital.hr}}');
     expect(line?.template).toContain('{{vital.sbp}}/{{vital.dbp}}');

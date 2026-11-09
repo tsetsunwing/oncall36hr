@@ -152,6 +152,7 @@ export function handleResultReport(
       beats: [beat],
       tokens: { ...patientTokens(patient), 'order.1.label': label },
       addressed: [],
+      resolvedOrder: { catalogId: order.catalogId, label },
     },
     ctx,
   );

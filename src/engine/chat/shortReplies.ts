@@ -41,6 +41,7 @@ export function shortReplyTemplate(beat: Beat): string | null {
   }
   if (beat.type !== 'REPORT_RESULT') return null;
   if (isVitalCheck(beat.tokens)) return VITAL_CHECK_LINE;
+  if (beat.preset) return beat.preset;
   if (beat.tokens.length === 0) return `已執行 {{${beat.labelToken}}}。`;
   return null;
 }

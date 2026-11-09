@@ -1,11 +1,16 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { ui } from '@/i18n';
-import { composePromptPhrase, type QuickChipView } from '@/view';
+import {
+  composePromptPhrase,
+  placedPromptParams,
+  type PlacedOrderParams,
+  type QuickChipView,
+} from '@/view';
 import type { PromptPhraseValues } from '@/view/quickPrompt';
 
 export interface ChipPromptProps {
   chip: QuickChipView;
-  onSubmit: (text: string) => void;
+  onSubmit: (text: string, params: PlacedOrderParams) => void;
   onClose: () => void;
 }
 
@@ -123,7 +128,10 @@ export function ChipPrompt({ chip, onSubmit, onClose }: ChipPromptProps) {
       onSubmit={(event) => {
         event.preventDefault();
         if (!ready) return;
-        onSubmit(composePromptPhrase(prompt.stem, values));
+        onSubmit(
+          composePromptPhrase(prompt.stem, values),
+          placedPromptParams(values, chip.medicationId ?? null),
+        );
         onClose();
       }}
     >

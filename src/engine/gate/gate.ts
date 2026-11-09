@@ -381,13 +381,15 @@ function insistOrder(state: GameState, orderId: string, ctx: EngineContext): Red
     }));
     const updated: GateRecord = { ...gate, insistCount: count, phase: 'RECONFIRM' };
     const next = setOrder(state, { ...order, gate: updated });
+    const tokens = gateTokens(patient, order, row, ctx);
     const queued = queueDialogue(
       next,
       {
         patientId: patient.id,
         beats,
-        tokens: gateTokens(patient, order, row, ctx),
+        tokens,
         addressed: [],
+        resolvedOrder: { catalogId: order.catalogId, label: tokens['order.label'] ?? row.label },
       },
       ctx,
     );

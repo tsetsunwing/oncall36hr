@@ -1,5 +1,6 @@
 import type { QuickWordRow } from '@/engine';
 import type {
+  PlacedOrderParams,
   QuickChipFrequencyField,
   QuickChipPrompt,
   QuickChipPromptField,
@@ -127,6 +128,27 @@ function fieldFor(
     return amount(id, ['L/min'], defaults?.flow ?? null, required, bounds);
   }
   return amount('transfusion', ['unit'], defaults?.transfusion ?? null, required);
+}
+
+/** 氧氣、點滴、能量彈窗確認後嘅欄位。句子只係顯示，唔再拿去解析。 */
+export function placedPromptParams(
+  values: PromptPhraseValues,
+  formularyId: string | null,
+): PlacedOrderParams {
+  let dose = values.dose ?? null;
+  if (!dose && values.flow != null) dose = { value: values.flow, unit: 'L/min' };
+  else if (!dose && values.energy != null) dose = { value: values.energy, unit: 'J' };
+  else if (!dose && values.volume != null) dose = { value: values.volume, unit: 'ml' };
+  else if (!dose && values.transfusion != null) dose = { value: values.transfusion, unit: 'unit' };
+  const params: PlacedOrderParams = {
+    drugFormularyId: formularyId,
+    dose,
+    route: values.route ?? null,
+  };
+  if (values.frequency) params.frequency = values.frequency;
+  if (values.times) params.times = values.times;
+  if (values.rate != null) params.rate = { value: values.rate, unit: 'ml/hr' };
+  return params;
 }
 
 function flowBounds(catalogId: string): { min: number; max: number } | undefined {

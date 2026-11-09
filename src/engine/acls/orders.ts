@@ -80,6 +80,7 @@ export function applyAclsOrder(
       [{ type: 'ACLS_NOT_APPLICABLE', speaker: 'NURSE', labelToken: label.token }],
       { [label.token]: label.text },
       ctx,
+      { catalogId: row.id, label: label.text },
     );
   }
 

@@ -1,3 +1,5 @@
+import type { PlacedOrderParams } from './types';
+
 /** 藥物醫囑表組句。只拼玩家揀嘅字，唔查劑量表。 */
 export const DRUG_ROUTES = [
   { id: 'po', phrase: 'PO (Oral)' },
@@ -77,7 +79,32 @@ export function drugOrderReady(draft: DrugOrderDraft): boolean {
   return draft.frequency !== null;
 }
 
-/** 組一句交回現有聊天。可選項目放喺 ` | ` 後面，唔當係劑量。 */
+export const EMPTY_PLACED_PARAMS: PlacedOrderParams = {
+  drugFormularyId: null,
+  dose: null,
+  route: null,
+};
+
+/** 藥物表確認後嘅結構化欄位。聊天句子只係顯示，唔再拿去解析。 */
+export function placedDrugParams(
+  formularyId: string,
+  draft: DrugOrderDraft,
+): PlacedOrderParams | null {
+  if (!drugOrderReady(draft) || !draft.route || !draft.doseUnit) return null;
+  const params: PlacedOrderParams = {
+    drugFormularyId: formularyId,
+    dose: { value: Number(draft.doseValue), unit: draft.doseUnit },
+    route: draft.route,
+  };
+  if (isInfusionRoute(draft.route) && draft.rateUnit) {
+    params.rate = { value: Number(draft.rateValue), unit: draft.rateUnit };
+  } else if (draft.frequency) {
+    params.frequency = draft.frequency;
+  }
+  return params;
+}
+
+/** 組一句交回聊天顯示。可選項目放喺 ` | ` 後面。落單唔再解析呢句。 */
 export function composeDrugOrderPhrase(draft: DrugOrderDraft): string | null {
   if (!drugOrderReady(draft) || !draft.route || !draft.doseUnit) return null;
   const infusion = isInfusionRoute(draft.route);

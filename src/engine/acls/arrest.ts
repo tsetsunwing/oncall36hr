@@ -75,10 +75,11 @@ export function narrate(
   beats: Beat[],
   tokens: Record<string, string>,
   ctx: EngineContext,
+  resolvedOrder?: { catalogId: string; label: string },
 ): Step {
   const patient = state.patients[patientId];
   if (!patient) return done(state);
-  return queueBeatsForOrders(state, patient, beats, tokens, [], ctx);
+  return queueBeatsForOrders(state, patient, beats, tokens, [], ctx, resolvedOrder);
 }
 
 export function rhythmTokens(rhythm: RhythmRow | undefined, id: string): Record<string, string> {

@@ -7,6 +7,13 @@ import type { EngineConfig } from './config';
 import type { Effect } from './events';
 import type { GameState } from './state';
 
+/** 把關審視唔凍結時鐘。本地落單本身亦唔暫停；只係其餘未完成嘅模型呼叫（包括護士提醒）先暫停。 */
+const CLOCK_KEEPS_RUNNING = new Set(['gate.pharmacy', 'gate.nurse', 'gate.danger']);
+
+export function pendingPausesClock(pending: readonly { kind: string }[]): boolean {
+  return pending.some((request) => !CLOCK_KEEPS_RUNNING.has(request.kind));
+}
+
 /** 每真實毫秒推進幾多遊戲秒；暫停、等 AI 回覆、交班／結束階段時為 0 */
 export function gameSecondsPerRealMs(
   config: EngineConfig,
@@ -16,8 +23,8 @@ export function gameSecondsPerRealMs(
   if (state.clock.phase === 'HANDOVER' || state.clock.phase === 'ENDED') return 0;
   // 玩家打開巡房之後先暫停；未打開唔會進入巡房
   if (state.shift.rounds.active) return 0;
-  // C1：等 AI 回覆期間遊戲時鐘自動暫停
-  if (config.clock.pauseWhileAiPending && state.pendingAi.length > 0) return 0;
+  // C1：等模型回覆期間遊戲時鐘自動暫停。本地落單同把關審視唔計。
+  if (config.clock.pauseWhileAiPending && pendingPausesClock(state.pendingAi)) return 0;
   const baseAt1x = 60 / (config.clock.realSecondsPerGameMinuteAt1x * 1000);
   // CPR 期間有效速率固定為 1 倍嘅 cprSlowFactor，無視玩家倍速（S-3 A）
   const multiplier = state.clock.cprSlow ? config.clock.cprSlowFactor : state.clock.speed;

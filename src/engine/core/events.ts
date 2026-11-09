@@ -7,6 +7,21 @@ export type CoreIntent =
   | { type: 'RESUME' }
   | { type: 'SET_SPEED'; speed: number }
   | { type: 'PLACE_ORDER'; patientId: string; catalogId: string; durationSec: number }
+  | {
+      type: 'PLACE_CATALOG';
+      patientId: string;
+      catalogId: string;
+      /** 聊天顯示嘅句子。engine 唔解析佢，亦唔交俾模型認 order。 */
+      text: string;
+      params: {
+        drugFormularyId: string | null;
+        dose: { value: number; unit: string } | null;
+        route: string | null;
+        frequency?: string;
+        times?: number;
+        rate?: { value: number; unit: string };
+      };
+    }
   | { type: 'CANCEL_ORDER'; orderId: string }
   | { type: 'INSIST_ORDER'; orderId: string }
   | { type: 'SAVE_GAME'; slot: number }

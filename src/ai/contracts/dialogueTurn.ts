@@ -140,6 +140,7 @@ export const dialoguePromptSchema = z.object({
   recent: z.array(z.object({ speaker: z.string(), kind: z.string(), template: z.string() })),
   maxLines: z.number().int().positive(),
   maxLineChars: z.number().int().positive(),
+  order: z.object({ catalogId: z.string(), label: z.string() }).optional(),
 });
 
 export const dialogueLocalSchema = z.object({

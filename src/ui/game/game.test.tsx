@@ -14,6 +14,7 @@ import { chat, clock, monitor, order, patient, row } from './fixtures';
 function makeActions() {
   return {
     submitChat: vi.fn(),
+    placeOrder: vi.fn(),
     togglePause: vi.fn(),
     setSpeed: vi.fn(),
     cancelOrder: vi.fn(),
@@ -329,7 +330,12 @@ describe('ChatPanel', () => {
     expect(screen.getByTestId('test-action-qw.cbc')).toHaveTextContent('CBC');
     expect(screen.getByTestId('test-action-qw.crossmatch')).toHaveTextContent('Cross-match');
     await user.click(screen.getByTestId('test-action-qw.cbc'));
-    expect(actions.submitChat).toHaveBeenCalledWith('p1', 'cbc');
+    expect(actions.placeOrder).toHaveBeenCalledWith('p1', 'lab.cbc', 'CBC', {
+      drugFormularyId: null,
+      dose: null,
+      route: null,
+    });
+    expect(actions.submitChat).not.toHaveBeenCalled();
     expect(screen.queryByTestId('test-menu')).not.toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: ui.game.chat.chipGroup.observe ?? '' }));
     expect(screen.getByRole('menuitem', { name: 'Check vitals' })).toBeInTheDocument();
@@ -415,20 +421,33 @@ describe('ChatPanel', () => {
     expect(screen.getByTestId('test-col-bucket')).toBeInTheDocument();
   });
 
-  it('快捷 chips 直接提交其文字', async () => {
+  it('快捷 chips 按 catalog id 直接落單', async () => {
     const user = userEvent.setup();
     const actions = makeActions();
     render(
       <ChatPanel
         chat={chat()}
-        chips={[{ id: 'c1', label: '查看生命表徵', text: 'check vitals', category: 'observe' }]}
+        chips={[
+          {
+            id: 'c1',
+            label: '查看生命表徵',
+            text: 'check vitals',
+            category: 'observe',
+            catalogId: 'obs.vitals',
+          },
+        ]}
         notice={null}
         actions={actions}
       />,
     );
     await user.click(screen.getByRole('button', { name: ui.game.chat.chipGroup.observe ?? '' }));
     await user.click(screen.getByRole('menuitem', { name: '查看生命表徵' }));
-    expect(actions.submitChat).toHaveBeenCalledWith('p1', 'check vitals');
+    expect(actions.placeOrder).toHaveBeenCalledWith('p1', 'obs.vitals', '查看生命表徵', {
+      drugFormularyId: null,
+      dose: null,
+      route: null,
+    });
+    expect(actions.submitChat).not.toHaveBeenCalled();
   });
 
   it('有數值嘅快捷先開小窗，確認後先送出劑量同頻次', async () => {
@@ -443,6 +462,7 @@ describe('ChatPanel', () => {
             label: 'Ceftriaxone',
             text: 'ceftriaxone 1 g iv',
             category: 'treat',
+            catalogId: 'drug.ceftriaxone',
             prompt: {
               stem: 'ceftriaxone',
               fields: [
@@ -487,7 +507,19 @@ describe('ChatPanel', () => {
       'x2',
     );
     await user.click(screen.getByTestId('chip-prompt-confirm'));
-    expect(actions.submitChat).toHaveBeenCalledWith('p1', 'ceftriaxone 2 g IV TDS x2');
+    expect(actions.placeOrder).toHaveBeenCalledWith(
+      'p1',
+      'drug.ceftriaxone',
+      'ceftriaxone 2 g IV TDS x2',
+      {
+        drugFormularyId: null,
+        dose: { value: 2, unit: 'g' },
+        route: 'IV',
+        frequency: 'TDS',
+        times: 2,
+      },
+    );
+    expect(actions.submitChat).not.toHaveBeenCalled();
   });
 
   it('被拒絕嘅動作顯示 notice（role=status）', () => {
