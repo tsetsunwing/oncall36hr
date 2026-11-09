@@ -2423,6 +2423,11 @@ tr[data-flag='H'] .value-flagged {
   bottom: 3.25rem;
 }
 
+/* 藥物表開啟時，治療選單不可留在表格後面遮住途徑。 */
+.chat:has(> .drug-order) .chip-menu {
+  display: none;
+}
+
 .drug-order h3 {
   margin: 0;
   font-size: 0.95rem;

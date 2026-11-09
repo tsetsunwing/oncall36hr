@@ -221,13 +221,13 @@ function ChipMenus({
                     className="chip"
                     data-testid="treat-drug"
                     onClick={() => {
+                      close();
                       onDrug({
                         id: 'treat.drug',
                         label: c.drugOrder.drug,
                         text: '',
                         category: 'treat',
                       });
-                      close();
                     }}
                   >
                     {c.drugOrder.drug}
