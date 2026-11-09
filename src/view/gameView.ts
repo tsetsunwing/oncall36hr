@@ -366,7 +366,7 @@ function selectActionLog(
       bed: patient?.bed ?? null,
       kind: entry.kind,
       label: order
-        ? (presetLabel(order, env.tables) ?? composeOrderLabel(row, order))
+        ? (order.params.summary ?? presetLabel(order, env.tables) ?? composeOrderLabel(row, order))
         : (delegated?.label ?? null),
       group: order ? groupForCatalog(order.catalogId, env.tables) : (delegated?.group ?? null),
       eventCode: entry.kind === 'EVENT' ? entry.reasonCode : null,
@@ -492,6 +492,7 @@ function selectQuickChips(tables: EngineTables): QuickChipView[] {
       null;
     const prompt = chipPrompt(word, formulary);
     const report = row?.resultId ? knownReportCategory(row.resultId) : null;
+    if (word.menu === false) return [];
     return word.chipLabel && text
       ? [
           {

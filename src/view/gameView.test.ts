@@ -120,7 +120,7 @@ describe('ViewModel：只映射可見資料', () => {
   it('快捷 chips 來自 quick-words 表', () => {
     const chips = selectGameView(play([]), env).quickChips;
     expect(chips.map((c) => c.label)).toEqual(
-      tables['quick-words'].flatMap((w) => (w.chipLabel ? [w.chipLabel] : [])),
+      tables['quick-words'].flatMap((w) => (w.chipLabel && w.menu !== false ? [w.chipLabel] : [])),
     );
     expect(chips.find((chip) => chip.label === 'CBC')?.report).toEqual({
       bucket: 'laboratory',
@@ -160,6 +160,11 @@ describe('ViewModel：只映射可見資料', () => {
         ),
       ),
     ).toBe(false);
+    expect(view.treatmentMedications.some((item) => item.label === 'Ceftriaxone')).toBe(true);
+    expect(view.quickChips.filter((chip) => chip.category === 'treat')).toEqual([]);
+    expect(view.quickChips.filter((chip) => chip.category === 'observe')).toEqual([]);
+    expect(view.quickChips.some((chip) => chip.label === 'Normal saline')).toBe(false);
+    expect(view.quickChips.some((chip) => chip.label === 'Ceftriaxone')).toBe(false);
     const labels = view.treatmentMedications.map((item) => item.label.toLowerCase());
     expect(new Set(labels).size).toBe(labels.length);
     expect(view.treatmentMedications.some((item) => item.label.includes('DYSPEPSIA'))).toBe(false);

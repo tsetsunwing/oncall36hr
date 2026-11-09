@@ -6,6 +6,7 @@ export function composeOrderLabel(
   row: OrderCatalogRow | undefined,
   order: Pick<Order, 'catalogId' | 'params'>,
 ): string {
+  if (order.params.summary) return order.params.summary;
   const base = order.params.drugName ?? row?.label ?? order.catalogId;
   const dose = order.params.dose
     ? ` ${String(order.params.dose.value)} ${order.params.dose.unit}`

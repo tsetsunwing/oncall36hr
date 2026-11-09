@@ -246,6 +246,8 @@ export interface PlacedOrderParams {
   rate?: { value: number; unit: string };
   /** 治療藥表的列 id。引擎用來對藥典、類別或醫囑 AI。 */
   treatmentDrugId?: string;
+  /** 行動記錄與護士確認顯示的短標籤。 */
+  summary?: string;
 }
 
 export interface QuickChipView {

@@ -164,6 +164,8 @@ export interface QuickWordRow {
   catalogId: string;
   chipLabel?: string | undefined;
   chipGroup?: 'observe' | 'treat' | 'tests' | 'resus' | undefined;
+  /** false：保留覆盤標籤，但不放進快捷選單。 */
+  menu?: boolean | undefined;
   prompt?:
     | readonly (
         | 'dose'

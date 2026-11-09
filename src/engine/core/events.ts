@@ -21,6 +21,8 @@ export type CoreIntent =
         times?: number;
         rate?: { value: number; unit: string };
         treatmentDrugId?: string;
+        /** 行動記錄與護士確認用的短標籤。引擎不解析這句。 */
+        summary?: string;
       };
     }
   | { type: 'CANCEL_ORDER'; orderId: string }

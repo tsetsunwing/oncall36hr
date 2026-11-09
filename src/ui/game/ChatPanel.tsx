@@ -23,12 +23,16 @@ import {
   type GateCardView,
   type QuickChipCategory,
   type MedicationOption,
+  type PlacedOrderParams,
   type QuickChipView,
   type ReportBucket,
 } from '@/view';
+import { CatheterOrders } from './CatheterOrders';
 import { ChipPrompt } from './ChipPrompt';
 import { DrugOrderForm } from './DrugOrderForm';
 import { GatePanel } from './GatePanel';
+import { ObservePanel } from './ObservePanel';
+import { OxygenOrderForm } from './OxygenOrderForm';
 
 const MENTION_AT_END = /[@＠]([^\s@＠]*)$/u;
 
@@ -211,12 +215,18 @@ function ChipMenus({
   onPick,
   onPrompt,
   onDrug,
+  onOxygen,
+  onCatheters,
+  onObserve,
   suspended = false,
 }: {
   chips: QuickChipView[];
   onPick: (chip: QuickChipView) => void;
   onPrompt: (chip: QuickChipView) => void;
   onDrug: (chip: QuickChipView) => void;
+  onOxygen: () => void;
+  onCatheters: () => void;
+  onObserve: (order: { catalogId: string; text: string; params: PlacedOrderParams }) => void;
   /** 藥物視窗開啟時收起治療選單，並保持關閉。 */
   suspended?: boolean;
 }) {
@@ -254,7 +264,9 @@ function ChipMenus({
   useEffect(() => {
     if (!open) return;
     function onPointer(event: PointerEvent) {
-      if (!rootRef.current?.contains(event.target as Node)) close();
+      if (rootRef.current?.contains(event.target as Node)) return;
+      if (open === 'observe') return;
+      close();
     }
     function onKey(event: globalThis.KeyboardEvent) {
       if (event.key === 'Escape') close();
@@ -274,7 +286,8 @@ function ChipMenus({
     <div className="chips" role="group" aria-label={c.quickGroup} ref={rootRef}>
       {CHIP_GROUPS.map((category) => {
         const items = chips.filter((chip) => chip.category === category);
-        if (items.length === 0) return null;
+        const pinned = category === 'treat' || category === 'observe';
+        if (items.length === 0 && !pinned) return null;
         const label = c.chipGroup[category] ?? category;
         const shown = open === category;
         return (
@@ -300,10 +313,38 @@ function ChipMenus({
             {shown && !suspended && category !== 'tests' && category !== 'resus' ? (
               <div
                 id={`chip-menu-${category}`}
-                className="chip-menu"
-                role="menu"
+                className={category === 'observe' ? 'chip-menu chip-menu--panel' : 'chip-menu'}
+                role={category === 'observe' ? 'group' : 'menu'}
                 aria-label={label}
               >
+                {category === 'treat' ? (
+                  <button
+                    type="button"
+                    role="menuitem"
+                    className="chip"
+                    data-testid="treat-oxygen"
+                    onClick={() => {
+                      close();
+                      onOxygen();
+                    }}
+                  >
+                    {c.oxygen.title}
+                  </button>
+                ) : null}
+                {category === 'treat' ? (
+                  <button
+                    type="button"
+                    role="menuitem"
+                    className="chip"
+                    data-testid="treat-catheters"
+                    onClick={() => {
+                      close();
+                      onCatheters();
+                    }}
+                  >
+                    {c.catheters.title}
+                  </button>
+                ) : null}
                 {items.map((chip) => (
                   <button
                     key={chip.id}
@@ -335,6 +376,14 @@ function ChipMenus({
                   >
                     {c.drugOrder.menu}
                   </button>
+                ) : null}
+                {category === 'observe' ? (
+                  <ObservePanel
+                    onSubmit={(order) => {
+                      onObserve(order);
+                      close();
+                    }}
+                  />
                 ) : null}
               </div>
             ) : null}
@@ -520,6 +569,8 @@ export function ChatPanel({
   const [text, setText] = useState('');
   const [promptChip, setPromptChip] = useState<QuickChipView | null>(null);
   const [drugChip, setDrugChip] = useState<QuickChipView | null>(null);
+  const [oxygenOpen, setOxygenOpen] = useState(false);
+  const [catheterOpen, setCatheterOpen] = useState(false);
   const [active, setActive] = useState(0);
   const [dismissed, setDismissed] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -704,16 +755,67 @@ export function ChatPanel({
         ) : null}
         <ChipMenus
           chips={chips}
-          suspended={drugChip !== null}
+          suspended={drugChip !== null || oxygenOpen || catheterOpen}
           onPick={placeChip}
           onPrompt={(chip) => {
             setPromptChip(chip);
           }}
           onDrug={(chip) => {
+            setOxygenOpen(false);
+            setCatheterOpen(false);
             setDrugChip(chip);
+          }}
+          onOxygen={() => {
+            setDrugChip(null);
+            setPromptChip(null);
+            setCatheterOpen(false);
+            setOxygenOpen(true);
+          }}
+          onCatheters={() => {
+            setDrugChip(null);
+            setPromptChip(null);
+            setOxygenOpen(false);
+            setCatheterOpen(true);
+          }}
+          onObserve={(order) => {
+            actions.placeOrder(chat.patientId, order.catalogId, order.text, order.params);
           }}
         />
       </div>
+      {oxygenOpen ? (
+        <DrugOrderPopup
+          onClose={() => {
+            setOxygenOpen(false);
+          }}
+        >
+          <OxygenOrderForm
+            onSubmit={(order) => {
+              actions.placeOrder(chat.patientId, order.catalogId, order.text, order.params);
+              setOxygenOpen(false);
+            }}
+            onClose={() => {
+              setOxygenOpen(false);
+            }}
+          />
+        </DrugOrderPopup>
+      ) : null}
+      {catheterOpen ? (
+        <DrugOrderPopup
+          onClose={() => {
+            setCatheterOpen(false);
+          }}
+        >
+          <CatheterOrders
+            onSubmit={(order) => {
+              actions.placeOrder(chat.patientId, order.catalogId, order.text, order.params);
+              setCatheterOpen(false);
+            }}
+            onClose={() => {
+              setCatheterOpen(false);
+            }}
+          />
+        </DrugOrderPopup>
+      ) : null}
       {drugChip ? (
         <DrugOrderPopup
           onClose={() => {

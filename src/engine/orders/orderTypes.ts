@@ -34,6 +34,8 @@ export const orderSchema = z
         rate: z.object({ value: z.number(), unit: z.string() }).strict().optional(),
         /** 未收錄藥物的顯示藥名。舊存檔冇呢欄。目錄醫囑不用。 */
         drugName: z.string().min(1).optional(),
+        /** 選單寫下的短標籤。有這欄時行動記錄與護士確認用它，不用目錄長名。舊存檔沒有。 */
+        summary: z.string().min(1).optional(),
       })
       .strict(),
     /**

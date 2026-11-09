@@ -4,14 +4,16 @@
     "aliases": ["check vitals", "check vital signs", "vital signs", "vitals", "vs", "check vs"],
     "catalogId": "obs.vitals",
     "chipLabel": "Check vitals",
-    "chipGroup": "observe"
+    "chipGroup": "observe",
+    "menu": false
   },
   {
     "id": "qw.pulse",
     "aliases": ["check pulse", "pulse check"],
     "catalogId": "obs.pulse",
     "chipLabel": "Check pulse",
-    "chipGroup": "observe"
+    "chipGroup": "observe",
+    "menu": false
   },
   {
     "id": "qw.nrb",
@@ -20,7 +22,8 @@
     "chipLabel": "Oxygen NRB",
     "chipGroup": "treat",
     "promptStem": "oxygen nrb",
-    "prompt": ["flow"]
+    "prompt": ["flow"],
+    "menu": false
   },
   {
     "id": "qw.nasal",
@@ -29,7 +32,8 @@
     "chipGroup": "treat",
     "chipLabel": "Oxygen nasal",
     "promptStem": "oxygen nasal",
-    "prompt": ["flow"]
+    "prompt": ["flow"],
+    "menu": false
   },
   {
     "id": "qw.ns500",
@@ -38,7 +42,8 @@
     "chipLabel": "Normal saline",
     "chipGroup": "treat",
     "promptStem": "ns",
-    "prompt": ["volume", "rate"]
+    "prompt": ["volume", "rate"],
+    "menu": false
   },
   {
     "id": "qw.ceftriaxone",
@@ -50,7 +55,8 @@
     "params": {
       "drugFormularyId": "ceftriaxone"
     },
-    "chipGroup": "treat"
+    "chipGroup": "treat",
+    "menu": false
   },
   {
     "id": "qw.ecg",
@@ -176,49 +182,56 @@
     "aliases": ["vs q15min"],
     "catalogId": "monitor.vitals.q15",
     "chipLabel": "Vitals q15min",
-    "chipGroup": "observe"
+    "chipGroup": "observe",
+    "menu": false
   },
   {
     "id": "qw.monitor.spo2",
     "aliases": ["continuous spo2"],
     "catalogId": "monitor.spo2",
     "chipLabel": "SpO2 monitor",
-    "chipGroup": "observe"
+    "chipGroup": "observe",
+    "menu": false
   },
   {
     "id": "qw.monitor.io",
     "aliases": ["strict io"],
     "catalogId": "monitor.io",
     "chipLabel": "Intake/output",
-    "chipGroup": "observe"
+    "chipGroup": "observe",
+    "menu": false
   },
   {
     "id": "qw.ngtube",
     "aliases": ["ng tube"],
     "catalogId": "proc.ngtube",
     "chipLabel": "NG tube",
-    "chipGroup": "treat"
+    "chipGroup": "treat",
+    "menu": false
   },
   {
     "id": "qw.foley",
     "aliases": ["foley"],
     "catalogId": "proc.foley",
     "chipLabel": "Foley",
-    "chipGroup": "treat"
+    "chipGroup": "treat",
+    "menu": false
   },
   {
     "id": "qw.cvc",
     "aliases": ["cvc"],
     "catalogId": "proc.cvc",
     "chipLabel": "CVC",
-    "chipGroup": "treat"
+    "chipGroup": "treat",
+    "menu": false
   },
   {
     "id": "qw.aline",
     "aliases": ["arterial line"],
     "catalogId": "proc.aline",
     "chipLabel": "Arterial line",
-    "chipGroup": "treat"
+    "chipGroup": "treat",
+    "menu": false
   },
   {
     "id": "qw.rft",

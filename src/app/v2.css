@@ -1631,6 +1631,32 @@ tr[data-flag='H'] .value-flagged {
   max-height: 520px;
 }
 
+/* 分類欄只跟自己的項目。另一欄在同一行高內捲動，不改變分類欄的頂部或高度。 */
+.frame-desktop .chip-menu--resus {
+  display: grid;
+  grid-template-columns: max-content max-content;
+  align-items: start;
+  justify-content: start;
+  width: max-content;
+  height: auto;
+  max-height: none;
+  overflow: visible;
+}
+
+.frame-desktop .chip-menu--resus > .chip-col {
+  align-self: start;
+  height: auto;
+  max-height: none;
+  overflow: visible;
+}
+
+.frame-desktop .chip-menu--resus > .chip-col + .chip-col {
+  height: 0;
+  min-height: 100%;
+  max-height: 100%;
+  overflow: auto;
+}
+
 .frame-mobile .chip-col {
   flex-basis: 112px;
   width: 112px;
@@ -2753,6 +2779,41 @@ button.place-room-action:disabled:not([data-active='true']) {
 /* 快捷選單底邊留在輸入列之上，輸入框同傳送鍵保持可按。 */
 .chip-menu {
   margin-bottom: 52px;
+}
+
+.chip-menu--panel {
+  width: min(36rem, calc(100vw - 32px));
+}
+
+.observe-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.drug-order-checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.8rem;
+}
+
+.drug-order-checks label {
+  display: flex;
+  gap: 0.35rem;
+  align-items: center;
+  font-size: 0.78rem;
+}
+
+.drug-order-error {
+  margin: 0;
+  color: #7f1d1d;
+  font-size: 0.78rem;
+}
+
+.catheter-orders {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
 }
 
 .chip-back {

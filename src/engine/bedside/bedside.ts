@@ -21,6 +21,7 @@ import {
   placeTreatmentDrug,
   UNLISTED_DRUG_CATALOG_ID,
 } from '../orders/treatmentDrug';
+import { oxygenOrderRejected } from '../orders/oxygen';
 import { matchQuickPhrase } from '../orders/quickPhrase';
 import { nurseForBed } from '../ward/nurses';
 
@@ -53,18 +54,9 @@ const placedParamsSchema = z
       .strict()
       .optional(),
     treatmentDrugId: z.string().min(1).optional(),
+    summary: z.string().min(1).optional(),
   })
   .strict();
-
-function oxygenFlowRejected(
-  catalogId: string,
-  dose: { value: number; unit: string } | null,
-): boolean {
-  if (catalogId !== 'oxygen.nasal' && catalogId !== 'oxygen.nrb') return false;
-  if (dose?.unit !== 'L/min') return true;
-  if (catalogId === 'oxygen.nasal') return dose.value < 1 || dose.value > 6;
-  return dose.value < 10 || dose.value > 15;
-}
 
 function placeCatalog(
   state: GameState,
@@ -108,7 +100,7 @@ function placeCatalog(
   } else if (params.drugFormularyId !== null) {
     return reject(state, 'ORDER_INVALID');
   }
-  if (oxygenFlowRejected(row.id, params.dose)) return reject(state, 'ORDER_INVALID');
+  if (oxygenOrderRejected(row.id, params.dose, params.rate)) return reject(state, 'ORDER_INVALID');
   const stored = {
     drugFormularyId: params.drugFormularyId,
     dose: params.dose,
@@ -116,6 +108,7 @@ function placeCatalog(
     ...(params.frequency ? { frequency: params.frequency } : {}),
     ...(params.times ? { times: params.times } : {}),
     ...(params.rate ? { rate: params.rate } : {}),
+    ...(params.summary ? { summary: params.summary } : {}),
   };
 
   const submittedAt = state.clock.t;

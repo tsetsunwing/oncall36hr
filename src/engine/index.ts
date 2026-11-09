@@ -118,6 +118,15 @@ export type { PatientReport } from './case/patient';
 export { bedsideModule } from './bedside/bedside';
 export { caseModule } from './case/caseModule';
 export { composeOrderLabel } from './orders/label';
+export {
+  OXYGEN_DEVICES,
+  VENTURI_FIO2,
+  oxygenDeviceByCatalog,
+  oxygenDeviceById,
+  oxygenOrderRejected,
+  type OxygenDevice,
+  type OxygenDeviceId,
+} from './orders/oxygen';
 export { matchQuickPhrase, normalizePhrase } from './orders/quickPhrase';
 export { meanArterialPressure, computeMews, type MewsResult } from './case/mews';
 export type { Patient, VitalsSample } from './case/patient';

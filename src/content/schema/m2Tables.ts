@@ -385,6 +385,8 @@ export const quickWordSchema = z
     chipLabel: z.string().min(1).optional(),
     /** 快捷選單：觀察、治療、檢查、搶救。改呢欄就改分類。 */
     chipGroup: z.enum(['observe', 'treat', 'tests', 'resus']).optional(),
+    /** false：保留覆盤標籤，但不放進快捷選單。 */
+    menu: z.boolean().optional(),
     /**
      * 有呢個清單時，按鈕先彈出小窗再落單。
      * dose 劑量、route 途徑、frequency 頻次、times x1–x3、volume 容量、rate 速率、
