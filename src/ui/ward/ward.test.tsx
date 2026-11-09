@@ -2,7 +2,17 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { ui } from '@/i18n';
-import type { BedView, CallRowView, GameActions, SbarDraftView, WardView } from '@/view';
+import type {
+  BedView,
+  CallRowView,
+  GameActions,
+  GameView,
+  SbarDraftView,
+  SelfCareActionView,
+  ShiftView,
+  WardView,
+} from '@/view';
+import { WardGame } from '../pages/WardGame';
 import { DelegationDialog } from './DelegationDialog';
 import { FloorPlan } from './FloorPlan';
 import { PhonePanel } from './PhonePanel';
@@ -191,6 +201,125 @@ describe('FloorPlan', () => {
     expect(screen.getByTestId('walking')).toHaveTextContent('前往 7 號床');
     expect(screen.getByTestId('walking')).not.toHaveTextContent('秒');
     expect(screen.queryByTestId('landmark-phone')).toBeNull();
+  });
+});
+
+const careAction = (id: SelfCareActionView['id']): SelfCareActionView => ({
+  id,
+  durationSec: 600,
+  gainPercent: 10,
+  available: true,
+  cooldownSec: 0,
+  needsMealWindow: id === 'MEAL',
+});
+
+function gameAt(
+  place: ShiftView['place'],
+  active: ShiftView['selfCare']['active'] = null,
+): GameView {
+  return {
+    clock: {
+      label: '08:12',
+      seconds: 0,
+      speed: 1,
+      speeds: [1, 2, 4],
+      paused: true,
+      pausedBy: 'player',
+      cprSlow: false,
+      effectiveSpeed: 1,
+    },
+    patient: null,
+    monitor: null,
+    chat: null,
+    orders: [],
+    gates: [],
+    reports: [],
+    actionLog: { all: [], patient: [] },
+    quickChips: [],
+    medications: [],
+    treatmentMedications: [],
+    resus: null,
+    death: null,
+    pendingAiCount: 0,
+    aiFailure: null,
+    notice: null,
+    ward: null,
+    shift: {
+      shiftMode: 'DAY',
+      playerRank: 'HO',
+      difficulty: 'MEDIUM',
+      phase: 'REGULAR',
+      segment: 'DAY',
+      waitingForAi: false,
+      energy: { percent: 80, level: 'NORMAL' },
+      needs: {
+        fatigue: { percent: 20, level: 'NORMAL' },
+        hunger: { percent: 40, level: 'NORMAL' },
+        bladder: { percent: 30, level: 'NORMAL' },
+      },
+      place,
+      rounds: { total: 2, completed: 0, nextAtLabel: null, offered: false, active: null },
+      selfCare: {
+        active,
+        mealWindowOpen: false,
+        actions: (['MEAL', 'NAP', 'TOILET', 'WATER', 'PHONE_CHAT', 'MUSIC'] as const).map(
+          careAction,
+        ),
+      },
+      overtime: null,
+      handover: null,
+      result: null,
+    },
+  };
+}
+
+describe('房間取代平面圖', () => {
+  it('茶水間、休息室、洗手間隱藏病床圖，按病房先返回', async () => {
+    const actions = makeActions();
+    const { rerender } = render(
+      <WardGame view={gameAt('PANTRY')} ward={ward()} actions={actions} />,
+    );
+    expect(screen.getByTestId('room-PANTRY')).toHaveTextContent(ui.game.ward.pantry);
+    expect(screen.queryByTestId('floor-plan')).not.toBeInTheDocument();
+    expect(screen.queryByRole('group', { name: ui.game.ward.mapLabel })).not.toBeInTheDocument();
+    expect(screen.queryAllByTestId(/^bed-/)).toHaveLength(0);
+    expect(screen.getByTestId('not-at-bed')).toBeInTheDocument();
+
+    rerender(
+      <WardGame
+        view={gameAt('REST', { id: 'NAP', endsLabel: '08:40', remainingSec: 400 })}
+        ward={ward()}
+        actions={actions}
+      />,
+    );
+    expect(screen.getByTestId('room-REST')).toBeInTheDocument();
+    expect(screen.queryByTestId('floor-plan')).not.toBeInTheDocument();
+    await userEvent.click(screen.getByTestId('selfcare-stop'));
+    expect(actions.stopSelfCare).toHaveBeenCalledOnce();
+
+    rerender(<WardGame view={gameAt('WC')} ward={ward()} actions={actions} />);
+    expect(screen.getByTestId('room-WC')).toBeInTheDocument();
+    expect(screen.queryByTestId('floor-plan')).not.toBeInTheDocument();
+
+    rerender(<WardGame view={gameAt('STATION')} ward={ward()} actions={actions} />);
+    expect(screen.getByTestId('floor-plan')).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: ui.game.ward.mapLabel })).toBeInTheDocument();
+    expect(screen.getAllByTestId(/^bed-/)).toHaveLength(20);
+    expect(screen.queryByTestId(/^room-/)).not.toBeInTheDocument();
+  });
+
+  it('展開中的平面圖進入茶水間後收起，返回病房先見小地圖', async () => {
+    const actions = makeActions();
+    const { rerender } = render(<WardGame view={gameAt(null)} ward={ward()} actions={actions} />);
+    await userEvent.click(screen.getByTestId('open-floorplan'));
+    expect(screen.getByTestId('bed-table')).toBeInTheDocument();
+    rerender(<WardGame view={gameAt('PANTRY')} ward={ward()} actions={actions} />);
+    expect(screen.getByTestId('room-PANTRY')).toBeInTheDocument();
+    expect(screen.queryByTestId('bed-table')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('floor-plan')).not.toBeInTheDocument();
+    rerender(<WardGame view={gameAt('STATION')} ward={ward()} actions={actions} />);
+    expect(screen.getByTestId('floor-plan')).toHaveClass('floor-plan--compact');
+    expect(screen.queryByTestId('bed-table')).not.toBeInTheDocument();
   });
 });
 

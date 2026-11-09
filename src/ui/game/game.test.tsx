@@ -879,7 +879,7 @@ describe('ClockBar', () => {
     expect(screen.getAllByRole('button')).toHaveLength(1 + 3);
   });
 
-  it('護士站、茶水間、休息室、洗手間在頂欄，護士站可返回', async () => {
+  it('病房、茶水間、休息室、洗手間在頂欄，病房可返回', async () => {
     const user = userEvent.setup();
     const actions = makeActions();
     render(
@@ -894,10 +894,22 @@ describe('ClockBar', () => {
         }}
       />,
     );
+    const station = screen.getByTestId('landmark-station');
+    expect(station).toHaveTextContent('病房');
+    expect(station).toHaveAttribute('title', '返回病房');
+    expect(screen.getByTestId('landmark-pantry')).toHaveAttribute(
+      'title',
+      ui.game.ward.placeRelief.PANTRY,
+    );
+    expect(screen.getByTestId('landmark-rest')).toHaveAttribute(
+      'title',
+      ui.game.ward.placeRelief.REST,
+    );
+    expect(screen.getByTestId('landmark-wc')).toHaveAttribute('title', ui.game.ward.placeRelief.WC);
     expect(screen.getByText(ui.game.ward.pantry)).toBeInTheDocument();
     expect(screen.getByText(ui.game.ward.rest)).toBeInTheDocument();
     expect(screen.getByText(ui.game.ward.wc)).toBeInTheDocument();
-    await user.click(screen.getByTestId('landmark-station'));
+    await user.click(station);
     expect(actions.enterPlace).toHaveBeenCalledWith('STATION');
     await user.click(screen.getByTestId('landmark-pantry'));
     expect(actions.enterPlace).toHaveBeenCalledWith('PANTRY');

@@ -31,7 +31,7 @@ export function WardGame({ view, ward, actions }: WardGameProps) {
   const [tab, setTab] = useState<Tab>('chat');
   const [drawer, setDrawer] = useState<Drawer>(null);
   const [bedsOpen, setBedsOpen] = useState(false);
-  const [planOpen, setPlanOpen] = useState(false);
+  const [expandedAt, setExpandedAt] = useState<ShiftView['place'] | false>(false);
   const frame = useFrame();
   const [delegationOpen, setDelegationOpen] = useState(false);
   const [delegationCall, setDelegationCall] = useState<string | null>(null);
@@ -52,7 +52,7 @@ export function WardGame({ view, ward, actions }: WardGameProps) {
       if (command === 'close') {
         setDrawer(null);
         setBedsOpen(false);
-        setPlanOpen(false);
+        setExpandedAt(false);
         setDelegationOpen(false);
       }
       if (command === 'focus-input') {
@@ -67,6 +67,8 @@ export function WardGame({ view, ward, actions }: WardGameProps) {
   }, []);
 
   const atBed = view.patient !== null && view.monitor !== null && view.chat !== null;
+  const inRoom = isCarePlace(view.shift.place);
+  const planOpen = expandedAt === view.shift.place && !inRoom;
   const phoneRinging = ward.phone.calls.filter(
     (call) => call.tag !== 'FAMILY' && call.status === 'RINGING',
   ).length;
@@ -81,7 +83,7 @@ export function WardGame({ view, ward, actions }: WardGameProps) {
           actions={actions}
           compact={false}
           onClose={() => {
-            setPlanOpen(false);
+            setExpandedAt(false);
           }}
         />
         <BedTable
@@ -90,7 +92,7 @@ export function WardGame({ view, ward, actions }: WardGameProps) {
             ...actions,
             goToBed: (bed) => {
               actions.goToBed(bed);
-              setPlanOpen(false);
+              setExpandedAt(false);
             },
           }}
         />
@@ -163,7 +165,7 @@ export function WardGame({ view, ward, actions }: WardGameProps) {
           {...(frame === 'desktop'
             ? {
                 onExpand: () => {
-                  setPlanOpen(true);
+                  setExpandedAt(view.shift.place);
                 },
               }
             : {})}
