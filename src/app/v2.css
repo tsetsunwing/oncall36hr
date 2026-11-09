@@ -2452,6 +2452,41 @@ tr[data-flag='H'] .value-flagged {
   width: 8.5rem;
 }
 
+.drug-order-select {
+  position: relative;
+  display: inline-block;
+  width: 8.5rem;
+  vertical-align: middle;
+}
+
+.drug-order-field .drug-order-select {
+  display: block;
+  width: 100%;
+}
+
+.drug-order .drug-order-select select {
+  width: 100%;
+  color: transparent;
+}
+
+.drug-order .drug-order-select option {
+  color: var(--text);
+}
+
+.drug-order-select-face {
+  position: absolute;
+  z-index: 1;
+  inset: 1px 1.7rem 1px 0.45rem;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  color: var(--text);
+  background: #fff;
+  pointer-events: none;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
 .drug-order-field {
   display: flex;
   flex-direction: column;

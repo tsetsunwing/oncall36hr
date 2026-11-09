@@ -412,6 +412,16 @@ describe('ChatPanel', () => {
     expect(screen.getByTestId('drug-order-prn')).toHaveValue('');
     expect(screen.queryByTestId('drug-order-titration')).not.toBeInTheDocument();
     expect(screen.getByTestId('drug-order-confirm')).toBeDisabled();
+    await user.selectOptions(screen.getByTestId('drug-order-route'), 'IV (Intravenous bolus/push)');
+    expect(screen.getByTestId('drug-order-route')).toHaveValue('IV (Intravenous bolus/push)');
+    expect(screen.getByTestId('drug-order-route').nextElementSibling).toHaveTextContent(/^IV$/);
+    expect(
+      within(screen.getByTestId('drug-order-route'))
+        .getAllByRole('option')
+        .map((option) => option.textContent),
+    ).toContain('IV Infusion (Continuous drip / syringe pump)');
+    await user.selectOptions(screen.getByTestId('drug-order-frequency'), 'BD (twice)');
+    expect(screen.getByTestId('drug-order-frequency').nextElementSibling).toHaveTextContent(/^BD$/);
     await user.click(screen.getByRole('button', { name: ui.game.chat.drugOrder.cancel }));
     await user.click(screen.getByRole('button', { name: ui.game.chat.chipGroup.observe ?? '' }));
     expect(screen.getByRole('menuitem', { name: 'Check vitals' })).toBeInTheDocument();

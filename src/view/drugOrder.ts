@@ -38,6 +38,12 @@ export const PRN_REASONS = ['Fever', 'Pain', 'Agitation', 'Nausea'] as const;
 
 export const TITRATION_TARGETS = ['MAP > 65 mmHg', 'HR 60-100 bpm', 'BP < 140 mmHg'] as const;
 
+/** 括號只出現喺打開嘅選項清單。其餘地方用括號前嘅字。 */
+export function shortOptionLabel(text: string): string {
+  const cut = text.indexOf('(');
+  return (cut === -1 ? text : text.slice(0, cut)).trim();
+}
+
 export interface DrugOrderDraft {
   stem: string;
   route: string | null;
@@ -93,13 +99,13 @@ export function placedDrugParams(
   if (!drugOrderReady(draft) || !draft.route || !draft.doseUnit) return null;
   const params: PlacedOrderParams = {
     drugFormularyId: formularyId,
-    dose: { value: Number(draft.doseValue), unit: draft.doseUnit },
-    route: draft.route,
+    dose: { value: Number(draft.doseValue), unit: shortOptionLabel(draft.doseUnit) },
+    route: shortOptionLabel(draft.route),
   };
   if (isInfusionRoute(draft.route) && draft.rateUnit) {
-    params.rate = { value: Number(draft.rateValue), unit: draft.rateUnit };
+    params.rate = { value: Number(draft.rateValue), unit: shortOptionLabel(draft.rateUnit) };
   } else if (draft.frequency) {
-    params.frequency = draft.frequency;
+    params.frequency = shortOptionLabel(draft.frequency);
   }
   return params;
 }
@@ -108,15 +114,20 @@ export function placedDrugParams(
 export function composeDrugOrderPhrase(draft: DrugOrderDraft): string | null {
   if (!drugOrderReady(draft) || !draft.route || !draft.doseUnit) return null;
   const infusion = isInfusionRoute(draft.route);
-  const head = [draft.stem.trim(), `${draft.doseValue.trim()} ${draft.doseUnit}`, draft.route];
-  if (infusion && draft.rateUnit) head.push(`${draft.rateValue.trim()} ${draft.rateUnit}`);
-  else if (draft.frequency) head.push(draft.frequency);
+  const head = [
+    draft.stem.trim(),
+    `${draft.doseValue.trim()} ${shortOptionLabel(draft.doseUnit)}`,
+    shortOptionLabel(draft.route),
+  ];
+  if (infusion && draft.rateUnit) {
+    head.push(`${draft.rateValue.trim()} ${shortOptionLabel(draft.rateUnit)}`);
+  } else if (draft.frequency) head.push(shortOptionLabel(draft.frequency));
   const extras: string[] = [];
   if (infusion) {
-    if (draft.diluent) extras.push(draft.diluent);
-    if (draft.volume) extras.push(draft.volume);
-    if (draft.titration) extras.push(draft.titration);
-  } else if (draft.prn) extras.push(`PRN ${draft.prn}`);
+    if (draft.diluent) extras.push(shortOptionLabel(draft.diluent));
+    if (draft.volume) extras.push(shortOptionLabel(draft.volume));
+    if (draft.titration) extras.push(shortOptionLabel(draft.titration));
+  } else if (draft.prn) extras.push(`PRN ${shortOptionLabel(draft.prn)}`);
   if (positiveNumber(draft.infuseOverMins)) {
     extras.push(`Infuse over ${draft.infuseOverMins.trim()} mins`);
   }

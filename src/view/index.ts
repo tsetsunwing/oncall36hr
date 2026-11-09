@@ -13,6 +13,7 @@ export {
   FREQUENCIES,
   INFUSION_VOLUMES,
   isInfusionRoute,
+  shortOptionLabel,
   PRN_REASONS,
   RATE_UNITS,
   TITRATION_TARGETS,

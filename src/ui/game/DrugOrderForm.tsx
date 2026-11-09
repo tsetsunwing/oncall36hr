@@ -12,11 +12,49 @@ import {
   isInfusionRoute,
   PRN_REASONS,
   RATE_UNITS,
+  shortOptionLabel,
   TITRATION_TARGETS,
   type DrugOrderDraft,
   type MedicationOption,
   type PlacedOrderParams,
 } from '@/view';
+
+function ChoiceSelect({
+  testId,
+  value,
+  blankLabel = '',
+  options,
+  onValue,
+}: {
+  testId: string;
+  value: string;
+  blankLabel?: string;
+  options: readonly string[];
+  onValue: (value: string) => void;
+}) {
+  const face = value.length > 0 ? shortOptionLabel(value) : blankLabel;
+  return (
+    <span className="drug-order-select">
+      <select
+        value={value}
+        data-testid={testId}
+        onChange={(event) => {
+          onValue(event.target.value);
+        }}
+      >
+        <option value="">{blankLabel}</option>
+        {options.map((item) => (
+          <option key={item} value={item}>
+            {item}
+          </option>
+        ))}
+      </select>
+      <span className="drug-order-select-face" data-testid={`${testId}-face`} aria-hidden="true">
+        {face}
+      </span>
+    </span>
+  );
+}
 
 export interface DrugOrderFormProps {
   drugId: string;
@@ -164,20 +202,12 @@ export function DrugOrderForm({ drugId, medications, onSubmit, onClose }: DrugOr
 
       <label className="drug-order-field">
         {t.route}
-        <select
+        <ChoiceSelect
+          testId="drug-order-route"
           value={route ?? ''}
-          data-testid="drug-order-route"
-          onChange={(event) => {
-            chooseRoute(event.target.value);
-          }}
-        >
-          <option value="" />
-          {DRUG_ROUTES.map((item) => (
-            <option key={item.id} value={item.phrase}>
-              {item.phrase}
-            </option>
-          ))}
-        </select>
+          options={DRUG_ROUTES.map((item) => item.phrase)}
+          onValue={chooseRoute}
+        />
       </label>
 
       <div className="drug-order-dose">
@@ -195,20 +225,15 @@ export function DrugOrderForm({ drugId, medications, onSubmit, onClose }: DrugOr
         </label>
         <label>
           {t.unit}
-          <select
+          <ChoiceSelect
+            testId="drug-order-unit"
             value={doseUnit ?? ''}
-            data-testid="drug-order-unit"
-            onChange={(event) => {
-              setDoseUnit(event.target.value.length > 0 ? event.target.value : null);
+            blankLabel={t.emptyUnit}
+            options={DOSE_UNITS}
+            onValue={(next) => {
+              setDoseUnit(next.length > 0 ? next : null);
             }}
-          >
-            <option value="">{t.emptyUnit}</option>
-            {DOSE_UNITS.map((unit) => (
-              <option key={unit} value={unit}>
-                {unit}
-              </option>
-            ))}
-          </select>
+          />
         </label>
       </div>
 
@@ -216,37 +241,25 @@ export function DrugOrderForm({ drugId, medications, onSubmit, onClose }: DrugOr
         <>
           <label className="drug-order-field">
             {t.diluent}
-            <select
+            <ChoiceSelect
+              testId="drug-order-diluent"
               value={diluent ?? ''}
-              data-testid="drug-order-diluent"
-              onChange={(event) => {
-                setDiluent(event.target.value.length > 0 ? event.target.value : null);
+              options={DILUENTS}
+              onValue={(next) => {
+                setDiluent(next.length > 0 ? next : null);
               }}
-            >
-              <option value="" />
-              {DILUENTS.map((item) => (
-                <option key={item} value={item}>
-                  {item}
-                </option>
-              ))}
-            </select>
+            />
           </label>
           <label className="drug-order-field">
             {t.volume}
-            <select
+            <ChoiceSelect
+              testId="drug-order-volume"
               value={volume ?? ''}
-              data-testid="drug-order-volume"
-              onChange={(event) => {
-                setVolume(event.target.value.length > 0 ? event.target.value : null);
+              options={INFUSION_VOLUMES}
+              onValue={(next) => {
+                setVolume(next.length > 0 ? next : null);
               }}
-            >
-              <option value="" />
-              {INFUSION_VOLUMES.map((item) => (
-                <option key={item} value={item}>
-                  {item}
-                </option>
-              ))}
-            </select>
+            />
           </label>
           <div className="drug-order-dose">
             <label>
@@ -263,75 +276,52 @@ export function DrugOrderForm({ drugId, medications, onSubmit, onClose }: DrugOr
             </label>
             <label>
               {t.rateUnit}
-              <select
+              <ChoiceSelect
+                testId="drug-order-rate-unit"
                 value={rateUnit ?? ''}
-                data-testid="drug-order-rate-unit"
-                onChange={(event) => {
-                  setRateUnit(event.target.value.length > 0 ? event.target.value : null);
+                blankLabel={t.emptyUnit}
+                options={RATE_UNITS}
+                onValue={(next) => {
+                  setRateUnit(next.length > 0 ? next : null);
                 }}
-              >
-                <option value="">{t.emptyUnit}</option>
-                {RATE_UNITS.map((unit) => (
-                  <option key={unit} value={unit}>
-                    {unit}
-                  </option>
-                ))}
-              </select>
+              />
             </label>
           </div>
           <label className="drug-order-field">
             {t.titration}
-            <select
+            <ChoiceSelect
+              testId="drug-order-titration"
               value={titration ?? ''}
-              data-testid="drug-order-titration"
-              onChange={(event) => {
-                setTitration(event.target.value.length > 0 ? event.target.value : null);
+              options={TITRATION_TARGETS}
+              onValue={(next) => {
+                setTitration(next.length > 0 ? next : null);
               }}
-            >
-              <option value="" />
-              {TITRATION_TARGETS.map((item) => (
-                <option key={item} value={item}>
-                  {item}
-                </option>
-              ))}
-            </select>
+            />
           </label>
         </>
       ) : (
         <>
           <label className="drug-order-field">
             {t.frequency}
-            <select
+            <ChoiceSelect
+              testId="drug-order-frequency"
               value={frequency ?? ''}
-              data-testid="drug-order-frequency"
-              onChange={(event) => {
-                setFrequency(event.target.value.length > 0 ? event.target.value : null);
+              options={FREQUENCIES}
+              onValue={(next) => {
+                setFrequency(next.length > 0 ? next : null);
               }}
-            >
-              <option value="" />
-              {FREQUENCIES.map((item) => (
-                <option key={item} value={item}>
-                  {item}
-                </option>
-              ))}
-            </select>
+            />
           </label>
           <label className="drug-order-field">
             {t.prn}
-            <select
+            <ChoiceSelect
+              testId="drug-order-prn"
               value={prn ?? ''}
-              data-testid="drug-order-prn"
-              onChange={(event) => {
-                setPrn(event.target.value.length > 0 ? event.target.value : null);
+              options={PRN_REASONS}
+              onValue={(next) => {
+                setPrn(next.length > 0 ? next : null);
               }}
-            >
-              <option value="" />
-              {PRN_REASONS.map((item) => (
-                <option key={item} value={item}>
-                  {item}
-                </option>
-              ))}
-            </select>
+            />
           </label>
         </>
       )}
