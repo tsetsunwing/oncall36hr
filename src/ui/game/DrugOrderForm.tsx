@@ -13,6 +13,7 @@ import {
   isInfusionRoute,
   PRN_REASONS,
   RATE_UNITS,
+  shortClassLabel,
   shortOptionLabel,
   TITRATION_TARGETS,
   type DrugOrderDraft,
@@ -25,15 +26,18 @@ function ChoiceSelect({
   value,
   blankLabel = '',
   options,
+  optionLabel,
   onValue,
 }: {
   testId: string;
   value: string;
   blankLabel?: string;
   options: readonly string[];
+  /** 清單和收合面都用這個字。不傳則括號只留在打開的清單。 */
+  optionLabel?: (value: string) => string;
   onValue: (value: string) => void;
 }) {
-  const face = value.length > 0 ? shortOptionLabel(value) : blankLabel;
+  const face = value.length > 0 ? (optionLabel ?? shortOptionLabel)(value) : blankLabel;
   return (
     <span className="drug-order-select">
       <select
@@ -46,7 +50,7 @@ function ChoiceSelect({
         <option value="">{blankLabel}</option>
         {options.map((item) => (
           <option key={item} value={item}>
-            {item}
+            {optionLabel ? optionLabel(item) : item}
           </option>
         ))}
       </select>
@@ -208,6 +212,7 @@ export function DrugOrderForm({
             value={drugClass ?? ''}
             blankLabel={t.everyClass}
             options={treatmentClasses}
+            optionLabel={shortClassLabel}
             onValue={(next) => {
               setDrugClass(next.length > 0 ? next : null);
               setListOpen(true);
@@ -230,7 +235,7 @@ export function DrugOrderForm({
                 aria-selected={item.id === selectedId}
                 aria-label={
                   treatmentSearch && (item.classes ?? []).length > 0
-                    ? [item.label, ...(item.classes ?? [])].join(', ')
+                    ? [item.label, ...(item.classes ?? []).map(shortClassLabel)].join(', ')
                     : item.label
                 }
                 onMouseDown={(event) => {
@@ -244,7 +249,7 @@ export function DrugOrderForm({
                 {treatmentSearch
                   ? (item.classes ?? []).map((name) => (
                       <span key={name} className="drug-order-class">
-                        {name}
+                        {shortClassLabel(name)}
                       </span>
                     ))
                   : null}

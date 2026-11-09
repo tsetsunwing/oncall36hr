@@ -20,6 +20,7 @@ export {
   TITRATION_TARGETS,
   type DrugOrderDraft,
 } from './drugOrder';
+export { shortClassLabel } from './drugClassLabel';
 export { RESUS_MENU, type ResusColumnId } from './resusMenu';
 export {
   knownReportCategory,

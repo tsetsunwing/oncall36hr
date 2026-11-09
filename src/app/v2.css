@@ -2543,33 +2543,43 @@ tr[data-flag='H'] .value-flagged {
   border: 1px solid var(--border);
 }
 
+.drug-order-matches li + li {
+  border-top: 1px solid var(--border);
+}
+
 .drug-order-matches button {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.15rem 0.35rem;
+  flex-wrap: nowrap;
+  gap: 0.25rem;
   align-items: center;
   width: 100%;
-  min-height: 28px;
-  padding: 0.2rem 0.4rem;
+  height: 1.375rem;
+  min-height: 0;
+  padding: 0 0.4rem;
+  overflow: hidden;
+  font-size: 0.78rem;
+  line-height: 1.375rem;
   text-align: left;
-  white-space: normal;
+  white-space: nowrap;
   background: transparent;
   border: 0;
 }
 
 .drug-order-match-name {
-  flex: 1 0 100%;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .drug-order-class {
-  max-width: 100%;
-  padding: 0 0.4rem;
-  overflow: hidden;
-  font-size: 0.68rem;
+  flex: 0 0 auto;
+  padding: 0 0.35rem;
+  font-size: 0.62rem;
   font-weight: 600;
-  line-height: 1.35;
+  line-height: 1.15;
   color: var(--ok-text);
-  text-overflow: ellipsis;
   white-space: nowrap;
   background: var(--accent-soft);
   border-radius: 999px;

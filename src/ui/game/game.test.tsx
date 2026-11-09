@@ -630,10 +630,19 @@ describe('ChatPanel', () => {
     );
     expect(list).not.toHaveTextContent('Cephalosporin');
     expect(within(list).queryByRole('option', { name: 'Ceftriaxone' })).not.toBeInTheDocument();
-    expect(within(list).getByText('ANTIBACTERIAL DRUGS')).toBeInTheDocument();
+    expect(within(list).getByText('antibacterials')).toBeInTheDocument();
+    expect(within(list).queryByText('ANTIBACTERIAL DRUGS')).not.toBeInTheDocument();
     const classFilter = screen.getByTestId('drug-order-class');
     expect(classFilter).toHaveValue('');
+    expect(screen.getByTestId('drug-order-class-face')).toHaveTextContent('全部類別');
+    expect(within(classFilter).getByRole('option', { name: 'antibacterials' })).toHaveValue(
+      'ANTIBACTERIAL DRUGS',
+    );
+    expect(
+      within(classFilter).queryByRole('option', { name: 'ANTIBACTERIAL DRUGS' }),
+    ).not.toBeInTheDocument();
     await user.selectOptions(classFilter, 'GENERAL ANAESTHESIA');
+    expect(screen.getByTestId('drug-order-class-face')).toHaveTextContent('anaesthetics');
     expect(screen.queryByRole('option', { name: /^Amoxicillin/ })).not.toBeInTheDocument();
     await user.selectOptions(classFilter, '');
     await user.click(screen.getByRole('option', { name: /^Amoxicillin/ }));
@@ -645,10 +654,9 @@ describe('ChatPanel', () => {
     await user.clear(name);
     await user.type(name, 'hyo');
     const hyoscine = screen.getByRole('option', { name: /Hyoscine/ });
-    expect(
-      within(hyoscine).getByText('ANTISPASMODICS AND OTHER DRUGS ALTERING GUT MOTILITY'),
-    ).toBeInTheDocument();
-    expect(within(hyoscine).getByText('GENERAL ANAESTHESIA')).toBeInTheDocument();
+    expect(within(hyoscine).getByText('antispasmodics')).toBeInTheDocument();
+    expect(within(hyoscine).getByText('anaesthetics')).toBeInTheDocument();
+    expect(hyoscine.querySelectorAll('.drug-order-class')).toHaveLength(2);
     await user.selectOptions(classFilter, 'GENERAL ANAESTHESIA');
     expect(screen.getByRole('option', { name: /Hyoscine/ })).toBeInTheDocument();
     expect(screen.queryByRole('option', { name: /Amoxicillin/ })).not.toBeInTheDocument();
@@ -683,6 +691,7 @@ describe('ChatPanel', () => {
     await user.click(screen.getByTestId('drug-order-name'));
     expect(screen.getByRole('option', { name: 'Adrenaline' })).toBeInTheDocument();
     expect(screen.queryByText('ANTIBACTERIAL DRUGS')).not.toBeInTheDocument();
+    expect(screen.queryByText('antibacterials')).not.toBeInTheDocument();
   });
 
   it('被拒絕嘅動作顯示 notice（role=status）', () => {
