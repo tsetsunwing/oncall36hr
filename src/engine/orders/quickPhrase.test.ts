@@ -57,12 +57,34 @@ describe('本地快捷詞 parser', () => {
       value: 150,
       unit: 'J',
     });
+    expect(
+      matchQuickPhrase(
+        'adrenaline 1 mg IV (Intravenous bolus/push) STAT | PRN Pain, Take after food',
+        tables,
+      )?.params,
+    ).toEqual({
+      drugFormularyId: 'adrenaline',
+      dose: { value: 1, unit: 'mg' },
+      route: 'IV (Intravenous bolus/push)',
+      frequency: 'STAT',
+    });
+    expect(
+      matchQuickPhrase(
+        'noradrenaline 2 microgram IV Infusion (Continuous drip / syringe pump) 5 microgram/min | 0.9% NaCl, 50 mL, MAP > 65 mmHg',
+        tables,
+      )?.params,
+    ).toMatchObject({
+      drugFormularyId: 'norepinephrine',
+      dose: { value: 2, unit: 'microgram' },
+      route: 'IV Infusion (Continuous drip / syringe pump)',
+      rate: { value: 5, unit: 'microgram/min' },
+    });
   });
 
   it('唔夠明確就唔中（交畀 order.parse）：未知單位、途徑、零劑量、多餘文字', () => {
     for (const text of [
       'ceftriaxone 1 kg iv',
-      'ceftriaxone 1 g sc',
+      'ceftriaxone 1 g io',
       'ceftriaxone 0 g iv',
       'ceftriaxone',
       'please give ceftriaxone 1 g iv',

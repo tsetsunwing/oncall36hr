@@ -169,6 +169,7 @@ export function GamePage({ view, actions, onExit }: GamePageProps) {
                 patientId={view.patient.id}
                 resus={view.resus}
                 chips={view.quickChips}
+                medications={view.medications}
                 actions={actions}
               />
             ) : null}
@@ -178,6 +179,7 @@ export function GamePage({ view, actions, onExit }: GamePageProps) {
             <ChatPanel
               chat={view.chat}
               chips={view.quickChips}
+              medications={view.medications}
               gates={view.gates}
               notice={view.notice}
               actions={actions}

@@ -19,19 +19,38 @@ import {
   type GameActions,
   type GateCardView,
   type QuickChipCategory,
+  type MedicationOption,
   type QuickChipView,
   type ReportBucket,
 } from '@/view';
 import { ChipPrompt } from './ChipPrompt';
+import { DrugOrderForm } from './DrugOrderForm';
 import { GatePanel } from './GatePanel';
 
 const MENTION_AT_END = /[@＠]([^\s@＠]*)$/u;
+
+function medicationChoices(
+  medications: readonly MedicationOption[],
+  chip: QuickChipView,
+): MedicationOption[] {
+  const id = chip.medicationId;
+  if (!id || medications.some((item) => item.id === id)) return [...medications];
+  return [
+    {
+      id,
+      label: chip.label,
+      stem: chip.prompt?.stem ?? chip.label.toLowerCase(),
+    },
+    ...medications,
+  ];
+}
 const CHIP_GROUPS: QuickChipCategory[] = ['observe', 'treat', 'tests', 'resus'];
 
 export interface ChatPanelProps {
   chat: ChatView;
   notice: { kind: string; tone: 'info' | 'warn' | 'error' } | null;
   chips: QuickChipView[];
+  medications?: readonly MedicationOption[];
   gates?: GateCardView[];
   actions: GameActions;
 }
@@ -85,10 +104,12 @@ function ChipMenus({
   chips,
   onPick,
   onPrompt,
+  onDrug,
 }: {
   chips: QuickChipView[];
   onPick: (text: string) => void;
   onPrompt: (chip: QuickChipView) => void;
+  onDrug: (chip: QuickChipView) => void;
 }) {
   const c = ui.game.chat;
   const r = ui.game.reports;
@@ -103,6 +124,13 @@ function ChipMenus({
     setBucket(null);
     setSection(null);
     setResusColumn(null);
+  }
+
+  function choose(chip: QuickChipView) {
+    if (chip.medicationId) onDrug(chip);
+    else if (chip.prompt) onPrompt(chip);
+    else onPick(chip.text);
+    close();
   }
 
   useEffect(() => {
@@ -164,9 +192,7 @@ function ChipMenus({
                     role="menuitem"
                     className="chip"
                     onClick={() => {
-                      if (chip.prompt) onPrompt(chip);
-                      else onPick(chip.text);
-                      close();
+                      choose(chip);
                     }}
                   >
                     {chip.label}
@@ -242,9 +268,7 @@ function ChipMenus({
                     className="chip"
                     data-testid={`test-action-${chip.id}`}
                     onClick={() => {
-                      if (chip.prompt) onPrompt(chip);
-                      else onPick(chip.text);
-                      close();
+                      choose(chip);
                     }}
                   >
                     {chip.label}
@@ -306,9 +330,7 @@ function ChipMenus({
                       className="chip"
                       data-testid={`resus-action-${item.id}`}
                       onClick={() => {
-                        if (chip.prompt) onPrompt(chip);
-                        else onPick(chip.text);
-                        close();
+                        choose(chip);
                       }}
                     >
                       {item.label}
@@ -324,10 +346,18 @@ function ChipMenus({
   );
 }
 
-export function ChatPanel({ chat, chips, gates = [], notice, actions }: ChatPanelProps) {
+export function ChatPanel({
+  chat,
+  chips,
+  medications = [],
+  gates = [],
+  notice,
+  actions,
+}: ChatPanelProps) {
   const c = ui.game.chat;
   const [text, setText] = useState('');
   const [promptChip, setPromptChip] = useState<QuickChipView | null>(null);
+  const [drugChip, setDrugChip] = useState<QuickChipView | null>(null);
   const [active, setActive] = useState(0);
   const [dismissed, setDismissed] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -508,8 +538,24 @@ export function ChatPanel({ chat, chips, gates = [], notice, actions }: ChatPane
           onPrompt={(chip) => {
             setPromptChip(chip);
           }}
+          onDrug={(chip) => {
+            setDrugChip(chip);
+          }}
         />
       </div>
+      {drugChip?.medicationId ? (
+        <DrugOrderForm
+          drugId={drugChip.medicationId}
+          medications={medicationChoices(medications, drugChip)}
+          onSubmit={(phrase) => {
+            submit(phrase);
+            setDrugChip(null);
+          }}
+          onClose={() => {
+            setDrugChip(null);
+          }}
+        />
+      ) : null}
     </section>
   );
 }

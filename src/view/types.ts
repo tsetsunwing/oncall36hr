@@ -223,6 +223,12 @@ export interface QuickChipPrompt {
   fields: readonly QuickChipPromptField[];
 }
 
+export interface MedicationOption {
+  id: string;
+  label: string;
+  stem: string;
+}
+
 export interface QuickChipView {
   id: string;
   label: string;
@@ -231,7 +237,9 @@ export interface QuickChipView {
   catalogId?: string;
   /** 檢查對應報告面板的組別與部門。 */
   report?: { bucket: 'laboratory' | 'radiology' | 'poct'; section: string };
-  /** 有值時先彈小窗，唔直接落單。 */
+  /** 藥物：按鈕只開醫囑表，藥名預填，其餘留空。 */
+  medicationId?: string;
+  /** 有值時先彈小窗，唔直接落單。氧氣、點滴、能量沿用。 */
   prompt?: QuickChipPrompt;
 }
 
@@ -694,6 +702,8 @@ export interface GameView {
   reports: ReportView[];
   actionLog: { all: ActionRowView[]; patient: ActionRowView[] };
   quickChips: QuickChipView[];
+  /** 醫囑表藥物搜尋。只含 formulary 藥物名，冇劑量。 */
+  medications: MedicationOption[];
   resus: ResusView | null;
   death: DeathView | null;
   pendingAiCount: number;

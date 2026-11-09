@@ -46,7 +46,7 @@
     "catalogId": "drug.ceftriaxone",
     "chipLabel": "Ceftriaxone",
     "promptStem": "ceftriaxone",
-    "prompt": ["dose", "route", "frequency", "times"],
+    "prompt": ["dose", "route", "frequency", "times", "rate"],
     "params": {
       "drugFormularyId": "ceftriaxone"
     },
@@ -137,9 +137,9 @@
     "id": "qw.adrenaline",
     "aliases": ["adrenaline", "epinephrine", "adr", "epi"],
     "catalogId": "drug.adrenaline",
-    "chipLabel": "Epinephrine",
+    "chipLabel": "Adrenaline",
     "promptStem": "adrenaline",
-    "prompt": ["dose", "route", "frequency"],
+    "prompt": ["dose", "route", "frequency", "rate"],
     "params": {
       "drugFormularyId": "adrenaline"
     },
@@ -165,7 +165,7 @@
     "catalogId": "drug.amiodarone",
     "chipLabel": "Amiodarone",
     "promptStem": "amiodarone",
-    "prompt": ["dose", "route", "frequency"],
+    "prompt": ["dose", "route", "frequency", "rate"],
     "params": {
       "drugFormularyId": "amiodarone"
     },
@@ -439,22 +439,26 @@
   },
   {
     "id": "qw.resus.lidocaine",
-    "aliases": ["lidocaine"],
+    "aliases": ["lidocaine", "lignocaine"],
     "catalogId": "drug.lidocaine",
-    "chipLabel": "Lidocaine",
-    "promptStem": "lidocaine",
-    "prompt": ["dose", "route", "frequency"],
-    "params": { "drugFormularyId": "lidocaine" },
+    "chipLabel": "Lignocaine",
+    "promptStem": "lignocaine",
+    "prompt": ["dose", "route", "frequency", "rate"],
+    "params": {
+      "drugFormularyId": "lidocaine"
+    },
     "chipGroup": "resus"
   },
   {
     "id": "qw.resus.magnesium",
-    "aliases": ["magnesium sulfate"],
+    "aliases": ["magnesium sulfate", "magnesium sulphate"],
     "catalogId": "drug.magnesium",
-    "chipLabel": "Magnesium Sulfate",
-    "promptStem": "magnesium sulfate",
-    "prompt": ["dose", "route", "frequency"],
-    "params": { "drugFormularyId": "magnesium" },
+    "chipLabel": "Magnesium sulphate",
+    "promptStem": "magnesium sulphate",
+    "prompt": ["dose", "route", "frequency", "rate"],
+    "params": {
+      "drugFormularyId": "magnesium"
+    },
     "chipGroup": "resus"
   },
   {
@@ -463,8 +467,10 @@
     "catalogId": "drug.atropine",
     "chipLabel": "Atropine",
     "promptStem": "atropine",
-    "prompt": ["dose", "route", "frequency"],
-    "params": { "drugFormularyId": "atropine" },
+    "prompt": ["dose", "route", "frequency", "rate"],
+    "params": {
+      "drugFormularyId": "atropine"
+    },
     "chipGroup": "resus"
   },
   {
@@ -473,8 +479,10 @@
     "catalogId": "drug.adenosine",
     "chipLabel": "Adenosine",
     "promptStem": "adenosine",
-    "prompt": ["dose", "route", "frequency"],
-    "params": { "drugFormularyId": "adenosine" },
+    "prompt": ["dose", "route", "frequency", "rate"],
+    "params": {
+      "drugFormularyId": "adenosine"
+    },
     "chipGroup": "resus"
   },
   {
@@ -483,18 +491,22 @@
     "catalogId": "drug.dopamine",
     "chipLabel": "Dopamine",
     "promptStem": "dopamine",
-    "prompt": ["dose", "route", "frequency"],
-    "params": { "drugFormularyId": "dopamine" },
+    "prompt": ["dose", "route", "frequency", "rate"],
+    "params": {
+      "drugFormularyId": "dopamine"
+    },
     "chipGroup": "resus"
   },
   {
     "id": "qw.resus.norepinephrine",
-    "aliases": ["norepinephrine"],
+    "aliases": ["norepinephrine", "noradrenaline"],
     "catalogId": "drug.norepinephrine",
-    "chipLabel": "Norepinephrine",
-    "promptStem": "norepinephrine",
-    "prompt": ["dose", "route", "frequency"],
-    "params": { "drugFormularyId": "norepinephrine" },
+    "chipLabel": "Noradrenaline",
+    "promptStem": "noradrenaline",
+    "prompt": ["dose", "route", "frequency", "rate"],
+    "params": {
+      "drugFormularyId": "norepinephrine"
+    },
     "chipGroup": "resus"
   },
   {
@@ -503,8 +515,10 @@
     "catalogId": "drug.procainamide",
     "chipLabel": "Procainamide",
     "promptStem": "procainamide",
-    "prompt": ["dose", "route", "frequency"],
-    "params": { "drugFormularyId": "procainamide" },
+    "prompt": ["dose", "route", "frequency", "rate"],
+    "params": {
+      "drugFormularyId": "procainamide"
+    },
     "chipGroup": "resus"
   },
   {
@@ -513,8 +527,10 @@
     "catalogId": "drug.sotalol",
     "chipLabel": "Sotalol",
     "promptStem": "sotalol",
-    "prompt": ["dose", "route", "frequency"],
-    "params": { "drugFormularyId": "sotalol" },
+    "prompt": ["dose", "route", "frequency", "rate"],
+    "params": {
+      "drugFormularyId": "sotalol"
+    },
     "chipGroup": "resus"
   },
   {
@@ -523,18 +539,22 @@
     "catalogId": "drug.aspirin",
     "chipLabel": "Aspirin",
     "promptStem": "aspirin",
-    "prompt": ["dose", "route", "frequency"],
-    "params": { "drugFormularyId": "aspirin" },
+    "prompt": ["dose", "route", "frequency", "rate"],
+    "params": {
+      "drugFormularyId": "aspirin"
+    },
     "chipGroup": "resus"
   },
   {
     "id": "qw.resus.nitroglycerin",
-    "aliases": ["nitroglycerin"],
+    "aliases": ["nitroglycerin", "glyceryl trinitrate"],
     "catalogId": "drug.nitroglycerin",
-    "chipLabel": "Nitroglycerin",
-    "promptStem": "nitroglycerin",
-    "prompt": ["dose", "route", "frequency"],
-    "params": { "drugFormularyId": "nitroglycerin" },
+    "chipLabel": "Glyceryl trinitrate",
+    "promptStem": "glyceryl trinitrate",
+    "prompt": ["dose", "route", "frequency", "rate"],
+    "params": {
+      "drugFormularyId": "nitroglycerin"
+    },
     "chipGroup": "resus"
   },
   {
@@ -543,8 +563,10 @@
     "catalogId": "drug.morphine",
     "chipLabel": "Morphine",
     "promptStem": "morphine",
-    "prompt": ["dose", "route", "frequency"],
-    "params": { "drugFormularyId": "morphine" },
+    "prompt": ["dose", "route", "frequency", "rate"],
+    "params": {
+      "drugFormularyId": "morphine"
+    },
     "chipGroup": "resus"
   },
   {
@@ -553,17 +575,10 @@
     "catalogId": "drug.alteplase",
     "chipLabel": "Alteplase (tPA)",
     "promptStem": "alteplase",
-    "prompt": ["dose", "route", "frequency"],
-    "params": { "drugFormularyId": "alteplase" },
-    "chipGroup": "resus"
-  },
-  {
-    "id": "qw.resus.fluid",
-    "aliases": ["iv fluid bolus"],
-    "catalogId": "fluid.ns500",
-    "chipLabel": "IV Fluid Bolus",
-    "promptStem": "iv fluid bolus",
-    "prompt": ["volume", "rate"],
+    "prompt": ["dose", "route", "frequency", "rate"],
+    "params": {
+      "drugFormularyId": "alteplase"
+    },
     "chipGroup": "resus"
   },
   {
@@ -572,8 +587,10 @@
     "catalogId": "drug.bicarbonate",
     "chipLabel": "Sodium Bicarbonate",
     "promptStem": "sodium bicarbonate",
-    "prompt": ["dose", "route", "frequency"],
-    "params": { "drugFormularyId": "bicarbonate" },
+    "prompt": ["dose", "route", "frequency", "rate"],
+    "params": {
+      "drugFormularyId": "bicarbonate"
+    },
     "chipGroup": "resus"
   },
   {
@@ -582,8 +599,10 @@
     "catalogId": "drug.calciumchloride",
     "chipLabel": "Calcium Chloride",
     "promptStem": "calcium chloride",
-    "prompt": ["dose", "route", "frequency"],
-    "params": { "drugFormularyId": "calcium-chloride" },
+    "prompt": ["dose", "route", "frequency", "rate"],
+    "params": {
+      "drugFormularyId": "calcium-chloride"
+    },
     "chipGroup": "resus"
   },
   {
@@ -592,8 +611,10 @@
     "catalogId": "drug.naloxone",
     "chipLabel": "Naloxone",
     "promptStem": "naloxone",
-    "prompt": ["dose", "route", "frequency"],
-    "params": { "drugFormularyId": "naloxone" },
+    "prompt": ["dose", "route", "frequency", "rate"],
+    "params": {
+      "drugFormularyId": "naloxone"
+    },
     "chipGroup": "resus"
   },
   {
@@ -618,5 +639,45 @@
     "catalogId": "img.mri",
     "chipLabel": "MRI",
     "chipGroup": "tests"
+  },
+  {
+    "id": "qw.paracetamol",
+    "aliases": ["paracetamol"],
+    "catalogId": "drug.paracetamol",
+    "promptStem": "paracetamol",
+    "prompt": ["dose", "route", "frequency", "rate"],
+    "params": {
+      "drugFormularyId": "paracetamol"
+    }
+  },
+  {
+    "id": "qw.augmentin",
+    "aliases": ["amoxicillin-clavulanate"],
+    "catalogId": "drug.augmentin",
+    "promptStem": "amoxicillin-clavulanate",
+    "prompt": ["dose", "route", "frequency", "rate"],
+    "params": {
+      "drugFormularyId": "amoxicillin-clavulanate"
+    }
+  },
+  {
+    "id": "qw.furosemide",
+    "aliases": ["furosemide"],
+    "catalogId": "drug.furosemide",
+    "promptStem": "furosemide",
+    "prompt": ["dose", "route", "frequency", "rate"],
+    "params": {
+      "drugFormularyId": "furosemide"
+    }
+  },
+  {
+    "id": "qw.calcium.gluconate",
+    "aliases": ["calcium gluconate"],
+    "catalogId": "drug.calcium",
+    "promptStem": "calcium gluconate",
+    "prompt": ["dose", "route", "frequency", "rate"],
+    "params": {
+      "drugFormularyId": "calcium-gluconate"
+    }
   }
 ]

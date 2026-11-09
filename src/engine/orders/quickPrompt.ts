@@ -42,12 +42,27 @@ function take(tail: string, pattern: RegExp): { groups: string[]; rest: string }
 function canonicalFrequency(token: string): string {
   const lower = token.toLowerCase();
   if (lower === 'tds') return 'TDS';
-  if (lower === 'stat') return 'stat';
-  if (lower === 'prn') return 'prn';
+  if (lower === 'tds (thrice)') return 'TDS (thrice)';
+  if (lower === 'stat') return 'STAT';
+  if (lower === 'daily') return 'Daily';
+  if (lower === 'bd') return 'BD';
+  if (lower === 'bd (twice)') return 'BD (twice)';
+  if (lower === 'qid') return 'QID';
+  if (lower === 'qid (four times)') return 'QID (four times)';
+  if (lower === 'prn') return 'PRN';
   const hours = /^q(\d+)h$/i.exec(lower);
   if (hours) return `Q${hours[1]}H`;
   const minutes = /^q(\d+)min$/i.exec(lower);
   return minutes ? `Q${minutes[1]}min` : token;
+}
+
+function canonicalRateUnit(token: string): string {
+  const lower = token.toLowerCase();
+  if (lower === 'ml/hr') return token.includes('L') ? 'mL/hr' : 'ml/hr';
+  if (lower === 'microgram/kg/min') return 'microgram/kg/min';
+  if (lower === 'microgram/min') return 'microgram/min';
+  if (lower === 'unit/hr') return 'unit/hr';
+  return token;
 }
 
 function parseTail(tail: string, word: QuickWordRow, tables: EngineTables): Order['params'] | null {
@@ -92,8 +107,9 @@ function parseTail(tail: string, word: QuickWordRow, tables: EngineTables): Orde
     if (field === 'route' && parsed.route) route = parsed.route;
     if (field === 'frequency' && parsed.frequency) frequency = parsed.frequency;
     if (field === 'times' && parsed.times) times = parsed.times;
-    if (field === 'rate' && parsed.amount !== undefined)
-      rate = { value: parsed.amount, unit: 'ml/hr' };
+    if (field === 'rate' && parsed.amount !== undefined) {
+      rate = { value: parsed.amount, unit: parsed.unit ?? 'ml/hr' };
+    }
   }
 
   if (rest.length > 0 || used === 0) return null;
@@ -119,6 +135,7 @@ function parseField(
   route?: string;
   frequency?: string;
   times?: number;
+  unit?: string;
 } | null {
   if (field === 'dose') {
     const taken = take(tail, /^(\d+(?:\.\d+)?)[\s]*([a-zμµ]+)\b/i);
@@ -129,9 +146,10 @@ function parseField(
     return { rest: taken.rest, dose: { value, unit } };
   }
   if (field === 'route') {
+    const ordered = [...routes].sort((a, b) => b.length - a.length || a.localeCompare(b));
     const taken = take(
       tail,
-      new RegExp(String.raw`^(${routes.map(escapeRoute).join('|')})\b`, 'i'),
+      new RegExp(String.raw`^(${ordered.map(escapeRoute).join('|')})(?=\s|$)`, 'i'),
     );
     if (!taken) return null;
     const route = routes.find((item) => item.toLowerCase() === taken.groups[0]?.toLowerCase());
@@ -139,7 +157,10 @@ function parseField(
     return { rest: taken.rest, route };
   }
   if (field === 'frequency') {
-    const taken = take(tail, /^(stat|tds|prn|q\d+h|q\d+min)\b/i);
+    const taken = take(
+      tail,
+      /^(stat|daily|bd(?: \(twice\))?|tds(?: \(thrice\))?|qid(?: \(four times\))?|prn|q\d+h|q\d+min)(?=\s|$)/i,
+    );
     if (!taken?.groups[0]) return null;
     return { rest: taken.rest, frequency: canonicalFrequency(taken.groups[0]) };
   }
@@ -155,8 +176,13 @@ function parseField(
     return amount(taken);
   }
   if (field === 'rate') {
-    const taken = take(tail, /^(\d+(?:\.\d+)?)\s*ml\/hr\b/i);
-    return amount(taken);
+    const taken = take(
+      tail,
+      /^(\d+(?:\.\d+)?)\s*(microgram\/kg\/min|microgram\/min|ml\/hr|unit\/hr)(?=\s|$)/i,
+    );
+    const parsed = amount(taken);
+    if (!parsed || !taken?.groups[1]) return null;
+    return { ...parsed, unit: canonicalRateUnit(taken.groups[1]) };
   }
   if (field === 'energy') {
     const taken = take(tail, /^(\d+(?:\.\d+)?)\s*(?:j|joules?)\b/i);
@@ -199,7 +225,9 @@ export function matchPromptPhrase(phrase: string, tables: EngineTables): PromptM
     const stem = word.promptStem?.normalize('NFKC').toLowerCase().replace(/\s+/g, ' ').trim() ?? '';
     if (stem.length === 0) continue;
     if (phrase !== stem && !phrase.startsWith(`${stem} `)) continue;
-    const tail = phrase === stem ? '' : phrase.slice(stem.length).trim();
+    const rawTail = phrase === stem ? '' : phrase.slice(stem.length).trim();
+    const pipe = rawTail.indexOf(' | ');
+    const tail = (pipe >= 0 ? rawTail.slice(0, pipe) : rawTail).trim();
     const params = parseTail(tail, word, tables);
     if (!params) continue;
     return {

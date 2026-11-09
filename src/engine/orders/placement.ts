@@ -114,6 +114,21 @@ export function placeCatalogOrder(state: GameState, input: PlaceInput, ctx: Engi
     resultText: null,
     nurseNote: null,
   });
+  if (input.row.type === 'DRUG') {
+    const reason = pharmacyCheckReason(
+      { dose: input.params.dose === null, route: input.params.route === null },
+      [],
+    );
+    if (reason) {
+      next = openPharmacyCheckCall(
+        next,
+        input.patientId,
+        composeOrderLabel(input.row, base),
+        reason,
+        ctx,
+      );
+    }
+  }
   if (roles.length === 0) {
     return { state: scoreOrderCommitted(next, base, ctx), order: base, effects: [] };
   }
@@ -146,21 +161,6 @@ export function placeCatalogOrder(state: GameState, input: PlaceInput, ctx: Engi
   };
   const gated: Order = { ...base, gate };
   next = { ...next, orders: { ...next.orders, [id]: gated } };
-  if (roles.includes('PHARMACY')) {
-    const reason = pharmacyCheckReason(
-      { dose: input.params.dose === null, route: input.params.route === null },
-      [],
-    );
-    if (reason) {
-      next = openPharmacyCheckCall(
-        next,
-        input.patientId,
-        composeOrderLabel(input.row, base),
-        reason,
-        ctx,
-      );
-    }
-  }
   return { state: next, order: gated, effects };
 }
 

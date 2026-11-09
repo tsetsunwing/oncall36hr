@@ -924,8 +924,8 @@
   {
     "id": "drug.lidocaine",
     "type": "DRUG",
-    "label": "Lidocaine",
-    "aliases": ["lidocaine"],
+    "label": "Lignocaine",
+    "aliases": ["lidocaine", "lignocaine"],
     "executors": ["NURSE"],
     "fixedDurationSec": 0,
     "setsFlags": [],
@@ -939,8 +939,8 @@
   {
     "id": "drug.magnesium",
     "type": "DRUG",
-    "label": "Magnesium Sulfate",
-    "aliases": ["magnesium sulfate"],
+    "label": "Magnesium sulphate",
+    "aliases": ["magnesium sulfate", "magnesium sulphate"],
     "executors": ["NURSE"],
     "fixedDurationSec": 0,
     "setsFlags": [],
@@ -999,8 +999,8 @@
   {
     "id": "drug.norepinephrine",
     "type": "DRUG",
-    "label": "Norepinephrine",
-    "aliases": ["norepinephrine"],
+    "label": "Noradrenaline",
+    "aliases": ["norepinephrine", "noradrenaline"],
     "executors": ["NURSE"],
     "fixedDurationSec": 0,
     "setsFlags": [],
@@ -1059,8 +1059,8 @@
   {
     "id": "drug.nitroglycerin",
     "type": "DRUG",
-    "label": "Nitroglycerin",
-    "aliases": ["nitroglycerin"],
+    "label": "Glyceryl trinitrate",
+    "aliases": ["nitroglycerin", "glyceryl trinitrate"],
     "executors": ["NURSE"],
     "fixedDurationSec": 0,
     "setsFlags": [],

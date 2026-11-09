@@ -27,6 +27,7 @@ import type {
   MonitorView,
   OrderRowView,
   PatientView,
+  MedicationOption,
   QuickChipView,
   ReportView,
   VitalReadout,
@@ -419,6 +420,22 @@ function presetLabel(
   return match?.chipLabel;
 }
 
+function selectMedications(tables: EngineTables): MedicationOption[] {
+  return tables.formulary.flatMap((drug) => {
+    if (!drug.catalogId.startsWith('drug.')) return [];
+    const word = tables['quick-words'].find(
+      (item) => item.params?.drugFormularyId === drug.id && item.promptStem,
+    );
+    return [
+      {
+        id: drug.id,
+        label: drug.label,
+        stem: word?.promptStem ?? drug.label.toLowerCase(),
+      },
+    ];
+  });
+}
+
 function selectQuickChips(tables: EngineTables): QuickChipView[] {
   return tables['quick-words'].flatMap((word) => {
     const text = word.aliases[0];
@@ -438,6 +455,7 @@ function selectQuickChips(tables: EngineTables): QuickChipView[] {
             catalogId: word.catalogId,
             category: word.chipGroup ?? chipCategory(row?.type ?? '', word.catalogId),
             ...(report ? { report } : {}),
+            ...(row?.type === 'DRUG' && formulary ? { medicationId: formulary.id } : {}),
             ...(prompt ? { prompt } : {}),
           },
         ]
@@ -475,6 +493,7 @@ export function selectGameView(state: GameState, env: ViewEnv): GameView {
       patient: current ? actionLog.filter((r) => r.patientId === current.id) : [],
     },
     quickChips: selectQuickChips(env.tables),
+    medications: selectMedications(env.tables),
     resus: selectResus(state, env, clockLabel),
     death: selectDeath(state, env, clockLabel),
     pendingAiCount: state.pendingAi.length,

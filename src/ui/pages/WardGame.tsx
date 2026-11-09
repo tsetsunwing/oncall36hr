@@ -188,6 +188,7 @@ export function WardGame({ view, ward, actions }: WardGameProps) {
             patientId={view.patient.id}
             resus={view.resus}
             chips={view.quickChips}
+            medications={view.medications}
             actions={actions}
           />
         ) : null}
@@ -278,6 +279,7 @@ export function WardGame({ view, ward, actions }: WardGameProps) {
               <ChatPanel
                 chat={view.chat}
                 chips={view.quickChips}
+                medications={view.medications}
                 gates={view.gates}
                 notice={view.notice}
                 actions={actions}

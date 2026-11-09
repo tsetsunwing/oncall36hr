@@ -72,6 +72,12 @@ test.describe('M5 ACLS／CPR／死亡流程', () => {
     }
 
     await order(page, 'qw.adrenaline');
+    const drugOrder = page.getByTestId('drug-order');
+    await drugOrder.getByRole('radio', { name: 'IV (Intravenous bolus/push)' }).check();
+    await drugOrder.getByRole('textbox', { name: ui.game.chat.drugOrder.dose }).fill('1');
+    await drugOrder.getByLabel(ui.game.chat.drugOrder.unit).selectOption('mg');
+    await drugOrder.getByRole('radio', { name: 'STAT' }).check();
+    await drugOrder.getByTestId('drug-order-confirm').click();
     await expect(panel.locator('.resus-drugs li')).toContainText('Adrenaline', {
       timeout: 30_000,
     });

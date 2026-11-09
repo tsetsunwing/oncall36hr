@@ -348,6 +348,7 @@ describe('ChatPanel', () => {
           category: 'resus' as const,
           ...(item.id === 'qw.adrenaline'
             ? {
+                medicationId: 'adrenaline',
                 prompt: {
                   stem: 'adrenaline',
                   fields: [
@@ -397,8 +398,11 @@ describe('ChatPanel', () => {
     ).toEqual(RESUS_MENU.find((column) => column.id === 'drugs')?.items.map((item) => item.label));
     await user.click(screen.getByTestId('resus-action-qw.adrenaline'));
     expect(actions.submitChat).not.toHaveBeenCalled();
-    const dose = screen.getByRole('spinbutton', { name: ui.game.chat.prompt.dose });
-    expect(dose).toHaveValue(null);
+    expect(screen.getByTestId('drug-order-name')).toHaveValue('Adrenaline');
+    expect(screen.getByRole('textbox', { name: ui.game.chat.drugOrder.dose })).toHaveValue('');
+    expect(screen.getByRole('radio', { name: 'IV (Intravenous bolus/push)' })).not.toBeChecked();
+    expect(screen.getByTestId('drug-order-confirm')).toBeDisabled();
+    await user.click(screen.getByRole('button', { name: ui.game.chat.drugOrder.cancel }));
     await user.click(screen.getByRole('button', { name: ui.game.chat.chipGroup.observe ?? '' }));
     expect(screen.getByRole('menuitem', { name: 'Check vitals' })).toBeInTheDocument();
     expect(screen.queryByTestId('resus-menu')).not.toBeInTheDocument();

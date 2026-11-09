@@ -1,7 +1,14 @@
 import { useState } from 'react';
 import { ui } from '@/i18n';
-import { formatDuration, type GameActions, type QuickChipView, type ResusView } from '@/view';
+import {
+  formatDuration,
+  type GameActions,
+  type MedicationOption,
+  type QuickChipView,
+  type ResusView,
+} from '@/view';
 import { ChipPrompt } from './ChipPrompt';
+import { DrugOrderForm } from './DrugOrderForm';
 
 const ACLS_CHIP_IDS = [
   'qw.cpr',
@@ -17,6 +24,7 @@ export interface ResusPanelProps {
   patientId: string;
   resus: ResusView;
   chips: QuickChipView[];
+  medications?: readonly MedicationOption[];
   actions: GameActions;
 }
 
@@ -24,10 +32,17 @@ export interface ResusPanelProps {
  * 搶救面板：只呈現狀態同提供「落指示」按鈕（等同快捷詞）。玩家唔做壓胸，CPR 由護士進行。
  * 全部靜態文字／顏色，冇動畫、冇閃爍。
  */
-export function ResusPanel({ patientId, resus, chips, actions }: ResusPanelProps) {
+export function ResusPanel({
+  patientId,
+  resus,
+  chips,
+  medications = [],
+  actions,
+}: ResusPanelProps) {
   const r = ui.game.resus;
   const arrest = resus.status === 'ARREST';
   const [promptChip, setPromptChip] = useState<QuickChipView | null>(null);
+  const [drugChip, setDrugChip] = useState<QuickChipView | null>(null);
   const shown = ACLS_CHIP_IDS.flatMap((id) => chips.filter((chip) => chip.id === id));
   const groups = ['H', 'T'] as const;
 
@@ -91,7 +106,8 @@ export function ResusPanel({ patientId, resus, chips, actions }: ResusPanelProps
                   className="btn chip"
                   data-testid={`resus-${chip.id}`}
                   onClick={() => {
-                    if (chip.prompt) setPromptChip(chip);
+                    if (chip.medicationId) setDrugChip(chip);
+                    else if (chip.prompt) setPromptChip(chip);
                     else actions.submitChat(patientId, chip.text);
                   }}
                 >
@@ -165,6 +181,30 @@ export function ResusPanel({ patientId, resus, chips, actions }: ResusPanelProps
             ))}
           </ul>
         </div>
+      ) : null}
+      {drugChip?.medicationId ? (
+        <DrugOrderForm
+          drugId={drugChip.medicationId}
+          medications={
+            medications.some((item) => item.id === drugChip.medicationId)
+              ? medications
+              : [
+                  {
+                    id: drugChip.medicationId,
+                    label: drugChip.label,
+                    stem: drugChip.prompt?.stem ?? drugChip.label.toLowerCase(),
+                  },
+                  ...medications,
+                ]
+          }
+          onSubmit={(text) => {
+            actions.submitChat(patientId, text);
+            setDrugChip(null);
+          }}
+          onClose={() => {
+            setDrugChip(null);
+          }}
+        />
       ) : null}
     </section>
   );

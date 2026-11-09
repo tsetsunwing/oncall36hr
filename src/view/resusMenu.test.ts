@@ -35,7 +35,6 @@ const CATALOG: Record<string, string> = {
   'qw.resus.nitroglycerin': 'drug.nitroglycerin',
   'qw.resus.morphine': 'drug.morphine',
   'qw.resus.alteplase': 'drug.alteplase',
-  'qw.resus.fluid': 'fluid.ns500',
   'qw.resus.bicarbonate': 'drug.bicarbonate',
   'qw.resus.calciumchloride': 'drug.calciumchloride',
   'qw.resus.naloxone': 'drug.naloxone',
@@ -84,7 +83,10 @@ describe('搶救選單', () => {
       }
     }
     expect(shown.has('qw.stopcpr')).toBe(false);
+    expect(shown.has('qw.resus.fluid')).toBe(false);
     expect(shown.has('qw.chesttube')).toBe(false);
+    expect(tables['quick-words'].some((row) => row.id === 'qw.ns500')).toBe(true);
+    expect(tables['order-catalog'].some((row) => row.id === 'fluid.ns500')).toBe(true);
     expect(shown.has('qw.rewarm')).toBe(false);
     expect(tables['quick-words'].some((row) => row.id === 'qw.stopcpr')).toBe(true);
     expect(tables['quick-words'].some((row) => row.id === 'qw.chesttube')).toBe(true);
@@ -113,7 +115,22 @@ describe('搶救選單', () => {
     for (const drug of tables.formulary) {
       if (!drug.catalogId.startsWith('drug.')) continue;
       expect(drug.typicalDose, drug.id).toBeNull();
+      expect(drug.units, drug.id).not.toContain('mcg');
+      expect(drug.units.join(' '), drug.id).not.toMatch(/μg|mcg/);
+      expect(drug.label, drug.id).not.toMatch(
+        /Sulfate|Epinephrine|Lidocaine|Norepinephrine|Nitroglycerin/,
+      );
     }
+    expect(tables.formulary.find((row) => row.id === 'lidocaine')?.label).toBe('Lignocaine');
+    expect(tables.formulary.find((row) => row.id === 'magnesium')?.label).toBe(
+      'Magnesium sulphate',
+    );
+    expect(tables.formulary.find((row) => row.id === 'norepinephrine')?.label).toBe(
+      'Noradrenaline',
+    );
+    expect(tables.formulary.find((row) => row.id === 'nitroglycerin')?.label).toBe(
+      'Glyceryl trinitrate',
+    );
     expect(tables.formulary.find((row) => row.id === 'calcium-chloride')?.catalogId).toBe(
       'drug.calciumchloride',
     );

@@ -2392,3 +2392,107 @@ tr[data-flag='H'] .value-flagged {
 .setup-test .notice {
   margin: 0;
 }
+
+.chat,
+.resus {
+  position: relative;
+}
+
+.drug-order {
+  position: absolute;
+  z-index: 8;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  overflow: auto;
+  max-height: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0.45rem 0.55rem 0.6rem;
+  background: var(--surface);
+  border-radius: 10px;
+}
+
+.drug-order h3 {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.drug-order fieldset {
+  margin: 0;
+  padding: 0.25rem 0.45rem 0.35rem;
+  border: 1px solid var(--border);
+}
+
+.drug-order legend {
+  padding: 0 0.2rem;
+  font-size: 0.78rem;
+}
+
+.drug-order-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15rem 0.55rem;
+}
+
+.drug-order-options label,
+.drug-order-dose label,
+.drug-order-drug,
+.drug-order-notes label {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.78rem;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+
+.drug-order select {
+  width: 8.5rem;
+}
+
+.drug-order input[type='text'],
+.drug-order select {
+  min-width: 0;
+  min-height: 28px;
+  font: inherit;
+}
+
+.drug-order-dose {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.6rem;
+}
+
+.drug-order-dose input[type='text'] {
+  width: 5.5rem;
+}
+
+.drug-order-matches {
+  max-height: 6.5rem;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+  list-style: none;
+  border: 1px solid var(--border);
+}
+
+.drug-order-matches button {
+  width: 100%;
+  min-height: 28px;
+  padding: 0.15rem 0.4rem;
+  text-align: left;
+  background: transparent;
+  border: 0;
+}
+
+.drug-order-actions {
+  display: flex;
+  gap: 0.4rem;
+  justify-content: flex-end;
+}
+
+.drug-order-actions .btn {
+  min-height: 32px;
+}
