@@ -1115,5 +1115,19 @@
     "pharmacyGate": true,
     "nurseGate": "ALWAYS",
     "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "drug.unlisted",
+    "type": "DRUG",
+    "label": "Other drug",
+    "aliases": ["other drug"],
+    "executors": ["NURSE"],
+    "fixedDurationSec": 60,
+    "setsFlags": [],
+    "cancelWhile": ["QUEUED", "RUNNING"],
+    "sunkEffectRule": "DISCARD",
+    "pharmacyGate": false,
+    "nurseGate": "NEVER",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
   }
 ]

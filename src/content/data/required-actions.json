@@ -36,7 +36,7 @@
     "fsmId": "pna-sepsis-01",
     "state": "DETERIORATING",
     "flag": "fluid.bolus",
-    "label": "IV fluid bolus",
+    "label": "Normal saline",
     "catalogIds": ["fluid.ns500"],
     "windowSec": 3600,
     "guideline": {
@@ -68,7 +68,7 @@
     "fsmId": "pna-sepsis-01",
     "state": "SEPTIC_SHOCK",
     "flag": "fluid.bolus",
-    "label": "IV fluid bolus",
+    "label": "Normal saline",
     "catalogIds": ["fluid.ns500"],
     "windowSec": 1800,
     "guideline": {
@@ -308,7 +308,7 @@
     "fsmId": "ugib-01",
     "state": "STABILISING",
     "flag": "fluid.bolus",
-    "label": "IV fluid bolus",
+    "label": "Normal saline",
     "catalogIds": ["fluid.ns500"],
     "windowSec": 3600,
     "guideline": {
@@ -324,7 +324,7 @@
     "fsmId": "ugib-01",
     "state": "DETERIORATING",
     "flag": "fluid.bolus",
-    "label": "IV fluid bolus",
+    "label": "Normal saline",
     "catalogIds": ["fluid.ns500"],
     "windowSec": 1800,
     "guideline": {

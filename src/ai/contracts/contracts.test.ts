@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   contractFor,
   dialogueContract,
+  orderEffectContract,
   orderParseContract,
   roundsGradeContract,
   roundsQuestionContract,
@@ -300,6 +301,48 @@ describe('rounds.question／rounds.grade 契約', () => {
       /digit/,
     );
     expect(roundsGradeContract.dataSchema.safeParse({ verdict: 'GREAT' }).success).toBe(false);
+  });
+});
+
+describe('order.effect', () => {
+  const prompt = {
+    text: 'Dobutamine 5000 mg IV',
+    drugName: 'Dobutamine',
+    dose: { value: 5000, unit: 'mg' },
+    route: 'IV',
+    classes: ['SYMPATHOMIMETICS'],
+    categories: [
+      { id: 'bradycardia', label: 'bradycardia' },
+      { id: 'none', label: 'no extra effect' },
+    ],
+  };
+  const local = { orderId: 'o1', patientId: 'p1' };
+
+  it('只接受名單上的 id，多出的數字欄過不了 schema', () => {
+    expect(orderEffectContract.system).toMatch(/diagnosis/i);
+    expect(orderEffectContract.system).toMatch(/never write any digit/i);
+    expect(orderEffectContract.system).not.toMatch(/Hong Kong Cantonese/);
+    const parsed = orderEffectContract.promptSchema.parse(prompt);
+    expect(parsed.categories.every((item) => Object.keys(item).sort().join() === 'id,label')).toBe(
+      true,
+    );
+    expect(
+      orderEffectContract.guard(
+        { effectCategory: 'bradycardia' },
+        parsed,
+        orderEffectContract.localSchema.parse(local),
+      ).issues,
+    ).toEqual([]);
+    expect(
+      orderEffectContract.guard(
+        { effectCategory: 'sbp-40' },
+        parsed,
+        orderEffectContract.localSchema.parse(local),
+      ).issues.join(' '),
+    ).toMatch(/not in categories/);
+    expect(
+      orderEffectContract.dataSchema.safeParse({ effectCategory: 'bradycardia', sbp: 40 }).success,
+    ).toBe(false);
   });
 });
 

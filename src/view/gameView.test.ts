@@ -109,6 +109,12 @@ describe('ViewModel：只映射可見資料', () => {
     const cuff = play([]).patients.p1?.visible.cuff;
     if (!cuff) throw new Error('缺袖帶讀數');
     expect(view?.bp.band).toBe(bloodPressureBand(cuff.sbp, cuff.dbp));
+    expect(view?.bp.sbp).toBe(cuff.sbp);
+    expect(view?.bp.dbp).toBe(cuff.dbp);
+    expect(view?.abp.sbp).toBe(source.sbp);
+    expect(view?.abp.dbp).toBe(source.dbp);
+    expect(view?.abp.text).toContain(`${String(source.sbp)}/${String(source.dbp)}`);
+    expect(view?.bp.text).toContain(`${String(cuff.sbp)}/${String(cuff.dbp)}`);
   });
 
   it('快捷 chips 來自 quick-words 表', () => {

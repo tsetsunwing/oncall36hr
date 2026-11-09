@@ -1,0 +1,8 @@
+id,label,delta_sbp,delta_hr,delta_rr,delta_temp_c,note
+"marked_hypotension","marked hypotension",-15,8,2,0,"PENDING_CLINICAL_REVIEW"
+"marked_hypertension","marked hypertension",15,6,0,0,"PENDING_CLINICAL_REVIEW"
+"bradycardia","bradycardia",-4,-18,0,0,"PENDING_CLINICAL_REVIEW"
+"tachycardia","tachycardia",-2,20,2,0,"PENDING_CLINICAL_REVIEW"
+"respiratory_depression","respiratory depression",-6,-6,-6,0,"PENDING_CLINICAL_REVIEW"
+"reduced_consciousness","reduced consciousness",-4,-6,-3,0,"PENDING_CLINICAL_REVIEW"
+"none","no extra effect",0,0,0,0,"PENDING_CLINICAL_REVIEW"

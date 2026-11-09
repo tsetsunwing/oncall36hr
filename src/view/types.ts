@@ -24,8 +24,10 @@ export interface VitalReadout {
 
 export interface MonitorView {
   hr: VitalReadout;
-  /** 一格：SBP/DBP (MAP)。MAP 由狀態機嘅 SBP、DBP 計算。 */
+  /** NIBP：上次袖帶。再量之前不跟動脈血壓走。 */
   bp: VitalReadout & { sbp: number; dbp: number };
+  /** 動脈血壓：狀態機當下的 SBP/DBP，會在基線附近擺動。 */
+  abp: VitalReadout & { sbp: number; dbp: number };
   /** A-line 或 CVP。冇對應導管時 kind 為 null，畫面留空。 */
   lineSlot: LineSlotView;
   /** 額外波形：冇對應導管或插管時不可顯示。 */
@@ -242,6 +244,8 @@ export interface PlacedOrderParams {
   frequency?: string;
   times?: number;
   rate?: { value: number; unit: string };
+  /** 治療藥表的列 id。引擎用來對藥典、類別或醫囑 AI。 */
+  treatmentDrugId?: string;
 }
 
 export interface QuickChipView {

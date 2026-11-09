@@ -20,6 +20,7 @@ export type CoreIntent =
         frequency?: string;
         times?: number;
         rate?: { value: number; unit: string };
+        treatmentDrugId?: string;
       };
     }
   | { type: 'CANCEL_ORDER'; orderId: string }

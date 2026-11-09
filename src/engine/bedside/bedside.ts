@@ -2,6 +2,7 @@
  * 床邊模組：床邊對話（設計 B）、玩家落字入口、AI 結果分派。
  * 自由文字先試本地快捷詞（別名只留喺呢條路）；唔中先發 order.parse。
  * 菜單同藥物表用 PLACE_CATALOG，按 catalog id 直接落單，唔解析、唔叫模型認 order。
+ * 治療藥表對到藥典或類別範圍時同樣不叫模型。只有超出範圍、沒有類別或途徑不平常，才向 order.effect 要一個效果類別 id。
  */
 import { z } from 'zod';
 import type { Patient } from '../case/patient';
@@ -14,6 +15,12 @@ import type { EngineContext, EngineModule } from '../core/module';
 import type { GameState } from '../core/state';
 import { handleOrderParseResult, ORDER_PARSE_KIND } from '../orders/orderParse';
 import { placeAndAck } from '../orders/placement';
+import {
+  applyTreatmentEffectResult,
+  ORDER_EFFECT_KIND,
+  placeTreatmentDrug,
+  UNLISTED_DRUG_CATALOG_ID,
+} from '../orders/treatmentDrug';
 import { matchQuickPhrase } from '../orders/quickPhrase';
 import { nurseForBed } from '../ward/nurses';
 
@@ -45,6 +52,7 @@ const placedParamsSchema = z
       .object({ value: z.number().positive(), unit: z.string().min(1) })
       .strict()
       .optional(),
+    treatmentDrugId: z.string().min(1).optional(),
   })
   .strict();
 
@@ -75,6 +83,26 @@ function placeCatalog(
   const parsed = placedParamsSchema.safeParse(intent.params);
   if (!parsed.success) return reject(state, 'ORDER_INVALID');
   const params = parsed.data;
+  if (params.treatmentDrugId) {
+    if (intent.catalogId !== UNLISTED_DRUG_CATALOG_ID || params.drugFormularyId !== null) {
+      return reject(state, 'ORDER_INVALID');
+    }
+    return placeTreatmentDrug(
+      state,
+      patient,
+      text,
+      {
+        drugFormularyId: params.drugFormularyId,
+        dose: params.dose,
+        route: params.route,
+        ...(params.frequency ? { frequency: params.frequency } : {}),
+        ...(params.times ? { times: params.times } : {}),
+        ...(params.rate ? { rate: params.rate } : {}),
+        ...(params.treatmentDrugId ? { treatmentDrugId: params.treatmentDrugId } : {}),
+      },
+      ctx,
+    );
+  }
   if (row.formularyId) {
     if (params.drugFormularyId !== row.formularyId) return reject(state, 'ORDER_INVALID');
   } else if (params.drugFormularyId !== null) {
@@ -306,6 +334,8 @@ export const bedsideModule: EngineModule = {
     if (!pending) return undefined;
     if (pending.kind === ORDER_PARSE_KIND)
       return handleOrderParseResult(state, pending, payload, ctx);
+    if (pending.kind === ORDER_EFFECT_KIND)
+      return applyTreatmentEffectResult(state, pending, payload);
     if (pending.kind === DIALOGUE_KIND) return handleDialogueResult(state, pending, payload, ctx);
     return undefined;
   },

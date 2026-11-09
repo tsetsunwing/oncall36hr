@@ -28,6 +28,7 @@ import { CONTRACT_MODES, contractReply, parseRequest, type ContractMode } from '
  */
 const CONTRACT_KINDS = [
   'order.parse',
+  'order.effect',
   'dialogue.turn',
   'gate.pharmacy',
   'gate.nurse',

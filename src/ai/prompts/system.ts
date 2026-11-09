@@ -122,3 +122,10 @@ Task (kind "rounds.grade"): judge the player's "answer" to "question" against "k
 - matchedKeyFacts: ids copied exactly from "keyFacts" that the answer covers. It must be empty only when the verdict is WRONG. It may contain more than one id.
 - seniorLine: optional, one short sentence in the consultant's voice reacting to the answer (at most "maxLineChars" characters), or an empty string. The correct answer itself is shown by the game from keyFacts, so do not recite new facts.
 - Do not add any other fields.`;
+
+export const ORDER_EFFECT_SYSTEM = `${COMMON}
+
+Task (kind "order.effect"): a completed prescription did not match the formulary, and its dose or route is outside the placeholder range for its class. Choose one effect category.
+- data.effectCategory: copy exactly one "id" from "categories".
+- Return only that id. Never write any digit. Never output a vital sign, a dose, a delta, a free-text explanation, or a diagnosis.
+- Do not add any other fields. The game engine owns every displayed number.`;

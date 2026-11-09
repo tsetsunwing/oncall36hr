@@ -13,6 +13,7 @@ import {
   gateDangerContract,
   gateNurseContract,
   gatePharmacyContract,
+  orderEffectContract,
   orderParseContract,
   type Contract,
 } from '../src/ai/contracts';
@@ -422,6 +423,7 @@ function runCase(spec: FixtureCase): CaseResult {
 function promptRules(): PromptRule[] {
   const systems = [
     orderParseContract,
+    orderEffectContract,
     dialogueContract,
     gatePharmacyContract,
     gateNurseContract,
@@ -443,6 +445,8 @@ function expectedPrompt(kind: string): { cantonese: boolean; noBareDigits: boole
   switch (kind) {
     case 'order.parse':
       return { cantonese: false, noBareDigits: false };
+    case 'order.effect':
+      return { cantonese: false, noBareDigits: true };
     case 'dialogue.turn':
     case 'gate.pharmacy':
     case 'gate.nurse':
@@ -521,7 +525,36 @@ function includesIds(data: unknown, part: 'S' | 'B' | 'A' | 'R', ids: string[]):
 
 export function runPromptEval(): PromptEvalReport {
   const prompts = promptRules();
+  const effectPrompt = {
+    text: 'Dobutamine 5000 mg IV',
+    drugName: 'Dobutamine',
+    dose: { value: 5000, unit: 'mg' },
+    route: 'IV',
+    classes: ['SYMPATHOMIMETICS'],
+    categories: [
+      { id: 'none', label: 'no extra effect' },
+      { id: 'tachycardia', label: 'tachycardia' },
+    ],
+  };
+  const effectLocal = { orderId: 'o1', patientId: 'p1' };
   const cases: FixtureCase[] = [
+    {
+      id: 'order.effect-category',
+      contract: orderEffectContract,
+      mode: 'ok',
+      prompt: effectPrompt,
+      local: effectLocal,
+      expect: 'pass',
+      check: (data) => (asRecord(data)?.effectCategory === 'none' ? null : 'category'),
+    },
+    {
+      id: 'order.effect-numbers',
+      contract: orderEffectContract,
+      mode: 'numbers',
+      prompt: effectPrompt,
+      local: effectLocal,
+      expect: 'reject',
+    },
     {
       id: 'order.vitals',
       contract: orderParseContract,
@@ -848,7 +881,9 @@ export function runPromptEval(): PromptEvalReport {
   ];
 
   const results = [...promptRuleFailures(prompts), ...cases.map(runCase)];
-  const orderCases = results.filter((item) => item.id.startsWith('order.'));
+  const orderCases = results.filter(
+    (item) => item.kind === 'order.parse' && item.id.startsWith('order.'),
+  );
   const orderPassed = orderCases.filter((item) => item.ok).length;
   const gap = rationaleGap();
   return {

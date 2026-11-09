@@ -94,6 +94,14 @@ export function validateCrossReferences(tables: Tables): ContentIssue[] {
       if (entry.acls.action === 'DEFIB' && !entry.formularyId) {
         add('order-catalog', `${at}.acls`, 'acls DEFIB 必須有 formularyId（能量以劑量表示）');
       }
+    } else if (entry.id === 'drug.unlisted') {
+      if (entry.formularyId || entry.pharmacyGate || entry.nurseGate !== 'NEVER') {
+        add(
+          'order-catalog',
+          at,
+          '未收錄治療藥不經藥典，也不為每張單開啟藥房或護士模型把關',
+        );
+      }
     } else if (entry.type === 'DRUG' && (!entry.formularyId || !entry.pharmacyGate)) {
       add('order-catalog', at, 'DRUG 必須有 formularyId 而且 pharmacyGate 為 true（藥房永遠把關）');
     }

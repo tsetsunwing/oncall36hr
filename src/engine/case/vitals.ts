@@ -86,11 +86,20 @@ export function effectDeltaAt(
     const scale = isEffectiveOrder(order, patient.id) ? 1 : sunkFraction(order, tables);
     if (scale === 0) continue;
     const row = pickEffectRow(tables['order-effects'], order.catalogId, patient.hidden.fsm.state);
-    if (!row) continue;
-    const factor = effectFactor(row, order.startsAt, t) * scale;
-    if (factor === 0) continue;
-    const delta: VitalDelta = row.delta;
-    for (const key of VITAL_KEYS) total[key] += (delta[key] ?? 0) * factor;
+    if (row) {
+      const factor = effectFactor(row, order.startsAt, t) * scale;
+      if (factor !== 0) {
+        const delta: VitalDelta = row.delta;
+        for (const key of VITAL_KEYS) total[key] += (delta[key] ?? 0) * factor;
+      }
+    }
+    const preset = order.effectPreset;
+    if (preset) {
+      total.sbp += preset.sbp * scale;
+      total.hr += preset.hr * scale;
+      total.rr += preset.rr * scale;
+      total.temp += preset.temp * scale;
+    }
   }
   for (const effect of patient.hidden.activeEffects) {
     const factor = effectFactor({ delaySec: 0, ...effect }, effect.startsAt, t);

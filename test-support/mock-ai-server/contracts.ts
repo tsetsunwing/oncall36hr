@@ -756,8 +756,22 @@ function roundsGrade(prompt: Record<string, unknown>, mode: ContractMode): strin
   return envelope('rounds.grade', data);
 }
 
+function orderEffect(prompt: Record<string, unknown>, mode: ContractMode): string {
+  const categories = Array.isArray(prompt.categories)
+    ? (prompt.categories as { id?: unknown }[])
+    : [];
+  const ids = categories.flatMap((item) => (typeof item.id === 'string' ? [item.id] : []));
+  const id = ids.find((item) => item === 'none') ?? ids[0] ?? 'none';
+  if (mode === 'numbers' || mode === 'extra-fields' || mode === 'inject') {
+    return envelope('order.effect', { effectCategory: id, sbp: 40 });
+  }
+  if (mode === 'unknown-catalog') return envelope('order.effect', { effectCategory: 'not-a-category' });
+  return envelope('order.effect', { effectCategory: id });
+}
+
 export function contractReply(request: ParsedRequest, mode: ContractMode): string | null {
   if (request.kind === 'order.parse') return orderParse(request.prompt, mode);
+  if (request.kind === 'order.effect') return orderEffect(request.prompt, mode);
   if (request.kind === 'dialogue.turn') return dialogue(request.prompt, mode);
   if (request.kind === 'gate.pharmacy' || request.kind === 'gate.nurse') {
     return gateReview(request.prompt, mode);

@@ -22,6 +22,7 @@ import {
   roundsQuestionContract,
 } from './rounds';
 import { orderParseContract, ORDER_PARSE_KIND } from './orderParse';
+import { orderEffectContract, ORDER_EFFECT_KIND } from './orderEffect';
 import type { Contract } from './types';
 
 export * from './calleeReply';
@@ -30,11 +31,13 @@ export * from './dialogueTurn';
 export * from './familyAssess';
 export * from './gate';
 export * from './orderParse';
+export * from './orderEffect';
 export * from './rounds';
 export { CONTRACT_VERSION, type Contract, type GuardResult } from './types';
 
 export const CONTRACTS = {
   [ORDER_PARSE_KIND]: orderParseContract,
+  [ORDER_EFFECT_KIND]: orderEffectContract,
   [DIALOGUE_KIND]: dialogueContract,
   [GATE_PHARMACY_KIND]: gatePharmacyContract,
   [GATE_NURSE_KIND]: gateNurseContract,

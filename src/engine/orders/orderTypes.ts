@@ -32,8 +32,23 @@ export const orderSchema = z
         times: z.number().int().min(1).max(3).optional(),
         /** 輸液速率。舊存檔冇呢欄。 */
         rate: z.object({ value: z.number(), unit: z.string() }).strict().optional(),
+        /** 未收錄藥物的顯示藥名。舊存檔冇呢欄。目錄醫囑不用。 */
+        drugName: z.string().min(1).optional(),
       })
       .strict(),
+    /**
+     * 類別表或效果類別加在狀態機基線上的變化。
+     * 只含收縮壓、心率、呼吸、體溫。舊存檔冇呢欄。
+     */
+    effectPreset: z
+      .object({
+        sbp: z.number(),
+        hr: z.number(),
+        rr: z.number(),
+        temp: z.number(),
+      })
+      .strict()
+      .optional(),
     executor: z.string().nullable(),
     executorKind: z.enum(['NURSE', 'SUBORDINATE', 'PLAYER']).nullable(),
     /** 取消時間；KEEP_PARTIAL 按（取消－開始）／總時長保留效果 */

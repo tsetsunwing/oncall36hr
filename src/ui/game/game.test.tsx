@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
-import { RESUS_MENU, type GameActions, type QuickChipView } from '@/view';
+import { RESUS_MENU, type GameActions, type PlacedOrderParams, type QuickChipView } from '@/view';
 import { ui } from '@/i18n';
 import { AiFailureBanner } from './AiFailureBanner';
 import { ChatPanel } from './ChatPanel';
@@ -140,6 +140,8 @@ describe('MonitorPanel：床邊監護儀風格＋閃爍數值＋驚嘆號', () =
     expect(cell).toHaveTextContent('CVP');
     expect(cell.querySelector('.num')?.textContent).toBe('—');
     await user.click(screen.getByRole('checkbox', { name: 'ABP' }));
+    expect(screen.getByTestId('vital-abp')).toHaveTextContent('110/70 (83)');
+    expect(screen.getByTestId('vital-bp')).toHaveTextContent('96/58 (71)');
     expect(screen.getByRole('checkbox', { name: 'EtCO2' })).toBeDisabled();
     expect(screen.queryByTestId('vital-etco2')).not.toBeInTheDocument();
   });
@@ -699,6 +701,43 @@ describe('ChatPanel', () => {
       screen.queryByRole('dialog', { name: ui.game.chat.drugOrder.title }),
     ).not.toBeInTheDocument();
     expect(actions.placeOrder).not.toHaveBeenCalled();
+  });
+
+  it('治療藥表落未收錄醫囑，並帶藥表列 id', async () => {
+    const user = userEvent.setup();
+    const onSubmit =
+      vi.fn<(order: { catalogId: string; text: string; params: PlacedOrderParams }) => void>();
+    render(
+      <DrugOrderForm
+        drugId=""
+        treatmentSearch
+        medications={[
+          {
+            id: 'dobutamine--sympathomimetics--general-drugs',
+            label: 'Dobutamine',
+            stem: 'dobutamine',
+            catalogId: '',
+            classes: ['SYMPATHOMIMETICS'],
+          },
+        ]}
+        onSubmit={onSubmit}
+        onClose={() => undefined}
+      />,
+    );
+    const name = screen.getByTestId('drug-order-name');
+    await user.type(name, 'dob');
+    await user.click(screen.getByRole('option', { name: /Dobutamine/ }));
+    await user.selectOptions(screen.getByTestId('drug-order-route'), 'IV (Intravenous bolus/push)');
+    await user.type(screen.getByTestId('drug-order-dose'), '5');
+    await user.selectOptions(screen.getByTestId('drug-order-unit'), 'mg');
+    await user.selectOptions(screen.getByTestId('drug-order-frequency'), 'STAT');
+    await user.click(screen.getByTestId('drug-order-confirm'));
+    const submitted = onSubmit.mock.calls[0]?.[0];
+    expect(submitted?.catalogId).toBe('drug.unlisted');
+    expect(submitted?.params.drugFormularyId).toBeNull();
+    expect(submitted?.params.treatmentDrugId).toBe('dobutamine--sympathomimetics--general-drugs');
+    expect(submitted?.params.dose).toEqual({ value: 5, unit: 'mg' });
+    expect(submitted?.params.route).toBe('IV');
   });
 
   it('搶救藥物表不顯示類別徽章或篩選', async () => {

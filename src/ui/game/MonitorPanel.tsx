@@ -347,7 +347,7 @@ export function MonitorPanel({ patient, monitor, onMeasureNibp }: MonitorPanelPr
             }
           />
           {shownExtra.map((kind) => (
-            <OptionalTile key={kind} kind={kind} bp={kind === 'abp' ? monitor.bp : null} />
+            <OptionalTile key={kind} kind={kind} bp={kind === 'abp' ? monitor.abp : null} />
           ))}
         </div>
       </div>

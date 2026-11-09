@@ -33,6 +33,8 @@ export interface PlaceInput {
   preferredExecutor: ExecutorKind | null;
   /** 玩家按下送出嘅時刻。AI 解析較慢時，生效時間唔會因而推遲（§2.4） */
   submittedAt: number;
+  /** 類別表的基線變化。目錄醫囑不用，沿用 order-effects。 */
+  effectPreset?: Order['effectPreset'];
 }
 
 export function nurseSeniority(state: GameState, ctx: EngineContext) {
@@ -102,6 +104,7 @@ export function placeCatalogOrder(state: GameState, input: PlaceInput, ctx: Engi
     resultStatus: null,
     sampledState: null,
     gate: null,
+    ...(input.effectPreset ? { effectPreset: input.effectPreset } : {}),
   };
 
   let next = registerOrder(working, base);
@@ -172,22 +175,24 @@ export function placeAndAck(
   inputs: readonly PlaceInput[],
   addressed: string[],
   ctx: EngineContext,
-): Reduction {
+): Reduction & { orders: Order[] } {
   let next = state;
   const effects: Effect[] = [];
   const running: Order[] = [];
+  const orders: Order[] = [];
   for (const input of inputs) {
     const placed = placeCatalogOrder(next, input, ctx);
     next = placed.state;
     effects.push(...placed.effects);
+    orders.push(placed.order);
     if (placed.order.status === 'RUNNING') running.push(placed.order);
   }
   const accepted = running.filter((order) => {
     const row = ctx.tables['order-catalog'].find((item) => item.id === order.catalogId);
     return aclsNurseDecision(next, order.patientId, row?.acls?.action, ctx.tables) === 'PROCEED';
   });
-  if (accepted.length === 0) return { state: next, effects };
+  if (accepted.length === 0) return { state: next, effects, orders };
   const { beats, tokens } = ackBeatsFor(accepted, ctx);
   const dialogue = queueBeatsForOrders(next, patient, beats, tokens, addressed, ctx);
-  return { state: dialogue.state, effects: [...effects, ...dialogue.effects] };
+  return { state: dialogue.state, effects: [...effects, ...dialogue.effects], orders };
 }

@@ -3,6 +3,7 @@ import { ui } from '@/i18n';
 import {
   composeDrugOrderPhrase,
   placedDrugParams,
+  UNLISTED_DRUG_CATALOG_ID,
   DILUENTS,
   DOSE_UNITS,
   DRUG_ROUTES,
@@ -168,10 +169,19 @@ export function DrugOrderForm({
   }
 
   function submit() {
-    if (!selected || selected.catalogId.length === 0) return;
+    if (!selected) return;
     const params = placedDrugParams(selected.id, draft);
     const phrase = composeDrugOrderPhrase(draft);
     if (!params || !phrase) return;
+    if (treatmentSearch) {
+      onSubmit({
+        catalogId: UNLISTED_DRUG_CATALOG_ID,
+        text: phrase,
+        params: { ...params, drugFormularyId: null, treatmentDrugId: selected.id },
+      });
+      return;
+    }
+    if (selected.catalogId.length === 0) return;
     onSubmit({ catalogId: selected.catalogId, text: phrase, params });
   }
 

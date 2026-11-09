@@ -1,4 +1,7 @@
+import { UNLISTED_DRUG_CATALOG_ID } from '@/content/drugEffects';
 import type { MedicationOption, PlacedOrderParams } from './types';
+
+export { UNLISTED_DRUG_CATALOG_ID };
 
 /** 藥物醫囑表組句。只拼玩家揀嘅字，唔查劑量表。 */
 export const DRUG_ROUTES = [

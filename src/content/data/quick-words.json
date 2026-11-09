@@ -35,7 +35,7 @@
     "id": "qw.ns500",
     "aliases": ["ns", "normal saline", "fluid bolus", "ivf bolus"],
     "catalogId": "fluid.ns500",
-    "chipLabel": "NS",
+    "chipLabel": "Normal saline",
     "chipGroup": "treat",
     "promptStem": "ns",
     "prompt": ["volume", "rate"]

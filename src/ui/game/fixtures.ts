@@ -39,6 +39,7 @@ export function monitor(over: Partial<MonitorView> = {}): MonitorView {
   return {
     hr: readout('118', 'ALARM', 'HIGH', 'moderate'),
     bp: { ...readout('96/58 (71)', 'CAUTION', 'LOW', 'mild'), sbp: 96, dbp: 58 },
+    abp: { ...readout('110/70 (83)', 'NORMAL', null, 'normal'), sbp: 110, dbp: 70 },
     lineSlot: { kind: null, reviewPending: false },
     lines: { abp: false, cvp: false, etco2: false },
     spo2: readout('89', 'ALARM', 'LOW', 'severe'),
