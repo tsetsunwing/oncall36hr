@@ -196,11 +196,22 @@ describe('FloorPlan', () => {
     expect(screen.getByText(ui.game.ward.newAdmission)).toBeInTheDocument();
   });
 
-  it('行緊路時顯示狀態；平面圖冇電話地標', () => {
+  it('平面圖床位控制只顯示床號，不顯示行走秒數', () => {
     render(<FloorPlan ward={ward({ movingToBed: 7, arriveInSec: 40 })} actions={makeActions()} />);
-    expect(screen.getByTestId('walking')).toHaveTextContent('前往 7 號床');
-    expect(screen.getByTestId('walking')).not.toHaveTextContent('秒');
+    expect(screen.queryByTestId('walking')).not.toBeInTheDocument();
+    expect(screen.getByTestId('bed-7').querySelector('.bed-no')).toHaveTextContent('7');
+    expect(screen.getByTestId('floor-plan')).not.toHaveTextContent('秒');
     expect(screen.queryByTestId('landmark-phone')).toBeNull();
+  });
+});
+
+describe('行走提示', () => {
+  it('病房不再顯示行走等候', () => {
+    const view = gameAt('STATION');
+    view.notice = { kind: 'PLAYER_MOVING', tone: 'warn' };
+    render(<WardGame view={view} ward={ward()} actions={makeActions()} />);
+    expect(screen.queryByTestId('ward-notice')).not.toBeInTheDocument();
+    expect(screen.queryByText('你正在行走中，請等候到達。')).not.toBeInTheDocument();
   });
 });
 

@@ -25,6 +25,7 @@ import { resultsModule } from '../results/results';
 import { priorityModule } from '../score/priority';
 import { shiftModule } from '../shift/shiftModule';
 import { subordinateOrderModule } from '../ward/delegation';
+import { settleTravel } from '../ward/movement';
 import { wardModule } from '../ward/wardModule';
 import { requestAi } from './ai';
 
@@ -204,7 +205,8 @@ export function createEngine(config: EngineConfig, options: EngineOptions = {}):
     return { state, effects };
   }
 
-  function reduce(state: GameState, event: EngineEvent): Reduction {
+  function reduce(incoming: GameState, event: EngineEvent): Reduction {
+    const state = settleTravel(incoming, ctx);
     let result: Reduction;
     switch (event.type) {
       case 'TICK':

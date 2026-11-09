@@ -741,22 +741,73 @@ describe('移動同床邊', () => {
     expect(settled.chats[patient.id]?.visits.at(-1)?.leftAt).toBeNull();
   });
 
-  it('跨區行路要時間，同區即時', () => {
+  it('去床同返回病房即時到達，唔推進時鐘，亦唔鎖住玩家', () => {
     let state = engine.init(wardParams('move-2', 'MO', 'HARD'));
     const a = patientsOf(state).find((p) => p.bed <= 10);
     const b = patientsOf(state).find((p) => p.bed > 10);
-    if (!a || !b) return;
+    if (!a || !b) throw new Error('need two zones');
+    const t0 = state.clock.t;
     state = feed(engine, state, [ward('GO_TO_BED', { bed: a.bed })]).state;
-    expect(state.ward.location.bed).toBe(a.bed);
-    state = feed(engine, state, [ward('GO_TO_BED', { bed: b.bed })]).state;
-    expect(state.ward.location.bed).toBeNull();
-    expect(state.ward.location.movingTo).toBe(b.bed);
-    const moving = feed(engine, state, [ward('GO_TO_BED', { bed: a.bed })]);
-    expect(moving.effects.some((e) => e.type === 'NOTICE' && e.kind === 'PLAYER_MOVING')).toBe(
-      true,
+    expect(state.ward.location).toMatchObject({ bed: a.bed, movingTo: null, arriveAt: null });
+    expect(state.clock.t).toBe(t0);
+
+    const toB = feed(engine, state, [ward('GO_TO_BED', { bed: b.bed })]);
+    expect(toB.effects.some((e) => e.type === 'NOTICE' && e.kind === 'PLAYER_MOVING')).toBe(false);
+    expect(toB.state.ward.location).toMatchObject({
+      bed: b.bed,
+      movingTo: null,
+      arriveAt: null,
+    });
+    expect(toB.state.clock.t).toBe(t0);
+    expect(toB.state.scheduler.items.some((event) => event.kind === 'PLAYER_ARRIVE')).toBe(false);
+
+    const back = feed(engine, toB.state, [ward('GO_TO_BED', { bed: 0 })]);
+    expect(back.effects.some((e) => e.type === 'NOTICE' && e.kind === 'PLAYER_MOVING')).toBe(false);
+    expect(back.state.ward.location).toMatchObject({ bed: null, movingTo: null, arriveAt: null });
+    expect(back.state.clock.t).toBe(t0);
+
+    const pantry = feed(engine, toB.state, [
+      intentEvent({
+        type: 'EXTENSION',
+        module: 'shift',
+        name: 'ENTER_PLACE',
+        payload: { place: 'PANTRY' },
+      }),
+    ]);
+    expect(pantry.effects.some((e) => e.type === 'NOTICE' && e.kind === 'PLAYER_MOVING')).toBe(
+      false,
     );
-    state = advance(engine, state, 130).state;
-    expect(state.ward.location.bed).toBe(b.bed);
+    expect(pantry.state.shift.energy.place).toBe('PANTRY');
+    expect(pantry.state.ward.location.movingTo).toBeNull();
+    expect(pantry.state.clock.t).toBe(t0);
+  });
+
+  it('未完成的行走唔會把班次時鐘推到原定到達時間', () => {
+    let state = engine.init(wardParams('move-legacy', 'MO', 'HARD'));
+    const target = patientsOf(state).find((p) => p.bed > 10);
+    if (!target) throw new Error('need a far bed');
+    const t0 = state.clock.t;
+    state = {
+      ...state,
+      ward: {
+        ...state.ward,
+        location: { bed: null, movingTo: target.bed, arriveAt: t0 + 120 },
+      },
+      scheduler: enqueue(state.scheduler, {
+        time: t0 + 120,
+        priority: 5,
+        kind: 'PLAYER_ARRIVE',
+        payload: { bed: target.bed },
+      }),
+    };
+    const run = feed(engine, state, [{ type: 'TICK', dtRealMs: 0 }]);
+    expect(run.state.ward.location).toMatchObject({
+      bed: target.bed,
+      movingTo: null,
+      arriveAt: null,
+    });
+    expect(run.state.clock.t).toBe(t0);
+    expect(run.state.scheduler.items.some((event) => event.kind === 'PLAYER_ARRIVE')).toBe(false);
   });
 });
 
