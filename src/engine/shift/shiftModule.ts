@@ -110,7 +110,6 @@ function handleExtension(
       const parsed = payloads.ENTER_PLACE.safeParse(payload);
       if (!parsed.success) return reject(state, 'SHIFT_NOT_ACTIVE');
       if (state.clock.phase === 'ENDED') return reject(state, 'SHIFT_NOT_ACTIVE');
-      if (state.ward.location.movingTo !== null) return reject(state, 'PLAYER_MOVING');
       return enterPlace(state, parsed.data.place, ctx);
     }
     case 'BEGIN_HANDOVER': {

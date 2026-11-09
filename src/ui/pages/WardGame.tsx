@@ -314,7 +314,7 @@ export function WardGame({ view, ward, actions }: WardGameProps) {
             />
           </div>
         )}
-        {!view.chat && view.notice ? (
+        {!view.chat && view.notice && view.notice.kind !== 'PLAYER_MOVING' ? (
           <p className="ward-notice" role="status" data-testid="ward-notice">
             {g.notice[view.notice.kind] ?? g.notice.fallback}
           </p>

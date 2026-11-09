@@ -1,15 +1,13 @@
-/** 玩家喺病房入面嘅位置同行走（T28：同區即時，跨區要時間） */
+/** 玩家在病房內的位置。前往床邊與返回病房皆即時到達，不推進班次時鐘。 */
 import { buildPresent } from '../bedside/bedside';
 import { appendLine } from '../chat/dialogue';
-import { enqueue } from '../core/eventQueue';
+import { removeWhere } from '../core/eventQueue';
 import type { Reduction } from '../core/events';
 import type { EngineContext } from '../core/module';
 import type { GameState } from '../core/state';
 import { resolveArrestCallsAtBed } from './arrestCall';
-import { zoneOfBed } from './nurses';
 
 export const PLAYER_ARRIVE_EVENT = 'PLAYER_ARRIVE';
-export const PLAYER_ARRIVE_PRIORITY = 5;
 
 export function patientAtBed(state: GameState, bed: number): string | null {
   for (const patient of Object.values(state.patients)) if (patient.bed === bed) return patient.id;
@@ -103,43 +101,35 @@ export function arriveAt(state: GameState, bed: number | null, ctx: EngineContex
   return next;
 }
 
-/** 移去指定床（或 null＝護士站）。同區即時到；跨區排程到達事件 */
-export function moveTo(state: GameState, bed: number | null, ctx: EngineContext): Reduction {
+function dropArrival(state: GameState): GameState {
+  if (!state.scheduler.items.some((event) => event.kind === PLAYER_ARRIVE_EVENT)) return state;
+  return {
+    ...state,
+    scheduler: removeWhere(state.scheduler, (event) => event.kind === PLAYER_ARRIVE_EVENT),
+  };
+}
+
+/** 未完成的行走在下一個事件即時到達，班次時鐘不跳到原定到達時間。 */
+export function settleTravel(state: GameState, ctx: EngineContext): GameState {
   const { location } = state.ward;
-  if (location.movingTo !== null) {
-    return { state, effects: [{ type: 'NOTICE', kind: 'PLAYER_MOVING', tone: 'warn' }] };
+  const traveling = location.movingTo !== null || location.arriveAt !== null;
+  if (!traveling) return dropArrival(state);
+  const cleared = dropArrival(state);
+  const bed = location.movingTo !== null && location.movingTo > 0 ? location.movingTo : null;
+  return arriveAt(cleared, bed, ctx);
+}
+
+/** 移去指定床（或 null＝病房）。即時到達，不鎖住玩家，也不推進班次時鐘。 */
+export function moveTo(state: GameState, bed: number | null, ctx: EngineContext): Reduction {
+  const cleared = dropArrival(state);
+  const { location } = cleared.ward;
+  if (location.movingTo === null && location.arriveAt === null && location.bed === bed) {
+    return { state: cleared, effects: [] };
   }
-  if (location.bed === bed) return { state, effects: [] };
-  let next = state;
+  let next = cleared;
   if (location.bed !== null) {
     const here = patientAtBed(next, location.bed);
     if (here) next = leaveVisit(next, here);
   }
-  const layout = ctx.tables['ward-layout'].find((r) => r.kind === 'WALK');
-  const crossSec = layout?.kind === 'WALK' ? layout.crossZoneSec : 0;
-  const sameSec = layout?.kind === 'WALK' ? layout.sameZoneSec : 0;
-  let walkSec = 0;
-  if (location.bed !== null && bed !== null) {
-    walkSec = zoneOfBed(ctx, location.bed) === zoneOfBed(ctx, bed) ? sameSec : crossSec;
-  } else if (location.bed !== null && bed === null) {
-    walkSec = sameSec;
-  }
-  if (walkSec <= 0) return { state: arriveAt(next, bed, ctx), effects: [] };
-  const arriveTime = next.clock.t + walkSec;
-  return {
-    state: {
-      ...next,
-      ward: {
-        ...next.ward,
-        location: { bed: null, movingTo: bed ?? 0, arriveAt: arriveTime },
-      },
-      scheduler: enqueue(next.scheduler, {
-        time: arriveTime,
-        priority: PLAYER_ARRIVE_PRIORITY,
-        kind: PLAYER_ARRIVE_EVENT,
-        payload: { bed },
-      }),
-    },
-    effects: [],
-  };
+  return { state: arriveAt(next, bed, ctx), effects: [] };
 }

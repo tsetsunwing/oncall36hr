@@ -83,11 +83,6 @@ export function FloorPlan({ ward, actions, onExpand, onClose, compact = false }:
           />
         ) : null}
       </header>
-      {ward.movingToBed !== null ? (
-        <p className="floor-plan-walking" role="status" data-testid="walking">
-          {w.walking(ward.movingToBed)}
-        </p>
-      ) : null}
       <div className="plan-grid" role="group" aria-label={w.mapLabel}>
         {upper.map((bed) => (
           <BedButton key={bed.bed} bed={bed} actions={actions} />

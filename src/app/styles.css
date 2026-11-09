@@ -1093,14 +1093,6 @@ main.wide {
   font-size: 0.875rem;
 }
 
-.floor-plan-walking {
-  margin: 0.25rem 0;
-  padding: 0.25rem 0.5rem;
-  color: var(--info-text);
-  background: var(--info-bg);
-  border-radius: 6px;
-}
-
 .plan-grid {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
