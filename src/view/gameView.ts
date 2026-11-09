@@ -439,22 +439,31 @@ function selectMedications(tables: EngineTables): MedicationOption[] {
 }
 
 function selectTreatmentMedications(tables: EngineTables): MedicationOption[] {
-  const seen = new Set<string>();
-  return tables['treatment-drugs'].flatMap((drug) => {
+  const grouped = new Map<string, { id: string; label: string; classes: string[] }>();
+  for (const drug of tables['treatment-drugs']) {
     const label = drug.name.trim();
     const key = label.toLowerCase();
-    if (label.length === 0 || seen.has(key)) return [];
-    seen.add(key);
-    return [
-      {
+    if (label.length === 0) continue;
+    const current = grouped.get(key);
+    if (!current) {
+      grouped.set(key, {
         id: drug.id,
         label,
-        stem: key,
-        catalogId: '',
-        classes: drug.classes,
-      },
-    ];
-  });
+        classes: drug.drugClass.length > 0 ? [drug.drugClass] : [],
+      });
+      continue;
+    }
+    if (drug.drugClass.length > 0 && !current.classes.includes(drug.drugClass)) {
+      current.classes.push(drug.drugClass);
+    }
+  }
+  return [...grouped.values()].map((drug) => ({
+    id: drug.id,
+    label: drug.label,
+    stem: drug.label.toLowerCase(),
+    catalogId: '',
+    classes: drug.classes,
+  }));
 }
 
 function selectQuickChips(tables: EngineTables): QuickChipView[] {

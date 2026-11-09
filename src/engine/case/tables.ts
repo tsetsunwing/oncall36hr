@@ -617,7 +617,7 @@ export interface TreatmentDrugRow {
   name: string;
   listedName: string;
   chapter: string;
-  classes: readonly string[];
+  drugClass: string;
   column: string | null;
 }
 

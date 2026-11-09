@@ -75,13 +75,13 @@ export type ContentRecord = z.infer<typeof baseRecordSchema>;
 
 const looseRecords = z.array(baseRecordSchema);
 
-/** 治療「藥物」的建議來源，與搶救 formulary 分開。類別只保留在資料中，介面暫不加篩選或徽章。 */
+/** 治療「藥物」建議。類別讀自每一列的 drugClass，不另造類別，亦不載劑量。 */
 const treatmentDrugSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
   listedName: z.string().min(1),
   chapter: z.string().min(1),
-  classes: z.array(z.string().min(1)),
+  drugClass: z.string().min(1),
   column: z.string().min(1).nullable(),
 });
 
