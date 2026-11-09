@@ -43,11 +43,65 @@ describe('菜單同藥物表按 catalog id 落單', () => {
     const done = advance(engine, placed.state, 60);
     const lines = done.state.chats.p1?.lines.filter((line) => line.speaker.kind === 'NURSE') ?? [];
     expect(lines.some((line) => line.template.includes('收到'))).toBe(true);
-    expect(lines.some((line) => line.template.includes('量完生命體徵'))).toBe(true);
+    const spoken = lines.find((line) => line.template.includes('量完生命體徵'));
+    expect(spoken).toBeDefined();
+    const cuff = placed.state.patients.p1?.visible.cuff;
+    if (!cuff) throw new Error('缺袖帶讀數');
+    expect(spoken?.tokenValues['vital.sbp']).toBe(String(cuff.sbp));
+    expect(spoken?.tokenValues['vital.dbp']).toBe(String(cuff.dbp));
+    expect(done.state.patients.p1?.visible.cuff).toEqual(cuff);
     expect(aiRequests(done.effects).some((request) => request.kind === 'dialogue.turn')).toBe(
       false,
     );
     expect(aiRequests(done.effects).some((request) => request.kind === 'order.parse')).toBe(false);
+  });
+
+  it('血壓漂移之後，口頭血壓仍然係上次袖帶；量 NIBP 先更新', () => {
+    const engine = createEngine(getConfig(), { tables: realTables() });
+    const started = engine.init(params('local-cuff'));
+    const patient = started.patients.p1;
+    if (!patient) throw new Error('缺病人');
+    const drifted = {
+      ...started,
+      patients: {
+        ...started.patients,
+        p1: {
+          ...patient,
+          visible: {
+            ...patient.visible,
+            vitals: {
+              ...patient.visible.vitals,
+              sbp: patient.visible.vitals.sbp + 8,
+              dbp: patient.visible.vitals.dbp - 4,
+            },
+          },
+        },
+      },
+    };
+    const placed = feed(engine, drifted, [
+      intentEvent({
+        type: 'PLACE_CATALOG',
+        patientId: 'p1',
+        catalogId: 'obs.vitals',
+        text: 'Check vitals',
+        params: empty,
+      }),
+    ]);
+    const done = advance(engine, placed.state, 60);
+    const spoken = done.state.chats.p1?.lines.find((line) =>
+      line.template.includes('量完生命體徵'),
+    );
+    const cuff = patient.visible.cuff;
+    expect(spoken?.tokenValues['vital.sbp']).toBe(String(cuff.sbp));
+    expect(spoken?.tokenValues['vital.dbp']).toBe(String(cuff.dbp));
+    expect(spoken?.tokenValues['vital.sbp']).not.toBe(String(patient.visible.vitals.sbp + 8));
+    const measured = feed(engine, drifted, [
+      intentEvent({ type: 'MEASURE_NIBP', patientId: 'p1' }),
+    ]);
+    expect(measured.state.patients.p1?.visible.cuff).toEqual({
+      sbp: patient.visible.vitals.sbp + 8,
+      dbp: patient.visible.vitals.dbp - 4,
+    });
   });
 
   it('脈搏結果用目錄原句，唔再叫模型認 order', () => {

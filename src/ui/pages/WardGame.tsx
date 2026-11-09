@@ -172,7 +172,13 @@ export function WardGame({ view, ward, actions }: WardGameProps) {
       </div>
       <div className="ward-main">
         {atBed && view.patient && view.monitor ? (
-          <MonitorPanel patient={view.patient} monitor={view.monitor} />
+          <MonitorPanel
+            patient={view.patient}
+            monitor={view.monitor}
+            onMeasureNibp={() => {
+              if (view.patient) actions.measureNibp(view.patient.id);
+            }}
+          />
         ) : (
           <section
             className="not-at-bed"

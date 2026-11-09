@@ -163,7 +163,14 @@ export function GamePage({ view, actions, onExit }: GamePageProps) {
       ) : view.patient && view.monitor && view.chat ? (
         <div className="game-grid">
           <div className="game-main">
-            <MonitorPanel patient={view.patient} monitor={view.monitor} />
+            <MonitorPanel
+              patient={view.patient}
+              monitor={view.monitor}
+              onMeasureNibp={() => {
+                const patient = view.patient;
+                if (patient) actions.measureNibp(patient.id);
+              }}
+            />
             {view.resus?.patientId === view.patient.id ? (
               <ResusPanel
                 patientId={view.patient.id}

@@ -41,6 +41,7 @@ function makeActions() {
     discardCall: vi.fn(),
     delegate: vi.fn(),
     saveManual: vi.fn(),
+    measureNibp: vi.fn(),
   } satisfies GameActions;
 }
 

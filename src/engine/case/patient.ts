@@ -114,6 +114,13 @@ export const patientSchema = z
     visible: z
       .object({
         vitals: vitalsSampleSchema,
+        /** 上次 NIBP 袖帶。畫面同口頭生命體徵都用呢對，直到玩家再量。 */
+        cuff: z
+          .object({
+            sbp: z.number(),
+            dbp: z.number(),
+          })
+          .strict(),
         vitalsHistory: z.array(vitalsSampleSchema),
         /** 已回報嘅化驗／檢查（T7 查表結果，唔係 AI 文字） */
         reports: z.array(reportSchema),

@@ -133,6 +133,8 @@ function Tile({ testId, param, label, unit, readout, measure }: TileProps) {
 export interface MonitorPanelProps {
   patient: PatientView;
   monitor: MonitorView;
+  /** 再量一次 NIBP。畫面讀數由 engine 嘅上次袖帶決定。 */
+  onMeasureNibp?: () => void;
 }
 
 function OptionalTile({ kind, bp }: { kind: OptionalWave; bp: VitalReadout | null }) {
@@ -172,23 +174,20 @@ function OptionalTile({ kind, bp }: { kind: OptionalWave; bp: VitalReadout | nul
   );
 }
 
-export function MonitorPanel({ patient, monitor }: MonitorPanelProps) {
+export function MonitorPanel({ patient, monitor, onMeasureNibp }: MonitorPanelProps) {
   const m = ui.game.monitor;
   const [seenBed, setSeenBed] = useState(patient.bed);
   const [lead, setLead] = useState<EcgLead>('II');
   const [extra, setExtra] = useState<OptionalWave[]>([]);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [spotByBed, setSpotByBed] = useState<
-    ReadonlyMap<number, { bp: VitalReadout; temp: VitalReadout }>
-  >(() => new Map());
-  const remembered = spotByBed.get(patient.bed);
-  if (!remembered) {
-    const next = new Map(spotByBed);
-    next.set(patient.bed, { bp: { ...monitor.bp }, temp: { ...monitor.temp } });
-    setSpotByBed(next);
+  const [tempByBed, setTempByBed] = useState<ReadonlyMap<number, VitalReadout>>(() => new Map());
+  const rememberedTemp = tempByBed.get(patient.bed);
+  if (!rememberedTemp) {
+    const next = new Map(tempByBed);
+    next.set(patient.bed, { ...monitor.temp });
+    setTempByBed(next);
   }
-  const nibp = remembered?.bp ?? monitor.bp;
-  const temp = remembered?.temp ?? monitor.temp;
+  const temp = rememberedTemp ?? monitor.temp;
   if (seenBed !== patient.bed) {
     setSeenBed(patient.bed);
     setLead('II');
@@ -200,7 +199,7 @@ export function MonitorPanel({ patient, monitor }: MonitorPanelProps) {
     monitor.mews.level,
     monitor.rhythmAlarm,
     monitor.hr.level,
-    nibp.level,
+    monitor.bp.level,
     monitor.spo2.level,
     monitor.rr.level,
     temp.level,
@@ -315,18 +314,13 @@ export function MonitorPanel({ patient, monitor }: MonitorPanelProps) {
             param="bp"
             label={m.bp}
             unit={m.bpUnit}
-            readout={nibp}
+            readout={monitor.bp}
             measure={
               <MeasureButton
                 label={m.measureNibp}
                 testId="measure-nibp"
                 onClick={() => {
-                  setSpotByBed((current) => {
-                    const next = new Map(current);
-                    const prev = next.get(patient.bed) ?? { bp: monitor.bp, temp: monitor.temp };
-                    next.set(patient.bed, { ...prev, bp: { ...monitor.bp } });
-                    return next;
-                  });
+                  onMeasureNibp?.();
                 }}
               />
             }
@@ -343,10 +337,9 @@ export function MonitorPanel({ patient, monitor }: MonitorPanelProps) {
                 label={m.measureTemp}
                 testId="measure-temp"
                 onClick={() => {
-                  setSpotByBed((current) => {
+                  setTempByBed((current) => {
                     const next = new Map(current);
-                    const prev = next.get(patient.bed) ?? { bp: monitor.bp, temp: monitor.temp };
-                    next.set(patient.bed, { ...prev, temp: { ...monitor.temp } });
+                    next.set(patient.bed, { ...monitor.temp });
                     return next;
                   });
                 }}
@@ -354,7 +347,7 @@ export function MonitorPanel({ patient, monitor }: MonitorPanelProps) {
             }
           />
           {shownExtra.map((kind) => (
-            <OptionalTile key={kind} kind={kind} bp={kind === 'abp' ? nibp : null} />
+            <OptionalTile key={kind} kind={kind} bp={kind === 'abp' ? monitor.bp : null} />
           ))}
         </div>
       </div>

@@ -773,4 +773,6 @@ export interface GameActions {
   confirmHandover: () => void;
   /** 寫入手動槽位（1 起）。無效槽位由 engine 拒絕。 */
   saveManual: (slot: number) => void;
+  /** 用而家嘅血壓更新上次 NIBP 袖帶。 */
+  measureNibp: (patientId: string) => void;
 }

@@ -43,6 +43,7 @@ function makeActions() {
     toggleHandover: vi.fn(),
     confirmHandover: vi.fn(),
     saveManual: vi.fn(),
+    measureNibp: vi.fn(),
   } satisfies GameActions;
 }
 
@@ -142,35 +143,33 @@ describe('MonitorPanel：床邊監護儀風格＋閃爍數值＋驚嘆號', () =
     expect(screen.queryByTestId('vital-etco2')).not.toBeInTheDocument();
   });
 
-  it('NIBP 保持上次讀數，按量 NIBP 先更新', async () => {
+  it('NIBP 顯示傳入嘅袖帶讀數，按量 NIBP 先通知再量', async () => {
     const user = userEvent.setup();
+    const onMeasureNibp = vi.fn();
     const first = monitor();
-    const { rerender } = render(<MonitorPanel patient={patient} monitor={first} />);
-    expect(screen.getByTestId('vital-bp')).toHaveTextContent('96/58 (71)');
-    rerender(
-      <MonitorPanel
-        patient={patient}
-        monitor={monitor({
-          bp: {
-            text: '140/90 (107)',
-            level: 'ALARM',
-            direction: 'HIGH',
-            band: 'mild',
-            sbp: 140,
-            dbp: 90,
-          },
-        })}
-      />,
+    const { rerender } = render(
+      <MonitorPanel patient={patient} monitor={first} onMeasureNibp={onMeasureNibp} />,
     );
     expect(screen.getByTestId('vital-bp')).toHaveTextContent('96/58 (71)');
-    expect(screen.getByTestId('vital-bp')).not.toHaveTextContent('140/90');
+    const next = monitor({
+      bp: {
+        text: '140/90 (107)',
+        level: 'ALARM',
+        direction: 'HIGH',
+        band: 'mild',
+        sbp: 140,
+        dbp: 90,
+      },
+    });
+    rerender(<MonitorPanel patient={patient} monitor={next} onMeasureNibp={onMeasureNibp} />);
+    expect(screen.getByTestId('vital-bp')).toHaveTextContent('140/90 (107)');
+    expect(screen.getByTestId('vital-bp')).toHaveAttribute('data-band', 'mild');
     const measure = screen.getByTestId('measure-nibp');
     expect(measure).toHaveAttribute('aria-label', ui.game.monitor.measureNibp);
     expect(measure.closest('.tile-name')).not.toBeNull();
     expect(measure.parentElement).not.toHaveTextContent('mmHg');
     await user.click(measure);
-    expect(screen.getByTestId('vital-bp')).toHaveTextContent('140/90 (107)');
-    expect(screen.getByTestId('vital-bp')).toHaveAttribute('data-band', 'mild');
+    expect(onMeasureNibp).toHaveBeenCalledTimes(1);
     expect(screen.queryByTestId('alert-bp')).not.toBeInTheDocument();
   });
 

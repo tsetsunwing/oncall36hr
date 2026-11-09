@@ -273,6 +273,9 @@ export function createGameSession(options: GameSessionOptions): GameSession {
     saveManual(slot) {
       dispatch({ type: 'PLAYER_INTENT', intent: { type: 'SAVE_GAME', slot } });
     },
+    measureNibp(patientId) {
+      dispatch({ type: 'PLAYER_INTENT', intent: { type: 'MEASURE_NIBP', patientId } });
+    },
   };
 
   function saveBecauseHidden(): void {

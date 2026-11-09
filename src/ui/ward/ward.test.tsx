@@ -41,6 +41,7 @@ function makeActions() {
     toggleHandover: vi.fn(),
     confirmHandover: vi.fn(),
     saveManual: vi.fn(),
+    measureNibp: vi.fn(),
   } satisfies GameActions;
 }
 

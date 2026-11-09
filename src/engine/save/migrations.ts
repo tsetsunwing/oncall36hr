@@ -236,6 +236,23 @@ function migrateV9toV10(raw: RawState): RawState {
   };
 }
 
+/** schema 10 → 11：記住上次 NIBP 袖帶。舊存檔用當時血壓作為袖帶讀數。 */
+function migrateV10toV11(raw: RawState): RawState {
+  const patients = (raw.patients ?? {}) as Record<string, Record<string, unknown>>;
+  return {
+    ...raw,
+    patients: Object.fromEntries(
+      Object.entries(patients).map(([id, patient]) => {
+        const visible = (patient.visible ?? {}) as Record<string, unknown>;
+        const vitals = (visible.vitals ?? {}) as Record<string, unknown>;
+        const sbp = typeof vitals.sbp === 'number' ? vitals.sbp : 0;
+        const dbp = typeof vitals.dbp === 'number' ? vitals.dbp : 0;
+        return [id, { ...patient, visible: { ...visible, cuff: visible.cuff ?? { sbp, dbp } } }];
+      }),
+    ),
+  };
+}
+
 export const migrations: MigrationRegistry = {
   1: migrateV1toV2,
   2: migrateV2toV3,
@@ -246,6 +263,7 @@ export const migrations: MigrationRegistry = {
   7: migrateV7toV8,
   8: migrateV8toV9,
   9: migrateV9toV10,
+  10: migrateV10toV11,
 };
 
 export type MigrateResult =

@@ -96,7 +96,8 @@ export function selectMonitor(
   const spo2 = component('spo2');
   const rr = component('rr');
   const temp = component('temp');
-  const map = meanArterialPressure(v.sbp, v.dbp);
+  const cuff = patient.visible.cuff;
+  const map = meanArterialPressure(cuff.sbp, cuff.dbp);
   return {
     hr: {
       ...hr,
@@ -105,10 +106,10 @@ export function selectMonitor(
     },
     bp: {
       ...sbp,
-      text: pulseless ? dash : `${String(v.sbp)}/${String(v.dbp)} (${String(map)})`,
-      sbp: v.sbp,
-      dbp: v.dbp,
-      band: pulseless ? 'normal' : bloodPressureBand(v.sbp, v.dbp),
+      text: pulseless ? dash : `${String(cuff.sbp)}/${String(cuff.dbp)} (${String(map)})`,
+      sbp: cuff.sbp,
+      dbp: cuff.dbp,
+      band: pulseless ? 'normal' : bloodPressureBand(cuff.sbp, cuff.dbp),
     },
     lineSlot: selectLineSlot(patient.hidden.fsm.flags),
     lines: {

@@ -95,12 +95,13 @@ export const VITAL_TOKEN_KEYS = [
 
 export function vitalTokens(patient: Patient, tables: EngineTables): Record<string, string> {
   const v = patient.visible.vitals;
+  const cuff = patient.visible.cuff;
   const rhythm = tables.rhythms.find((r) => r.id === patient.visible.rhythm);
   return {
     'vital.hr': String(v.hr),
-    'vital.sbp': String(v.sbp),
-    'vital.dbp': String(v.dbp),
-    'vital.map': String(meanArterialPressure(v.sbp, v.dbp)),
+    'vital.sbp': String(cuff.sbp),
+    'vital.dbp': String(cuff.dbp),
+    'vital.map': String(meanArterialPressure(cuff.sbp, cuff.dbp)),
     'vital.spo2': String(v.spo2),
     'vital.rr': String(v.rr),
     'vital.temp': v.temp.toFixed(1),

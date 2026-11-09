@@ -27,7 +27,8 @@ export type CoreIntent =
   | { type: 'SAVE_GAME'; slot: number }
   | { type: 'SUBMIT_CHAT'; patientId: string; text: string }
   | { type: 'ENTER_BED'; patientId: string }
-  | { type: 'LEAVE_BED'; patientId: string };
+  | { type: 'LEAVE_BED'; patientId: string }
+  | { type: 'MEASURE_NIBP'; patientId: string };
 
 /** 後續 milestone 嘅 module 於自己嘅 typed intent 加入 core union 之前，可經呢條通道收 intent */
 export interface ExtensionIntent {

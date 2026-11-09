@@ -196,6 +196,7 @@ export function createPatientState(
     },
     visible: {
       vitals: { t, ...base },
+      cuff: { sbp: base.sbp, dbp: base.dbp },
       vitalsHistory: [],
       reports: [],
       rhythm: trajectory.rhythm,
@@ -210,11 +211,19 @@ export function createPatientState(
     ctx,
     t,
   );
+  const sampled = applied.patient.visible.vitals;
+  const admitted: Patient = {
+    ...applied.patient,
+    visible: {
+      ...applied.patient.visible,
+      cuff: { sbp: sampled.sbp, dbp: sampled.dbp },
+    },
+  };
   const next: GameState = {
     ...applied.state,
     patients: {
       ...applied.state.patients,
-      [blank.id]: { ...applied.patient, hidden: { ...applied.patient.hidden, alertedBand: null } },
+      [blank.id]: { ...admitted, hidden: { ...admitted.hidden, alertedBand: null } },
     },
   };
   return scheduleSample(
@@ -226,6 +235,31 @@ export function createPatientState(
 
 export const caseModule: EngineModule = {
   name: 'case',
+
+  handleIntent(state, intent) {
+    if (intent.type !== 'MEASURE_NIBP') return undefined;
+    const patient = state.patients[intent.patientId];
+    if (!patient) {
+      return {
+        state,
+        effects: [{ type: 'NOTICE', kind: 'PATIENT_UNKNOWN', tone: 'warn' }],
+      };
+    }
+    const { sbp, dbp } = patient.visible.vitals;
+    return {
+      state: {
+        ...state,
+        patients: {
+          ...state.patients,
+          [patient.id]: {
+            ...patient,
+            visible: { ...patient.visible, cuff: { sbp, dbp } },
+          },
+        },
+      },
+      effects: [],
+    };
+  },
 
   init(state: GameState, params: NewGameParams, ctx: EngineContext) {
     if (params.ward) return state;

@@ -57,8 +57,8 @@ describe('ViewModel：只映射可見資料', () => {
     const state = play([tick(1800)]);
     const patient = state.patients.p1;
     const view = selectGameView(state, env).monitor;
-    const sbp = patient?.visible.vitals.sbp ?? 0;
-    const dbp = patient?.visible.vitals.dbp ?? 0;
+    const sbp = patient?.visible.cuff.sbp ?? 0;
+    const dbp = patient?.visible.cuff.dbp ?? 0;
     const map = Math.round((sbp + 2 * dbp) / 3);
     expect(view?.hr.text).toBe(String(patient?.visible.vitals.hr));
     expect(view?.bp.text).toBe(`${String(sbp)}/${String(dbp)} (${String(map)})`);
@@ -104,7 +104,9 @@ describe('ViewModel：只映射可見資料', () => {
     expect(view?.spo2.band).toBe(spo2Band(source.spo2));
     expect(view?.rr.band).toBe(respiratoryRateBand(source.rr));
     expect(view?.temp.band).toBe(temperatureBand(source.temp));
-    expect(view?.bp.band).toBe(bloodPressureBand(source.sbp, source.dbp));
+    const cuff = play([]).patients.p1?.visible.cuff;
+    if (!cuff) throw new Error('缺袖帶讀數');
+    expect(view?.bp.band).toBe(bloodPressureBand(cuff.sbp, cuff.dbp));
   });
 
   it('快捷 chips 來自 quick-words 表', () => {
