@@ -1628,19 +1628,30 @@ textarea {
   font-size: 12px;
 }
 
-.dept-buttons,
 .chip-row {
   display: flex;
   flex-wrap: wrap;
   gap: 0.35rem;
 }
 
-.dept-badge {
-  height: 26px;
-  min-height: 0;
-  padding: 0 8px;
-  font-size: 12px;
-  border-radius: 999px;
+.dept-buttons {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  gap: 2px;
+  width: 100%;
+  max-height: 180px;
+  margin: 0 0 8px;
+  padding: 6px;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.dept-buttons .chip:disabled {
+  color: var(--muted);
+  cursor: not-allowed;
+  background: #e6eeef;
 }
 
 .sbar-field {
@@ -2061,15 +2072,22 @@ main:has(.page.setup) {
 .report-filters {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
-  margin: 0 0 8px;
+  align-items: flex-start;
+  align-content: flex-start;
+  gap: 8px 4px;
+  margin: 0 16px 8px;
+  overflow: visible;
 }
 
 .report-filters button {
-  height: 28px;
-  min-height: 28px;
-  padding: 0 8px;
+  flex: 0 0 auto;
+  height: auto;
+  min-height: 32px;
+  padding: 6px 8px;
+  overflow: visible;
   font-size: 12px;
+  line-height: 1.35;
+  white-space: normal;
 }
 
 .report-section-pick {

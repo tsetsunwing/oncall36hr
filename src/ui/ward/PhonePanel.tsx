@@ -479,12 +479,12 @@ export function PhonePanel({
                 {e.deptHeading}
               </button>
               {deptsOpen ? (
-                <div className="dept-buttons" role="group" aria-label={e.deptHeading}>
+                <div className="dept-buttons chip-col" role="group" aria-label={e.deptHeading}>
                   {phone.depts.map((d) => (
                     <button
                       key={d.id}
                       type="button"
-                      className="btn btn-small dept-badge"
+                      className="chip"
                       disabled={patientId === ''}
                       data-testid={`call-dept-${d.id}`}
                       onClick={() => {

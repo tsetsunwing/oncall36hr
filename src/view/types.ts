@@ -77,7 +77,7 @@ export interface ChatLineView {
   kind: ChatLineKind;
   speakerId: string;
   speakerName: string;
-  /** NURSE／PATIENT：{{token}} 已用 engine 凍結值解析；PLAYER：玩家原文；SYSTEM：null（由 UI 按 code 顯示） */
+  /** NURSE／PATIENT：{{token}} 已用 engine 凍結值解析；PLAYER：玩家原文；SYSTEM code：null；來電句子：已解析文字 */
   text: string | null;
   systemCode: string | null;
   timeLabel: string;

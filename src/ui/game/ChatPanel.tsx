@@ -63,10 +63,22 @@ export interface ChatPanelProps {
 function Line({ line }: { line: ChatLineView }) {
   const c = ui.game.chat;
   if (line.kind === 'SYSTEM') {
-    const text = c.system[line.systemCode ?? ''] ?? '';
+    if (line.systemCode) {
+      const text = c.system[line.systemCode] ?? '';
+      return (
+        <div className="chat-system" data-testid="chat-line" data-kind="SYSTEM">
+          <time>{line.timeLabel}</time> {line.speakerName} {text}
+        </div>
+      );
+    }
     return (
-      <div className="chat-system" data-testid="chat-line" data-kind="SYSTEM">
-        <time>{line.timeLabel}</time> {line.speakerName} {text}
+      <div
+        className="chat-system"
+        data-testid="chat-line"
+        data-kind="SYSTEM"
+        data-source={line.source}
+      >
+        <time>{line.timeLabel}</time> <span lang="yue-Hant-HK">{line.text}</span>
       </div>
     );
   }

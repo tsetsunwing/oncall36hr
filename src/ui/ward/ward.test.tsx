@@ -147,7 +147,10 @@ function ward(over: Partial<WardView> = {}): WardView {
         ],
         p2: [],
       },
-      depts: [{ id: 'ICU', label: 'ICU' }],
+      depts: [
+        { id: 'ICU', label: 'Intensive Care' },
+        { id: 'PHARMACY', label: 'Pharmacy' },
+      ],
       draft: null,
       focusCallId: null,
     },
@@ -378,8 +381,18 @@ describe('PhonePanel', () => {
     await userEvent.click(screen.getByTestId('call-rank-AC'));
     expect(actions.prepareCall).toHaveBeenCalledWith('p1', { kind: 'RANK', rank: 'AC' });
     await userEvent.click(screen.getByTestId('dept-toggle'));
+    const column = screen.getByRole('group', { name: ui.game.ward.escalate.deptHeading });
+    expect(column).toHaveClass('chip-col');
+    expect(screen.getByTestId('call-dept-ICU')).toHaveClass('chip');
+    expect(screen.getByTestId('call-dept-PHARMACY')).toHaveClass('chip');
+    expect(
+      screen.getByTestId('dept-toggle').compareDocumentPosition(screen.getByTestId('ladder')) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
     await userEvent.click(screen.getByTestId('call-dept-ICU'));
+    await userEvent.click(screen.getByTestId('call-dept-PHARMACY'));
     expect(actions.prepareCall).toHaveBeenCalledWith('p1', { kind: 'DEPT', deptId: 'ICU' });
+    expect(actions.prepareCall).toHaveBeenCalledWith('p1', { kind: 'DEPT', deptId: 'PHARMACY' });
   });
 
   it('有草稿時顯示 SBAR 面板', () => {

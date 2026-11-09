@@ -24,6 +24,7 @@ import {
   responsesOf,
   scheduleCallEvent,
 } from './callStore';
+import { logIncomingCall } from './callLog';
 import { bedsOf } from './generate';
 import { addPatientFlag, moveTo, patientAtBed } from './movement';
 import { nurseForBed } from './nurses';
@@ -201,6 +202,7 @@ export function openPharmacyCheckCall(
     },
   };
   next = putCall(next, call);
+  next = logIncomingCall(next, call);
   next = schedule(next, call.expiresAt, CALL_EXPIRE_EVENT, { callId: id });
   return interrupt(next, row.priority, ctx);
 }
@@ -325,6 +327,7 @@ export function handleCallArrival(state: GameState, ctx: EngineContext): Reducti
     ward: { ...next.ward, counters: { ...next.ward.counters, call: next.ward.counters.call + 1 } },
   };
   next = putCall(next, call);
+  next = logIncomingCall(next, call);
   next = schedule(next, expiresAt, CALL_EXPIRE_EVENT, { callId: id });
   next = interrupt(next, row.priority, ctx);
   return { state: next, effects: [notice('CALL_RINGING', 'info')] };

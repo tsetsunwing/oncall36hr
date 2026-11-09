@@ -29,6 +29,51 @@ type ClockLabel = (t: number) => string;
 
 const ALL_RANKS: readonly Rank[] = ['HO', 'MO', 'RES', 'AC', 'COS'];
 
+/** 瑪麗醫院／港大病房會外撥嘅臨床部門。SURGERY、LAB 只供現有來電，唔出現喺呢度。 */
+const OUTBOUND_DEPT_IDS = [
+  'AED',
+  'ANAESTHESIOLOGY',
+  'ONCOLOGY',
+  'ICU',
+  'CARDIOLOGY',
+  'ENDOCRINOLOGY',
+  'GASTROENTEROLOGY',
+  'GERIATRICS',
+  'HAEMATOLOGY',
+  'INFECTIOUS_DISEASES',
+  'NEPHROLOGY',
+  'NEUROLOGY',
+  'RESPIRATORY',
+  'RHEUMATOLOGY',
+  'CARDIOTHORACIC_SURGERY',
+  'NEUROSURGERY',
+  'BREAST_SURGERY',
+  'COLORECTAL_SURGERY',
+  'HPB_SURGERY',
+  'UPPER_GI_SURGERY',
+  'UROLOGY',
+  'PLASTIC_SURGERY',
+  'VASCULAR_SURGERY',
+  'ORTHOPAEDICS',
+  'OBSTETRICS_GYNAECOLOGY',
+  'PAEDIATRICS',
+  'OPHTHALMOLOGY',
+  'ENT',
+  'PSYCHIATRY',
+  'RADIOLOGY',
+  'PATHOLOGY',
+  'MICROBIOLOGY',
+  'PHARMACY',
+] as const;
+
+function outboundDepartments(env: ViewEnv): { id: string; label: string }[] {
+  const byId = new Map(env.tables['consult-departments'].map((dept) => [dept.id, dept.label]));
+  return OUTBOUND_DEPT_IDS.flatMap((id) => {
+    const label = byId.get(id);
+    return label === undefined ? [] : [{ id, label }];
+  });
+}
+
 function bedLevel(bandId: string | null, tables: EngineTables) {
   const alert = tables.mews[0]?.bands.find((b) => b.id === bandId)?.alert;
   return alert === 'ALARM' ? 'ALARM' : alert === 'CAUTION' ? 'CAUTION' : 'NORMAL';
@@ -199,7 +244,7 @@ function selectPhone(state: GameState, env: ViewEnv, clockLabel: ClockLabel): Ph
     ringing: state.ward.calls.filter((c) => c.direction === 'IN' && c.status === 'RINGING').length,
     calls,
     ladders,
-    depts: env.tables['consult-departments'].map((d) => ({ id: d.id, label: d.label })),
+    depts: outboundDepartments(env),
     draft: selectDraft(state, env),
     focusCallId:
       [...state.ward.calls]

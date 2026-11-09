@@ -204,7 +204,19 @@ function selectChat(
       case 'PLAYER':
         return { ...base, kind: 'PLAYER', text: line.template, systemCode: null };
       case 'SYSTEM':
-        return { ...base, kind: 'SYSTEM', text: null, systemCode: line.template };
+        if (
+          line.template === 'ARRIVE' ||
+          line.template === 'LEAVE' ||
+          line.template === 'VISIT_START'
+        ) {
+          return { ...base, kind: 'SYSTEM', text: null, systemCode: line.template };
+        }
+        return {
+          ...base,
+          kind: 'SYSTEM',
+          text: renderTemplate(line.template, line.tokenValues),
+          systemCode: null,
+        };
       default:
         return {
           ...base,

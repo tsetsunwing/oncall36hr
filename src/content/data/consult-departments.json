@@ -1,5 +1,50 @@
 [
   {
+    "id": "AED",
+    "label": "Accident and Emergency",
+    "kind": "SPECIALTY",
+    "acceptMinClarity": 1,
+    "bedsideByUrgency": { "ROUTINE": "PHONE", "URGENT": "BEDSIDE", "EMERGENCY": "BEDSIDE" },
+    "reactionSec": { "PHONE": 60, "BEDSIDE": 1200 },
+    "incoming": false,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "ANAESTHESIOLOGY",
+    "label": "Anaesthesiology",
+    "kind": "SPECIALTY",
+    "acceptMinClarity": 1,
+    "bedsideByUrgency": { "ROUTINE": "PHONE", "URGENT": "BEDSIDE", "EMERGENCY": "BEDSIDE" },
+    "reactionSec": { "PHONE": 60, "BEDSIDE": 1200 },
+    "incoming": false,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "ONCOLOGY",
+    "label": "Clinical Oncology",
+    "kind": "SPECIALTY",
+    "acceptMinClarity": 1,
+    "bedsideByUrgency": { "ROUTINE": "PHONE", "URGENT": "PHONE", "EMERGENCY": "PHONE" },
+    "reactionSec": { "PHONE": 60, "BEDSIDE": 0 },
+    "incoming": false,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "ICU",
+    "label": "Intensive Care",
+    "kind": "ICU",
+    "acceptMinClarity": 2,
+    "bedsideByUrgency": {
+      "ROUTINE": "PHONE",
+      "URGENT": "BEDSIDE",
+      "EMERGENCY": "BEDSIDE"
+    },
+    "reactionSec": { "PHONE": 60, "BEDSIDE": 900 },
+    "icu": { "mewsMin": 5, "assessSec": 1200 },
+    "incoming": false,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
     "id": "CARDIOLOGY",
     "label": "Cardiology",
     "kind": "SPECIALTY",
@@ -9,125 +54,23 @@
       "URGENT": "PHONE",
       "EMERGENCY": "BEDSIDE"
     },
-    "reactionSec": {
-      "PHONE": 60,
-      "BEDSIDE": 900
-    },
-    "incoming": true,
-    "reviewStatus": "PENDING_CLINICAL_REVIEW"
-  },
-  {
-    "id": "SURGERY",
-    "label": "Surgery",
-    "kind": "SPECIALTY",
-    "acceptMinClarity": 2,
-    "bedsideByUrgency": {
-      "ROUTINE": "PHONE",
-      "URGENT": "BEDSIDE",
-      "EMERGENCY": "BEDSIDE"
-    },
-    "reactionSec": {
-      "PHONE": 60,
-      "BEDSIDE": 1200
-    },
-    "incoming": true,
-    "reviewStatus": "PENDING_CLINICAL_REVIEW"
-  },
-  {
-    "id": "ICU",
-    "label": "ICU",
-    "kind": "ICU",
-    "acceptMinClarity": 2,
-    "bedsideByUrgency": {
-      "ROUTINE": "PHONE",
-      "URGENT": "BEDSIDE",
-      "EMERGENCY": "BEDSIDE"
-    },
-    "reactionSec": {
-      "PHONE": 60,
-      "BEDSIDE": 900
-    },
-    "icu": {
-      "mewsMin": 5,
-      "assessSec": 1200
-    },
-    "incoming": false,
-    "reviewStatus": "PENDING_CLINICAL_REVIEW"
-  },
-  {
-    "id": "RADIOLOGY",
-    "label": "Radiology",
-    "kind": "SERVICE",
-    "acceptMinClarity": 1,
-    "bedsideByUrgency": {
-      "ROUTINE": "PHONE",
-      "URGENT": "PHONE",
-      "EMERGENCY": "PHONE"
-    },
-    "reactionSec": {
-      "PHONE": 60,
-      "BEDSIDE": 0
-    },
-    "incoming": false,
-    "reviewStatus": "PENDING_CLINICAL_REVIEW"
-  },
-  {
-    "id": "PHARMACY",
-    "label": "Pharmacy",
-    "kind": "SERVICE",
-    "acceptMinClarity": 1,
-    "bedsideByUrgency": {
-      "ROUTINE": "PHONE",
-      "URGENT": "PHONE",
-      "EMERGENCY": "PHONE"
-    },
-    "reactionSec": {
-      "PHONE": 60,
-      "BEDSIDE": 0
-    },
-    "incoming": false,
-    "reviewStatus": "PENDING_CLINICAL_REVIEW"
-  },
-  {
-    "id": "LAB",
-    "label": "Lab",
-    "kind": "SERVICE",
-    "acceptMinClarity": 1,
-    "bedsideByUrgency": {
-      "ROUTINE": "PHONE",
-      "URGENT": "PHONE",
-      "EMERGENCY": "PHONE"
-    },
-    "reactionSec": {
-      "PHONE": 60,
-      "BEDSIDE": 0
-    },
-    "incoming": false,
-    "reviewStatus": "PENDING_CLINICAL_REVIEW"
-  },
-  {
-    "id": "RESPIRATORY",
-    "label": "Respiratory",
-    "kind": "SPECIALTY",
-    "acceptMinClarity": 1,
-    "bedsideByUrgency": { "ROUTINE": "PHONE", "URGENT": "PHONE", "EMERGENCY": "BEDSIDE" },
     "reactionSec": { "PHONE": 60, "BEDSIDE": 900 },
     "incoming": true,
     "reviewStatus": "PENDING_CLINICAL_REVIEW"
   },
   {
-    "id": "NEUROLOGY",
-    "label": "Neurology",
+    "id": "ENDOCRINOLOGY",
+    "label": "Endocrinology",
     "kind": "SPECIALTY",
     "acceptMinClarity": 1,
     "bedsideByUrgency": { "ROUTINE": "PHONE", "URGENT": "PHONE", "EMERGENCY": "BEDSIDE" },
-    "reactionSec": { "PHONE": 60, "BEDSIDE": 900 },
-    "incoming": true,
+    "reactionSec": { "PHONE": 60, "BEDSIDE": 1200 },
+    "incoming": false,
     "reviewStatus": "PENDING_CLINICAL_REVIEW"
   },
   {
     "id": "GASTROENTEROLOGY",
-    "label": "Gastroenterology",
+    "label": "Gastroenterology and Hepatology",
     "kind": "SPECIALTY",
     "acceptMinClarity": 1,
     "bedsideByUrgency": { "ROUTINE": "PHONE", "URGENT": "BEDSIDE", "EMERGENCY": "BEDSIDE" },
@@ -136,18 +79,8 @@
     "reviewStatus": "PENDING_CLINICAL_REVIEW"
   },
   {
-    "id": "NEPHROLOGY",
-    "label": "Nephrology",
-    "kind": "SPECIALTY",
-    "acceptMinClarity": 1,
-    "bedsideByUrgency": { "ROUTINE": "PHONE", "URGENT": "PHONE", "EMERGENCY": "BEDSIDE" },
-    "reactionSec": { "PHONE": 60, "BEDSIDE": 900 },
-    "incoming": false,
-    "reviewStatus": "PENDING_CLINICAL_REVIEW"
-  },
-  {
-    "id": "ENDOCRINOLOGY",
-    "label": "Endocrinology",
+    "id": "GERIATRICS",
+    "label": "Geriatrics",
     "kind": "SPECIALTY",
     "acceptMinClarity": 1,
     "bedsideByUrgency": { "ROUTINE": "PHONE", "URGENT": "PHONE", "EMERGENCY": "BEDSIDE" },
@@ -166,23 +99,193 @@
     "reviewStatus": "PENDING_CLINICAL_REVIEW"
   },
   {
-    "id": "ONCOLOGY",
-    "label": "Oncology",
+    "id": "INFECTIOUS_DISEASES",
+    "label": "Infectious Diseases",
     "kind": "SPECIALTY",
     "acceptMinClarity": 1,
-    "bedsideByUrgency": { "ROUTINE": "PHONE", "URGENT": "PHONE", "EMERGENCY": "PHONE" },
-    "reactionSec": { "PHONE": 60, "BEDSIDE": 0 },
+    "bedsideByUrgency": { "ROUTINE": "PHONE", "URGENT": "PHONE", "EMERGENCY": "BEDSIDE" },
+    "reactionSec": { "PHONE": 60, "BEDSIDE": 1200 },
+    "incoming": false,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "NEPHROLOGY",
+    "label": "Nephrology",
+    "kind": "SPECIALTY",
+    "acceptMinClarity": 1,
+    "bedsideByUrgency": { "ROUTINE": "PHONE", "URGENT": "PHONE", "EMERGENCY": "BEDSIDE" },
+    "reactionSec": { "PHONE": 60, "BEDSIDE": 900 },
+    "incoming": false,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "NEUROLOGY",
+    "label": "Neurology",
+    "kind": "SPECIALTY",
+    "acceptMinClarity": 1,
+    "bedsideByUrgency": { "ROUTINE": "PHONE", "URGENT": "PHONE", "EMERGENCY": "BEDSIDE" },
+    "reactionSec": { "PHONE": 60, "BEDSIDE": 900 },
+    "incoming": true,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "RESPIRATORY",
+    "label": "Respiratory Medicine",
+    "kind": "SPECIALTY",
+    "acceptMinClarity": 1,
+    "bedsideByUrgency": { "ROUTINE": "PHONE", "URGENT": "PHONE", "EMERGENCY": "BEDSIDE" },
+    "reactionSec": { "PHONE": 60, "BEDSIDE": 900 },
+    "incoming": true,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "RHEUMATOLOGY",
+    "label": "Rheumatology",
+    "kind": "SPECIALTY",
+    "acceptMinClarity": 1,
+    "bedsideByUrgency": { "ROUTINE": "PHONE", "URGENT": "PHONE", "EMERGENCY": "BEDSIDE" },
+    "reactionSec": { "PHONE": 60, "BEDSIDE": 1200 },
+    "incoming": false,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "CARDIOTHORACIC_SURGERY",
+    "label": "Cardiothoracic Surgery",
+    "kind": "SPECIALTY",
+    "acceptMinClarity": 1,
+    "bedsideByUrgency": { "ROUTINE": "PHONE", "URGENT": "BEDSIDE", "EMERGENCY": "BEDSIDE" },
+    "reactionSec": { "PHONE": 60, "BEDSIDE": 1200 },
+    "incoming": false,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "NEUROSURGERY",
+    "label": "Neurosurgery",
+    "kind": "SPECIALTY",
+    "acceptMinClarity": 1,
+    "bedsideByUrgency": { "ROUTINE": "PHONE", "URGENT": "BEDSIDE", "EMERGENCY": "BEDSIDE" },
+    "reactionSec": { "PHONE": 60, "BEDSIDE": 1200 },
+    "incoming": false,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "BREAST_SURGERY",
+    "label": "Breast Surgery",
+    "kind": "SPECIALTY",
+    "acceptMinClarity": 1,
+    "bedsideByUrgency": { "ROUTINE": "PHONE", "URGENT": "BEDSIDE", "EMERGENCY": "BEDSIDE" },
+    "reactionSec": { "PHONE": 60, "BEDSIDE": 1200 },
+    "incoming": false,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "COLORECTAL_SURGERY",
+    "label": "Colorectal Surgery",
+    "kind": "SPECIALTY",
+    "acceptMinClarity": 1,
+    "bedsideByUrgency": { "ROUTINE": "PHONE", "URGENT": "BEDSIDE", "EMERGENCY": "BEDSIDE" },
+    "reactionSec": { "PHONE": 60, "BEDSIDE": 1200 },
+    "incoming": false,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "HPB_SURGERY",
+    "label": "Hepatobiliary and Pancreatic Surgery",
+    "kind": "SPECIALTY",
+    "acceptMinClarity": 1,
+    "bedsideByUrgency": { "ROUTINE": "PHONE", "URGENT": "BEDSIDE", "EMERGENCY": "BEDSIDE" },
+    "reactionSec": { "PHONE": 60, "BEDSIDE": 1200 },
+    "incoming": false,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "UPPER_GI_SURGERY",
+    "label": "Upper Gastrointestinal Surgery",
+    "kind": "SPECIALTY",
+    "acceptMinClarity": 1,
+    "bedsideByUrgency": { "ROUTINE": "PHONE", "URGENT": "BEDSIDE", "EMERGENCY": "BEDSIDE" },
+    "reactionSec": { "PHONE": 60, "BEDSIDE": 1200 },
+    "incoming": false,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "UROLOGY",
+    "label": "Urology",
+    "kind": "SPECIALTY",
+    "acceptMinClarity": 1,
+    "bedsideByUrgency": { "ROUTINE": "PHONE", "URGENT": "BEDSIDE", "EMERGENCY": "BEDSIDE" },
+    "reactionSec": { "PHONE": 60, "BEDSIDE": 1200 },
+    "incoming": false,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "PLASTIC_SURGERY",
+    "label": "Plastic and Reconstructive Surgery",
+    "kind": "SPECIALTY",
+    "acceptMinClarity": 1,
+    "bedsideByUrgency": { "ROUTINE": "PHONE", "URGENT": "BEDSIDE", "EMERGENCY": "BEDSIDE" },
+    "reactionSec": { "PHONE": 60, "BEDSIDE": 1200 },
+    "incoming": false,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "VASCULAR_SURGERY",
+    "label": "Vascular Surgery",
+    "kind": "SPECIALTY",
+    "acceptMinClarity": 1,
+    "bedsideByUrgency": { "ROUTINE": "PHONE", "URGENT": "BEDSIDE", "EMERGENCY": "BEDSIDE" },
+    "reactionSec": { "PHONE": 60, "BEDSIDE": 1200 },
     "incoming": false,
     "reviewStatus": "PENDING_CLINICAL_REVIEW"
   },
   {
     "id": "ORTHOPAEDICS",
-    "label": "Orthopaedics",
+    "label": "Orthopaedics and Traumatology",
     "kind": "SPECIALTY",
     "acceptMinClarity": 1,
     "bedsideByUrgency": { "ROUTINE": "PHONE", "URGENT": "BEDSIDE", "EMERGENCY": "BEDSIDE" },
     "reactionSec": { "PHONE": 60, "BEDSIDE": 1200 },
     "incoming": true,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "OBSTETRICS_GYNAECOLOGY",
+    "label": "Obstetrics and Gynaecology",
+    "kind": "SPECIALTY",
+    "acceptMinClarity": 1,
+    "bedsideByUrgency": { "ROUTINE": "PHONE", "URGENT": "BEDSIDE", "EMERGENCY": "BEDSIDE" },
+    "reactionSec": { "PHONE": 60, "BEDSIDE": 1200 },
+    "incoming": false,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "PAEDIATRICS",
+    "label": "Paediatrics and Adolescent Medicine",
+    "kind": "SPECIALTY",
+    "acceptMinClarity": 1,
+    "bedsideByUrgency": { "ROUTINE": "PHONE", "URGENT": "PHONE", "EMERGENCY": "BEDSIDE" },
+    "reactionSec": { "PHONE": 60, "BEDSIDE": 1200 },
+    "incoming": false,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "OPHTHALMOLOGY",
+    "label": "Ophthalmology",
+    "kind": "SPECIALTY",
+    "acceptMinClarity": 1,
+    "bedsideByUrgency": { "ROUTINE": "PHONE", "URGENT": "PHONE", "EMERGENCY": "BEDSIDE" },
+    "reactionSec": { "PHONE": 60, "BEDSIDE": 1200 },
+    "incoming": false,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "ENT",
+    "label": "Ear Nose and Throat",
+    "kind": "SPECIALTY",
+    "acceptMinClarity": 1,
+    "bedsideByUrgency": { "ROUTINE": "PHONE", "URGENT": "PHONE", "EMERGENCY": "BEDSIDE" },
+    "reactionSec": { "PHONE": 60, "BEDSIDE": 1200 },
+    "incoming": false,
     "reviewStatus": "PENDING_CLINICAL_REVIEW"
   },
   {
@@ -196,11 +299,77 @@
     "reviewStatus": "PENDING_CLINICAL_REVIEW"
   },
   {
+    "id": "RADIOLOGY",
+    "label": "Radiology",
+    "kind": "SERVICE",
+    "acceptMinClarity": 1,
+    "bedsideByUrgency": {
+      "ROUTINE": "PHONE",
+      "URGENT": "PHONE",
+      "EMERGENCY": "PHONE"
+    },
+    "reactionSec": { "PHONE": 60, "BEDSIDE": 0 },
+    "incoming": false,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "PATHOLOGY",
+    "label": "Pathology",
+    "kind": "SERVICE",
+    "acceptMinClarity": 1,
+    "bedsideByUrgency": { "ROUTINE": "PHONE", "URGENT": "PHONE", "EMERGENCY": "PHONE" },
+    "reactionSec": { "PHONE": 60, "BEDSIDE": 0 },
+    "incoming": false,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
     "id": "MICROBIOLOGY",
     "label": "Microbiology",
     "kind": "SERVICE",
     "acceptMinClarity": 1,
     "bedsideByUrgency": { "ROUTINE": "PHONE", "URGENT": "PHONE", "EMERGENCY": "PHONE" },
+    "reactionSec": { "PHONE": 60, "BEDSIDE": 0 },
+    "incoming": false,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "PHARMACY",
+    "label": "Pharmacy",
+    "kind": "SERVICE",
+    "acceptMinClarity": 1,
+    "bedsideByUrgency": {
+      "ROUTINE": "PHONE",
+      "URGENT": "PHONE",
+      "EMERGENCY": "PHONE"
+    },
+    "reactionSec": { "PHONE": 60, "BEDSIDE": 0 },
+    "incoming": false,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "SURGERY",
+    "label": "Surgery",
+    "kind": "SPECIALTY",
+    "acceptMinClarity": 2,
+    "bedsideByUrgency": {
+      "ROUTINE": "PHONE",
+      "URGENT": "BEDSIDE",
+      "EMERGENCY": "BEDSIDE"
+    },
+    "reactionSec": { "PHONE": 60, "BEDSIDE": 1200 },
+    "incoming": true,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "LAB",
+    "label": "Lab",
+    "kind": "SERVICE",
+    "acceptMinClarity": 1,
+    "bedsideByUrgency": {
+      "ROUTINE": "PHONE",
+      "URGENT": "PHONE",
+      "EMERGENCY": "PHONE"
+    },
     "reactionSec": { "PHONE": 60, "BEDSIDE": 0 },
     "incoming": false,
     "reviewStatus": "PENDING_CLINICAL_REVIEW"

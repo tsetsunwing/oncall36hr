@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { enqueue } from '../core/eventQueue';
 import type { EngineEvent } from '../core/events';
 import type { GameState, NewGameParams } from '../core/state';
+import { renderTemplate } from '../chat/tokens';
 import {
   advance,
   aiRequests,
@@ -11,7 +12,8 @@ import {
   realConfig,
   realEngine,
 } from '../test/realEngine';
-import { handleCallArrival } from './calls';
+import { incomingCallSpeakerId, logIncomingCall } from './callLog';
+import { handleCallArrival, handleRingAgain, respondToCall } from './calls';
 import { plannedCallCount, shiftSeconds } from './generate';
 import type { Call, DelegationTaskId, Rank } from './wardTypes';
 
@@ -533,6 +535,58 @@ describe('步步上報（S-3）', () => {
       (r) => r.kind === 'CALL' && r.tag === 'DEPT',
     );
     expect(incoming).toBe(true);
+  });
+
+  it('會診同臨床來電到達時寫入對話一次，再響唔會再加', () => {
+    const source = fullTables();
+    const only = (id: string) => ({
+      ...source,
+      'call-templates': source['call-templates'].map((row) =>
+        row.kind === 'CALL' ? { ...row, weight: row.id === id ? 100 : 0 } : row,
+      ),
+    });
+    const state = engine.init(wardParams('call-log'));
+    for (const templateId of ['DEPT_REVIEW', 'NURSE_ROUTINE'] as const) {
+      const reduced = handleCallArrival(state, { config, tables: only(templateId) });
+      const call = reduced.state.ward.calls.find((item) => item.templateId === templateId);
+      const patientId = call?.patientId ?? '';
+      const first = call?.lines[0];
+      expect(call?.direction).toBe('IN');
+      expect(first).toBeDefined();
+      const logged =
+        reduced.state.chats[patientId]?.lines.filter(
+          (line) => line.speaker.id === incomingCallSpeakerId(call?.id ?? ''),
+        ) ?? [];
+      expect(logged).toHaveLength(1);
+      const line = logged[0];
+      expect(line?.source).toBe('PHONE');
+      expect(renderTemplate(line?.template ?? '', line?.tokenValues ?? {})).toBe(
+        `${first?.tokenValues['patient.bed'] ?? ''} 號床 · ${renderTemplate(first?.template ?? '', first?.tokenValues ?? {})}`,
+      );
+      expect(reduced.state.ward.calls.some((item) => item.id === call?.id)).toBe(true);
+      const again = logIncomingCall(reduced.state, call ?? reduced.state.ward.calls[0]!);
+      expect(
+        again.chats[patientId]?.lines.filter(
+          (item) => item.speaker.id === incomingCallSpeakerId(call?.id ?? ''),
+        ),
+      ).toHaveLength(1);
+      const later = respondToCall(reduced.state, call?.id ?? '', 'LATER', {
+        config,
+        tables: only(templateId),
+      });
+      const rung = handleRingAgain(later.state, call?.id ?? '', {
+        config,
+        tables: only(templateId),
+      });
+      expect(
+        rung.state.chats[patientId]?.lines.filter(
+          (item) => item.speaker.id === incomingCallSpeakerId(call?.id ?? ''),
+        ),
+      ).toHaveLength(1);
+      expect(
+        rung.state.ward.calls.some((item) => item.id === call?.id && item.status === 'RINGING'),
+      ).toBe(true);
+    }
   });
 
   it('drug chart 覆核唔會隨機來電', () => {

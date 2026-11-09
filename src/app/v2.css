@@ -1664,6 +1664,19 @@ tr[data-flag='H'] .value-flagged {
   min-height: 0;
 }
 
+.escalate .dept-buttons.chip-col,
+.frame-mobile .escalate .dept-buttons.chip-col {
+  flex: none;
+  flex-basis: auto;
+  flex-wrap: nowrap;
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  max-height: 180px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
 /* ---------- 設定、結果、精力 ---------- */
 .choice-card {
   background: #fff;

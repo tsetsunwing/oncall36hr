@@ -258,8 +258,38 @@ describe('ChatPanel', () => {
     render(<ChatPanel chat={view} chips={[]} notice={null} actions={makeActions()} />);
     const lines = screen.getAllByTestId('chat-line');
     expect(lines[0]).toHaveTextContent(ui.game.chat.system.ARRIVE ?? '');
+    expect(lines[0]).toHaveTextContent('何姑娘');
     expect(screen.getByText('血壓 96/58，我即刻幫你量。')).toBeInTheDocument();
     expect(screen.getByTestId('typing')).toHaveTextContent('何姑娘');
+  });
+
+  it('會診句子出現喺對話紀錄，唔會變成頂欄按鈕', () => {
+    const sentence = '16 號床 · Cardiology醫生搵你，想上嚟會診 16 床。';
+    render(
+      <ChatPanel
+        chat={chat({
+          lines: [
+            {
+              id: 'call-line',
+              kind: 'SYSTEM',
+              speakerId: 'call:k1',
+              speakerName: '',
+              text: sentence,
+              systemCode: null,
+              timeLabel: '02:10',
+              orderId: null,
+              source: 'PHONE',
+            },
+          ],
+        })}
+        chips={[]}
+        notice={null}
+        actions={makeActions()}
+      />,
+    );
+    const log = screen.getByRole('log', { name: ui.game.chat.logLabel });
+    expect(log).toHaveTextContent(sentence);
+    expect(screen.queryByRole('button', { name: sentence })).toBeNull();
   });
 
   it('上次離開分隔線喺資料指定位置出現', () => {

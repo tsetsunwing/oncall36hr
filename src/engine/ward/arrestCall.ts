@@ -16,6 +16,7 @@ import {
   putCall,
   scheduleCallEvent,
 } from './callStore';
+import { logIncomingCall } from './callLog';
 import { nurseForBed } from './nurses';
 import type { Call } from './wardTypes';
 
@@ -81,6 +82,7 @@ export function raiseArrestCall(
     },
   };
   next = putCall(next, call);
+  next = logIncomingCall(next, call);
   next = scheduleCallEvent(next, expiresAt, CALL_EXPIRE_EVENT, { callId: id });
   return { state: next, effects: [notice('CALL_RINGING', 'info')] };
 }

@@ -52,6 +52,50 @@ const FORBIDDEN_KEYS = [
 ];
 
 describe('ward ViewModel', () => {
+  it('外撥部門係瑪麗醫院臨床部門，順序固定，藥房仍然係外撥會診', () => {
+    const state = engine.init(wardParams('depts', 'MO'));
+    const depts = selectGameView(state, env).ward?.phone.depts ?? [];
+    expect(depts.map((dept) => dept.label)).toEqual([
+      'Accident and Emergency',
+      'Anaesthesiology',
+      'Clinical Oncology',
+      'Intensive Care',
+      'Cardiology',
+      'Endocrinology',
+      'Gastroenterology and Hepatology',
+      'Geriatrics',
+      'Haematology',
+      'Infectious Diseases',
+      'Nephrology',
+      'Neurology',
+      'Respiratory Medicine',
+      'Rheumatology',
+      'Cardiothoracic Surgery',
+      'Neurosurgery',
+      'Breast Surgery',
+      'Colorectal Surgery',
+      'Hepatobiliary and Pancreatic Surgery',
+      'Upper Gastrointestinal Surgery',
+      'Urology',
+      'Plastic and Reconstructive Surgery',
+      'Vascular Surgery',
+      'Orthopaedics and Traumatology',
+      'Obstetrics and Gynaecology',
+      'Paediatrics and Adolescent Medicine',
+      'Ophthalmology',
+      'Ear Nose and Throat',
+      'Psychiatry',
+      'Radiology',
+      'Pathology',
+      'Microbiology',
+      'Pharmacy',
+    ]);
+    expect(depts.map((dept) => dept.id)).not.toContain('SURGERY');
+    expect(depts.map((dept) => dept.id)).not.toContain('LAB');
+    expect(depts.find((dept) => dept.label === 'Pharmacy')?.id).toBe('PHARMACY');
+    expect(depts.find((dept) => dept.label === 'Intensive Care')?.id).toBe('ICU');
+  });
+
   it('20 床平面圖，佔床數同病人數一致', () => {
     const state = engine.init(wardParams('v-1', 'MO'));
     const view = selectGameView(state, env);
