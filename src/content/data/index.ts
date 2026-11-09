@@ -28,6 +28,7 @@ import scoringRules from './scoring-rules.json';
 import selfCareActions from './self-care-actions.json';
 import subordinates from './subordinates.json';
 import trajectories from './trajectories.json';
+import treatmentDrugs from './treatment-drugs.json';
 import wardLayout from './ward-layout.json';
 import config from '../config/config.json';
 
@@ -66,6 +67,7 @@ export const rawContent: RawContent = {
     'self-care-actions': selfCareActions,
     subordinates: subordinates,
     trajectories: trajectories,
+    'treatment-drugs': treatmentDrugs.rows,
     'ward-layout': wardLayout,
   },
 };

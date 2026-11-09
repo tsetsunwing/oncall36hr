@@ -3,7 +3,7 @@ import {
   composeDrugOrderPhrase,
   placedDrugParams,
   shortOptionLabel,
-  suggestFormularyDrugs,
+  suggestTreatmentDrugs,
   type DrugOrderDraft,
 } from './drugOrder';
 import type { MedicationOption } from './types';
@@ -74,21 +74,21 @@ const medications: MedicationOption[] = [
   },
 ];
 
-describe('suggestFormularyDrugs', () => {
-  it('少過三個英文字唔出名單，夠三個先對名稱同別名', () => {
-    expect(suggestFormularyDrugs('', medications)).toEqual([]);
-    expect(suggestFormularyDrugs('ce', medications)).toEqual([]);
-    expect(suggestFormularyDrugs('藥物', medications)).toEqual([]);
-    expect(suggestFormularyDrugs('12', medications)).toEqual([]);
-    expect(suggestFormularyDrugs('cef', medications).map((item) => item.id)).toEqual([
+describe('suggestTreatmentDrugs', () => {
+  it('少過三個英文字唔出名單，夠三個先對傳入嘅治療藥表', () => {
+    expect(suggestTreatmentDrugs('', medications)).toEqual([]);
+    expect(suggestTreatmentDrugs('ce', medications)).toEqual([]);
+    expect(suggestTreatmentDrugs('藥物', medications)).toEqual([]);
+    expect(suggestTreatmentDrugs('12', medications)).toEqual([]);
+    expect(suggestTreatmentDrugs('cef', medications).map((item) => item.id)).toEqual([
       'ceftriaxone',
     ]);
-    expect(suggestFormularyDrugs('EPI', medications).map((item) => item.id)).toEqual([
+    expect(suggestTreatmentDrugs('EPI', medications).map((item) => item.id)).toEqual([
       'adrenaline',
     ]);
-    expect(suggestFormularyDrugs('roc', medications).map((item) => item.id)).toEqual([
+    expect(suggestTreatmentDrugs('roc', medications).map((item) => item.id)).toEqual([
       'ceftriaxone',
     ]);
-    expect(suggestFormularyDrugs('zzz', medications)).toEqual([]);
+    expect(suggestTreatmentDrugs('zzz', medications)).toEqual([]);
   });
 });

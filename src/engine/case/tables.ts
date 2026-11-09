@@ -611,6 +611,16 @@ export interface ScoringModelRow {
   note: string;
 }
 
+/** 治療自由輸入的藥名，不是搶救 Drugs 的 23 行。 */
+export interface TreatmentDrugRow {
+  id: string;
+  name: string;
+  listedName: string;
+  chapter: string;
+  classes: readonly string[];
+  column: string | null;
+}
+
 export interface RequiredActionRow {
   id: string;
   fsmId: string;
@@ -655,6 +665,7 @@ export interface EngineTables {
   endings: readonly EndingTagRow[];
   'scoring-model': readonly ScoringModelRow[];
   'required-actions': readonly RequiredActionRow[];
+  'treatment-drugs': readonly TreatmentDrugRow[];
 }
 
 export const EMPTY_TABLES: EngineTables = {
@@ -688,4 +699,5 @@ export const EMPTY_TABLES: EngineTables = {
   endings: [],
   'scoring-model': [],
   'required-actions': [],
+  'treatment-drugs': [],
 };

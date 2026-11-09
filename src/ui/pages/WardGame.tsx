@@ -286,6 +286,7 @@ export function WardGame({ view, ward, actions }: WardGameProps) {
                 chat={view.chat}
                 chips={view.quickChips}
                 medications={view.medications}
+                treatmentMedications={view.treatmentMedications}
                 gates={view.gates}
                 notice={view.notice}
                 actions={actions}

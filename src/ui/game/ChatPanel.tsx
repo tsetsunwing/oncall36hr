@@ -53,6 +53,7 @@ export interface ChatPanelProps {
   notice: { kind: string; tone: 'info' | 'warn' | 'error' } | null;
   chips: QuickChipView[];
   medications?: readonly MedicationOption[];
+  treatmentMedications?: readonly MedicationOption[];
   gates?: GateCardView[];
   actions: GameActions;
 }
@@ -371,6 +372,7 @@ export function ChatPanel({
   chat,
   chips,
   medications = [],
+  treatmentMedications = [],
   gates = [],
   notice,
   actions,
@@ -576,7 +578,12 @@ export function ChatPanel({
         <DrugOrderForm
           key={drugChip.medicationId ?? drugChip.id}
           drugId={drugChip.medicationId ?? ''}
-          medications={medicationChoices(medications, drugChip)}
+          treatmentSearch={drugChip.id === 'treat.drug'}
+          medications={
+            drugChip.id === 'treat.drug'
+              ? treatmentMedications
+              : medicationChoices(medications, drugChip)
+          }
           onSubmit={(order) => {
             actions.placeOrder(chat.patientId, order.catalogId, order.text, order.params);
             setDrugChip(null);

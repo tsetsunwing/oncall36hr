@@ -37,12 +37,13 @@ describe('content loader', () => {
     'scoring-model',
     'required-actions',
   ] as const;
+  const FILLED_TABLES = [...M2_TABLES, 'treatment-drugs'] as const;
 
-  it('accepts the shipped bundle: M2–M7 and M4b tables are filled, every later table is still an empty array', () => {
+  it('accepts the shipped bundle: M2–M7、M4b 同治療藥表有資料，其餘表仍然是空陣列', () => {
     const content = getContent();
     expect(Object.keys(content.tables)).toHaveLength(TABLE_NAMES.length);
     for (const name of TABLE_NAMES) {
-      if ((M2_TABLES as readonly string[]).includes(name)) {
+      if ((FILLED_TABLES as readonly string[]).includes(name)) {
         expect(content.tables[name].length, name).toBeGreaterThan(0);
       } else {
         expect(content.tables[name], name).toEqual([]);

@@ -715,8 +715,10 @@ export interface GameView {
   reports: ReportView[];
   actionLog: { all: ActionRowView[]; patient: ActionRowView[] };
   quickChips: QuickChipView[];
-  /** 醫囑表藥物搜尋。只含 formulary 藥物名，冇劑量。 */
+  /** 搶救 Drugs 按鈕使用的藥典。治療「藥物」不搜尋這張表。 */
   medications: MedicationOption[];
+  /** 治療「藥物」的建議，與搶救藥典分開。 */
+  treatmentMedications: MedicationOption[];
   resus: ResusView | null;
   death: DeathView | null;
   pendingAiCount: number;

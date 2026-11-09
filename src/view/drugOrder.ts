@@ -65,8 +65,8 @@ export function isInfusionRoute(route: string | null): boolean {
   return route?.startsWith('IV Infusion') ?? false;
 }
 
-/** 未夠三個英文字唔出建議。只對遊戲藥典嘅名稱同別名。 */
-export function suggestFormularyDrugs(
+/** 未滿三個英文字母不顯示建議。只搜尋呼叫者傳入的治療藥表。 */
+export function suggestTreatmentDrugs(
   query: string,
   medications: readonly MedicationOption[],
 ): MedicationOption[] {

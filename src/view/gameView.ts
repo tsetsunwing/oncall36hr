@@ -433,7 +433,24 @@ function selectMedications(tables: EngineTables): MedicationOption[] {
         label: drug.label,
         stem: word?.promptStem ?? drug.label.toLowerCase(),
         catalogId: drug.catalogId,
-        aliases: drug.aliases,
+      },
+    ];
+  });
+}
+
+function selectTreatmentMedications(tables: EngineTables): MedicationOption[] {
+  const seen = new Set<string>();
+  return tables['treatment-drugs'].flatMap((drug) => {
+    const label = drug.name.trim();
+    const key = label.toLowerCase();
+    if (label.length === 0 || seen.has(key)) return [];
+    seen.add(key);
+    return [
+      {
+        id: drug.id,
+        label,
+        stem: key,
+        catalogId: '',
       },
     ];
   });
@@ -497,6 +514,7 @@ export function selectGameView(state: GameState, env: ViewEnv): GameView {
     },
     quickChips: selectQuickChips(env.tables),
     medications: selectMedications(env.tables),
+    treatmentMedications: selectTreatmentMedications(env.tables),
     resus: selectResus(state, env, clockLabel),
     death: selectDeath(state, env, clockLabel),
     pendingAiCount: state.pendingAi.length,

@@ -34,7 +34,9 @@ const tick = (gameSeconds: number): EngineEvent => ({
 describe('ViewModel：只映射可見資料', () => {
   it('唔會洩露 hidden：診斷詞、FSM 狀態名、trajectory、base 值、flags', () => {
     const state = play([say('oxygen nrb'), tick(7200 * 2)]);
-    const json = JSON.stringify(selectGameView(state, env)).toLowerCase();
+    const view = selectGameView(state, env);
+    // 治療藥表是公開藥名，不是這個病人的隱藏診斷。
+    const json = JSON.stringify({ ...view, treatmentMedications: [] }).toLowerCase();
     const template = tables['case-templates'][0];
     for (const term of template?.diagnosisTerms ?? [])
       expect(json).not.toContain(term.toLowerCase());
@@ -125,17 +127,19 @@ describe('ViewModel：只映射可見資料', () => {
     expect(chips.some((chip) => chip.report?.section === 'cytology')).toBe(false);
   });
 
-  it('藥物建議只來自動戲藥典，除顫唔入名單', () => {
-    const medications = selectGameView(play([]), env).medications;
-    expect(medications.length).toBeGreaterThan(0);
-    expect(medications.every((item) => item.catalogId.startsWith('drug.'))).toBe(true);
-    expect(medications.some((item) => item.id === 'defibrillation')).toBe(false);
-    expect(medications.find((item) => item.id === 'ceftriaxone')).toMatchObject({
-      label: 'Ceftriaxone',
-      catalogId: 'drug.ceftriaxone',
-    });
-    expect(medications.find((item) => item.id === 'ceftriaxone')?.aliases).toContain('rocephin');
-    expect(medications.some((item) => 'drugClass' in item)).toBe(false);
+  it('搶救藥典同治療藥表分開，治療建議唔用嗰 23 行', () => {
+    const view = selectGameView(play([]), env);
+    expect(view.medications.length).toBeGreaterThan(0);
+    expect(view.medications.every((item) => item.catalogId.startsWith('drug.'))).toBe(true);
+    expect(view.medications.some((item) => item.id === 'defibrillation')).toBe(false);
+    expect(view.treatmentMedications.length).toBeGreaterThan(view.medications.length);
+    expect(view.treatmentMedications.some((item) => item.label === 'Amoxycillin')).toBe(true);
+    expect(view.treatmentMedications.some((item) => item.label === 'Cefaclor')).toBe(true);
+    const labels = view.treatmentMedications.map((item) => item.label.toLowerCase());
+    expect(new Set(labels).size).toBe(labels.length);
+    expect(view.treatmentMedications.some((item) => item.label.includes('DYSPEPSIA'))).toBe(false);
+    const resusIds = new Set(view.medications.map((item) => item.id));
+    expect(view.treatmentMedications.some((item) => resusIds.has(item.id))).toBe(false);
   });
 });
 

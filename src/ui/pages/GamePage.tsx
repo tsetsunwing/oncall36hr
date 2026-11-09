@@ -187,6 +187,7 @@ export function GamePage({ view, actions, onExit }: GamePageProps) {
               chat={view.chat}
               chips={view.quickChips}
               medications={view.medications}
+              treatmentMedications={view.treatmentMedications}
               gates={view.gates}
               notice={view.notice}
               actions={actions}

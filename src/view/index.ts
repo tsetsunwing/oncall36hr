@@ -14,7 +14,7 @@ export {
   INFUSION_VOLUMES,
   isInfusionRoute,
   shortOptionLabel,
-  suggestFormularyDrugs,
+  suggestTreatmentDrugs,
   PRN_REASONS,
   RATE_UNITS,
   TITRATION_TARGETS,

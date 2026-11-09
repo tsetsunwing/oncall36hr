@@ -65,6 +65,7 @@ export const TABLE_NAMES = [
   'endings',
   'scoring-model',
   'required-actions',
+  'treatment-drugs',
 ] as const;
 
 export type TableName = (typeof TABLE_NAMES)[number];
@@ -73,6 +74,16 @@ export const baseRecordSchema = z.object({ id: z.string().min(1) }).loose();
 export type ContentRecord = z.infer<typeof baseRecordSchema>;
 
 const looseRecords = z.array(baseRecordSchema);
+
+/** 治療「藥物」的建議來源，與搶救 formulary 分開。類別只保留在資料中，介面暫不加篩選或徽章。 */
+const treatmentDrugSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1),
+  listedName: z.string().min(1),
+  chapter: z.string().min(1),
+  classes: z.array(z.string().min(1)),
+  column: z.string().min(1).nullable(),
+});
 
 export const tableSchemas = {
   'case-templates': z.array(caseTemplateSchema),
@@ -106,6 +117,7 @@ export const tableSchemas = {
   endings: z.array(endingTagSchema),
   'scoring-model': z.array(scoringModelSchema),
   'required-actions': z.array(requiredActionSchema),
+  'treatment-drugs': z.array(treatmentDrugSchema),
 } satisfies Record<TableName, z.ZodType<readonly ContentRecord[]>>;
 
 export type Tables = { [K in TableName]: z.infer<(typeof tableSchemas)[K]> };

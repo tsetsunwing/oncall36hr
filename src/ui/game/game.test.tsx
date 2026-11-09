@@ -531,7 +531,7 @@ describe('ChatPanel', () => {
     expect(actions.submitChat).not.toHaveBeenCalled();
   });
 
-  it('治療嘅藥物掣開空白醫囑表，三個英文字先出遊戲藥典建議', async () => {
+  it('治療嘅藥物掣開空白醫囑表，三個英文字只搜治療藥表', async () => {
     const user = userEvent.setup();
     const actions = makeActions();
     render(
@@ -562,6 +562,15 @@ describe('ChatPanel', () => {
             aliases: ['adrenaline', 'epinephrine', 'epi'],
           },
         ]}
+        treatmentMedications={[
+          {
+            id: 'amoxicillin',
+            label: 'Amoxicillin',
+            stem: 'amoxicillin',
+            catalogId: 'drug.amoxicillin',
+            aliases: ['amoxil'],
+          },
+        ]}
         notice={null}
         actions={actions}
       />,
@@ -583,33 +592,24 @@ describe('ChatPanel', () => {
       screen.queryByRole('listbox', { name: ui.game.chat.drugOrder.matches }),
     ).not.toBeInTheDocument();
     await user.type(name, 'f');
-    const list = screen.getByRole('listbox', { name: ui.game.chat.drugOrder.matches });
-    expect(within(list).getByRole('option', { name: 'Ceftriaxone' })).toHaveTextContent(
-      'Ceftriaxone',
-    );
-    expect(within(list).queryByRole('option', { name: 'Adrenaline' })).not.toBeInTheDocument();
-    expect(list).not.toHaveTextContent('Cephalosporin');
-    await user.click(within(list).getByRole('option', { name: 'Ceftriaxone' }));
-    expect(name).toHaveValue('Ceftriaxone');
     expect(
       screen.queryByRole('listbox', { name: ui.game.chat.drugOrder.matches }),
     ).not.toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: 'Ceftriaxone' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: 'Adrenaline' })).not.toBeInTheDocument();
+    await user.clear(name);
+    await user.type(name, 'amo');
+    const list = screen.getByRole('listbox', { name: ui.game.chat.drugOrder.matches });
+    expect(within(list).getByRole('option', { name: 'Amoxicillin' })).toHaveTextContent(
+      'Amoxicillin',
+    );
+    expect(list).not.toHaveTextContent('Cephalosporin');
+    expect(within(list).queryByRole('option', { name: 'Ceftriaxone' })).not.toBeInTheDocument();
+    await user.click(within(list).getByRole('option', { name: 'Amoxicillin' }));
+    expect(name).toHaveValue('Amoxicillin');
     expect(screen.getByTestId('drug-order-route')).toHaveValue('');
     expect(screen.getByTestId('drug-order-dose')).toHaveValue('');
-    expect(screen.getByTestId('drug-order-frequency')).toHaveValue('');
     expect(screen.getByTestId('drug-order-confirm')).toBeDisabled();
-    await user.clear(name);
-    await user.type(name, 'ep');
-    expect(
-      screen.queryByRole('listbox', { name: ui.game.chat.drugOrder.matches }),
-    ).not.toBeInTheDocument();
-    await user.type(name, 'i');
-    expect(
-      within(screen.getByRole('listbox', { name: ui.game.chat.drugOrder.matches })).getByRole(
-        'option',
-        { name: 'Adrenaline' },
-      ),
-    ).toBeInTheDocument();
   });
 
   it('被拒絕嘅動作顯示 notice（role=status）', () => {

@@ -7,7 +7,7 @@ import {
   DOSE_UNITS,
   DRUG_ROUTES,
   drugOrderReady,
-  suggestFormularyDrugs,
+  suggestTreatmentDrugs,
   FREQUENCIES,
   INFUSION_VOLUMES,
   isInfusionRoute,
@@ -60,11 +60,19 @@ function ChoiceSelect({
 export interface DrugOrderFormProps {
   drugId: string;
   medications: readonly MedicationOption[];
+  /** 治療自由輸入：滿三個英文字母才從治療藥表顯示建議。搶救按鈕不開啟。 */
+  treatmentSearch?: boolean;
   onSubmit: (order: { catalogId: string; text: string; params: PlacedOrderParams }) => void;
   onClose: () => void;
 }
 
-export function DrugOrderForm({ drugId, medications, onSubmit, onClose }: DrugOrderFormProps) {
+export function DrugOrderForm({
+  drugId,
+  medications,
+  treatmentSearch = false,
+  onSubmit,
+  onClose,
+}: DrugOrderFormProps) {
   const t = ui.game.chat.drugOrder;
   const choices = medications;
   const initial = choices.find((item) => item.id === drugId) ?? null;
@@ -87,8 +95,14 @@ export function DrugOrderForm({ drugId, medications, onSubmit, onClose }: DrugOr
 
   const selected = choices.find((item) => item.id === selectedId) ?? null;
   const infusion = isInfusionRoute(route);
-  const matches = useMemo(() => suggestFormularyDrugs(query, choices), [choices, query]);
-  const suggestionsOpen = listOpen && matches.length > 0;
+  const matches = useMemo(() => {
+    if (treatmentSearch) return suggestTreatmentDrugs(query, choices);
+    const needle = query.trim().toLowerCase();
+    return choices.filter(
+      (item) => needle.length === 0 || item.label.toLowerCase().includes(needle),
+    );
+  }, [choices, query, treatmentSearch]);
+  const suggestionsOpen = treatmentSearch ? listOpen && matches.length > 0 : listOpen;
 
   const draft: DrugOrderDraft = {
     stem: selected?.stem ?? '',
