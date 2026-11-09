@@ -2462,6 +2462,42 @@ tr[data-flag='H'] .value-flagged {
   white-space: nowrap;
 }
 
+.drug-order-drug {
+  width: 100%;
+}
+
+.drug-order-drug input {
+  flex: 1 1 0;
+  width: 0;
+  min-width: 0;
+}
+
+/* 途徑、頻次和輸液欄位並排，不再各自佔滿一行。 */
+.drug-order-pack {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.28rem 0.4rem;
+  align-items: end;
+}
+
+.drug-order-pack .drug-order-field {
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.drug-order-pack .drug-order-select,
+.drug-order-pack input[type='text'] {
+  width: 100%;
+  min-width: 0;
+}
+
+.drug-order-pack input[type='text'],
+.drug-order-pack select {
+  height: 28px;
+  min-height: 28px;
+  padding: 0 0.45rem;
+}
+
 .drug-order select {
   width: 8.5rem;
 }
@@ -2522,12 +2558,23 @@ tr[data-flag='H'] .value-flagged {
 
 .drug-order-dose {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem 0.6rem;
+  flex-wrap: nowrap;
+  gap: 0.35rem 0.55rem;
+  align-items: center;
 }
 
 .drug-order-dose input[type='text'] {
-  width: 5.5rem;
+  width: 4.25rem;
+}
+
+.drug-order-dose .drug-order-select {
+  width: 6.75rem;
+}
+
+.drug-order-notes input[type='text'] {
+  width: 3rem;
+  min-height: 28px;
+  padding: 0 0.35rem;
 }
 
 .drug-order-matches {

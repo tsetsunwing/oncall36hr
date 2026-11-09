@@ -178,6 +178,7 @@ export function DrugOrderForm({
       <label className="drug-order-drug">
         {t.drug}
         <input
+          type="text"
           role="combobox"
           aria-expanded={suggestionsOpen}
           aria-controls="drug-order-matches"
@@ -259,15 +260,103 @@ export function DrugOrderForm({
         </ul>
       ) : null}
 
-      <label className="drug-order-field">
-        {t.route}
-        <ChoiceSelect
-          testId="drug-order-route"
-          value={route ?? ''}
-          options={DRUG_ROUTES.map((item) => item.phrase)}
-          onValue={chooseRoute}
-        />
-      </label>
+      <div className={infusion ? 'drug-order-pack drug-order-pack-infusion' : 'drug-order-pack'}>
+        <label className="drug-order-field">
+          {t.route}
+          <ChoiceSelect
+            testId="drug-order-route"
+            value={route ?? ''}
+            options={DRUG_ROUTES.map((item) => item.phrase)}
+            onValue={chooseRoute}
+          />
+        </label>
+        {infusion ? (
+          <>
+            <label className="drug-order-field">
+              {t.diluent}
+              <ChoiceSelect
+                testId="drug-order-diluent"
+                value={diluent ?? ''}
+                options={DILUENTS}
+                onValue={(next) => {
+                  setDiluent(next.length > 0 ? next : null);
+                }}
+              />
+            </label>
+            <label className="drug-order-field">
+              {t.volume}
+              <ChoiceSelect
+                testId="drug-order-volume"
+                value={volume ?? ''}
+                options={INFUSION_VOLUMES}
+                onValue={(next) => {
+                  setVolume(next.length > 0 ? next : null);
+                }}
+              />
+            </label>
+            <label className="drug-order-field">
+              {t.rate}
+              <input
+                type="text"
+                inputMode="decimal"
+                value={rateValue}
+                data-testid="drug-order-rate"
+                onChange={(event) => {
+                  setRateValue(event.target.value);
+                }}
+              />
+            </label>
+            <label className="drug-order-field">
+              {t.rateUnit}
+              <ChoiceSelect
+                testId="drug-order-rate-unit"
+                value={rateUnit ?? ''}
+                blankLabel={t.emptyUnit}
+                options={RATE_UNITS}
+                onValue={(next) => {
+                  setRateUnit(next.length > 0 ? next : null);
+                }}
+              />
+            </label>
+            <label className="drug-order-field">
+              {t.titration}
+              <ChoiceSelect
+                testId="drug-order-titration"
+                value={titration ?? ''}
+                options={TITRATION_TARGETS}
+                onValue={(next) => {
+                  setTitration(next.length > 0 ? next : null);
+                }}
+              />
+            </label>
+          </>
+        ) : (
+          <>
+            <label className="drug-order-field">
+              {t.frequency}
+              <ChoiceSelect
+                testId="drug-order-frequency"
+                value={frequency ?? ''}
+                options={FREQUENCIES}
+                onValue={(next) => {
+                  setFrequency(next.length > 0 ? next : null);
+                }}
+              />
+            </label>
+            <label className="drug-order-field">
+              {t.prn}
+              <ChoiceSelect
+                testId="drug-order-prn"
+                value={prn ?? ''}
+                options={PRN_REASONS}
+                onValue={(next) => {
+                  setPrn(next.length > 0 ? next : null);
+                }}
+              />
+            </label>
+          </>
+        )}
+      </div>
 
       <div className="drug-order-dose">
         <label>
@@ -295,95 +384,6 @@ export function DrugOrderForm({
           />
         </label>
       </div>
-
-      {infusion ? (
-        <>
-          <label className="drug-order-field">
-            {t.diluent}
-            <ChoiceSelect
-              testId="drug-order-diluent"
-              value={diluent ?? ''}
-              options={DILUENTS}
-              onValue={(next) => {
-                setDiluent(next.length > 0 ? next : null);
-              }}
-            />
-          </label>
-          <label className="drug-order-field">
-            {t.volume}
-            <ChoiceSelect
-              testId="drug-order-volume"
-              value={volume ?? ''}
-              options={INFUSION_VOLUMES}
-              onValue={(next) => {
-                setVolume(next.length > 0 ? next : null);
-              }}
-            />
-          </label>
-          <div className="drug-order-dose">
-            <label>
-              {t.rate}
-              <input
-                type="text"
-                inputMode="decimal"
-                value={rateValue}
-                data-testid="drug-order-rate"
-                onChange={(event) => {
-                  setRateValue(event.target.value);
-                }}
-              />
-            </label>
-            <label>
-              {t.rateUnit}
-              <ChoiceSelect
-                testId="drug-order-rate-unit"
-                value={rateUnit ?? ''}
-                blankLabel={t.emptyUnit}
-                options={RATE_UNITS}
-                onValue={(next) => {
-                  setRateUnit(next.length > 0 ? next : null);
-                }}
-              />
-            </label>
-          </div>
-          <label className="drug-order-field">
-            {t.titration}
-            <ChoiceSelect
-              testId="drug-order-titration"
-              value={titration ?? ''}
-              options={TITRATION_TARGETS}
-              onValue={(next) => {
-                setTitration(next.length > 0 ? next : null);
-              }}
-            />
-          </label>
-        </>
-      ) : (
-        <>
-          <label className="drug-order-field">
-            {t.frequency}
-            <ChoiceSelect
-              testId="drug-order-frequency"
-              value={frequency ?? ''}
-              options={FREQUENCIES}
-              onValue={(next) => {
-                setFrequency(next.length > 0 ? next : null);
-              }}
-            />
-          </label>
-          <label className="drug-order-field">
-            {t.prn}
-            <ChoiceSelect
-              testId="drug-order-prn"
-              value={prn ?? ''}
-              options={PRN_REASONS}
-              onValue={(next) => {
-                setPrn(next.length > 0 ? next : null);
-              }}
-            />
-          </label>
-        </>
-      )}
 
       <fieldset>
         <legend>{t.notes}</legend>
