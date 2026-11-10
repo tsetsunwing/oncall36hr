@@ -2273,7 +2273,7 @@ tr[data-flag='H'] .value-flagged {
 
 .frame-desktop .page.setup {
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr) minmax(210px, 220px);
+  grid-template-rows: auto minmax(0, 1fr) minmax(300px, 320px);
   grid-template-columns: minmax(0, 1.25fr) minmax(300px, 0.75fr);
   gap: 10px;
   height: 100%;
