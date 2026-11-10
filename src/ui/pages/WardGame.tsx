@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { BedDouble, ClipboardList, History, MessageSquare, Phone, Users, X } from 'lucide-react';
 import { ui } from '@/i18n';
 import { IconButton } from '../IconButton';
-import type { GameActions, GameView, ShiftView, WardView } from '@/view';
+import type { BodyDiagramView, GameActions, GameView, ShiftView, WardView } from '@/view';
 import { ChatPanel } from '../game/ChatPanel';
 import { LogPanel } from '../game/LogPanel';
 import { DeathFlowPanel } from '../game/DeathFlowPanel';
@@ -11,6 +11,7 @@ import { ResusPanel } from '../game/ResusPanel';
 import { DelegationDialog } from '../ward/DelegationDialog';
 import { useFrame } from '../frame/PlayFrame';
 import { BedTable } from '../ward/BedTable';
+import { BodyDiagram } from '../ward/BodyDiagram';
 import { FloorPlan } from '../ward/FloorPlan';
 import { PlaceRoom, type CarePlace } from '../ward/PlaceRoom';
 import { PhonePanel } from '../ward/PhonePanel';
@@ -158,6 +159,9 @@ export function WardGame({ view, ward, actions }: WardGameProps) {
         />
         <MapOrRoom
           place={view.shift.place}
+          atBed={atBed}
+          body={view.body}
+          patientId={view.patient?.id ?? null}
           shift={view.shift}
           ward={ward}
           actions={actions}
@@ -351,6 +355,9 @@ function isCarePlace(place: ShiftView['place']): place is CarePlace {
 
 function MapOrRoom({
   place,
+  atBed,
+  body,
+  patientId,
   shift,
   ward,
   actions,
@@ -358,6 +365,9 @@ function MapOrRoom({
   onExpand,
 }: {
   place: ShiftView['place'];
+  atBed: boolean;
+  body: BodyDiagramView | null;
+  patientId: string | null;
   shift: ShiftView;
   ward: WardView;
   actions: GameActions;
@@ -387,12 +397,16 @@ function MapOrRoom({
           </button>
         </div>
       ) : null}
-      <FloorPlan
-        ward={ward}
-        actions={actions}
-        compact={compact}
-        {...(onExpand ? { onExpand } : {})}
-      />
+      {atBed && body && patientId ? (
+        <BodyDiagram body={body} patientId={patientId} actions={actions} />
+      ) : (
+        <FloorPlan
+          ward={ward}
+          actions={actions}
+          compact={compact}
+          {...(onExpand ? { onExpand } : {})}
+        />
+      )}
     </>
   );
 }

@@ -4,6 +4,7 @@ import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { ui } from '@/i18n';
 import type {
   BedView,
+  BodyDiagramView,
   CallRowView,
   GameActions,
   GameView,
@@ -12,6 +13,7 @@ import type {
   ShiftView,
   WardView,
 } from '@/view';
+import { chat, monitor, patient } from '../game/fixtures';
 import { WardGame } from '../pages/WardGame';
 import { DelegationDialog } from './DelegationDialog';
 import { FloorPlan } from './FloorPlan';
@@ -244,6 +246,7 @@ function gameAt(
     },
     patient: null,
     monitor: null,
+    body: null,
     chat: null,
     orders: [],
     gates: [],
@@ -339,6 +342,46 @@ describe('房間取代平面圖', () => {
     rerender(<WardGame view={gameAt('STATION')} ward={ward()} actions={actions} />);
     expect(screen.getByTestId('floor-plan')).toHaveClass('floor-plan--compact');
     expect(screen.queryByTestId('bed-table')).not.toBeInTheDocument();
+  });
+
+  it('床邊以身體圖取代小地圖，返回病房先見床位圖', async () => {
+    const actions = makeActions();
+    const body: BodyDiagramView = {
+      markers: [
+        { id: 'foley', kind: 'foley', label: 'Foley', x: 50, y: 58 },
+        { id: 'drain-1', kind: 'drain', label: 'left chest', x: 66, y: 36 },
+      ],
+      ioOrder: {
+        catalogId: 'monitor.io',
+        text: '出入量 持續',
+        params: { drugFormularyId: null, dose: null, route: null, summary: '出入量 持續' },
+      },
+    };
+    const atBed = { ...gameAt(null), patient, monitor: monitor(), chat: chat(), body };
+    const { rerender } = render(<WardGame view={atBed} ward={ward()} actions={actions} />);
+    expect(screen.getByTestId('body-diagram')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: ui.game.ward.bodyHeading })).toBeInTheDocument();
+    expect(screen.queryByTestId('floor-plan')).not.toBeInTheDocument();
+    expect(screen.queryByText(ui.game.ward.miniHeading)).not.toBeInTheDocument();
+    expect(screen.getByTestId('body-foley')).toHaveTextContent('Foley');
+    expect(screen.getByTestId('body-drain-1')).toHaveTextContent('left chest');
+    await userEvent.click(screen.getByTestId('body-foley'));
+    expect(actions.placeOrder).toHaveBeenCalledWith(
+      'p1',
+      'monitor.io',
+      '出入量 持續',
+      expect.objectContaining({ summary: '出入量 持續' }),
+    );
+
+    rerender(<WardGame view={gameAt('PANTRY')} ward={ward()} actions={actions} />);
+    expect(screen.getByTestId('room-PANTRY')).toBeInTheDocument();
+    expect(screen.queryByTestId('body-diagram')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('floor-plan')).not.toBeInTheDocument();
+
+    rerender(<WardGame view={gameAt('STATION')} ward={ward()} actions={actions} />);
+    expect(screen.getByTestId('floor-plan')).toHaveClass('floor-plan--compact');
+    expect(screen.getByRole('heading', { name: ui.game.ward.miniHeading })).toBeInTheDocument();
+    expect(screen.queryByTestId('body-diagram')).not.toBeInTheDocument();
   });
 });
 

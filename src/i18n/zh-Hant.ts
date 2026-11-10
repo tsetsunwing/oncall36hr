@@ -210,6 +210,8 @@ export const ui = {
       catheters: {
         title: 'Catheters and drains',
         hint: '選擇現有醫囑',
+        drainSite: '引流位置',
+        drainHint: '請填寫這條引流的位置。需要多條時，再填一次。',
       },
       observe: {
         parameter: '項目',

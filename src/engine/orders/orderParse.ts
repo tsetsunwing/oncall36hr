@@ -13,7 +13,9 @@ import type { Reduction } from '../core/events';
 import type { EngineContext } from '../core/module';
 import type { GameState, PendingAiRequest } from '../core/state';
 import type { Patient } from '../case/patient';
+import { DRAIN_CATALOG_ID } from './drains';
 import { cancelOrderState, isCancellable, NO_PARAMS } from './orders';
+import { matchDrainPhrase } from './quickPhrase';
 import { placeAndAck, type PlaceInput } from './placement';
 import { composeOrderLabel } from './label';
 import type { Order } from './orderTypes';
@@ -128,15 +130,20 @@ export function handleOrderParseResult(
         .slice(0, ctx.config.orders.maxActionsPerParse)
         .flatMap((action) => {
           const row = ctx.tables['order-catalog'].find((r) => r.id === action.catalogId);
-          return row
-            ? [
-                {
-                  row,
-                  params: sanitizeParams(action, ctx, playerText),
-                  executor: action.executor ?? null,
-                },
-              ]
-            : [];
+          if (!row) return [];
+          if (row.id === DRAIN_CATALOG_ID) {
+            const matched = matchDrainPhrase(playerText);
+            const site = matched?.params.site;
+            if (!matched || !site) return [];
+            return [{ row, params: matched.params, executor: action.executor ?? null }];
+          }
+          return [
+            {
+              row,
+              params: sanitizeParams(action, ctx, playerText),
+              executor: action.executor ?? null,
+            },
+          ];
         });
       if (accepted.length === 0) return rephrase('UNKNOWN_ORDER');
       const inputs: PlaceInput[] = accepted.map(({ row, params, executor }) => ({

@@ -42,6 +42,7 @@ import {
   temperatureBand,
 } from './vitalBands';
 import { parseWave, plethAmplitude } from './waveform';
+import { selectBodyDiagram } from './bodyDiagram';
 import { selectShift } from './shiftView';
 import { selectWard } from './wardView';
 import type { ViewEnv } from './viewEnv';
@@ -531,6 +532,7 @@ export function selectGameView(state: GameState, env: ViewEnv): GameView {
     },
     patient: current ? selectPatient(current) : null,
     monitor: current ? selectMonitor(current, env, clockLabel) : null,
+    body: current ? selectBodyDiagram(current, state.orders, env.tables) : null,
     chat: current ? selectChat(state, current.id, env, clockLabel) : null,
     orders: current ? selectOrders(state, current.id, env, clockLabel) : [],
     gates: current ? selectGates(state, current.id, env) : [],

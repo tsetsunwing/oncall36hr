@@ -23,7 +23,8 @@ export {
 } from './drugOrder';
 export { shortClassLabel } from './drugClassLabel';
 export { RESUS_MENU, type ResusColumnId } from './resusMenu';
-export { CATHETER_ORDERS } from './catheters';
+export { CATHETER_ORDERS, SURGICAL_DRAIN } from './catheters';
+export { drainAnchor, selectBodyDiagram } from './bodyDiagram';
 export {
   buildObserveOrder,
   defaultObserveInterval,

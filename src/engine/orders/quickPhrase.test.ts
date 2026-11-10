@@ -92,11 +92,22 @@ describe('本地快捷詞 parser', () => {
       'oxygen nasal 99 L/min',
       'oxygen nrb 99 L/min',
       'check vitals and pulse',
+      'surgical drain',
+      'surgical drain   ',
       '',
       '   ',
     ]) {
       expect(matchQuickPhrase(text, tables), text).toBeNull();
     }
+  });
+
+  it('外科引流要句中的位置，不假設左右', () => {
+    expect(matchQuickPhrase('Surgical drain left chest', tables)?.params).toMatchObject({
+      site: 'left chest',
+      summary: 'Surgical drain left chest',
+    });
+    expect(matchQuickPhrase('surgical drain right abdomen', tables)?.catalogId).toBe('proc.drain');
+    expect(matchQuickPhrase('surgical drain', tables)).toBeNull();
   });
 
   it('normalizePhrase：去 @提及、全形轉半形、細楷、壓縮空白', () => {

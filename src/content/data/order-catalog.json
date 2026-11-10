@@ -470,6 +470,21 @@
     "reviewStatus": "PENDING_CLINICAL_REVIEW"
   },
   {
+    "id": "proc.drain",
+    "type": "PROCEDURE",
+    "label": "Surgical drain",
+    "aliases": ["surgical drain left chest"],
+    "executors": ["NURSE", "SUBORDINATE", "PLAYER"],
+    "fixedDurationSec": 600,
+    "setsFlags": [],
+    "resultTemplate": "Surgical drain placed",
+    "cancelWhile": ["QUEUED", "RUNNING"],
+    "sunkEffectRule": "DISCARD",
+    "pharmacyGate": false,
+    "nurseGate": "NEVER",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
     "id": "proc.chesttube",
     "type": "PROCEDURE",
     "label": "Chest tube insertion",

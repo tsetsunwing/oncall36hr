@@ -512,6 +512,10 @@ h2,
   display: block;
 }
 
+.frame-desktop .body-diagram {
+  flex: none;
+}
+
 .frame-desktop .queue {
   flex: 1;
   min-height: 0;

@@ -23,6 +23,8 @@ export type CoreIntent =
         treatmentDrugId?: string;
         /** 行動記錄與護士確認用的短標籤。引擎不解析這句。 */
         summary?: string;
+        /** 外科引流位置。只有 proc.drain 使用，由玩家填寫。 */
+        site?: string;
       };
     }
   | { type: 'CANCEL_ORDER'; orderId: string }

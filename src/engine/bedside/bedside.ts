@@ -21,6 +21,7 @@ import {
   placeTreatmentDrug,
   UNLISTED_DRUG_CATALOG_ID,
 } from '../orders/treatmentDrug';
+import { DRAIN_CATALOG_ID, normalizeDrainSite } from '../orders/drains';
 import { oxygenOrderRejected } from '../orders/oxygen';
 import { matchQuickPhrase } from '../orders/quickPhrase';
 import { nurseForBed } from '../ward/nurses';
@@ -55,6 +56,7 @@ const placedParamsSchema = z
       .optional(),
     treatmentDrugId: z.string().min(1).optional(),
     summary: z.string().min(1).optional(),
+    site: z.string().min(1).max(80).optional(),
   })
   .strict();
 
@@ -101,6 +103,9 @@ function placeCatalog(
     return reject(state, 'ORDER_INVALID');
   }
   if (oxygenOrderRejected(row.id, params.dose, params.rate)) return reject(state, 'ORDER_INVALID');
+  const drainSite =
+    row.id === DRAIN_CATALOG_ID ? (params.site ? normalizeDrainSite(params.site) : null) : null;
+  if (row.id === DRAIN_CATALOG_ID && !drainSite) return reject(state, 'ORDER_INVALID');
   const stored = {
     drugFormularyId: params.drugFormularyId,
     dose: params.dose,
@@ -108,7 +113,11 @@ function placeCatalog(
     ...(params.frequency ? { frequency: params.frequency } : {}),
     ...(params.times ? { times: params.times } : {}),
     ...(params.rate ? { rate: params.rate } : {}),
-    ...(params.summary ? { summary: params.summary } : {}),
+    ...(drainSite
+      ? { site: drainSite, summary: params.summary ?? `Surgical drain ${drainSite}` }
+      : params.summary
+        ? { summary: params.summary }
+        : {}),
   };
 
   const submittedAt = state.clock.t;

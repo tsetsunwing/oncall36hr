@@ -133,6 +133,15 @@ export const patientSchema = z
             components: z.record(z.string(), z.number().int()),
           })
           .strict(),
+        /** 外科引流。每條都是玩家填寫的位置，可同時多條。舊存檔由 schema 12 補上空陣列。 */
+        drains: z.array(
+          z
+            .object({
+              id: z.string().min(1),
+              site: z.string().min(1),
+            })
+            .strict(),
+        ),
       })
       .strict(),
   })

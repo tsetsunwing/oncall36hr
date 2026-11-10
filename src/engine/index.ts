@@ -127,6 +127,7 @@ export {
   type OxygenDevice,
   type OxygenDeviceId,
 } from './orders/oxygen';
+export { DRAIN_CATALOG_ID, normalizeDrainSite } from './orders/drains';
 export { matchQuickPhrase, normalizePhrase } from './orders/quickPhrase';
 export { meanArterialPressure, computeMews, type MewsResult } from './case/mews';
 export type { Patient, VitalsSample } from './case/patient';

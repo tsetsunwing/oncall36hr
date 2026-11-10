@@ -3,9 +3,10 @@
  * 所以搶救唔受 AI 延遲影響。字典來自 T26 quick-words，藥物句式來自 T5 formulary。
  */
 import type { EngineTables, ExecutorKind } from '../case/tables';
-import { matchPromptPhrase } from './quickPrompt';
 import { stripMentions } from '../chat/mentions';
+import { DRAIN_CATALOG_ID, normalizeDrainSite } from './drains';
 import type { Order } from './orderTypes';
+import { matchPromptPhrase } from './quickPrompt';
 
 export interface LocalOrderMatch {
   catalogId: string;
@@ -26,9 +27,31 @@ const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, Str
 
 const NO_PARAMS: Order['params'] = { drugFormularyId: null, dose: null, route: null };
 
+/** 「surgical drain」後面的文字就是位置。沒有位置就不落單，也不假設左右。 */
+export function matchDrainPhrase(text: string): LocalOrderMatch | null {
+  const phrase = normalizePhrase(text);
+  const prefix = 'surgical drain ';
+  if (!phrase.startsWith(prefix)) return null;
+  const site = normalizeDrainSite(phrase.slice(prefix.length));
+  if (!site) return null;
+  return {
+    catalogId: DRAIN_CATALOG_ID,
+    executor: null,
+    params: {
+      drugFormularyId: null,
+      dose: null,
+      route: null,
+      site,
+      summary: `Surgical drain ${site}`,
+    },
+  };
+}
+
 export function matchQuickPhrase(text: string, tables: EngineTables): LocalOrderMatch | null {
   const phrase = normalizePhrase(text);
   if (phrase.length === 0) return null;
+  const drain = matchDrainPhrase(phrase);
+  if (drain) return drain;
 
   for (const word of tables['quick-words']) {
     if (word.prompt && word.prompt.length > 0) continue;
@@ -70,8 +93,9 @@ export function matchQuickPhrase(text: string, tables: EngineTables): LocalOrder
     };
   }
 
-  const entry = tables['order-catalog'].find((row) =>
-    row.aliases.some((alias) => normalizePhrase(alias) === phrase),
+  const entry = tables['order-catalog'].find(
+    (row) =>
+      row.id !== DRAIN_CATALOG_ID && row.aliases.some((alias) => normalizePhrase(alias) === phrase),
   );
   return entry ? { catalogId: entry.id, params: NO_PARAMS, executor: null } : null;
 }

@@ -120,6 +120,26 @@ describe('治療同觀察選單', () => {
     });
   });
 
+  it('外科引流要玩家填寫位置，空白不能落單', async () => {
+    const user = userEvent.setup();
+    const calls = actions();
+    render(<ChatPanel chat={chat()} chips={[]} notice={null} actions={calls} />);
+    await user.click(screen.getByRole('button', { name: ui.game.chat.chipGroup.treat ?? '' }));
+    await user.click(screen.getByTestId('treat-catheters'));
+    const site = screen.getByTestId('drain-site');
+    expect(site).toHaveValue('');
+    expect(screen.getByTestId('catheter-proc.drain')).toBeDisabled();
+    expect(calls.placeOrder).not.toHaveBeenCalled();
+    await user.type(site, '  left chest  ');
+    await user.click(screen.getByTestId('catheter-proc.drain'));
+    expect(calls.placeOrder).toHaveBeenCalledWith(
+      'p1',
+      'proc.drain',
+      'Surgical drain left chest',
+      expect.objectContaining({ site: 'left chest', summary: 'Surgical drain left chest' }),
+    );
+  });
+
   it('觀察面板檢查全套生命表徵，其餘間距寫在標籤', async () => {
     const user = userEvent.setup();
     const calls = actions();

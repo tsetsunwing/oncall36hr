@@ -253,6 +253,21 @@ function migrateV10toV11(raw: RawState): RawState {
   };
 }
 
+/** schema 11 → 12：外科引流是位置清單。舊存檔沒有引流。 */
+function migrateV11toV12(raw: RawState): RawState {
+  const patients = (raw.patients ?? {}) as Record<string, Record<string, unknown>>;
+  return {
+    ...raw,
+    patients: Object.fromEntries(
+      Object.entries(patients).map(([id, patient]) => {
+        const visible = (patient.visible ?? {}) as Record<string, unknown>;
+        const drains = Array.isArray(visible.drains) ? visible.drains : [];
+        return [id, { ...patient, visible: { ...visible, drains } }];
+      }),
+    ),
+  };
+}
+
 export const migrations: MigrationRegistry = {
   1: migrateV1toV2,
   2: migrateV2toV3,
@@ -264,6 +279,7 @@ export const migrations: MigrationRegistry = {
   8: migrateV8toV9,
   9: migrateV9toV10,
   10: migrateV10toV11,
+  11: migrateV11toV12,
 };
 
 export type MigrateResult =

@@ -15,6 +15,7 @@ import type { OrderCatalogRow } from '../case/tables';
 import { scoreObjectionHeeded } from '../gate/gateScoring';
 import { updateOrderLog } from '../log/log';
 import { scheduleResultReport } from '../results/results';
+import { attachDrain } from './drains';
 import { composeOrderLabel } from './label';
 import { CANCELLABLE_STATUSES, type Order } from './orderTypes';
 
@@ -102,10 +103,13 @@ export function completeOrder(state: GameState, order: Order, ctx: EngineContext
   if (!row || !patient) return { state: next, effects };
 
   const flags = [...new Set([...patient.hidden.fsm.flags, ...row.setsFlags])];
-  const withFlags = {
-    ...patient,
-    hidden: { ...patient.hidden, fsm: { ...patient.hidden.fsm, flags } },
-  };
+  const withFlags = attachDrain(
+    {
+      ...patient,
+      hidden: { ...patient.hidden, fsm: { ...patient.hidden.fsm, flags } },
+    },
+    order,
+  );
   next = { ...next, patients: { ...next.patients, [patient.id]: withFlags } };
 
   const acls = applyAclsOrder(next, order, row, ctx);

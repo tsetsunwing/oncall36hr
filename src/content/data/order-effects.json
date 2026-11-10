@@ -157,5 +157,15 @@
     "rampSec": 1800,
     "durationSec": 10800,
     "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "fx.drain.pending",
+    "catalogId": "proc.drain",
+    "states": ["*"],
+    "delta": {},
+    "delaySec": 0,
+    "rampSec": 1,
+    "durationSec": null,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
   }
 ]

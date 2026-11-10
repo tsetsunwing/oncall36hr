@@ -248,6 +248,8 @@ export interface PlacedOrderParams {
   treatmentDrugId?: string;
   /** 行動記錄與護士確認顯示的短標籤。 */
   summary?: string;
+  /** 外科引流位置，由玩家填寫。 */
+  site?: string;
 }
 
 export interface QuickChipView {
@@ -703,6 +705,25 @@ export interface ShiftView {
   result: ResultView | null;
 }
 
+export type BodyDeviceKind =
+  'oxygen' | 'iv' | 'ng' | 'foley' | 'cvc' | 'arterial' | 'chestTube' | 'drain';
+
+/** 身體圖上的一個裝置。座標是示意圖百分比，正面朝向玩家。 */
+export interface BodyMarkerView {
+  id: string;
+  kind: BodyDeviceKind;
+  /** 裝置英文短名，或玩家填寫的引流位置。 */
+  label: string;
+  x: number;
+  y: number;
+}
+
+export interface BodyDiagramView {
+  markers: BodyMarkerView[];
+  /** Foley 在位，而且目錄有出入量醫囑時才可點。 */
+  ioOrder: { catalogId: string; text: string; params: PlacedOrderParams } | null;
+}
+
 export interface GameView {
   clock: {
     label: string;
@@ -717,6 +738,8 @@ export interface GameView {
   };
   patient: PatientView | null;
   monitor: MonitorView | null;
+  /** 床邊身體圖。人在病房、茶水間、休息室或洗手間時為 null。 */
+  body: BodyDiagramView | null;
   chat: ChatView | null;
   orders: OrderRowView[];
   gates: GateCardView[];

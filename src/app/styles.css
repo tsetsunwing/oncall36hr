@@ -2581,3 +2581,79 @@ main:has(.page.setup) {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
+
+.body-diagram {
+  padding: 0 0 8px;
+  color: #1d2933;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  box-shadow: var(--card-shadow);
+}
+
+.body-diagram-stage {
+  position: relative;
+  width: min(100%, 220px);
+  margin: 8px auto 12px;
+  aspect-ratio: 200 / 360;
+  background: #eef3f4;
+  border-radius: 12px;
+}
+
+.body-outline {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.body-outline path,
+.body-outline circle {
+  fill: #eef3f4;
+  stroke: #1d2933;
+  stroke-width: 2.4;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.body-markers {
+  position: absolute;
+  inset: 0;
+}
+
+.body-marker {
+  position: absolute;
+  z-index: 1;
+  margin: 0;
+  padding: 2px 6px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: #1d2933;
+  text-align: center;
+  white-space: nowrap;
+  background: #fff;
+  border: 1px solid #107c67;
+  border-radius: 999px;
+  transform: translate(-50%, -50%);
+}
+
+button.body-marker {
+  font-family: inherit;
+  cursor: pointer;
+  color: #fff;
+  background: #107c67;
+}
+
+.drain-order {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-top: 0.75rem;
+}
+
+.drain-order label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+}

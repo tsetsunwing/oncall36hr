@@ -202,6 +202,7 @@ export function createPatientState(
       rhythm: trajectory.rhythm,
       consciousness: trajectory.consciousness,
       mews: { score: 0, band: '', components: {} },
+      drains: [],
     },
   };
   const applied = applySample(

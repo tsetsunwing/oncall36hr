@@ -36,6 +36,8 @@ export const orderSchema = z
         drugName: z.string().min(1).optional(),
         /** 選單寫下的短標籤。有這欄時行動記錄與護士確認用它，不用目錄長名。舊存檔沒有。 */
         summary: z.string().min(1).optional(),
+        /** 外科引流位置，由玩家填寫。舊存檔沒有。 */
+        site: z.string().min(1).optional(),
       })
       .strict(),
     /**
