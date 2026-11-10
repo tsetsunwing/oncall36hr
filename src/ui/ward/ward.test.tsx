@@ -361,9 +361,17 @@ describe('房間取代平面圖', () => {
     const atBed = { ...gameAt(null), patient, monitor: monitor(), chat: chat(), body };
     const { rerender } = render(<WardGame view={atBed} ward={ward()} actions={actions} />);
     expect(screen.getByTestId('body-diagram')).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: ui.game.ward.bodyHeading })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /身體圖/ })).toBeInTheDocument();
     expect(screen.queryByTestId('floor-plan')).not.toBeInTheDocument();
     expect(screen.queryByText(ui.game.ward.miniHeading)).not.toBeInTheDocument();
+    expect(screen.getByTestId('body-patient')).toHaveTextContent(
+      `Bed ${String(patient.bed)} · ${patient.name}${String(patient.age)}${patient.sex} · ${patient.complaint}`,
+    );
+    expect(screen.getByRole('heading', { name: ui.game.monitor.heading })).not.toHaveTextContent(
+      patient.name,
+    );
+    await userEvent.click(screen.getByTestId('body-back'));
+    expect(actions.goToBed).toHaveBeenCalledWith(null);
     expect(screen.getByTestId('body-foley')).toHaveTextContent('Foley');
     expect(screen.getByTestId('body-drain-1')).toHaveTextContent('left chest');
     await userEvent.click(screen.getByTestId('body-foley'));
@@ -400,10 +408,11 @@ describe('PhonePanel', () => {
     );
     const row = screen.getByTestId('call-row');
     expect(row).toHaveTextContent(ui.game.ward.phone.tag.NURSE ?? '');
-    expect(screen.queryByTestId('respond-go-now')).toBeNull();
+    await userEvent.click(screen.getByTestId('respond-go-now'));
     await userEvent.click(screen.getByTestId('respond-later'));
     await userEvent.click(screen.getByTestId('respond-continue'));
     expect(actions.respondCall.mock.calls).toEqual([
+      ['c1', 'GO_NOW'],
       ['c1', 'LATER'],
       ['c1', 'CONTINUE'],
     ]);

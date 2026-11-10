@@ -30,8 +30,9 @@ export function spo2Band(spo2: number): VitalBand {
 
 export function systolicBand(sbp: number): VitalBand {
   if (sbp <= 80 || sbp > 180) return 'severe';
-  if (between(sbp, 81, 90) || between(sbp, 141, 180)) return 'moderate';
-  if (between(sbp, 91, 99) || between(sbp, 121, 140)) return 'mild';
+  if (between(sbp, 81, 90) || between(sbp, 160, 180)) return 'moderate';
+  if (between(sbp, 91, 99) || between(sbp, 140, 159)) return 'mild';
+  // 100–139 係穩定血壓，121/73 這類讀數不閃。
   return 'normal';
 }
 

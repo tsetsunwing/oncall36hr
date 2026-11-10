@@ -49,9 +49,10 @@ function enterVisit(state: GameState, patientId: string, ctx: EngineContext): Ga
   if (!patient || !thread) return state;
   const last = thread.visits.at(-1);
   if (last?.leftAt === null) return state;
+  const visitors = thread.present.filter((person) => person.kind === 'DOCTOR');
   const refreshed = {
     ...thread,
-    present: buildPresent(state, patient, ctx),
+    present: [...buildPresent(state, patient, ctx), ...visitors],
     visits: [
       ...thread.visits,
       {

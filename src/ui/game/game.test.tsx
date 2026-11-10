@@ -271,7 +271,7 @@ describe('ChatPanel', () => {
   });
 
   it('會診句子出現喺對話紀錄，唔會變成頂欄按鈕', () => {
-    const sentence = '16 號床 · Cardiology醫生搵你，想上嚟會診 16 床。';
+    const sentence = '16 號床 · 我係 Cardiology 陳醫生，想上嚟會診 16 床。';
     render(
       <ChatPanel
         chat={chat({

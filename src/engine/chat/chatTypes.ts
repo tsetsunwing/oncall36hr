@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const SPEAKER_KINDS = ['PLAYER', 'NURSE', 'PATIENT', 'SYSTEM', 'PHARMACY'] as const;
+export const SPEAKER_KINDS = ['PLAYER', 'NURSE', 'PATIENT', 'SYSTEM', 'PHARMACY', 'DOCTOR'] as const;
 export type SpeakerKind = (typeof SPEAKER_KINDS)[number];
 
 export const speakerSchema = z
@@ -31,7 +31,7 @@ export type ChatLine = z.infer<typeof chatLineSchema>;
 export const presentSchema = z
   .object({
     id: z.string().min(1),
-    kind: z.enum(['NURSE', 'PATIENT']),
+    kind: z.enum(['NURSE', 'PATIENT', 'DOCTOR']),
     name: z.string().min(1),
     tone: z.string().nullable(),
     mentionKeys: z.array(z.string().min(1)),

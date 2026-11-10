@@ -23,6 +23,9 @@ function isVitalCheck(tokens: readonly string[]): boolean {
   return tokens.length === VITAL_CHECK.size && tokens.every((token) => VITAL_CHECK.has(token));
 }
 
+/** 會診醫生應邀到床邊之後的回應。唔交俾模型，亦唔會估診斷。 */
+export const DOCTOR_CONSULT_LINE = '我嚟到床邊。你想我睇邊方面？';
+
 /** 可以本地寫出就返回模板；其餘 beat（包括含其他數值嘅結果）繼續交俾對白模型。 */
 export function shortReplyTemplate(beat: Beat): string | null {
   if (beat.type === 'ASK_REPHRASE') {

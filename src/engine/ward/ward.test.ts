@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { enqueue } from '../core/eventQueue';
 import type { EngineEvent } from '../core/events';
 import type { GameState, NewGameParams } from '../core/state';
+import { DOCTOR_CONSULT_LINE } from '../chat/shortReplies';
 import { renderTemplate } from '../chat/tokens';
 import {
   advance,
@@ -535,6 +536,42 @@ describe('步步上報（S-3）', () => {
       (r) => r.kind === 'CALL' && r.tag === 'DEPT',
     );
     expect(incoming).toBe(true);
+  });
+
+  it('專科來電用姓氏自報，即時處理後醫生留在床邊', () => {
+    const source = fullTables();
+    const tables = {
+      ...source,
+      'call-templates': source['call-templates'].map((row) =>
+        row.kind === 'CALL' ? { ...row, weight: row.id === 'DEPT_REVIEW' ? 100 : 0 } : row,
+      ),
+    };
+    const reduced = handleCallArrival(engine.init(wardParams('dept-name')), { config, tables });
+    const call = reduced.state.ward.calls.find((item) => item.templateId === 'DEPT_REVIEW');
+    const line = call?.lines[0];
+    expect(call?.callerName).toMatch(/^[\u4e00-\u9fff]醫生$/);
+    expect(call?.callerName).not.toBe(line?.tokenValues['dept.label']);
+    const spoken = renderTemplate(line?.template ?? '', line?.tokenValues ?? {});
+    expect(spoken).toBe(
+      `我係 ${line?.tokenValues['dept.label'] ?? ''} ${call?.callerName ?? ''}，想上嚟會診 ${line?.tokenValues['patient.bed'] ?? ''} 床。`,
+    );
+    const gone = respondToCall(reduced.state, call?.id ?? '', 'GO_NOW', { config, tables });
+    const present = gone.state.chats[call?.patientId ?? '']?.present ?? [];
+    expect(
+      present.some((person) => person.kind === 'DOCTOR' && person.name === call?.callerName),
+    ).toBe(true);
+    const asked = feed(engine, gone.state, [
+      intentEvent({
+        type: 'SUBMIT_CHAT',
+        patientId: call?.patientId ?? '',
+        text: `@${call?.callerName ?? ''} 你睇下邊方面`,
+      }),
+    ]);
+    const lines = asked.state.chats[call?.patientId ?? '']?.lines ?? [];
+    expect(
+      lines.some((line) => line.speaker.kind === 'DOCTOR' && line.template === DOCTOR_CONSULT_LINE),
+    ).toBe(true);
+    expect(aiRequests(asked.effects)).toHaveLength(0);
   });
 
   it('會診同臨床來電到達時寫入對話一次，再響唔會再加', () => {

@@ -603,7 +603,10 @@ export function ChatPanel({
   const open = mention !== null && options.length > 0 && !dismissed;
   const typing = chat.present.filter((p) => p.typing);
   const addressee =
-    chat.present.find((person) => person.kind === 'PATIENT' && person.id === addresseeId) ?? null;
+    chat.present.find(
+      (person) =>
+        (person.kind === 'PATIENT' || person.kind === 'DOCTOR') && person.id === addresseeId,
+    ) ?? null;
 
   useEffect(() => {
     const el = logRef.current;
@@ -670,7 +673,8 @@ export function ChatPanel({
         <h2 id="chat-heading">{c.heading}</h2>
         <ul className="present" aria-label={c.presentLabel}>
           {chat.present.map((p) => {
-            const selected = p.kind === 'PATIENT' && p.id === addresseeId;
+            const addressable = p.kind === 'PATIENT' || p.kind === 'DOCTOR';
+            const selected = addressable && p.id === addresseeId;
             return (
               <li
                 key={p.id}
@@ -678,7 +682,7 @@ export function ChatPanel({
                 data-kind={p.kind}
                 data-selected={selected ? 'true' : undefined}
               >
-                {p.kind === 'PATIENT' ? (
+                {addressable ? (
                   <button
                     type="button"
                     className="present-chip-hit"

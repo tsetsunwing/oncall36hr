@@ -162,6 +162,11 @@ export function WardGame({ view, ward, actions }: WardGameProps) {
           atBed={atBed}
           body={view.body}
           patientId={view.patient?.id ?? null}
+          patientLabel={
+            view.patient
+              ? `Bed ${String(view.patient.bed)} · ${view.patient.name}${String(view.patient.age)}${view.patient.sex} · ${view.patient.complaint}`
+              : null
+          }
           shift={view.shift}
           ward={ward}
           actions={actions}
@@ -311,7 +316,13 @@ export function WardGame({ view, ward, actions }: WardGameProps) {
           >
             <PhonePanel
               ward={ward}
-              actions={actions}
+              actions={{
+                ...actions,
+                respondCall: (callId, response) => {
+                  actions.respondCall(callId, response);
+                  if (response === 'GO_NOW') setTab('chat');
+                },
+              }}
               currentPatientId={view.patient?.id ?? null}
               onDelegateCall={openDelegation}
               scope={tab === 'family' ? 'family' : 'phone'}
@@ -358,6 +369,7 @@ function MapOrRoom({
   atBed,
   body,
   patientId,
+  patientLabel,
   shift,
   ward,
   actions,
@@ -368,6 +380,7 @@ function MapOrRoom({
   atBed: boolean;
   body: BodyDiagramView | null;
   patientId: string | null;
+  patientLabel: string | null;
   shift: ShiftView;
   ward: WardView;
   actions: GameActions;
@@ -398,7 +411,12 @@ function MapOrRoom({
         </div>
       ) : null}
       {atBed && body && patientId ? (
-        <BodyDiagram body={body} patientId={patientId} actions={actions} />
+        <BodyDiagram
+          body={body}
+          patientId={patientId}
+          patientLabel={patientLabel}
+          actions={actions}
+        />
       ) : (
         <FloorPlan
           ward={ward}
