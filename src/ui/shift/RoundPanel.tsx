@@ -38,6 +38,23 @@ export function RoundPanel({ round, actions }: RoundPanelProps) {
       data-phase={round.phase}
     >
       <div className="round-banner">
+        <button
+          type="button"
+          className="round-leave"
+          data-testid="round-leave"
+          aria-label={r.leave}
+          onClick={actions.leaveRound}
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path
+              d="M6 6 18 18M18 6 6 18"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+            />
+          </svg>
+        </button>
         <h2 id="round-heading" className="panel-title">
           {r.banner(round.number, round.totalRounds)}
         </h2>
@@ -218,6 +235,7 @@ export function RoundDialog({ round, actions }: RoundPanelProps) {
       aria-labelledby="round-heading"
       onCancel={(event) => {
         event.preventDefault();
+        actions.leaveRound();
       }}
     >
       <RoundPanel round={round} actions={actions} />

@@ -40,22 +40,25 @@ describe('監察儀生命體徵分段', () => {
   it('收縮壓同舒張壓分開評，血壓取較差一級', () => {
     expect(systolicBand(100)).toBe('normal');
     expect(systolicBand(120)).toBe('normal');
+    expect(systolicBand(121)).toBe('normal');
+    expect(systolicBand(139)).toBe('normal');
     expect(systolicBand(91)).toBe('mild');
     expect(systolicBand(99)).toBe('mild');
-    expect(systolicBand(121)).toBe('mild');
     expect(systolicBand(140)).toBe('mild');
+    expect(systolicBand(159)).toBe('mild');
     expect(systolicBand(81)).toBe('moderate');
     expect(systolicBand(90)).toBe('moderate');
-    expect(systolicBand(141)).toBe('moderate');
+    expect(systolicBand(160)).toBe('moderate');
     expect(systolicBand(180)).toBe('moderate');
     expect(systolicBand(80)).toBe('severe');
     expect(systolicBand(181)).toBe('severe');
 
     expect(diastolicBand(60)).toBe('normal');
     expect(diastolicBand(80)).toBe('normal');
+    expect(diastolicBand(81)).toBe('normal');
+    expect(diastolicBand(89)).toBe('normal');
     expect(diastolicBand(50)).toBe('mild');
     expect(diastolicBand(59)).toBe('mild');
-    expect(diastolicBand(81)).toBe('mild');
     expect(diastolicBand(90)).toBe('mild');
     expect(diastolicBand(40)).toBe('moderate');
     expect(diastolicBand(49)).toBe('moderate');
@@ -65,8 +68,12 @@ describe('監察儀生命體徵分段', () => {
     expect(diastolicBand(111)).toBe('severe');
 
     expect(bloodPressureBand(110, 70)).toBe('normal');
+    expect(bloodPressureBand(121, 73)).toBe('normal');
+    expect(bloodPressureBand(133, 81)).toBe('normal');
+    expect(bloodPressureBand(110, 85)).toBe('normal');
     expect(bloodPressureBand(96, 70)).toBe('mild');
-    expect(bloodPressureBand(110, 85)).toBe('mild');
+    expect(bloodPressureBand(139, 89)).toBe('mild');
+    expect(bloodPressureBand(120, 90)).toBe('mild');
     expect(bloodPressureBand(85, 70)).toBe('moderate');
     expect(bloodPressureBand(110, 95)).toBe('moderate');
     expect(bloodPressureBand(70, 70)).toBe('severe');

@@ -38,6 +38,7 @@ function makeActions() {
     passRound: vi.fn(),
     beginRound: vi.fn(),
     nextRound: vi.fn(),
+    leaveRound: vi.fn(),
     startSelfCare: vi.fn(),
     stopSelfCare: vi.fn(),
     beginHandover: vi.fn(),
@@ -271,7 +272,7 @@ describe('ChatPanel', () => {
   });
 
   it('會診句子出現喺對話紀錄，唔會變成頂欄按鈕', () => {
-    const sentence = '16 號床 · Cardiology醫生搵你，想上嚟會診 16 床。';
+    const sentence = '16 號床 · 我係 Cardiology 陳醫生，想上嚟會診 16 床。';
     render(
       <ChatPanel
         chat={chat({
@@ -365,9 +366,15 @@ describe('ChatPanel', () => {
     await user.type(screen.getByRole('combobox'), '@陳大文 還有沒有咳嗽{Enter}');
     expect(actions.submitChat).toHaveBeenLastCalledWith('p1', '@陳大文 還有沒有咳嗽');
 
-    const cancel = screen.getByRole('button', { name: ui.game.chat.stopAddressing('陳大文') });
-    await user.click(cancel);
-    expect(cancel).toHaveAttribute('aria-pressed', 'false');
+    const nurse = screen.getByRole('button', { name: ui.game.chat.addressPatient('何姑娘') });
+    await user.click(nurse);
+    expect(chip).toHaveAttribute('aria-pressed', 'false');
+    expect(nurse).toHaveAttribute('aria-pressed', 'true');
+    await user.type(screen.getByRole('combobox'), '量血壓{Enter}');
+    expect(actions.submitChat).toHaveBeenLastCalledWith('p1', '@何姑娘 量血壓');
+
+    await user.click(nurse);
+    expect(nurse).toHaveAttribute('aria-pressed', 'false');
     expect(screen.queryByTestId('chat-addressee')).toBeNull();
     await user.type(screen.getByRole('combobox'), '量血壓{Enter}');
     expect(actions.submitChat).toHaveBeenLastCalledWith('p1', '量血壓');

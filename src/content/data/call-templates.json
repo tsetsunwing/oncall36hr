@@ -370,7 +370,7 @@
     "priority": "ROUTINE",
     "needs": "ANY_PATIENT",
     "playerRanks": ["HO", "MO", "RES"],
-    "text": "{{dept.label}}醫生搵你，想上嚟會診 {{patient.bed}} 床。",
+    "text": "我係 {{dept.label}} {{caller.name}}，想上嚟會診 {{patient.bed}} 床。",
     "delegable": false,
     "callerImpression": "NONE",
     "reviewStatus": "PENDING_CLINICAL_REVIEW",

@@ -61,6 +61,12 @@ export function validateCrossReferences(tables: Tables): ContentIssue[] {
       add('case-templates', `${String(i)}.fsmId`, `未知 case-fsm：${tpl.fsmId}`);
       return;
     }
+    const consultIds = new Set(tables['consult-departments'].map((dept) => dept.id));
+    for (const dept of tpl.consultDepts) {
+      if (!consultIds.has(dept)) {
+        add('case-templates', `${String(i)}.consultDepts`, `未知 consult-departments：${dept}`);
+      }
+    }
     for (const state of Object.keys(tpl.symptomsByState)) {
       if (!(state in fsm.states)) {
         add('case-templates', `${String(i)}.symptomsByState.${state}`, `未知 FSM 狀態：${state}`);
@@ -96,11 +102,7 @@ export function validateCrossReferences(tables: Tables): ContentIssue[] {
       }
     } else if (entry.id === 'drug.unlisted') {
       if (entry.formularyId || entry.pharmacyGate || entry.nurseGate !== 'NEVER') {
-        add(
-          'order-catalog',
-          at,
-          '未收錄治療藥不經藥典，也不為每張單開啟藥房或護士模型把關',
-        );
+        add('order-catalog', at, '未收錄治療藥不經藥典，也不為每張單開啟藥房或護士模型把關');
       }
     } else if (entry.type === 'DRUG' && (!entry.formularyId || !entry.pharmacyGate)) {
       add('order-catalog', at, 'DRUG 必須有 formularyId 而且 pharmacyGate 為 true（藥房永遠把關）');

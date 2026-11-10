@@ -20,33 +20,33 @@ const OXYGEN_MARK: Record<string, string> = {
 };
 
 const SPOT = {
-  oxygen: { x: 50, y: 11 },
-  ng: { x: 72, y: 20 },
-  cvc: { x: 50, y: 24 },
-  chestTube: { x: 34, y: 36 },
-  iv: { x: 20, y: 47 },
-  arterial: { x: 81, y: 50 },
-  foley: { x: 50, y: 58 },
+  oxygen: { x: 47, y: 5 },
+  ng: { x: 68, y: 14 },
+  cvc: { x: 47, y: 18 },
+  chestTube: { x: 31, y: 30 },
+  iv: { x: 17, y: 41 },
+  arterial: { x: 77, y: 44 },
+  foley: { x: 47, y: 52 },
 } as const;
 
 const REGIONS: { test: RegExp; y: number }[] = [
-  { test: /groin|inguinal|腹股溝|pelvis|pelvic/, y: 58 },
-  { test: /neck|頸|jugular/, y: 24 },
-  { test: /shoulder|肩/, y: 31 },
-  { test: /chest|thorax|thoracic|胸/, y: 36 },
-  { test: /flank|loin|腰/, y: 43 },
-  { test: /forearm|arm|臂/, y: 47 },
-  { test: /abdomen|abdominal|belly|腹/, y: 50 },
-  { test: /thigh|femoral|大腿|腿/, y: 75 },
+  { test: /groin|inguinal|腹股溝|pelvis|pelvic/, y: 52 },
+  { test: /neck|頸|jugular/, y: 18 },
+  { test: /shoulder|肩/, y: 25 },
+  { test: /chest|thorax|thoracic|胸/, y: 30 },
+  { test: /flank|loin|腰/, y: 37 },
+  { test: /forearm|arm|臂/, y: 41 },
+  { test: /abdomen|abdominal|belly|腹/, y: 44 },
+  { test: /thigh|femoral|大腿|腿/, y: 68 },
 ];
 
 export function drainAnchor(site: string): { x: number; y: number } {
   const text = site.normalize('NFKC').toLowerCase();
   const left = /\bleft\b/.test(text) || text.includes('左');
   const right = /\bright\b/.test(text) || text.includes('右');
-  const x = left === right ? 50 : left ? 66 : 34;
+  const x = left === right ? 47 : left ? 62 : 31;
   const region = REGIONS.find((item) => item.test.test(text));
-  return { x, y: region?.y ?? 46 };
+  return { x, y: region?.y ?? 40 };
 }
 
 function hasFlag(patient: Patient, flag: string): boolean {

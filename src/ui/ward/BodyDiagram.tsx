@@ -1,14 +1,17 @@
 import { PersonStanding } from 'lucide-react';
 import { ui } from '@/i18n';
 import type { BodyDiagramView, GameActions } from '@/view';
+import { BODY_SILHOUETTE_PATHS, BODY_VIEWBOX } from './bodySilhouette';
 
 export function BodyDiagram({
   body,
   patientId,
+  patientLabel,
   actions,
 }: {
   body: BodyDiagramView;
   patientId: string;
+  patientLabel: string | null;
   actions: GameActions;
 }) {
   const w = ui.game.ward;
@@ -21,17 +24,60 @@ export function BodyDiagram({
     >
       <h2 id="body-diagram-heading">
         <PersonStanding className="heading-icon" size={16} strokeWidth={2} aria-hidden="true" />
-        <span className="heading-label">{w.bodyHeading}</span>
+        <span className="body-heading-copy">
+          <span className="heading-label">{w.bodyHeading}</span>
+          {patientLabel ? (
+            <span className="body-patient" data-testid="body-patient">
+              {patientLabel}
+            </span>
+          ) : null}
+        </span>
+        <button
+          type="button"
+          className="body-back"
+          data-testid="body-back"
+          aria-label={w.backToMap}
+          onClick={() => {
+            actions.goToBed(null);
+          }}
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path
+              d="M10 7H5.5M5.5 7 8 4.5M5.5 7 8 9.5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <rect
+              x="11"
+              y="4"
+              width="8"
+              height="6.2"
+              rx="1"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.6"
+            />
+            <rect
+              x="11"
+              y="12.2"
+              width="8"
+              height="6.2"
+              rx="1"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.6"
+            />
+          </svg>
+        </button>
       </h2>
       <div className="body-diagram-stage">
-        <svg className="body-outline" viewBox="0 0 200 360" aria-hidden="true" focusable="false">
-          <circle cx="100" cy="40" r="26" />
-          <path d="M90 64h20l4 18H86Z" />
-          <path d="M70 88c0 0-15 22-18 62s6 64 26 72h44c20-8 29-32 26-72s-18-62-26-62c-12 16-40 16-52 0Z" />
-          <path d="M68 104c-28 16-40 56-38 86 2 16 16 18 20 4 6-24 12-54 24-76 2-4 0-12-6-14Z" />
-          <path d="M132 104c28 16 40 56 38 86-2 16-16 18-20 4-6-24-12-54-24-76-2-4 0-12 6-14Z" />
-          <path d="M78 220l-8 100c0 16 16 20 22 8l6-108Z" />
-          <path d="M122 220l8 100c0 16-16 20-22 8l-6-108Z" />
+        <svg className="body-outline" viewBox={BODY_VIEWBOX} aria-hidden="true" focusable="false">
+          {BODY_SILHOUETTE_PATHS.map((d, index) => (
+            <path key={index} className="body-fill" d={d} />
+          ))}
         </svg>
         <div className="body-markers" role="group" aria-label={w.bodyLabel}>
           {body.markers.map((marker) => {

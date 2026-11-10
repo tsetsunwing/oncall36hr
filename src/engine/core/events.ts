@@ -97,6 +97,7 @@ export type NoticeKind =
   | 'ROUND_OFFERED'
   | 'ROUND_STARTED'
   | 'ROUND_ENDED'
+  | 'ROUND_LEFT'
   | 'ROUND_ANSWER_INVALID'
   | 'SELF_CARE_BUSY'
   | 'SELF_CARE_UNAVAILABLE'

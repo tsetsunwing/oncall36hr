@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { enqueue } from '../core/eventQueue';
 import type { EngineEvent } from '../core/events';
 import type { GameState, NewGameParams } from '../core/state';
+import { DOCTOR_CONSULT_LINE } from '../chat/shortReplies';
 import { renderTemplate } from '../chat/tokens';
 import {
   advance,
@@ -26,6 +27,19 @@ const wardParams = (
   difficulty: NewGameParams['difficulty'] = 'MEDIUM',
   mode: NewGameParams['mode'] = 'NIGHT',
 ): NewGameParams => ({ seed, mode, difficulty, playerRank, ward: true });
+
+function withConsultCase(state: GameState, templateId: string): GameState {
+  const id = Object.keys(state.patients).sort()[0];
+  const patient = id ? state.patients[id] : undefined;
+  if (!id || !patient) return state;
+  return {
+    ...state,
+    patients: {
+      ...state.patients,
+      [id]: { ...patient, hidden: { ...patient.hidden, caseTemplateId: templateId } },
+    },
+  };
+}
 
 const ward = (name: string, payload: Record<string, unknown>): EngineEvent =>
   intentEvent({ type: 'EXTENSION', module: 'ward', name, payload: payload as never });
@@ -537,6 +551,68 @@ describe('步步上報（S-3）', () => {
     expect(incoming).toBe(true);
   });
 
+  it('專科來電用姓氏自報，即時處理後醫生留在床邊', () => {
+    const source = fullTables();
+    const tables = {
+      ...source,
+      'call-templates': source['call-templates'].map((row) =>
+        row.kind === 'CALL' ? { ...row, weight: row.id === 'DEPT_REVIEW' ? 100 : 0 } : row,
+      ),
+    };
+    const reduced = handleCallArrival(
+      withConsultCase(engine.init(wardParams('dept-name')), 'hf-01'),
+      {
+        config,
+        tables,
+      },
+    );
+    const call = reduced.state.ward.calls.find((item) => item.templateId === 'DEPT_REVIEW');
+    const line = call?.lines[0];
+    expect(call?.callerName).toMatch(/^[\u4e00-\u9fff]醫生$/);
+    expect(call?.callerName).not.toBe(line?.tokenValues['dept.label']);
+    const spoken = renderTemplate(line?.template ?? '', line?.tokenValues ?? {});
+    expect(spoken).toBe(
+      `我係 ${line?.tokenValues['dept.label'] ?? ''} ${call?.callerName ?? ''}，想上嚟會診 ${line?.tokenValues['patient.bed'] ?? ''} 床。`,
+    );
+    const gone = respondToCall(reduced.state, call?.id ?? '', 'GO_NOW', { config, tables });
+    const present = gone.state.chats[call?.patientId ?? '']?.present ?? [];
+    expect(
+      present.some((person) => person.kind === 'DOCTOR' && person.name === call?.callerName),
+    ).toBe(true);
+    const asked = feed(engine, gone.state, [
+      intentEvent({
+        type: 'SUBMIT_CHAT',
+        patientId: call?.patientId ?? '',
+        text: `@${call?.callerName ?? ''} 你睇下邊方面`,
+      }),
+    ]);
+    const lines = asked.state.chats[call?.patientId ?? '']?.lines ?? [];
+    expect(
+      lines.some((line) => line.speaker.kind === 'DOCTOR' && line.template === DOCTOR_CONSULT_LINE),
+    ).toBe(true);
+    expect(aiRequests(asked.effects)).toHaveLength(0);
+    expect(call?.deptId).toBe('CARDIOLOGY');
+  });
+
+  it('蜂窩織炎唔會收到外科會診', () => {
+    const source = fullTables();
+    const tables = {
+      ...source,
+      'call-templates': source['call-templates'].map((row) =>
+        row.kind === 'CALL' ? { ...row, weight: row.id === 'DEPT_REVIEW' ? 100 : 0 } : row,
+      ),
+    };
+    const started = engine.init(wardParams('no-surgery'));
+    const patients = Object.fromEntries(
+      Object.entries(started.patients).map(([id, patient]) => [
+        id,
+        { ...patient, hidden: { ...patient.hidden, caseTemplateId: 'cell-02' } },
+      ]),
+    );
+    const reduced = handleCallArrival({ ...started, patients }, { config, tables });
+    expect(reduced.state.ward.calls.some((item) => item.templateId === 'DEPT_REVIEW')).toBe(false);
+  });
+
   it('會診同臨床來電到達時寫入對話一次，再響唔會再加', () => {
     const source = fullTables();
     const only = (id: string) => ({
@@ -547,7 +623,10 @@ describe('步步上報（S-3）', () => {
     });
     const state = engine.init(wardParams('call-log'));
     for (const templateId of ['DEPT_REVIEW', 'NURSE_ROUTINE'] as const) {
-      const reduced = handleCallArrival(state, { config, tables: only(templateId) });
+      const reduced = handleCallArrival(
+        templateId === 'DEPT_REVIEW' ? withConsultCase(state, 'ugib-01') : state,
+        { config, tables: only(templateId) },
+      );
       const call = reduced.state.ward.calls.find((item) => item.templateId === templateId);
       const patientId = call?.patientId ?? '';
       const first = call?.lines[0];

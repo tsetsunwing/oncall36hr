@@ -31,6 +31,7 @@ import {
   handleRoundAiResult,
   handleRoundStart,
   handleRoundTimer,
+  leaveRound,
   nextRound,
   passRound,
   ROUND_EVENT_PRIORITY,
@@ -97,6 +98,8 @@ function handleExtension(
       return passRound(state, ctx);
     case 'ROUND_NEXT':
       return nextRound(state, ctx);
+    case 'ROUND_LEAVE':
+      return leaveRound(state);
     case 'SELF_CARE_START': {
       if (state.clock.phase !== 'REGULAR') return reject(state, 'SHIFT_NOT_ACTIVE');
       const parsed = payloads.SELF_CARE_START.safeParse(payload);

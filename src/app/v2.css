@@ -629,6 +629,44 @@ h2,
   border-bottom: 1px solid var(--border);
 }
 
+.body-heading-copy {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.body-patient {
+  overflow: hidden;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--text);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.body-back {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  margin-left: auto;
+  padding: 0;
+  color: #1d2933;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.body-back svg {
+  width: 18px;
+  height: 18px;
+}
+
 .panel > h2 small,
 .side-panel h2 small {
   font-weight: 400;
@@ -1464,13 +1502,22 @@ tr[data-flag='H'] .value-flagged {
 }
 
 /* ---------- 對話／電話 ---------- */
-.tabs {
-  gap: 0;
-  padding: 0 8px;
+.ward-toolbar {
   background: var(--surface);
   border: 1px solid var(--border);
   border-bottom: 0;
   border-radius: 16px 16px 0 0;
+}
+
+.tabs {
+  flex: 1 1 auto;
+  gap: 0;
+  width: auto;
+  min-width: 0;
+  padding: 0 8px;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
 }
 
 .tabs .tab {
@@ -1516,11 +1563,37 @@ tr[data-flag='H'] .value-flagged {
 }
 
 .present-chip {
-  padding: 1px 8px;
-  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  height: 32px;
+  padding: 0 12px;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
   background: var(--accent-soft);
   border: 1px solid var(--border);
   border-radius: 99px;
+}
+
+.present-chip[data-kind='NURSE'],
+.present-chip[data-kind='PATIENT'],
+.present-chip[data-kind='DOCTOR'] {
+  padding: 0;
+}
+
+.present-chip-hit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-height: 32px;
+  padding: 0 12px;
+  line-height: 1;
+  text-align: center;
 }
 
 .chat-form input,

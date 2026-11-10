@@ -70,7 +70,7 @@ export interface PatientView {
   allergies: string[];
 }
 
-export type ChatLineKind = 'PLAYER' | 'NURSE' | 'PATIENT' | 'SYSTEM' | 'PHARMACY';
+export type ChatLineKind = 'PLAYER' | 'NURSE' | 'PATIENT' | 'SYSTEM' | 'PHARMACY' | 'DOCTOR';
 
 export interface ChatLineView {
   id: string;
@@ -88,7 +88,7 @@ export interface ChatLineView {
 
 export interface PresentView {
   id: string;
-  kind: 'NURSE' | 'PATIENT';
+  kind: 'NURSE' | 'PATIENT' | 'DOCTOR';
   name: string;
   mentionName: string;
   typing: boolean;
@@ -806,6 +806,7 @@ export interface GameActions {
   beginRound: () => void;
   passRound: () => void;
   nextRound: () => void;
+  leaveRound: () => void;
   startSelfCare: (actionId: SelfCareCode) => void;
   stopSelfCare: () => void;
   beginHandover: () => void;

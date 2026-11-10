@@ -211,7 +211,7 @@ function CallDetail({
     >
       <p className="call-detail-head">
         <span className="tag" data-tag={call.tag}>
-          {p.tag[call.tag]}
+          {call.tag === 'DEPT' && call.deptLabel ? call.deptLabel : p.tag[call.tag]}
         </span>{' '}
         <span className="tag tag--priority" data-priority={call.priority}>
           {p.priority[call.priority]}
@@ -244,6 +244,16 @@ function CallDetail({
       <ExchangePane key={call.id} call={call} actions={actions} />
       {call.canRespond ? (
         <div className="call-actions" role="group" aria-label={p.respondGroup}>
+          <button
+            type="button"
+            className="btn btn-primary"
+            data-testid="respond-go-now"
+            onClick={() => {
+              actions.respondCall(call.id, 'GO_NOW');
+            }}
+          >
+            {call.tag === 'DEPT' ? p.comeToBedside : p.goNow}
+          </button>
           <button
             type="button"
             className="btn"
@@ -420,7 +430,7 @@ export function PhonePanel({
                     }}
                   >
                     <span className="tag" data-tag={c.tag}>
-                      {p.tag[c.tag]}
+                      {c.tag === 'DEPT' && c.deptLabel ? c.deptLabel : p.tag[c.tag]}
                     </span>
                     <span className="call-row-who">
                       {c.callerName.length > 0 ? c.callerName : p.tag[c.tag]}

@@ -9,6 +9,7 @@ import type { Patient } from '../case/patient';
 import type { Present } from '../chat/chatTypes';
 import { appendLine, DIALOGUE_KIND, handleDialogueResult } from '../chat/dialogue';
 import { parseMentions } from '../chat/mentions';
+import { DOCTOR_CONSULT_LINE } from '../chat/shortReplies';
 import { requestAi } from '../core/ai';
 import type { PlayerIntent, Reduction } from '../core/events';
 import type { EngineContext, EngineModule } from '../core/module';
@@ -269,12 +270,30 @@ export const bedsideModule: EngineModule = {
           orderId: null,
         });
         const addressed = parseMentions(text, thread.present);
+        const doctors = thread.present.filter(
+          (person) => person.kind === 'DOCTOR' && addressed.includes(person.id),
+        );
+        const spoken = doctors.reduce(
+          (current, doctor) =>
+            appendLine(current, {
+              t: submittedAt,
+              patientId: patient.id,
+              speaker: { kind: 'DOCTOR', id: doctor.id },
+              template: DOCTOR_CONSULT_LINE,
+              tokenValues: {},
+              orderId: null,
+            }),
+          withPlayerLine,
+        );
+        const doctorOnly =
+          addressed.length > 0 &&
+          addressed.every((id) => doctors.some((doctor) => doctor.id === id));
 
         const local = matchQuickPhrase(text, ctx.tables);
         const row = local && ctx.tables['order-catalog'].find((r) => r.id === local.catalogId);
         if (local && row) {
           return placeAndAck(
-            withPlayerLine,
+            spoken,
             patient,
             [
               {
@@ -291,11 +310,15 @@ export const bedsideModule: EngineModule = {
           );
         }
 
+        if (doctorOnly) return { state: spoken, effects: [] };
+
         const context = {
           prompt: {
             text,
             patientId: patient.id,
-            speakers: thread.present.map((p) => ({ id: p.id, kind: p.kind, name: p.name })),
+            speakers: thread.present
+              .filter((person) => person.kind !== 'DOCTOR')
+              .map((p) => ({ id: p.id, kind: p.kind, name: p.name })),
             catalog: ctx.tables['order-catalog'].map((r) => ({
               id: r.id,
               type: r.type,
@@ -320,7 +343,7 @@ export const bedsideModule: EngineModule = {
           },
           local: { patientId: patient.id, playerText: text, submittedAt },
         };
-        const queued = requestAi(withPlayerLine, ORDER_PARSE_KIND, context);
+        const queued = requestAi(spoken, ORDER_PARSE_KIND, context);
         return { state: queued.state, effects: [queued.effect] };
       }
 

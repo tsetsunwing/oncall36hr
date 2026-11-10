@@ -215,11 +215,7 @@ export function MonitorPanel({ patient, monitor, onMeasureNibp }: MonitorPanelPr
     >
       <header className="monitor-head">
         <h2 id="monitor-heading" className="monitor-title">
-          Bed {patient.bed} · {patient.name}
-          <span className="monitor-sub">
-            {patient.age}
-            {patient.sex} · {patient.complaint}
-          </span>
+          {m.heading}
         </h2>
         <p className="monitor-badges">
           <span className="monitor-rhythm" data-level={monitor.rhythmAlarm} data-testid="rhythm">

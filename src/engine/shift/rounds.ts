@@ -96,7 +96,10 @@ function schedule(
   };
 }
 
-function endRound(state: GameState): Reduction {
+function endRound(
+  state: GameState,
+  notice: 'ROUND_ENDED' | 'ROUND_LEFT' = 'ROUND_ENDED',
+): Reduction {
   const active = state.shift.rounds.active;
   if (!active) return none(state);
   const next = withShift(state, {
@@ -115,7 +118,20 @@ function endRound(state: GameState): Reduction {
       ],
     },
   });
-  return { state: next, effects: [noticeEffect('ROUND_ENDED', 'info')] };
+  return { state: next, effects: [noticeEffect(notice, 'info')] };
+}
+
+/** 中途離開：已揭曉的題目保留，其餘不再問，遊戲時間恢復。 */
+export function leaveRound(state: GameState): Reduction {
+  if (!state.shift.rounds.active) return none(state);
+  const ended = endRound(state, 'ROUND_LEFT');
+  return {
+    state: {
+      ...ended.state,
+      pendingAi: ended.state.pendingAi.filter((item) => !item.kind.startsWith('rounds.')),
+    },
+    effects: ended.effects,
+  };
 }
 
 /** 去到隊列第 cursor 個病人並向 AI 要題目；冇病人可問就結束巡房 */

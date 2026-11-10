@@ -17,7 +17,7 @@ import type { JsonValue } from '../core/eventQueue';
 import type { Effect, Reduction } from '../core/events';
 import type { EngineContext } from '../core/module';
 import type { GameState, PendingAiRequest } from '../core/state';
-import type { ChatLine, ChatThread } from './chatTypes';
+import type { ChatLine, ChatThread, Present } from './chatTypes';
 import { shortReplyTemplate } from './shortReplies';
 import { extractTokens, leaksDiagnosis, validateTemplate } from './tokens';
 
@@ -151,6 +151,11 @@ interface SpeakerLike {
 
 function speakerView(present: SpeakerLike) {
   return { id: present.id, kind: present.kind, name: present.name, tone: present.tone };
+}
+
+/** 會診醫生只顯示喺床邊，唔交俾 AI 當發言人。 */
+function isAddressable(person: Present): person is Present & { kind: 'NURSE' | 'PATIENT' } {
+  return person.kind === 'NURSE' || person.kind === 'PATIENT';
 }
 
 /** 藥房唔喺床邊，只經電話出現（spec §15）：獨立 speaker，唔入 thread.present */
@@ -305,7 +310,7 @@ export function queueDialogue(
   const beats = scripted.rest;
   const template = ctx.tables['case-templates'].find((c) => c.id === patient.hidden.caseTemplateId);
   const speakers = [
-    ...thread.present.map(speakerView),
+    ...thread.present.filter(isAddressable).map(speakerView),
     ...(beats.some((beat) => beat.speaker === 'PHARMACY')
       ? [speakerView(pharmacySpeaker(ctx))]
       : []),
@@ -397,7 +402,7 @@ export function handleDialogueResult(
     ctx.tables['case-templates'].find((c) => c.id === patient?.hidden.caseTemplateId)
       ?.diagnosisTerms ?? [];
   const speakers = new Map<string, SpeakerLike>([
-    ...thread.present.map((p) => [p.id, p] as const),
+    ...thread.present.filter(isAddressable).map((p) => [p.id, p] as const),
     [PHARMACY_SPEAKER_ID, pharmacySpeaker(ctx)],
   ]);
   if (lines.length > maxLinesPerTurn) return rejectAiResult(state, pending);
