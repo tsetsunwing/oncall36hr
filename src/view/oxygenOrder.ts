@@ -158,7 +158,8 @@ export function buildOxygenOrder(draft: OxygenDraft): OxygenBuild {
     parts.push(`${draft.fio2.trim()}%`, `${draft.peep.trim()} cmH2O`);
   }
 
-  parts.push(shortOptionLabel(target.phrase), shortOptionLabel(humid.phrase));
+  parts.push(shortOptionLabel(target.phrase));
+  if (humid.id !== 'none') parts.push(shortOptionLabel(humid.phrase));
   const checks = draft.checks.filter((item) => item.checked).map((item) => item.label);
   const summary = checks.length > 0 ? `${parts.join(' ')} | ${checks.join(', ')}` : parts.join(' ');
   if (oxygenOrderRejected(device.catalogId, dose, rate)) return { ok: false, error: 'incomplete' };

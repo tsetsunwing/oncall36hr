@@ -24,7 +24,7 @@ export function heartRateBand(hr: number): VitalBand {
 export function spo2Band(spo2: number): VitalBand {
   if (spo2 <= 91) return 'severe';
   if (between(spo2, 92, 93)) return 'moderate';
-  if (between(spo2, 94, 95)) return 'mild';
+  // 94–100 落在常用目標 94–98% 內，不當異常，數值不閃。
   return 'normal';
 }
 

@@ -616,7 +616,8 @@ h2,
 .panel > h2,
 .side-panel h2,
 .floor-plan h2,
-.place-room h2 {
+.place-room h2,
+.body-diagram > h2 {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -2781,6 +2782,31 @@ button.place-room-action:disabled:not([data-active='true']) {
   border-radius: 999px;
 }
 
+.drug-order-results {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 6px;
+  padding: 6px 8px;
+  background: #f4f7f8;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.drug-order-class-filter {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.drug-order-class-filter .drug-order-select {
+  width: 14rem;
+}
+
 .drug-order-actions {
   display: flex;
   gap: 0.4rem;
@@ -2796,8 +2822,24 @@ button.place-room-action:disabled:not([data-active='true']) {
   margin-bottom: 52px;
 }
 
-.chip-menu--panel {
-  width: min(36rem, calc(100vw - 32px));
+.chip-group:has(.chip-menu--panel) {
+  position: static;
+}
+
+.chip-menu.chip-menu--panel {
+  right: 16px;
+  left: 16px;
+  z-index: 8;
+  width: auto;
+  max-height: none;
+  overflow: visible;
+}
+
+.observe-panel .drug-order-actions {
+  margin-top: 8px;
+  padding-top: 8px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
 }
 
 .observe-panel {
