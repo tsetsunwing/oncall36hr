@@ -60,6 +60,8 @@ describe('氧氣治療組句', () => {
     expect(bvm.ok).toBe(false);
     const edge = buildOxygenOrder(draft({ devicePhrase: phrase('nrbm'), flow: '15' }));
     expect(edge.ok).toBe(true);
+    const decimal = buildOxygenOrder(draft({ devicePhrase: phrase('nc'), flow: '4.5' }));
+    expect(decimal.ok).toBe(false);
   });
 
   it('文丘里只交 FiO2，高流量同正壓只顯示適用欄位的數值', () => {

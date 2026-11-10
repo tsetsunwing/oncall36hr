@@ -450,6 +450,7 @@ main.wide {
   border-color: #107c67;
 }
 
+.present-chip[data-kind='NURSE'],
 .present-chip[data-kind='PATIENT'],
 .present-chip[data-kind='DOCTOR'] {
   padding: 0;

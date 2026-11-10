@@ -209,6 +209,18 @@ export function openPharmacyCheckCall(
   return interrupt(next, row.priority, ctx);
 }
 
+/** 病例表列明先會收到該科會診。蜂窩織炎、肺炎這類唔會隨機叫 Surgery。 */
+function consultDeptsOf(
+  state: GameState,
+  patientId: string,
+  ctx: EngineContext,
+): readonly string[] {
+  const templateId = state.patients[patientId]?.hidden.caseTemplateId;
+  if (!templateId) return [];
+  const row = ctx.tables['case-templates'].find((item) => item.id === templateId);
+  return row ? [...row.consultDepts] : [];
+}
+
 export function handleCallArrival(state: GameState, ctx: EngineContext): Reduction {
   const eligible = callTemplates(ctx).filter((row) => templateEligible(state, row, ctx));
   const cursor = new RngCursor(state.rng);
@@ -220,8 +232,13 @@ export function handleCallArrival(state: GameState, ctx: EngineContext): Reducti
   switch (row.needs) {
     case 'ANY_PATIENT': {
       const here = next.ward.location.bed;
+      const pool = new Set(row.deptPool ?? []);
       const ids = Object.keys(next.patients)
         .filter((id) => !bedsideCaller(row.tag) || next.patients[id]?.bed !== here)
+        .filter(
+          (id) =>
+            row.tag !== 'DEPT' || consultDeptsOf(next, id, ctx).some((dept) => pool.has(dept)),
+        )
         .sort();
       patientId = ids.length > 0 ? (ids[cursor.int('calls', 0, ids.length)] ?? null) : null;
       break;
@@ -258,9 +275,16 @@ export function handleCallArrival(state: GameState, ctx: EngineContext): Reducti
 
   const patient = patientId ? next.patients[patientId] : undefined;
   const deptPool = row.deptPool ?? [];
+  const allowedDepts =
+    row.tag === 'DEPT' && patientId
+      ? deptPool.filter((dept) => consultDeptsOf(next, patientId, ctx).includes(dept))
+      : [];
+  if (row.tag === 'DEPT' && allowedDepts.length === 0) {
+    return { state: { ...next, rng: cursor.rng }, effects: [] };
+  }
   const deptId =
     row.tag === 'DEPT'
-      ? (deptPool[cursor.int('calls', 0, Math.max(1, deptPool.length))] ?? null)
+      ? (allowedDepts[cursor.int('calls', 0, Math.max(1, allowedDepts.length))] ?? null)
       : null;
   const dept = deptId ? ctx.tables['consult-departments'].find((d) => d.id === deptId) : undefined;
 

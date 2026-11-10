@@ -28,6 +28,19 @@ const wardParams = (
   mode: NewGameParams['mode'] = 'NIGHT',
 ): NewGameParams => ({ seed, mode, difficulty, playerRank, ward: true });
 
+function withConsultCase(state: GameState, templateId: string): GameState {
+  const id = Object.keys(state.patients).sort()[0];
+  const patient = id ? state.patients[id] : undefined;
+  if (!id || !patient) return state;
+  return {
+    ...state,
+    patients: {
+      ...state.patients,
+      [id]: { ...patient, hidden: { ...patient.hidden, caseTemplateId: templateId } },
+    },
+  };
+}
+
 const ward = (name: string, payload: Record<string, unknown>): EngineEvent =>
   intentEvent({ type: 'EXTENSION', module: 'ward', name, payload: payload as never });
 
@@ -546,7 +559,13 @@ describe('步步上報（S-3）', () => {
         row.kind === 'CALL' ? { ...row, weight: row.id === 'DEPT_REVIEW' ? 100 : 0 } : row,
       ),
     };
-    const reduced = handleCallArrival(engine.init(wardParams('dept-name')), { config, tables });
+    const reduced = handleCallArrival(
+      withConsultCase(engine.init(wardParams('dept-name')), 'hf-01'),
+      {
+        config,
+        tables,
+      },
+    );
     const call = reduced.state.ward.calls.find((item) => item.templateId === 'DEPT_REVIEW');
     const line = call?.lines[0];
     expect(call?.callerName).toMatch(/^[\u4e00-\u9fff]醫生$/);
@@ -572,6 +591,26 @@ describe('步步上報（S-3）', () => {
       lines.some((line) => line.speaker.kind === 'DOCTOR' && line.template === DOCTOR_CONSULT_LINE),
     ).toBe(true);
     expect(aiRequests(asked.effects)).toHaveLength(0);
+    expect(call?.deptId).toBe('CARDIOLOGY');
+  });
+
+  it('蜂窩織炎唔會收到外科會診', () => {
+    const source = fullTables();
+    const tables = {
+      ...source,
+      'call-templates': source['call-templates'].map((row) =>
+        row.kind === 'CALL' ? { ...row, weight: row.id === 'DEPT_REVIEW' ? 100 : 0 } : row,
+      ),
+    };
+    const started = engine.init(wardParams('no-surgery'));
+    const patients = Object.fromEntries(
+      Object.entries(started.patients).map(([id, patient]) => [
+        id,
+        { ...patient, hidden: { ...patient.hidden, caseTemplateId: 'cell-02' } },
+      ]),
+    );
+    const reduced = handleCallArrival({ ...started, patients }, { config, tables });
+    expect(reduced.state.ward.calls.some((item) => item.templateId === 'DEPT_REVIEW')).toBe(false);
   });
 
   it('會診同臨床來電到達時寫入對話一次，再響唔會再加', () => {
@@ -584,7 +623,10 @@ describe('步步上報（S-3）', () => {
     });
     const state = engine.init(wardParams('call-log'));
     for (const templateId of ['DEPT_REVIEW', 'NURSE_ROUTINE'] as const) {
-      const reduced = handleCallArrival(state, { config, tables: only(templateId) });
+      const reduced = handleCallArrival(
+        templateId === 'DEPT_REVIEW' ? withConsultCase(state, 'ugib-01') : state,
+        { config, tables: only(templateId) },
+      );
       const call = reduced.state.ward.calls.find((item) => item.templateId === templateId);
       const patientId = call?.patientId ?? '';
       const first = call?.lines[0];

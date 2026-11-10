@@ -234,6 +234,7 @@
       "code": "FULL"
     },
     "presentingComplaint": "氣促、雙腳腫",
+    "consultDepts": ["CARDIOLOGY"],
     "complexity": "COMPLEX",
     "allergies": [],
     "diagnosisIds": ["heart-failure"],
@@ -263,6 +264,7 @@
       "code": "FULL"
     },
     "presentingComplaint": "夜間氣促、咳嗽",
+    "consultDepts": ["CARDIOLOGY"],
     "complexity": "COMPLEX",
     "allergies": [],
     "diagnosisIds": ["heart-failure"],
@@ -292,6 +294,7 @@
       "code": "FULL"
     },
     "presentingComplaint": "黑便、頭暈",
+    "consultDepts": ["SURGERY"],
     "complexity": "COMPLEX",
     "allergies": [],
     "diagnosisIds": ["gi-bleed"],
@@ -321,6 +324,7 @@
       "code": "FULL"
     },
     "presentingComplaint": "嘔血、上腹痛",
+    "consultDepts": ["SURGERY"],
     "complexity": "COMPLEX",
     "allergies": [],
     "diagnosisIds": ["gi-bleed"],
@@ -392,6 +396,7 @@
       "code": "FULL"
     },
     "presentingComplaint": "胸口翳痛、出冷汗",
+    "consultDepts": ["CARDIOLOGY"],
     "allergies": [],
     "diagnosisIds": ["acs"],
     "diagnosisTerms": [

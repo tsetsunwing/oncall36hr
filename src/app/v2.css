@@ -1578,6 +1578,7 @@ tr[data-flag='H'] .value-flagged {
   border-radius: 99px;
 }
 
+.present-chip[data-kind='NURSE'],
 .present-chip[data-kind='PATIENT'],
 .present-chip[data-kind='DOCTOR'] {
   padding: 0;

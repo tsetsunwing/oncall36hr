@@ -124,11 +124,11 @@ export function OxygenOrderForm({
             {t.flow}
             <input
               type="text"
-              inputMode="decimal"
+              inputMode="numeric"
               value={flow}
               data-testid="oxygen-flow"
               onChange={(event) => {
-                setFlow(event.target.value);
+                setFlow(event.target.value.replace(/\D/g, ''));
               }}
             />
           </label>

@@ -73,6 +73,14 @@ export function oxygenDeviceByPhrase(phrase: string) {
   return id ? oxygenDeviceById(id) : undefined;
 }
 
+/** 氧氣流量只接受整數 L/min。 */
+export function parseInteger(text: string): number | null {
+  const trimmed = text.trim();
+  if (!/^\d+$/.test(trimmed)) return null;
+  const value = Number(trimmed);
+  return Number.isFinite(value) ? value : null;
+}
+
 /** 只接受普通十進數字。科學記號與空白尾碼都不當成數值。 */
 export function parsePlainNumber(text: string): number | null {
   const trimmed = text.trim();
@@ -89,7 +97,7 @@ function rangeError(
   unit: string,
 ): OxygenFieldError | 'empty' | null {
   if (text.trim().length === 0) return 'empty';
-  const value = parsePlainNumber(text);
+  const value = field === 'flow' ? parseInteger(text) : parsePlainNumber(text);
   if (value === null || value < min || value > max) return { field, min, max, unit };
   return null;
 }
@@ -131,7 +139,7 @@ export function buildOxygenOrder(draft: OxygenDraft): OxygenBuild {
   let rate: PlacedOrderParams['rate'];
 
   if (device.kind === 'flow') {
-    const flow = parsePlainNumber(draft.flow);
+    const flow = parseInteger(draft.flow);
     if (flow === null) return { ok: false, error: 'incomplete' };
     dose = { value: flow, unit: 'L/min' };
     parts.push(`${draft.flow.trim()} L/min`);
@@ -143,7 +151,7 @@ export function buildOxygenOrder(draft: OxygenDraft): OxygenBuild {
     dose = { value: chosen.fio2, unit: '%' };
     parts.push(shortOptionLabel(chosen.phrase));
   } else if (device.kind === 'hfnc') {
-    const flow = parsePlainNumber(draft.flow);
+    const flow = parseInteger(draft.flow);
     const fio2 = parsePlainNumber(draft.fio2);
     if (flow === null || fio2 === null) return { ok: false, error: 'incomplete' };
     dose = { value: flow, unit: 'L/min' };

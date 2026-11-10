@@ -49,6 +49,8 @@ export interface CaseTemplateRow {
   symptomsByState: Readonly<Record<string, readonly string[]>>;
   reversibleCauseIds: readonly string[];
   deathCause: string;
+  /** 呢個病例先會收到的專科會診。空陣列＝唔會有隨機專科來電。 */
+  consultDepts: readonly string[];
 }
 
 export type OrderType =

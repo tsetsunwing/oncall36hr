@@ -132,6 +132,8 @@ export const caseTemplateSchema = z
     reversibleCauseIds: z.array(id).default([]),
     /** M5：死亡證明預填嘅死因文字（虛構病例內容；死亡後先顯示） */
     deathCause: z.string().min(1).default('心臟停頓（死因待確認）'),
+    /** 呢個病例先會收到的專科會診。空陣列＝唔會有隨機專科來電。 */
+    consultDepts: z.array(id).default([]),
   })
   .strict();
 

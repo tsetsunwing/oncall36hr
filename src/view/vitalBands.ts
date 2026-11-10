@@ -39,13 +39,20 @@ export function systolicBand(sbp: number): VitalBand {
 export function diastolicBand(dbp: number): VitalBand {
   if (dbp < 40 || dbp > 110) return 'severe';
   if (between(dbp, 40, 49) || between(dbp, 91, 110)) return 'moderate';
-  if (between(dbp, 50, 59) || between(dbp, 81, 90)) return 'mild';
+  if (between(dbp, 50, 59) || dbp === 90) return 'mild';
+  // 81–89 未到高血壓警戒，133/81 這類讀數不閃。
   return 'normal';
 }
 
-/** NIBP 同 ABP 共用。SBP、DBP 各自評級，取較差嘅一級。 */
+/** 畫面 MAP 用四捨五入。高警戒：SBP ≥140、DBP ≥90、MAP ≥100。 */
+export function mapBand(sbp: number, dbp: number): VitalBand {
+  const map = Math.round((sbp + 2 * dbp) / 3);
+  return map >= 100 ? 'mild' : 'normal';
+}
+
+/** NIBP 同 ABP 共用。SBP、DBP、MAP 各自評級，取較差嘅一級。 */
 export function bloodPressureBand(sbp: number, dbp: number): VitalBand {
-  return worseBand(systolicBand(sbp), diastolicBand(dbp));
+  return worseBand(worseBand(systolicBand(sbp), diastolicBand(dbp)), mapBand(sbp, dbp));
 }
 
 export function respiratoryRateBand(rr: number): VitalBand {

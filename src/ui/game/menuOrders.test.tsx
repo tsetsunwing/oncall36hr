@@ -73,6 +73,9 @@ describe('治療同觀察選單', () => {
     expect(screen.getByTestId('oxygen-flow')).toBeInTheDocument();
     expect(screen.queryByTestId('oxygen-fio2')).not.toBeInTheDocument();
     expect(screen.queryByTestId('oxygen-peep')).not.toBeInTheDocument();
+    await user.type(screen.getByTestId('oxygen-flow'), '4.5');
+    expect(screen.getByTestId('oxygen-flow')).toHaveValue('45');
+    await user.clear(screen.getByTestId('oxygen-flow'));
     await user.type(screen.getByTestId('oxygen-flow'), '8');
     expect(screen.getByTestId('oxygen-flow')).toHaveValue('8');
     expect(screen.getByTestId('oxygen-error')).toHaveTextContent('1–6');

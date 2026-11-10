@@ -365,9 +365,15 @@ describe('ChatPanel', () => {
     await user.type(screen.getByRole('combobox'), '@陳大文 還有沒有咳嗽{Enter}');
     expect(actions.submitChat).toHaveBeenLastCalledWith('p1', '@陳大文 還有沒有咳嗽');
 
-    const cancel = screen.getByRole('button', { name: ui.game.chat.stopAddressing('陳大文') });
-    await user.click(cancel);
-    expect(cancel).toHaveAttribute('aria-pressed', 'false');
+    const nurse = screen.getByRole('button', { name: ui.game.chat.addressPatient('何姑娘') });
+    await user.click(nurse);
+    expect(chip).toHaveAttribute('aria-pressed', 'false');
+    expect(nurse).toHaveAttribute('aria-pressed', 'true');
+    await user.type(screen.getByRole('combobox'), '量血壓{Enter}');
+    expect(actions.submitChat).toHaveBeenLastCalledWith('p1', '@何姑娘 量血壓');
+
+    await user.click(nurse);
+    expect(nurse).toHaveAttribute('aria-pressed', 'false');
     expect(screen.queryByTestId('chat-addressee')).toBeNull();
     await user.type(screen.getByRole('combobox'), '量血壓{Enter}');
     expect(actions.submitChat).toHaveBeenLastCalledWith('p1', '量血壓');
