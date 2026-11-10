@@ -108,6 +108,15 @@ describe('身體圖只顯示在位裝置', () => {
       tables,
     );
     expect(body.markers.find((item) => item.kind === 'oxygen')?.label).toBe('HFNC');
+    const bagged = selectBodyDiagram(
+      patientWith(['oxygen.on']),
+      {
+        o1: order('o1', 'oxygen.nasal', 'DONE'),
+        o2: order('o2', 'proc.bvm', 'DONE'),
+      },
+      tables,
+    );
+    expect(bagged.markers.find((item) => item.kind === 'oxygen')?.label).toBe('BVM');
     expect(body.markers.find((item) => item.kind === 'iv')?.label).toBe('IV');
     expect(body.markers.filter((item) => item.kind === 'drain').map((item) => item.label)).toEqual([
       'left chest',

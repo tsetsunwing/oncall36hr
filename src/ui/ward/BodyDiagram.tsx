@@ -1,3 +1,4 @@
+import { PersonStanding } from 'lucide-react';
 import { ui } from '@/i18n';
 import type { BodyDiagramView, GameActions } from '@/view';
 
@@ -18,9 +19,10 @@ export function BodyDiagram({
       aria-labelledby="body-diagram-heading"
       data-testid="body-diagram"
     >
-      <header className="floor-plan-head">
-        <h2 id="body-diagram-heading">{w.bodyHeading}</h2>
-      </header>
+      <h2 id="body-diagram-heading">
+        <PersonStanding className="heading-icon" size={16} strokeWidth={2} aria-hidden="true" />
+        <span className="heading-label">{w.bodyHeading}</span>
+      </h2>
       <div className="body-diagram-stage">
         <svg className="body-outline" viewBox="0 0 200 360" aria-hidden="true" focusable="false">
           <circle cx="100" cy="40" r="26" />

@@ -766,15 +766,15 @@ describe('ChatPanel', () => {
     expect(within(hyoscine).getByText('antispasmodics')).toBeInTheDocument();
     expect(within(hyoscine).getByText('anaesthetics')).toBeInTheDocument();
     expect(hyoscine.querySelectorAll('.drug-order-class')).toHaveLength(2);
-    await user.selectOptions(classFilter, 'GENERAL ANAESTHESIA');
+    await user.selectOptions(screen.getByTestId('drug-order-class'), 'GENERAL ANAESTHESIA');
     expect(screen.getByRole('option', { name: /Hyoscine/ })).toBeInTheDocument();
     expect(screen.queryByRole('option', { name: /Amoxicillin/ })).not.toBeInTheDocument();
 
-    await user.selectOptions(classFilter, '');
+    await user.selectOptions(screen.getByTestId('drug-order-class'), '');
     await user.clear(name);
     await user.type(name, 'ace');
     expect(screen.getByRole('option', { name: 'Acetamide' })).toBeInTheDocument();
-    await user.selectOptions(classFilter, 'ANTIBACTERIAL DRUGS');
+    await user.selectOptions(screen.getByTestId('drug-order-class'), 'ANTIBACTERIAL DRUGS');
     expect(screen.queryByRole('option', { name: 'Acetamide' })).not.toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: ui.game.chat.drugOrder.cancel }));

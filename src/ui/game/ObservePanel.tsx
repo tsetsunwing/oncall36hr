@@ -14,8 +14,10 @@ import { ChoiceSelect } from './ChoiceSelect';
 
 export function ObservePanel({
   onSubmit,
+  onClose,
 }: {
   onSubmit: (order: { catalogId: string; text: string; params: PlacedOrderParams }) => void;
+  onClose: () => void;
 }) {
   const t = ui.game.chat.observe;
   const [parameter, setParameter] = useState<ObserveParameterId>('vitals');
@@ -79,6 +81,9 @@ export function ObservePanel({
         ) : null}
       </div>
       <div className="drug-order-actions">
+        <button type="button" className="btn" data-testid="observe-cancel" onClick={onClose}>
+          {ui.game.chat.oxygen.cancel}
+        </button>
         <button type="submit" className="btn btn-primary" data-testid="observe-confirm">
           {t.confirm}
         </button>

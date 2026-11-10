@@ -175,7 +175,7 @@ export function DrugOrderForm({
           }}
           onBlur={(event) => {
             const next = event.relatedTarget;
-            if (next instanceof Element && next.closest('.drug-order-class-filter')) return;
+            if (next instanceof Element && next.closest('.drug-order-results')) return;
             setListOpen(false);
           }}
           onChange={(event) => {
@@ -189,23 +189,60 @@ export function DrugOrderForm({
           }}
         />
       </label>
-      {treatmentSearch ? (
-        <label className="drug-order-field drug-order-class-filter">
-          {t.drugClass}
-          <ChoiceSelect
-            testId="drug-order-class"
-            value={drugClass ?? ''}
-            blankLabel={t.everyClass}
-            options={treatmentClasses}
-            optionLabel={shortClassLabel}
-            onValue={(next) => {
-              setDrugClass(next.length > 0 ? next : null);
-              setListOpen(true);
-            }}
-          />
-        </label>
-      ) : null}
-      {suggestionsOpen ? (
+      {treatmentSearch && listOpen && query.trim().length >= 3 ? (
+        <div className="drug-order-results">
+          <div className="drug-order-class-filter">
+            <span>{t.classFilter}</span>
+            <ChoiceSelect
+              testId="drug-order-class"
+              value={drugClass ?? ''}
+              blankLabel={t.everyClass}
+              options={treatmentClasses}
+              optionLabel={shortClassLabel}
+              onValue={(next) => {
+                setDrugClass(next.length > 0 ? next : null);
+                setListOpen(true);
+              }}
+            />
+          </div>
+          {matches.length > 0 ? (
+            <ul
+              id="drug-order-matches"
+              className="drug-order-matches"
+              role="listbox"
+              aria-label={t.matches}
+            >
+              {matches.map((item) => (
+                <li key={item.id}>
+                  <button
+                    type="button"
+                    role="option"
+                    aria-selected={item.id === selectedId}
+                    aria-label={
+                      (item.classes ?? []).length > 0
+                        ? [item.label, ...(item.classes ?? []).map(shortClassLabel)].join(', ')
+                        : item.label
+                    }
+                    onMouseDown={(event) => {
+                      event.preventDefault();
+                      setSelectedId(item.id);
+                      setQuery(item.label);
+                      setListOpen(false);
+                    }}
+                  >
+                    <span className="drug-order-match-name">{item.label}</span>
+                    {(item.classes ?? []).map((name) => (
+                      <span key={name} className="drug-order-class">
+                        {shortClassLabel(name)}
+                      </span>
+                    ))}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </div>
+      ) : suggestionsOpen ? (
         <ul
           id="drug-order-matches"
           className="drug-order-matches"
