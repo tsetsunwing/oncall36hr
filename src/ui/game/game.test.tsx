@@ -213,34 +213,41 @@ describe('閃爍數值：只由 CSS 驅動，並尊重 reduced-motion', () => {
     );
     expect(css).not.toMatch(/text-decoration\s*:[^;]*blink/);
   });
-  it('同一格嘅驚嘆號跟數值嘅動畫時長同延遲', () => {
+  it('同一格嘅驚嘆號同數字共用一個動畫', () => {
+    const shared =
+      ".tile:is([data-band='mild'], [data-band='moderate'], [data-band='severe']) .tile-reading";
+    expect(css).toContain(`${shared} {`);
+    expect(css).toMatch(
+      new RegExp(
+        `${shared.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*\\{[^}]*animation:\\s*monitor-blink\\s+1\\.4s\\s+steps\\(1,\\s*end\\)\\s+0s\\s+infinite`,
+      ),
+    );
+    expect(css).toMatch(
+      /\.tile\[data-band='severe'\] \.tile-reading\s*\{[^}]*animation-duration:\s*0\.7s/,
+    );
+
     const rules = [...css.matchAll(/([^{}@]+)\{([^{}]*)\}/g)].map((match) => ({
-      selectors: (match[1] ?? '').split(',').map((part) => part.trim()),
+      selector: (match[1] ?? '').trim(),
       body: (match[2] ?? '').trim(),
     }));
-    const bodies = (selector: string) =>
-      rules.filter((rule) => rule.selectors.includes(selector)).map((rule) => rule.body);
-
-    expect(bodies(".tile[data-band='moderate'] .vital-mark")).toEqual(
-      bodies(".tile[data-band='moderate'] .tile-value"),
+    const targetsMarkOrNumber = (selector: string) =>
+      /\.vital-mark(?![\w-])|\.tile-value(?![\w-])|\.num(?![\w-])/.test(selector);
+    for (const rule of rules) {
+      if (!targetsMarkOrNumber(rule.selector)) continue;
+      if (!/\banimation/.test(rule.body)) continue;
+      expect(rule.body.replace(/\s+/g, '')).toBe('animation:none;');
+    }
+    const tileAnimations = rules.filter(
+      (rule) => rule.selector === shared && /\banimation\s*:/.test(rule.body),
     );
-    expect(bodies(".tile[data-band='severe'] .vital-mark")).toEqual(
-      bodies(".tile[data-band='severe'] .tile-value"),
-    );
-    expect(bodies(".tile[data-band='moderate'] .vital-mark").join('\n')).toMatch(/1\.4s/);
-    expect(bodies(".tile[data-band='severe'] .vital-mark").join('\n')).toMatch(
-      /animation-duration:\s*0\.7s/,
-    );
-    expect(bodies(".tile[data-band='moderate'] .tile-value").join('\n')).not.toMatch(
-      /animation-delay/,
-    );
-    expect(bodies(".tile[data-band='severe'] .tile-value").join('\n')).not.toMatch(
-      /animation-delay/,
-    );
-    expect(css).toMatch(/\.tile\[data-band='mild'\] \.tile-value/);
+    expect(tileAnimations).toHaveLength(1);
+    expect(tileAnimations[0]?.body).not.toMatch(/animation-delay/);
     expect(css).toMatch(/\.vital-mark\[data-band='severe'\]/);
-    expect(css).not.toMatch(/\.tile\[data-band='normal'\] \.tile-value/);
+    expect(css).not.toMatch(/\.tile\[data-band='normal'\][^{]*animation/);
     expect(css).not.toMatch(/\.tile\[data-band='mild'\] \.vital-mark/);
+    expect(css).not.toMatch(/\.vital-mark[^{]*\{[^}]*opacity\s*:\s*0\b/);
+    expect(css).not.toMatch(/\.vital-mark[^{]*\{[^}]*visibility\s*:\s*hidden/);
+    expect(css).not.toMatch(/\.vital-mark[^{]*\{[^}]*display\s*:\s*none/);
     expect(css).toMatch(
       /prefers-reduced-motion: reduce\)\s*\{[^}]*\.tile \.vital-mark[^}]*\{\s*animation:\s*none/,
     );
