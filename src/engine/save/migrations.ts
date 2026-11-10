@@ -268,6 +268,13 @@ function migrateV11toV12(raw: RawState): RawState {
   };
 }
 
+/** schema 12 → 13：開局病房。舊存檔未揀過，當作內科普通病房。 */
+function migrateV12toV13(raw: RawState): RawState {
+  const home = raw.homeWard;
+  if (home && typeof home === 'object') return raw;
+  return { ...raw, homeWard: { kind: 'MEDICINE' } };
+}
+
 export const migrations: MigrationRegistry = {
   1: migrateV1toV2,
   2: migrateV2toV3,
@@ -280,6 +287,7 @@ export const migrations: MigrationRegistry = {
   9: migrateV9toV10,
   10: migrateV10toV11,
   11: migrateV11toV12,
+  12: migrateV12toV13,
 };
 
 export type MigrateResult =

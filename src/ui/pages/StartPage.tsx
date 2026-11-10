@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { ui } from '@/i18n';
 import { normalizeSettings, validateSettings, type SaveSlotView, type Settings } from '@/storage';
-import type { StartGate } from '@/view';
+import { wardSpecialties, type StartGate } from '@/view';
 import { SaveLibrary } from '../saves/SaveLibrary';
 import { AiSettingsFields } from './AiSettingsFields';
 import { describeOutcome, type ConnectionOutcome } from './SettingsPage';
@@ -22,10 +22,14 @@ export type SetupRank = 'HO' | 'MO' | 'RES';
 export type SetupDifficulty = 'EASY' | 'MEDIUM' | 'HARD';
 export type SetupMode = 'DAY' | 'NIGHT' | 'ONCALL';
 
+export type SetupWard =
+  { kind: 'MEDICINE' } | { kind: 'SURGERY' } | { kind: 'SPECIALTY'; deptId: string };
+
 export interface StartChoice {
   rank: SetupRank;
   difficulty: SetupDifficulty;
   mode: SetupMode;
+  home: SetupWard;
 }
 
 export interface StartPageProps {
@@ -120,6 +124,8 @@ export function StartPage({
   const [rank, setRank] = useState<SetupRank>('MO');
   const [difficulty, setDifficulty] = useState<SetupDifficulty>('MEDIUM');
   const [mode, setMode] = useState<SetupMode>('NIGHT');
+  const [homeId, setHomeId] = useState('MEDICINE');
+  const specialties = wardSpecialties();
   const [draft, setDraft] = useState<Settings | null>(settings ?? null);
   const [test, setTest] = useState<
     { phase: 'idle' } | { phase: 'running' } | { phase: 'done'; message: string; ok: boolean }
@@ -137,10 +143,27 @@ export function StartPage({
     setTest({ phase: 'done', ...describeOutcome(outcome) });
   };
 
+  const home: SetupWard =
+    homeId === 'SURGERY'
+      ? { kind: 'SURGERY' }
+      : homeId !== 'MEDICINE' && specialties.some((dept) => dept.id === homeId)
+        ? { kind: 'SPECIALTY', deptId: homeId }
+        : { kind: 'MEDICINE' };
+  const specialtyLabel =
+    home.kind === 'SPECIALTY'
+      ? (specialties.find((dept) => dept.id === home.deptId)?.label ?? home.deptId)
+      : null;
+  const wardName =
+    home.kind === 'SURGERY'
+      ? ui.start.wardSurgery
+      : home.kind === 'SPECIALTY'
+        ? ui.start.wardSpecialty(specialtyLabel ?? home.deptId)
+        : ui.start.wardMedicine;
   const summary = s.summary(
     s.rank[rank]?.name ?? rank,
     s.difficulty[difficulty]?.name ?? difficulty,
     s.modeCard[mode]?.name ?? mode,
+    wardName,
   );
 
   return (
@@ -148,7 +171,33 @@ export function StartPage({
       <header className="setup-bar">
         <div className="setup-title">
           <h1 id="start-heading">{ui.start.heading}</h1>
-          <p className="setup-tagline">{ui.start.tagline}</p>
+          <div className="setup-ward">
+            <label className="setup-ward-label" htmlFor="setup-ward">
+              {ui.start.wardHeading}
+            </label>
+            <select
+              id="setup-ward"
+              className="setup-ward-select"
+              data-testid="setup-ward"
+              value={home.kind === 'SPECIALTY' ? home.deptId : home.kind}
+              onChange={(event) => {
+                setHomeId(event.target.value);
+              }}
+            >
+              <option value="MEDICINE">{ui.start.wardMedicine}</option>
+              <option value="SURGERY">{ui.start.wardSurgery}</option>
+              <optgroup label={ui.start.wardSpecialtyGroup}>
+                {specialties.map((dept) => (
+                  <option key={dept.id} value={dept.id}>
+                    {dept.label}
+                  </option>
+                ))}
+              </optgroup>
+            </select>
+          </div>
+          <p className="setup-tagline" data-testid="setup-tagline">
+            {ui.start.tagline(wardName)}
+          </p>
           <p className="hint" id="setup-disclaimer">
             {ui.settings.disclaimer}
           </p>
@@ -162,7 +211,7 @@ export function StartPage({
             className="primary"
             disabled={!gate.canStart}
             onClick={() => {
-              if (gate.canStart) onStart({ rank, difficulty, mode });
+              if (gate.canStart) onStart({ rank, difficulty, mode, home });
             }}
           >
             {ui.start.startButton}

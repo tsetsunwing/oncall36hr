@@ -434,8 +434,8 @@ export const shiftUi = {
       NIGHT: { name: '夜班', time: '18:00–翌日 08:00', desc: '必須完成 14 小時' },
       ONCALL: { name: 'On call', time: '日班 + 夜班 + 日班', desc: '必須完成 34 小時' },
     } as Record<string, { name: string; time: string; desc: string }>,
-    summary: (rank: string, difficulty: string, mode: string) =>
-      `你的選擇：${rank} · ${difficulty} · ${mode}`,
+    summary: (rank: string, difficulty: string, mode: string, ward: string) =>
+      `你的選擇：${rank} · ${difficulty} · ${mode} · ${ward}`,
     group: { rank: '職級', difficulty: '難度', mode: '班次模式' },
     apiHeading: 'AI 設定',
     apiEdit: '前往設定頁修改',

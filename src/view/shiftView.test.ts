@@ -56,6 +56,7 @@ describe('更次 ViewModel', () => {
     const state = engine.init(params('DAY'));
     const { shift } = selectGameView(state, env);
     expect(shift.shiftMode).toBe('DAY');
+    expect(shift.homeWard).toEqual({ kind: 'MEDICINE' });
     expect(shift.phase).toBe('REGULAR');
     expect(shift.segment).toBe('DAY');
     expect(shift.energy).toEqual({ percent: 100, level: 'NORMAL' });
@@ -74,6 +75,16 @@ describe('更次 ViewModel', () => {
     expect(shift.result).toBeNull();
     expect(selectGameView(engine.init(params('ONCALL')), env).shift.rounds.total).toBe(4);
     expect(selectGameView(engine.init(params('NIGHT')), env).shift.rounds.total).toBe(0);
+    expect(
+      selectGameView(
+        engine.init({
+          ...params('NIGHT'),
+          seed: 'shift-card',
+          homeWard: { kind: 'SPECIALTY', deptId: 'CARDIOLOGY' },
+        }),
+        env,
+      ).shift.homeWard,
+    ).toEqual({ kind: 'SPECIALTY', deptId: 'CARDIOLOGY', label: 'Cardiology' });
   });
 
   it('等 AI 回覆時 waitingForAi 為 true（C1）', () => {

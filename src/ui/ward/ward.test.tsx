@@ -264,6 +264,7 @@ function gameAt(
     shift: {
       shiftMode: 'DAY',
       playerRank: 'HO',
+      homeWard: { kind: 'MEDICINE' },
       difficulty: 'MEDIUM',
       phase: 'REGULAR',
       segment: 'DAY',

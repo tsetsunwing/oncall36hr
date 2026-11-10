@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { createAiGateway, type DevProxy } from '@/ai';
 import { getConfig, getContent } from '@/content';
 import { ui } from '@/i18n';
-import type { GameState } from '@/engine';
+import type { GameState, HomeWard } from '@/engine';
+import { isWardSpecialty } from '@/view';
 import type { Settings } from '@/storage';
 import { GamePage } from '@/ui';
 import { createGameSession, type GameSession } from './gameSession';
@@ -23,13 +24,22 @@ function pick<T extends string>(value: string | null, allowed: readonly T[], fal
   return allowed.find((a) => a === value) ?? fallback;
 }
 
-/** 開局選項（hash 參數，供測試與預覽用）：mode／difficulty／rank；ward=single 為舊式單一病人 */
+/** 開局病房。`home=SURGERY` 或專科 id；其餘（包括內科）用內科普通病房。`ward=single` 仍然係舊式單一病人。 */
+function pickHomeWard(): HomeWard {
+  const value = hashParams(window.location.hash).get('home');
+  if (value === 'SURGERY') return { kind: 'SURGERY' };
+  if (value && isWardSpecialty(value)) return { kind: 'SPECIALTY', deptId: value };
+  return { kind: 'MEDICINE' };
+}
+
+/** 開局選項（hash 參數，供測試與預覽用）：mode／difficulty／rank／home；ward=single 為舊式單一病人 */
 function pickParams() {
   const params = hashParams(window.location.hash);
   return {
     mode: pick(params.get('mode'), MODES, 'NIGHT'),
     difficulty: pick(params.get('difficulty'), DIFFICULTIES, 'MEDIUM'),
     playerRank: pick(params.get('rank'), RANKS, 'MO'),
+    homeWard: pickHomeWard(),
     ward: params.get('ward') !== 'single',
   };
 }

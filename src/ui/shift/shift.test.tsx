@@ -75,6 +75,7 @@ const round = (over: Partial<RoundView> = {}): RoundView => ({
 const shift = (over: Partial<ShiftView> = {}): ShiftView => ({
   shiftMode: 'DAY',
   playerRank: 'MO',
+  homeWard: { kind: 'MEDICINE' },
   difficulty: 'MEDIUM',
   phase: 'REGULAR',
   segment: 'DAY',
@@ -330,7 +331,12 @@ describe('StartPage 設定畫面', () => {
     await userEvent.click(screen.getByTestId('choice-difficulty-HARD'));
     await userEvent.click(screen.getByTestId('choice-mode-ONCALL'));
     await userEvent.click(screen.getByRole('button', { name: ui.start.startButton }));
-    expect(onStart).toHaveBeenCalledWith({ rank: 'RES', difficulty: 'HARD', mode: 'ONCALL' });
+    expect(onStart).toHaveBeenCalledWith({
+      rank: 'RES',
+      difficulty: 'HARD',
+      mode: 'ONCALL',
+      home: { kind: 'MEDICINE' },
+    });
   });
 
   it('AI 設定可直接在設定畫面修改，API key 缺少時不能開始', async () => {
