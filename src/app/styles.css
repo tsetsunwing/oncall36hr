@@ -2118,10 +2118,36 @@ main:has(.page.setup) {
 }
 
 .round-banner {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.25rem 0.75rem;
+  padding-right: 2.5rem;
+}
+
+.round-leave {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  min-width: 32px;
+  height: 32px;
+  min-height: 32px;
+  padding: 0;
+  color: #1d2933;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.round-leave svg {
+  width: 16px;
+  height: 16px;
 }
 
 .round-host,
@@ -2630,7 +2656,7 @@ main:has(.page.setup) {
   position: relative;
   width: min(100%, 200px);
   margin: 8px auto 12px;
-  aspect-ratio: 147.998 / 318.455;
+  aspect-ratio: 150.024 / 320.455;
   background: #eef3f4;
   border-radius: 12px;
 }

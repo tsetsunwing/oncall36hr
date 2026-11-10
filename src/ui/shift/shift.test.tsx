@@ -39,6 +39,7 @@ function makeActions() {
     passRound: vi.fn(),
     beginRound: vi.fn(),
     nextRound: vi.fn(),
+    leaveRound: vi.fn(),
     startSelfCare: vi.fn(),
     stopSelfCare: vi.fn(),
     beginHandover: vi.fn(),
@@ -183,6 +184,8 @@ describe('RoundPanel', () => {
     expect(screen.getByTestId('round-facts').querySelectorAll('li')).toHaveLength(2);
     await userEvent.click(screen.getByTestId('round-next'));
     expect(actions.nextRound).toHaveBeenCalledOnce();
+    await userEvent.click(screen.getByTestId('round-leave'));
+    expect(actions.leaveRound).toHaveBeenCalledOnce();
   });
 });
 

@@ -806,6 +806,7 @@ export interface GameActions {
   beginRound: () => void;
   passRound: () => void;
   nextRound: () => void;
+  leaveRound: () => void;
   startSelfCare: (actionId: SelfCareCode) => void;
   stopSelfCare: () => void;
   beginHandover: () => void;

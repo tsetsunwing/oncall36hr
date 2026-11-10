@@ -38,6 +38,7 @@ function makeActions() {
     passRound: vi.fn(),
     beginRound: vi.fn(),
     nextRound: vi.fn(),
+    leaveRound: vi.fn(),
     startSelfCare: vi.fn(),
     stopSelfCare: vi.fn(),
     beginHandover: vi.fn(),

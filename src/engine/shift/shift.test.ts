@@ -137,6 +137,37 @@ describe('巡房（§8）', () => {
     expect(next.state.shift.rounds.completed).toBe(1);
   });
 
+  it('巡房可以中途離開：未完成的題目不再問，時間恢復', () => {
+    const engine = kitEngine(noEnergy);
+    const offered = drive(
+      engine,
+      engine.init(kitParams('round-leave', 'DAY', { ward: false })),
+      1 * H + 5,
+    ).state;
+    const begun = feed(engine, offered, [shiftAct('ROUND_BEGIN')]);
+    const reqId =
+      begun.state.pendingAi.find((item) => item.kind === 'rounds.question')?.reqId ?? '';
+    expect(begun.state.shift.rounds.active).not.toBeNull();
+    expect(gameSecondsPerRealMs(engine.config, begun.state)).toBe(0);
+    const left = feed(engine, begun.state, [shiftAct('ROUND_LEAVE')]);
+    expect(left.state.shift.rounds.active).toBeNull();
+    expect(left.state.shift.rounds.completed).toBe(1);
+    expect(left.state.shift.rounds.history[0]?.results).toEqual([]);
+    expect(left.state.pendingAi.some((item) => item.kind.startsWith('rounds.'))).toBe(false);
+    expect(left.effects).toEqual(
+      expect.arrayContaining([expect.objectContaining({ type: 'NOTICE', kind: 'ROUND_LEFT' })]),
+    );
+    expect(gameSecondsPerRealMs(engine.config, left.state)).toBeGreaterThan(0);
+    const late = feed(engine, left.state, [
+      {
+        type: 'AI_RESULT',
+        reqId,
+        payload: { question: '遲來的題目', hints: ['甲', '乙', '丙'] },
+      },
+    ]);
+    expect(late.state.shift.rounds.active).toBeNull();
+  });
+
   it('AI 評分只可以引用 T25 key facts：虛構 id 被拒（AI 失敗暫停），空命中降為答錯', () => {
     const engine = kitEngine(noEnergy);
     let state = engine.init(kitParams('round-guard', 'DAY', { ward: false }));

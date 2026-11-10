@@ -255,6 +255,9 @@ export function createGameSession(options: GameSessionOptions): GameSession {
     nextRound() {
       dispatch({ type: 'PLAYER_INTENT', intent: shiftIntent('ROUND_NEXT') });
     },
+    leaveRound() {
+      dispatch({ type: 'PLAYER_INTENT', intent: shiftIntent('ROUND_LEAVE') });
+    },
     startSelfCare(actionId) {
       dispatch({ type: 'PLAYER_INTENT', intent: shiftIntent('SELF_CARE_START', { actionId }) });
     },
