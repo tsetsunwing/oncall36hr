@@ -281,6 +281,70 @@ describe('dialogue.turn：token 凍結與即時', () => {
     expect(JSON.stringify(same)).toBe(frozen);
   });
 
+  it('對病人發問走 PATIENT_SPEAKS；病人引用嘅數字只可以係狀態機 token', () => {
+    const asked = ask('@病人 你而家邊度唔舒服？', 'patient-speak');
+    const parsed = answer(asked.run, asked.reqId, {
+      intent: 'QUESTION',
+      addressee: { kind: 'nurse', id: null },
+      actions: [],
+    });
+    const request = aiRequests(parsed.effects)[0];
+    if (request?.kind !== 'dialogue.turn') throw new Error('預期有對白請求');
+    const context = request.context as {
+      prompt: {
+        beats: { type: string; speaker: string; question?: string; symptoms?: string[] }[];
+        speakers: { id: string; kind: string }[];
+      };
+    };
+    expect(context.prompt.beats.map((beat) => beat.type)).toEqual(['PATIENT_SPEAKS']);
+    expect(context.prompt.beats[0]).toMatchObject({
+      speaker: 'PATIENT',
+      question: '你而家邊度唔舒服？',
+    });
+    expect(context.prompt.beats[0]?.symptoms?.length).toBeGreaterThan(0);
+    const patientSpeaker = context.prompt.speakers.find((speaker) => speaker.kind === 'PATIENT');
+    if (!patientSpeaker) throw new Error('缺病人 speaker');
+    const before = patientsJson(parsed);
+
+    const invented = feed(engine, parsed.state, [
+      {
+        type: 'AI_RESULT',
+        reqId: request.reqId,
+        payload: { lines: [{ speaker: patientSpeaker.id, text: '我體溫三十八度' }] },
+      },
+    ]);
+    expect(invented.state.paused?.by).toBe('ai-failure');
+    expect(patientsJson(invented)).toBe(before);
+    expect(invented.state.chats.p1?.lines.some((line) => line.speaker.kind === 'PATIENT')).toBe(
+      false,
+    );
+
+    const again = ask('@病人 你而家邊度唔舒服？', 'patient-speak-ok');
+    const parsedOk = answer(again.run, again.reqId, {
+      intent: 'QUESTION',
+      addressee: { kind: 'patient', id: null },
+      actions: [],
+    });
+    const okRequest = aiRequests(parsedOk.effects)[0];
+    if (okRequest?.kind !== 'dialogue.turn') throw new Error('預期有對白請求');
+    const hr = parsedOk.state.patients.p1?.visible.vitals.hr;
+    const quoted = feed(engine, parsedOk.state, [
+      {
+        type: 'AI_RESULT',
+        reqId: okRequest.reqId,
+        payload: {
+          lines: [{ speaker: patientSpeaker.id, text: '心跳 {{vital.hr}}，我氣促' }],
+        },
+      },
+    ]);
+    const line = quoted.state.chats.p1?.lines.find((item) => item.speaker.kind === 'PATIENT');
+    expect(quoted.state.paused).toBeNull();
+    expect(line?.speaker).toEqual({ kind: 'PATIENT', id: patientSpeaker.id });
+    expect(line?.template).toBe('心跳 {{vital.hr}}，我氣促');
+    expect(line?.tokenValues['vital.hr']).toBe(String(hr));
+    expect(quoted.state.patients.p1?.visible.vitals.hr).toBe(hr);
+  });
+
   it('ANSWER_QUESTION（問情況）同樣即時：回覆慢返嚟時講嘅係寫入當刻嘅數值', () => {
     const asked = ask('護士，病人而家情況點呀？').run;
     const parsed = answer(

@@ -55,7 +55,7 @@ export type Beat =
       abnormal: Abnormal[];
     }
   | { type: 'ALERT_DETERIORATION'; speaker: 'NURSE'; tokens: string[]; abnormal: Abnormal[] }
-  | { type: 'PATIENT_SPEAKS'; speaker: 'PATIENT'; symptoms: string[] }
+  | { type: 'PATIENT_SPEAKS'; speaker: 'PATIENT'; symptoms: string[]; question?: string }
   | { type: 'ACK_CHAT'; speaker: 'NURSE' }
   | { type: 'ASK_REPHRASE'; speaker: 'NURSE'; reason: 'UNKNOWN_ORDER' | 'UNSUPPORTED' }
   | { type: 'ARREST_ANNOUNCED'; speaker: 'NURSE'; tokens: string[]; rearrest: boolean }

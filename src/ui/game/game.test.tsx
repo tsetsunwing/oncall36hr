@@ -341,6 +341,38 @@ describe('ChatPanel', () => {
     expect(screen.getByRole('combobox')).toHaveValue('');
   });
 
+  it('點病人晶片後，下一句會說給該病人；再點就取消', async () => {
+    const user = userEvent.setup();
+    const actions = makeActions();
+    render(<ChatPanel chat={chat()} chips={[]} notice={null} actions={actions} />);
+    const chip = screen.getByRole('button', { name: ui.game.chat.addressPatient('陳大文') });
+    expect(chip.closest('li')).toHaveClass('present-chip');
+    expect(chip.closest('li')).toHaveAttribute('data-kind', 'PATIENT');
+    expect(screen.queryByTestId('chat-addressee')).toBeNull();
+
+    await user.click(chip);
+    expect(chip).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByTestId('chat-addressee')).toHaveTextContent(
+      ui.game.chat.addressing('陳大文'),
+    );
+    expect(screen.getByRole('combobox')).toHaveAttribute(
+      'placeholder',
+      ui.game.chat.addressPlaceholder('陳大文'),
+    );
+    await user.type(screen.getByRole('combobox'), '你哪裡不舒服{Enter}');
+    expect(actions.submitChat).toHaveBeenCalledWith('p1', '@陳大文 你哪裡不舒服');
+
+    await user.type(screen.getByRole('combobox'), '@陳大文 還有沒有咳嗽{Enter}');
+    expect(actions.submitChat).toHaveBeenLastCalledWith('p1', '@陳大文 還有沒有咳嗽');
+
+    const cancel = screen.getByRole('button', { name: ui.game.chat.stopAddressing('陳大文') });
+    await user.click(cancel);
+    expect(cancel).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.queryByTestId('chat-addressee')).toBeNull();
+    await user.type(screen.getByRole('combobox'), '量血壓{Enter}');
+    expect(actions.submitChat).toHaveBeenLastCalledWith('p1', '量血壓');
+  });
+
   it('檢查選單由左至右跟報告分類，空部門沒有假項目', async () => {
     const user = userEvent.setup();
     const actions = makeActions();

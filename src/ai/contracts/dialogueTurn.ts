@@ -64,6 +64,7 @@ const beatSchema = z.discriminatedUnion('type', [
     type: z.literal('PATIENT_SPEAKS'),
     speaker: z.literal('PATIENT'),
     symptoms: z.array(z.string()),
+    question: z.string().min(1).optional(),
   }),
   z.object({ type: z.literal('ACK_CHAT'), speaker: z.literal('NURSE') }),
   z.object({

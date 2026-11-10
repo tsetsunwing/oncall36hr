@@ -6,7 +6,7 @@
 import { z } from 'zod';
 import { queueBeatsForOrders } from '../bedside/queue';
 import { abnormalOf, type Beat } from '../chat/dialogue';
-import { parseMentions } from '../chat/mentions';
+import { parseMentions, stripMentions } from '../chat/mentions';
 import { rejectAiResult } from '../core/ai';
 import type { JsonValue } from '../core/eventQueue';
 import type { Reduction } from '../core/events';
@@ -180,10 +180,12 @@ export function handleOrderParseResult(
       const toNurse = thread.present.some((p) => p.kind === 'NURSE' && mentioned.includes(p.id));
       const beats: Beat[] = [];
       if (toPatient || (!toNurse && aiPatient)) {
+        const question = stripMentions(playerText);
         beats.push({
           type: 'PATIENT_SPEAKS',
           speaker: 'PATIENT',
           symptoms: symptomsOf(patient, ctx),
+          ...(result.intent === 'QUESTION' && question.length > 0 ? { question } : {}),
         });
       }
       if (toNurse || beats.length === 0) {

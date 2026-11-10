@@ -35,6 +35,18 @@ import { ObservePanel } from './ObservePanel';
 import { OxygenOrderForm } from './OxygenOrderForm';
 
 const MENTION_AT_END = /[@＠]([^\s@＠]*)$/u;
+const MENTION_EDGE = /[\s@＠,，。.!！?？、:：]/u;
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+}
+
+/** 與 engine parseMentions 對齊：@名字 之後要係空白或標點，先算已指定這位病人。 */
+function mentionsKey(text: string, key: string): boolean {
+  if (key.length === 0) return false;
+  const pattern = new RegExp(`[@＠]${escapeRegExp(key)}(?=$|${MENTION_EDGE.source})`, 'iu');
+  return pattern.test(text);
+}
 
 function medicationChoices(
   medications: readonly MedicationOption[],
@@ -567,6 +579,7 @@ export function ChatPanel({
 }: ChatPanelProps) {
   const c = ui.game.chat;
   const [text, setText] = useState('');
+  const [addresseeId, setAddresseeId] = useState<string | null>(null);
   const [promptChip, setPromptChip] = useState<QuickChipView | null>(null);
   const [drugChip, setDrugChip] = useState<QuickChipView | null>(null);
   const [oxygenOpen, setOxygenOpen] = useState(false);
@@ -588,6 +601,8 @@ export function ChatPanel({
   );
   const open = mention !== null && options.length > 0 && !dismissed;
   const typing = chat.present.filter((p) => p.typing);
+  const addressee =
+    chat.present.find((person) => person.kind === 'PATIENT' && person.id === addresseeId) ?? null;
 
   useEffect(() => {
     const el = logRef.current;
@@ -620,10 +635,19 @@ export function ChatPanel({
     }
   }
 
-  function submit(value: string) {
+  function textForSend(value: string): string {
     const trimmed = value.trim();
-    if (trimmed.length === 0) return;
-    actions.submitChat(chat.patientId, trimmed);
+    if (!addressee) return trimmed;
+    if (mentionsKey(trimmed, addressee.mentionName) || mentionsKey(trimmed, '病人')) return trimmed;
+    const prefixed = `@${addressee.mentionName} ${trimmed}`;
+    if (prefixed.length <= chat.playerTextMaxChars) return prefixed;
+    return prefixed.slice(0, chat.playerTextMaxChars).trim();
+  }
+
+  function submit(value: string) {
+    const spoken = textForSend(value);
+    if (spoken.length === 0) return;
+    actions.submitChat(chat.patientId, spoken);
     setText('');
     setActive(0);
     setDismissed(false);
@@ -644,11 +668,34 @@ export function ChatPanel({
       <header className="chat-head">
         <h2 id="chat-heading">{c.heading}</h2>
         <ul className="present" aria-label={c.presentLabel}>
-          {chat.present.map((p) => (
-            <li key={p.id} className="present-chip" data-kind={p.kind}>
-              {p.name}
-            </li>
-          ))}
+          {chat.present.map((p) => {
+            const selected = p.kind === 'PATIENT' && p.id === addresseeId;
+            return (
+              <li
+                key={p.id}
+                className="present-chip"
+                data-kind={p.kind}
+                data-selected={selected ? 'true' : undefined}
+              >
+                {p.kind === 'PATIENT' ? (
+                  <button
+                    type="button"
+                    className="present-chip-hit"
+                    aria-pressed={selected}
+                    aria-label={selected ? c.stopAddressing(p.name) : c.addressPatient(p.name)}
+                    onClick={() => {
+                      setAddresseeId(selected ? null : p.id);
+                      inputRef.current?.focus();
+                    }}
+                  >
+                    {p.name}
+                  </button>
+                ) : (
+                  p.name
+                )}
+              </li>
+            );
+          })}
         </ul>
       </header>
 
@@ -681,6 +728,12 @@ export function ChatPanel({
         {notice ? (ui.game.notice[notice.kind] ?? ui.game.notice.fallback) : ''}
       </p>
 
+      {addressee ? (
+        <p className="chat-addressee" data-testid="chat-addressee">
+          {c.addressing(addressee.name)}
+        </p>
+      ) : null}
+
       <form className="chat-form" onSubmit={onSubmit}>
         <div className="chat-input-wrap">
           <label htmlFor="chat-input" className="visually-hidden">
@@ -698,7 +751,7 @@ export function ChatPanel({
             autoComplete="off"
             value={text}
             maxLength={chat.playerTextMaxChars}
-            placeholder={c.placeholder}
+            placeholder={addressee ? c.addressPlaceholder(addressee.name) : c.placeholder}
             onChange={(e) => {
               setText(e.target.value);
               setActive(0);
