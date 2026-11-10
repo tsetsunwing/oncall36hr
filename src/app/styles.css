@@ -2627,9 +2627,9 @@ main:has(.page.setup) {
 
 .body-diagram-stage {
   position: relative;
-  width: min(100%, 220px);
+  width: min(100%, 200px);
   margin: 8px auto 12px;
-  aspect-ratio: 200 / 360;
+  aspect-ratio: 147.998 / 318.455;
   background: #eef3f4;
   border-radius: 12px;
 }
@@ -2643,17 +2643,9 @@ main:has(.page.setup) {
 .body-outline .body-fill {
   fill: #f7fbfc;
   stroke: #1d2933;
-  stroke-width: 2.2;
+  stroke-width: 0.85;
   stroke-linejoin: round;
   stroke-linecap: round;
-}
-
-.body-outline .body-landmark {
-  fill: none;
-  stroke: #107c67;
-  stroke-width: 1.5;
-  stroke-linecap: round;
-  stroke-linejoin: round;
 }
 
 .body-markers {

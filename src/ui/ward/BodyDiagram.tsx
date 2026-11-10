@@ -1,9 +1,7 @@
 import { PersonStanding } from 'lucide-react';
 import { ui } from '@/i18n';
 import type { BodyDiagramView, GameActions } from '@/view';
-
-const BODY_OUTLINE =
-  'M100 16 C128 16 142 34 142 54 C142 70 130 82 116 84 C114 94 112 100 116 108 C140 110 160 114 170 122 C176 132 178 150 174 168 L168 206 C166 218 158 226 148 226 C138 226 132 216 134 204 L144 168 C146 146 138 128 126 120 C120 132 116 144 114 158 C110 184 108 206 114 228 C118 246 120 268 116 304 L112 336 C112 348 100 348 100 336 L104 300 L108 250 C102 240 98 240 92 250 L96 300 L100 336 C100 348 88 348 88 336 L84 304 C80 268 82 246 86 228 C92 206 90 184 86 158 C84 144 80 132 74 120 C62 128 54 146 56 168 L66 204 C68 216 62 226 52 226 C42 226 34 218 32 206 L26 168 C22 150 24 132 30 122 C40 114 60 110 84 108 C88 100 86 94 84 84 C70 82 58 70 58 54 C58 34 72 16 100 16 Z';
+import { BODY_SILHOUETTE_PATHS, BODY_VIEWBOX } from './bodySilhouette';
 
 export function BodyDiagram({
   body,
@@ -76,14 +74,10 @@ export function BodyDiagram({
         </button>
       </h2>
       <div className="body-diagram-stage">
-        <svg className="body-outline" viewBox="0 0 200 360" aria-hidden="true" focusable="false">
-          <path className="body-fill" d={BODY_OUTLINE} />
-          <path className="body-landmark" d="M78 118 C90 128 110 128 122 118" />
-          <path className="body-landmark" d="M100 122 V202" />
-          <path className="body-landmark" d="M86 154 H114" />
-          <path className="body-landmark" d="M82 176 C92 186 108 186 118 176" />
-          <path className="body-landmark" d="M78 206 C92 218 108 218 122 206" />
-          <circle className="body-landmark" cx="100" cy="186" r="2.3" />
+        <svg className="body-outline" viewBox={BODY_VIEWBOX} aria-hidden="true" focusable="false">
+          {BODY_SILHOUETTE_PATHS.map((d, index) => (
+            <path key={index} className="body-fill" d={d} />
+          ))}
         </svg>
         <div className="body-markers" role="group" aria-label={w.bodyLabel}>
           {body.markers.map((marker) => {
