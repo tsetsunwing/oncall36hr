@@ -5,24 +5,24 @@
 import type { PlacedOrderParams } from './types';
 
 export const OBSERVE_PARAMETERS = [
-  { id: 'vitals', label: '全套生命表徵' },
-  { id: 'bp', label: '血壓' },
-  { id: 'pulse', label: '脈搏' },
-  { id: 'rr', label: '呼吸頻率' },
-  { id: 'temp', label: '體溫' },
-  { id: 'spo2', label: 'SpO2' },
-  { id: 'io', label: '出入量' },
-  { id: 'gcs', label: 'GCS' },
-  { id: 'pupils', label: '瞳孔' },
-  { id: 'pain', label: '疼痛分數' },
+  { id: 'vitals', label: '全套生命表徵', option: 'Full vital signs' },
+  { id: 'bp', label: '血壓', option: 'Blood pressure' },
+  { id: 'pulse', label: '脈搏', option: 'Pulse' },
+  { id: 'rr', label: '呼吸頻率', option: 'Respiratory rate' },
+  { id: 'temp', label: '體溫', option: 'Temperature' },
+  { id: 'spo2', label: 'SpO2', option: 'SpO2' },
+  { id: 'io', label: '出入量', option: 'Intake and output' },
+  { id: 'gcs', label: 'GCS', option: 'GCS' },
+  { id: 'pupils', label: '瞳孔', option: 'Pupils' },
+  { id: 'pain', label: '疼痛分數', option: 'Pain score' },
 ] as const;
 
 export type ObserveParameterId = (typeof OBSERVE_PARAMETERS)[number]['id'];
 
 /** 引擎已有的監察間距。括號內的代碼只在打開的清單顯示。 */
 export const OBSERVE_INTERVALS = [
-  { id: 'q15min', phrase: '每 15 分鐘 (q15min)' },
-  { id: 'continuous', phrase: '持續 (continuous)' },
+  { id: 'q15min', phrase: '每 15 分鐘 (q15min)', option: 'Every 15 minutes (q15min)' },
+  { id: 'continuous', phrase: '持續 (continuous)', option: 'Continuous' },
 ] as const;
 
 export type ObserveIntervalId = (typeof OBSERVE_INTERVALS)[number]['id'];

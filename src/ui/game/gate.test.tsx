@@ -156,7 +156,13 @@ describe('LogPanel：報告同執行者', () => {
         onClose={() => undefined}
       />,
     );
-    expect(screen.getByRole('heading', { name: ui.game.reports.heading })).toBeInTheDocument();
+    const heading = screen.getByRole('heading', { name: ui.game.reports.heading });
+    expect(heading).toBeInTheDocument();
+    const laboratory = screen.getByTestId('report-bucket-laboratory');
+    expect(heading).toContainElement(laboratory);
+    expect(laboratory).toHaveAttribute('title', ui.game.reports.bucket.laboratory);
+    expect(laboratory.textContent).toBe('');
+    expect(screen.getByRole('group', { name: ui.game.reports.filtersLabel })).toBeInTheDocument();
     expect(screen.getByText('CBC')).toBeInTheDocument();
     expect(screen.getByText('XR 佔位。')).toBeInTheDocument();
     await user.click(screen.getByTestId('report-bucket-radiology'));

@@ -412,11 +412,15 @@ describe('ChatPanel', () => {
     );
     await user.click(screen.getByRole('button', { name: ui.game.chat.chipGroup.tests ?? '' }));
     expect(screen.getByTestId('test-col-bucket')).toBeInTheDocument();
+    expect(screen.getByTestId('test-bucket-laboratory')).toHaveTextContent(/^Laboratory$/);
+    expect(screen.getByTestId('test-bucket-poct')).toHaveTextContent('Point-of-care testing');
+    expect(screen.getByTestId('test-bucket-laboratory')).not.toHaveTextContent('化驗');
     expect(screen.queryByTestId('test-col-section')).not.toBeInTheDocument();
     await user.click(screen.getByTestId('test-bucket-laboratory'));
     const sections = screen.getByTestId('test-col-section');
-    expect(sections).toHaveTextContent(ui.game.reports.section.haem ?? '');
-    expect(sections).toHaveTextContent(ui.game.reports.section.cytology ?? '');
+    expect(sections).toHaveTextContent(ui.game.reports.menuSection.haem ?? '');
+    expect(sections).toHaveTextContent(ui.game.reports.menuSection.cytology ?? '');
+    expect(sections).not.toHaveTextContent('血液學');
     expect(screen.queryByTestId('test-col-action')).not.toBeInTheDocument();
     await user.click(screen.getByTestId('test-section-cytology'));
     expect(screen.getByTestId('test-empty')).toHaveTextContent(ui.game.chat.testsEmpty);
@@ -897,6 +901,15 @@ describe('LogPanel', () => {
       <LogPanel orders={[]} log={log} actions={makeActions()} open onClose={() => undefined} />,
     );
     expect(screen.getAllByTestId('log-row')).toHaveLength(1);
+    const heading = screen.getByRole('heading', { name: ui.game.log.heading });
+    const current = screen.getByRole('button', { name: ui.game.log.scopeCurrent });
+    const all = screen.getByRole('button', { name: ui.game.log.scopeAll });
+    expect(heading).toContainElement(current);
+    expect(heading).toContainElement(all);
+    expect(current).toHaveAttribute('title', ui.game.log.scopeCurrent);
+    expect(all).toHaveAttribute('title', ui.game.log.scopeAll);
+    expect(current.textContent).toBe('');
+    expect(heading).toHaveAccessibleName(ui.game.log.heading);
     await user.click(screen.getByRole('button', { name: ui.game.log.scopeAll }));
     expect(screen.getAllByTestId('log-row')).toHaveLength(2);
     expect(screen.getByRole('button', { name: ui.game.log.scopeAll })).toHaveAttribute(

@@ -129,6 +129,8 @@ describe('治療同觀察選單', () => {
     render(<ChatPanel chat={chat()} chips={chips} notice={null} actions={calls} />);
     await user.click(screen.getByRole('button', { name: ui.game.chat.chipGroup.observe ?? '' }));
     expect(screen.getByRole('menuitem', { name: 'Check vitals' })).toBeInTheDocument();
+    expect(screen.getByTestId('observe-parameter')).not.toHaveTextContent('血壓');
+    expect(screen.getByTestId('observe-mode')).toHaveTextContent('Check once');
     await user.click(screen.getByTestId('observe-confirm'));
     expect(calls.placeOrder).toHaveBeenCalledWith(
       'p1',
@@ -137,9 +139,9 @@ describe('治療同觀察選單', () => {
       expect.objectContaining({ summary: '檢查全套生命表徵' }),
     );
     await user.click(screen.getByRole('button', { name: ui.game.chat.chipGroup.observe ?? '' }));
-    await user.selectOptions(screen.getByTestId('observe-parameter'), '血壓');
+    await user.selectOptions(screen.getByTestId('observe-parameter'), 'Blood pressure');
     await user.selectOptions(screen.getByTestId('observe-mode'), ui.game.chat.observe.monitor);
-    expect(screen.getByTestId('observe-interval-face')).toHaveTextContent('每 15 分鐘');
+    expect(screen.getByTestId('observe-interval-face')).toHaveTextContent('Every 15 minutes');
     expect(screen.getByTestId('observe-interval-face')).not.toHaveTextContent('q15min');
     await user.click(screen.getByTestId('observe-confirm'));
     expect(calls.placeOrder).toHaveBeenLastCalledWith(

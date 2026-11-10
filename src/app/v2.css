@@ -566,7 +566,6 @@ h2,
 }
 
 .frame-desktop .side-panel [data-panel] > .hint,
-.frame-desktop .side-panel [data-panel] > .scope,
 .frame-desktop .side-panel [data-panel] > ul,
 .frame-desktop .side-panel [data-panel] > ol {
   margin-right: 16px;
@@ -576,11 +575,6 @@ h2,
 .frame-desktop .side-panel [data-panel] > .hint {
   margin-top: 12px;
   margin-bottom: 0;
-}
-
-.frame-desktop .side-panel [data-panel] > .scope {
-  margin-top: 12px;
-  margin-bottom: 12px;
 }
 
 .frame-desktop .side-panel [data-panel='reports'] {
@@ -1544,6 +1538,20 @@ tr[data-flag='H'] .value-flagged {
   min-height: 0;
 }
 
+.chat-head {
+  padding: 16px 16px 0;
+}
+
+.chat > .chat-log,
+.chat > .chat-form {
+  margin-right: 16px;
+  margin-left: 16px;
+}
+
+.chat .chips {
+  padding: 0 16px 16px;
+}
+
 .frame-desktop .chat-head h2 {
   position: absolute;
   width: 1px;
@@ -1554,7 +1562,7 @@ tr[data-flag='H'] .value-flagged {
 
 .frame-desktop .chips {
   flex-wrap: wrap;
-  padding: 0 8px 8px;
+  padding: 0 16px 16px;
   margin: 0;
   overflow: visible;
 }

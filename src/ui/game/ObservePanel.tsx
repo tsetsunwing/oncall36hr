@@ -21,9 +21,9 @@ export function ObservePanel({
   const [parameter, setParameter] = useState<ObserveParameterId>('vitals');
   const [mode, setMode] = useState<ObserveMode>('once');
   const [interval, setInterval] = useState<ObserveIntervalId>('q15min');
-  const parameterPhrase = OBSERVE_PARAMETERS.find((item) => item.id === parameter)?.label ?? '';
+  const parameterPhrase = OBSERVE_PARAMETERS.find((item) => item.id === parameter)?.option ?? '';
   const modePhrase = mode === 'once' ? t.once : t.monitor;
-  const intervalPhrase = OBSERVE_INTERVALS.find((item) => item.id === interval)?.phrase ?? '';
+  const intervalPhrase = OBSERVE_INTERVALS.find((item) => item.id === interval)?.option ?? '';
 
   return (
     <form
@@ -41,10 +41,10 @@ export function ObservePanel({
           <ChoiceSelect
             testId="observe-parameter"
             value={parameterPhrase}
-            options={OBSERVE_PARAMETERS.map((item) => item.label)}
+            options={OBSERVE_PARAMETERS.map((item) => item.option)}
             optionLabel={(value) => value}
             onValue={(next) => {
-              const chosen = OBSERVE_PARAMETERS.find((item) => item.label === next);
+              const chosen = OBSERVE_PARAMETERS.find((item) => item.option === next);
               if (!chosen) return;
               setParameter(chosen.id);
               setInterval(defaultObserveInterval(chosen.id));
@@ -69,9 +69,9 @@ export function ObservePanel({
             <ChoiceSelect
               testId="observe-interval"
               value={intervalPhrase}
-              options={OBSERVE_INTERVALS.map((item) => item.phrase)}
+              options={OBSERVE_INTERVALS.map((item) => item.option)}
               onValue={(next) => {
-                const chosen = OBSERVE_INTERVALS.find((item) => item.phrase === next);
+                const chosen = OBSERVE_INTERVALS.find((item) => item.option === next);
                 if (chosen) setInterval(chosen.id);
               }}
             />

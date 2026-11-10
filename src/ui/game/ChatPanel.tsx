@@ -435,7 +435,7 @@ function ChipMenus({
                   setSection(null);
                 }}
               >
-                {r.bucket[id]}
+                {r.menuBucket[id] ?? id}
               </button>
             ))}
           </div>
@@ -458,7 +458,7 @@ function ChipMenus({
                     setSection(id);
                   }}
                 >
-                  {r.section[id] ?? id}
+                  {r.menuSection[id] ?? id}
                 </button>
               ))}
             </div>
@@ -467,7 +467,7 @@ function ChipMenus({
             <div
               className="chip-col"
               role="menu"
-              aria-label={r.section[section]}
+              aria-label={r.menuSection[section] ?? section}
               data-testid="test-col-action"
             >
               {actions.length > 0 ? (

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { FlaskConical, ScrollText, X } from 'lucide-react';
 import { ui } from '@/i18n';
 import {
@@ -176,21 +176,121 @@ function LogItem({ row }: { row: ActionRowView }) {
   );
 }
 
+const REPORT_BUCKETS = ['all', 'laboratory', 'radiology', 'poct'] as const;
+
+function LineIcon({ children }: { children: ReactNode }) {
+  return (
+    <svg
+      width="22"
+      height="22"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      {children}
+    </svg>
+  );
+}
+
+function ScopeIcon({ kind }: { kind: 'patient' | 'all' }) {
+  if (kind === 'patient') {
+    return (
+      <LineIcon>
+        <circle cx="12" cy="8" r="3.25" />
+        <path d="M5.5 19.5c.9-3.2 3.1-4.75 6.5-4.75s5.6 1.55 6.5 4.75" />
+      </LineIcon>
+    );
+  }
+  return (
+    <LineIcon>
+      <rect x="4" y="4" width="6.5" height="6.5" rx="1.25" />
+      <rect x="13.5" y="4" width="6.5" height="6.5" rx="1.25" />
+      <rect x="4" y="13.5" width="6.5" height="6.5" rx="1.25" />
+      <rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.25" />
+    </LineIcon>
+  );
+}
+
+function BucketIcon({ id }: { id: (typeof REPORT_BUCKETS)[number] }) {
+  if (id === 'all') {
+    return (
+      <LineIcon>
+        <path d="M5 7h14" />
+        <path d="M5 12h14" />
+        <path d="M5 17h14" />
+      </LineIcon>
+    );
+  }
+  if (id === 'laboratory') {
+    return (
+      <LineIcon>
+        <path d="M9 3h6" />
+        <path d="M10 3v5.5L6.2 19.2A2 2 0 0 0 8 21.5h8a2 2 0 0 0 1.8-2.3L14 8.5V3" />
+        <path d="M8.2 14.5h7.6" />
+      </LineIcon>
+    );
+  }
+  if (id === 'radiology') {
+    return (
+      <LineIcon>
+        <rect x="3.5" y="5" width="17" height="14" rx="2" />
+        <circle cx="12" cy="9.5" r="1.35" />
+        <path d="M7.5 16c1-2.8 2.4-4.2 4.5-4.2s3.5 1.4 4.5 4.2" />
+      </LineIcon>
+    );
+  }
+  return (
+    <LineIcon>
+      <path d="M12 3.5c2.2 3.1 5 5.8 5 9a5 5 0 0 1-10 0c0-3.2 2.8-5.9 5-9z" />
+    </LineIcon>
+  );
+}
+
+function FilterIconButton({
+  pressed,
+  label,
+  testId,
+  onClick,
+  children,
+}: {
+  pressed: boolean;
+  label: string;
+  testId?: string;
+  onClick: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      className="heading-filter"
+      data-testid={testId}
+      aria-pressed={pressed}
+      aria-label={label}
+      title={label}
+      onClick={onClick}
+    >
+      {children}
+    </button>
+  );
+}
+
 function ReportFilters({
   bucket,
   section,
   reports,
-  onBucket,
   onSection,
 }: {
   bucket: 'all' | ReportBucket;
   section: string;
   reports: ReportView[];
-  onBucket: (next: 'all' | ReportBucket) => void;
   onSection: (next: string) => void;
 }) {
   const r = ui.game.reports;
-  const buckets = ['all', 'laboratory', 'radiology', 'poct'] as const;
   const present =
     bucket === 'all'
       ? []
@@ -198,46 +298,26 @@ function ReportFilters({
           reports.some((report) => report.bucket === bucket && report.section === id),
         );
   const selected = section === 'all' || present.includes(section) ? section : 'all';
-  return (
-    <>
-      <div className="report-filters" role="group" aria-label={r.filtersLabel}>
-        {buckets.map((id) => (
-          <button
-            key={id}
-            type="button"
-            className="btn btn-small"
-            data-testid={`report-bucket-${id}`}
-            aria-pressed={bucket === id}
-            onClick={() => {
-              onBucket(id);
-            }}
-          >
-            {r.bucket[id]}
-          </button>
+  return present.length > 0 ? (
+    <label className="report-section-pick">
+      {r.sectionsLabel}
+      <select
+        data-testid="report-section"
+        aria-label={r.sectionsLabel}
+        value={selected}
+        onChange={(event) => {
+          onSection(event.target.value);
+        }}
+      >
+        <option value="all">{r.section.all}</option>
+        {present.map((id) => (
+          <option key={id} value={id} data-testid={`report-section-${id}`}>
+            {r.section[id] ?? id}
+          </option>
         ))}
-      </div>
-      {present.length > 0 ? (
-        <label className="report-section-pick">
-          {r.sectionsLabel}
-          <select
-            data-testid="report-section"
-            aria-label={r.sectionsLabel}
-            value={selected}
-            onChange={(event) => {
-              onSection(event.target.value);
-            }}
-          >
-            <option value="all">{r.section.all}</option>
-            {present.map((id) => (
-              <option key={id} value={id} data-testid={`report-section-${id}`}>
-                {r.section[id] ?? id}
-              </option>
-            ))}
-          </select>
-        </label>
-      ) : null}
-    </>
-  );
+      </select>
+    </label>
+  ) : null;
 }
 
 export function LogPanel({
@@ -294,20 +374,29 @@ export function LogPanel({
         )}
       </section>
       <section aria-labelledby="reports-heading" data-testid="reports" data-panel="reports">
-        <h2 id="reports-heading">
+        <h2 id="reports-heading" aria-labelledby="reports-heading-text">
           <FlaskConical className="heading-icon" size={16} strokeWidth={2} aria-hidden="true" />
-          {ui.game.reports.heading}
+          <span id="reports-heading-text" className="heading-label">
+            {ui.game.reports.heading}
+          </span>
+          <span className="report-filters" role="group" aria-label={ui.game.reports.filtersLabel}>
+            {REPORT_BUCKETS.map((id) => (
+              <FilterIconButton
+                key={id}
+                pressed={bucket === id}
+                label={ui.game.reports.bucket[id] ?? id}
+                testId={`report-bucket-${id}`}
+                onClick={() => {
+                  setBucket(id);
+                  setSection('all');
+                }}
+              >
+                <BucketIcon id={id} />
+              </FilterIconButton>
+            ))}
+          </span>
         </h2>
-        <ReportFilters
-          bucket={bucket}
-          section={section}
-          reports={reports}
-          onBucket={(next) => {
-            setBucket(next);
-            setSection('all');
-          }}
-          onSection={setSection}
-        />
+        <ReportFilters bucket={bucket} section={section} reports={reports} onSection={setSection} />
         {reports.length === 0 ? (
           <p className="hint">{ui.game.reports.empty}</p>
         ) : shown.length === 0 ? (
@@ -321,32 +410,32 @@ export function LogPanel({
         )}
       </section>
       <section aria-labelledby="log-heading" data-panel="log">
-        <h2 id="log-heading">
+        <h2 id="log-heading" aria-labelledby="log-heading-text">
           <ScrollText className="heading-icon" size={16} strokeWidth={2} aria-hidden="true" />
-          {l.heading}
+          <span id="log-heading-text" className="heading-label">
+            {l.heading}
+          </span>
+          <span className="scope" role="group" aria-label={l.scopeLabel}>
+            <FilterIconButton
+              pressed={scope === 'patient'}
+              label={l.scopeCurrent}
+              onClick={() => {
+                setScope('patient');
+              }}
+            >
+              <ScopeIcon kind="patient" />
+            </FilterIconButton>
+            <FilterIconButton
+              pressed={scope === 'all'}
+              label={l.scopeAll}
+              onClick={() => {
+                setScope('all');
+              }}
+            >
+              <ScopeIcon kind="all" />
+            </FilterIconButton>
+          </span>
         </h2>
-        <div className="scope" role="group" aria-label={l.scopeLabel}>
-          <button
-            type="button"
-            className="btn btn-small"
-            aria-pressed={scope === 'patient'}
-            onClick={() => {
-              setScope('patient');
-            }}
-          >
-            {l.scopeCurrent}
-          </button>
-          <button
-            type="button"
-            className="btn btn-small"
-            aria-pressed={scope === 'all'}
-            onClick={() => {
-              setScope('all');
-            }}
-          >
-            {l.scopeAll}
-          </button>
-        </div>
         {rows.length === 0 ? (
           <p className="hint">{l.empty}</p>
         ) : (
