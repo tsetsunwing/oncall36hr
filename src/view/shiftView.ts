@@ -222,9 +222,19 @@ export function selectShift(state: GameState, env: ViewEnv, clockLabel: ClockLab
   const selfCareActive = state.shift.selfCare.active;
   const phase = state.clock.phase;
   const regular = overtimeEndOf(config, state.mode) - config.shifts.overtimeSeconds;
+  const home = state.homeWard;
+  const specialty =
+    home.kind === 'SPECIALTY'
+      ? (env.tables['consult-departments'].find((dept) => dept.id === home.deptId)?.label ??
+        home.deptId)
+      : null;
   return {
     shiftMode: state.mode,
     playerRank: state.playerRank,
+    homeWard:
+      home.kind === 'SPECIALTY'
+        ? { kind: 'SPECIALTY', deptId: home.deptId, label: specialty ?? home.deptId }
+        : home,
     difficulty: state.difficulty,
     phase,
     segment: segmentAt(config, state.mode, Math.min(state.clock.t, regular - 1))?.kind ?? null,

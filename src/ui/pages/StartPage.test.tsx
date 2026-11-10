@@ -35,6 +35,30 @@ describe('StartPage', () => {
     expect(onTestConnection).toHaveBeenCalledOnce();
   });
 
+  it('lets the player cover a surgical or specialty ward', async () => {
+    const onStart = vi.fn();
+    render(<StartPage gate={{ canStart: true }} onStart={onStart} />);
+    expect(screen.getByTestId('setup-tagline')).toHaveTextContent(
+      '你是內科病房的值班醫生。今晚，病房只有你一人。',
+    );
+    await userEvent.selectOptions(screen.getByTestId('setup-ward'), 'SURGERY');
+    expect(screen.getByTestId('setup-tagline')).toHaveTextContent(
+      '你是外科病房的值班醫生。今晚，病房只有你一人。',
+    );
+    await userEvent.selectOptions(screen.getByTestId('setup-ward'), 'CARDIOLOGY');
+    expect(screen.getByTestId('setup-tagline')).toHaveTextContent(
+      '你是 Cardiology 病房的值班醫生。今晚，病房只有你一人。',
+    );
+    expect(screen.getByTestId('setup-ward')).not.toHaveTextContent('Pharmacy');
+    await userEvent.click(screen.getByRole('button', { name: ui.start.startButton }));
+    expect(onStart).toHaveBeenCalledWith({
+      rank: 'MO',
+      difficulty: 'MEDIUM',
+      mode: 'NIGHT',
+      home: { kind: 'SPECIALTY', deptId: 'CARDIOLOGY' },
+    });
+  });
+
   it('starts when the gate is open', async () => {
     const onStart = vi.fn();
     render(<StartPage gate={{ canStart: true }} onStart={onStart} />);

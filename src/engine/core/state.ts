@@ -18,7 +18,7 @@ import { emptyShift, shiftSchema } from '../shift/shiftState';
 import { emptyWard, wardStateSchema } from '../ward/wardTypes';
 import type { EngineConfig } from './config';
 
-export const CURRENT_SCHEMA = 12;
+export const CURRENT_SCHEMA = 13;
 
 export const MODES = ['DAY', 'NIGHT', 'ONCALL'] as const;
 export const DIFFICULTIES = ['EASY', 'MEDIUM', 'HARD'] as const;
@@ -28,6 +28,23 @@ export const PHASES = ['REGULAR', 'OVERTIME', 'HANDOVER', 'ENDED'] as const;
 export type Mode = (typeof MODES)[number];
 export type Difficulty = (typeof DIFFICULTIES)[number];
 export type PlayerRank = (typeof PLAYER_RANKS)[number];
+
+/** 開局病房：內科普通病房、外科普通病房，或電話名單上的一個專科。 */
+export const homeWardSchema = z.discriminatedUnion('kind', [
+  z.object({ kind: z.literal('MEDICINE') }).strict(),
+  z.object({ kind: z.literal('SURGERY') }).strict(),
+  z.object({ kind: z.literal('SPECIALTY'), deptId: z.string().min(1) }).strict(),
+]);
+
+export type HomeWard = z.infer<typeof homeWardSchema>;
+
+function resolveHomeWard(home: HomeWard | undefined): HomeWard {
+  if (home?.kind === 'SURGERY') return { kind: 'SURGERY' };
+  if (home?.kind === 'SPECIALTY' && home.deptId.length > 0) {
+    return { kind: 'SPECIALTY', deptId: home.deptId };
+  }
+  return { kind: 'MEDICINE' };
+}
 
 export const AUTOSAVE_EVENT_KIND = 'AUTOSAVE';
 export const AUTOSAVE_PRIORITY = 100;
@@ -64,6 +81,8 @@ export const gameStateSchema = z
     mode: z.enum(MODES),
     difficulty: z.enum(DIFFICULTIES),
     playerRank: z.enum(PLAYER_RANKS),
+    /** 玩家值夜嘅病房。舊存檔未有此欄，遷移時當作內科普通病房。 */
+    homeWard: homeWardSchema,
     /** 開局時由設定頁帶入嘅玩法選項（engine 唔讀 localStorage） */
     options: z.object({ nurseConfirmHighRisk: z.boolean() }).strict(),
     rng: rngStateSchema,
@@ -110,6 +129,8 @@ export interface NewGameParams {
   nurseConfirmHighRisk?: boolean;
   /** 指定 case 模板 id；唔填就用 content 第一個 case（M2 只有一個） */
   caseId?: string;
+  /** 值夜病房。唔填＝內科普通病房 */
+  homeWard?: HomeWard;
   /** M4：生成 20 床病房、電話同下屬；唔填＝舊式單一病人（p1，7 號床） */
   ward?: boolean;
   /** 病房模式下，指定其中一個病人用呢個 case 模板（測試與預覽用）；未知 id 忽略 */
@@ -129,6 +150,7 @@ export function createInitialState(params: NewGameParams, config: EngineConfig):
     mode: params.mode,
     difficulty: params.difficulty,
     playerRank: params.playerRank,
+    homeWard: resolveHomeWard(params.homeWard),
     options: { nurseConfirmHighRisk: params.nurseConfirmHighRisk ?? true },
     rng: createRngState(params.seed),
     clock: {

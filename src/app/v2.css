@@ -2038,6 +2038,25 @@ tr[data-flag='H'] .value-flagged {
   line-height: 1.7;
 }
 
+.setup-ward {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.setup-ward-label {
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.play-stage .page select.setup-ward-select {
+  width: auto;
+  min-width: 12rem;
+  max-width: 100%;
+}
+
 .setup-note {
   display: flex;
   flex-direction: column;

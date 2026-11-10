@@ -64,6 +64,7 @@ export {
   gameStateSchema,
   type Difficulty,
   type GameState,
+  type HomeWard,
   type Mode,
   type NewGameParams,
   type PendingAiRequest,

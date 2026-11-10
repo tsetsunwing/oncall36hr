@@ -14,12 +14,21 @@ function subscribe(callback: () => void): () => void {
   return () => window.removeEventListener('hashchange', callback);
 }
 
-export function navigateToGame(choice: { mode: string; difficulty: string; rank: string }): void {
+export function navigateToGame(choice: {
+  mode: string;
+  difficulty: string;
+  rank: string;
+  home?: { kind: 'MEDICINE' | 'SURGERY' | 'SPECIALTY'; deptId?: string };
+}): void {
   const query = new URLSearchParams({
     mode: choice.mode,
     difficulty: choice.difficulty,
     rank: choice.rank,
   });
+  if (choice.home?.kind === 'SURGERY') query.set('home', 'SURGERY');
+  else if (choice.home?.kind === 'SPECIALTY' && choice.home.deptId)
+    query.set('home', choice.home.deptId);
+  else query.set('home', 'MEDICINE');
   window.location.hash = `#/game?${query.toString()}`;
 }
 

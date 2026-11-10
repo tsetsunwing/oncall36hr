@@ -674,6 +674,11 @@ export interface ResultView {
 export interface ShiftView {
   shiftMode: ModeCode;
   playerRank: 'HO' | 'MO' | 'RES';
+  /** 開局揀嘅病房。專科 label 係電話名單上的英文名稱。 */
+  homeWard:
+    | { kind: 'MEDICINE' }
+    | { kind: 'SURGERY' }
+    | { kind: 'SPECIALTY'; deptId: string; label: string };
   difficulty: 'EASY' | 'MEDIUM' | 'HARD';
   phase: PhaseCode;
   segment: 'DAY' | 'NIGHT' | null;

@@ -43,7 +43,13 @@ export function ClockBar({ clock, shift, actions, tools, places }: ClockBarProps
           <span className="tag mode-badge" data-testid="mode-badge">
             {ui.shift.mode[shift.shiftMode]}
           </span>
-          <span className="title">{ui.game.ward.wardTitle}</span>
+          <span className="title" data-testid="ward-title">
+            {shift.homeWard.kind === 'SURGERY'
+              ? ui.start.wardSurgery
+              : shift.homeWard.kind === 'SPECIALTY'
+                ? ui.start.wardSpecialty(shift.homeWard.label)
+                : ui.start.wardMedicine}
+          </span>
           <span className="pill" data-testid="rank-badge">
             {g.youRank(ui.shift.setup.rank[shift.playerRank]?.name ?? shift.playerRank)}
           </span>

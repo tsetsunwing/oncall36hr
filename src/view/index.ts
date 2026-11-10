@@ -1,4 +1,5 @@
 export * from './startGate';
+export { isWardSpecialty, wardSpecialties, type WardSpecialty } from './homeWard';
 export * from './clock';
 export * from './gameView';
 export { composePromptPhrase, placedPromptParams } from './quickPrompt';

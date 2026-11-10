@@ -15,7 +15,15 @@ export const ui = {
   },
   start: {
     heading: '單獨值夜',
-    tagline: '你是內科病房的值班醫生。今晚，病房只有你一人。',
+    tagline: (ward: string) => {
+      const gap = /^[A-Za-z0-9]/.test(ward) ? ' ' : '';
+      return `你是${gap}${ward}的值班醫生。今晚，病房只有你一人。`;
+    },
+    wardHeading: '病房',
+    wardMedicine: '內科病房',
+    wardSurgery: '外科病房',
+    wardSpecialtyGroup: '專科病房',
+    wardSpecialty: (name: string) => `${name} 病房`,
     startButton: '開始值夜',
     settingsLink: '前往設定頁',
     blockedTitle: '尚未完成設定，無法開始',
