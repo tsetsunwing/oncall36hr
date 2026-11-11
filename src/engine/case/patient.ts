@@ -154,6 +154,20 @@ export const patientSchema = z
         lastAlertAt: z.number().int().min(0).nullable(),
         /** 後果（堅持下單）產生嘅生理效果；同 order 效果一齊疊加入 vitals */
         activeEffects: z.array(activeEffectSchema),
+        /** 介入／治療對化驗值嘅修飾；未斷病因嘅會隨時間回跌 */
+        labModifiers: z.array(
+          z
+            .object({
+              analyte: z.string().min(1),
+              delta: z.number(),
+              appliedAt: z.number().int().min(0),
+              decayPerHour: z.number().min(0),
+              decayUnless: z.string().min(1).nullable(),
+              capLow: z.number().nullable(),
+              capHigh: z.number().nullable(),
+            })
+            .strict(),
+        ),
       })
       .strict(),
     visible: z

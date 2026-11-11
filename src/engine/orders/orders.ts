@@ -14,6 +14,7 @@ import type { GameState } from '../core/state';
 import type { OrderCatalogRow } from '../case/tables';
 import { scoreObjectionHeeded } from '../gate/gateScoring';
 import { updateOrderLog } from '../log/log';
+import { modifiersForFlags } from '../case/labs';
 import { scheduleResultReport } from '../results/results';
 import { attachDrain } from './drains';
 import { composeOrderLabel } from './label';
@@ -103,10 +104,19 @@ export function completeOrder(state: GameState, order: Order, ctx: EngineContext
   if (!row || !patient) return { state: next, effects };
 
   const flags = [...new Set([...patient.hidden.fsm.flags, ...row.setsFlags])];
+  const freshFlags = flags.filter((flag) => !patient.hidden.fsm.flags.includes(flag));
+  const modifiers = modifiersForFlags(ctx.tables['lab-effects'], freshFlags, state.clock.t);
   const withFlags = attachDrain(
     {
       ...patient,
-      hidden: { ...patient.hidden, fsm: { ...patient.hidden.fsm, flags } },
+      hidden: {
+        ...patient.hidden,
+        fsm: { ...patient.hidden.fsm, flags },
+        labModifiers:
+          modifiers.length === 0
+            ? patient.hidden.labModifiers
+            : [...patient.hidden.labModifiers, ...modifiers],
+      },
     },
     order,
   );

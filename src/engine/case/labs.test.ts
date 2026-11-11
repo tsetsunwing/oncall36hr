@@ -3,6 +3,8 @@ import { describe, expect, it } from 'vitest';
 import { realTables } from '../test/realEngine';
 import {
   LAB_REPEAT_SPREAD,
+  labValueAt,
+  modifiersForFlags,
   LAB_SEED_SPREAD,
   diagnosisBase,
   normalValue,
@@ -110,5 +112,56 @@ describe('診斷值解析', () => {
   it('診斷冇寫過就回 undefined，交由正常基準決定', () => {
     expect(diagnosisBase({ 'gi-bleed': { '*': 9 } }, ['sepsis'], 'DETERIORATING')).toBeUndefined();
     expect(diagnosisBase(undefined, ['sepsis'], 'DETERIORATING')).toBeUndefined();
+  });
+});
+
+describe('介入對化驗值的影響', () => {
+  const effects = realTables()['lab-effects'];
+  const transfusion = effects.filter((row) => row.flag === 'transfusion.prc');
+  const base = { value: 7.6, at: 0 };
+
+  const valueAt = (t: number, flags: string[] = []) => {
+    const modifiers = modifiersForFlags(transfusion, ['transfusion.prc'], 0);
+    return labValueAt(base, modifiers, 'hb', 1, t, flags);
+  };
+
+  it('輸血一包令 Hb 升 1.0，受上限 9.0 限制', () => {
+    expect(valueAt(0)).toBe(8.6);
+    const many = [
+      ...modifiersForFlags(transfusion, ['transfusion.prc'], 0),
+      ...modifiersForFlags(transfusion, ['transfusion.prc'], 0),
+    ];
+    expect(labValueAt(base, many, 'hb', 1, 0, [])).toBe(9);
+  });
+
+  it('未止血時每兩小時回跌 0.3', () => {
+    expect(valueAt(2 * 3600)).toBe(8.3);
+    expect(valueAt(4 * 3600)).toBe(8);
+  });
+
+  it('回跌最多扣到原本嘅值，唔會反過來拉低', () => {
+    expect(valueAt(100 * 3600)).toBe(7.6);
+  });
+
+  it('有 bleeding.stopped 旗標就唔再回跌', () => {
+    expect(valueAt(4 * 3600, ['bleeding.stopped'])).toBe(8.6);
+  });
+
+  it('沒有輸血就沒有修飾', () => {
+    expect(
+      labValueAt(base, modifiersForFlags(transfusion, ['fluid.bolus'], 0), 'hb', 1, 0, []),
+    ).toBe(7.6);
+  });
+
+  it('補液令 Hb 略降、乳酸下降', () => {
+    const modifiers = modifiersForFlags(effects, ['fluid.bolus'], 0);
+    expect(labValueAt({ value: 8, at: 0 }, modifiers, 'hb', 1, 0, [])).toBe(7.6);
+    expect(labValueAt({ value: 4.2, at: 0 }, modifiers, 'lactate', 1, 0, [])).toBe(3.4);
+  });
+
+  it('胰島素令鉀下降，四小時後回彈', () => {
+    const modifiers = modifiersForFlags(effects, ['insulin.iv'], 0);
+    expect(labValueAt({ value: 6.2, at: 0 }, modifiers, 'k', 1, 0, [])).toBe(5.2);
+    expect(labValueAt({ value: 6.2, at: 0 }, modifiers, 'k', 1, 4 * 3600, [])).toBe(6.2);
   });
 });

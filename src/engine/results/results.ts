@@ -3,7 +3,7 @@
  * 報告內容由 T7 按「採樣當刻」嘅 case 狀態查表產生，AI 只負責護士口頭通知（唔寫數值）。
  */
 import { z } from 'zod';
-import { pickByDiagnosisAndState, readingForReport } from '../case/labs';
+import { labValueAt, pickByDiagnosisAndState, readingForReport } from '../case/labs';
 
 export { pickByDiagnosisAndState };
 import { patientTokens, queueDialogue, vitalTokens, type Beat } from '../chat/dialogue';
@@ -63,16 +63,30 @@ function labValueOf(
   order: Order,
   state: string,
   seed: string,
+  t: number,
 ): number | undefined {
   const reading = patient.visible.labs[item.id];
-  if (reading) {
-    return readingForReport(reading, item.decimals, `${seed}|${patient.id}|${item.id}|${order.id}`);
+  if (!reading) {
+    return pickByDiagnosisAndState(
+      item.byDiagnosis,
+      patient.hidden.diagnosisIds,
+      item.byState,
+      state,
+    );
   }
-  return pickByDiagnosisAndState(
-    item.byDiagnosis,
-    patient.hidden.diagnosisIds,
-    item.byState,
-    state,
+  const adjusted = labValueAt(
+    reading,
+    patient.hidden.labModifiers,
+    item.id,
+    item.decimals,
+    t,
+    patient.hidden.fsm.flags,
+  );
+  if (adjusted === undefined) return undefined;
+  return readingForReport(
+    { value: adjusted, at: reading.at },
+    item.decimals,
+    `${seed}|${patient.id}|${item.id}|${order.id}`,
   );
 }
 
@@ -97,7 +111,7 @@ export function buildReport(
   const diagnosisIds = patient.hidden.diagnosisIds;
   if (result.kind === 'PANEL') {
     const items = result.items.flatMap((item) => {
-      const value = labValueOf(item, patient, order, state, seed);
+      const value = labValueOf(item, patient, order, state, seed, t);
       if (value === undefined) return [];
       return [
         {

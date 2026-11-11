@@ -25,6 +25,7 @@ function patientWith(flags: string[], drains: Patient['visible']['drains'] = [])
       alertedBand: null,
       lastAlertAt: null,
       activeEffects: [],
+      labModifiers: [],
     },
     visible: {
       vitals: { t: 0, hr: 80, sbp: 120, dbp: 70, spo2: 98, rr: 16, temp: 37 },

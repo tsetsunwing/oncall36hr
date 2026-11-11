@@ -196,6 +196,7 @@ export function createPatientState(
       alertedBand: null,
       lastAlertAt: null,
       activeEffects: [],
+      labModifiers: [],
     },
     visible: {
       vitals: { t, ...base },

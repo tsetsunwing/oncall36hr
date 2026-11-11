@@ -270,6 +270,20 @@ function migrateV11toV12(raw: RawState): RawState {
 }
 
 /** 13：病人加疼痛分數同 GCS／瞳孔（唔上心臟監察儀）。舊存檔由 ACVPU 推一個 GCS 起點。 */
+/** 15：介入／治療對化驗值嘅修飾清單。舊存檔補空陣列。 */
+function migrateV14toV15(raw: RawState): RawState {
+  const patients = (raw.patients ?? {}) as Record<string, Record<string, unknown>>;
+  return {
+    ...raw,
+    patients: Object.fromEntries(
+      Object.entries(patients).map(([id, patient]) => {
+        const hidden = (patient.hidden ?? {}) as Record<string, unknown>;
+        return [id, { ...patient, hidden: { ...hidden, labModifiers: hidden.labModifiers ?? [] } }];
+      }),
+    ),
+  };
+}
+
 /**
  * 14：病人身上開始儲存化驗值。舊存檔冇呢啲值，補一個空表；
  * 報告會退回舊做法（按狀態查表），唔會壞。
@@ -329,6 +343,7 @@ export const migrations: MigrationRegistry = {
   11: migrateV11toV12,
   12: migrateV12toV13,
   13: migrateV13toV14,
+  14: migrateV14toV15,
 };
 
 export type MigrateResult =

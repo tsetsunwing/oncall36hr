@@ -241,6 +241,17 @@ export interface LabBaselineRow {
   elderlyDelta: number;
 }
 
+export interface LabEffectRow {
+  id: string;
+  flag: string;
+  analyte: string;
+  delta: number;
+  capLow: number | null;
+  capHigh: number | null;
+  decayPerHour: number;
+  decayUnless: string | null;
+}
+
 export const CONCERN_CATEGORIES = [
   'ALLERGY',
   'INTERACTION',
@@ -669,6 +680,7 @@ export interface EngineTables {
   'quick-words': readonly QuickWordRow[];
   results: readonly ResultRow[];
   'lab-baselines': readonly LabBaselineRow[];
+  'lab-effects': readonly LabEffectRow[];
   consequences: readonly ConsequenceRow[];
   'difficulty-profiles': readonly DifficultyProfileRow[];
   'rank-complexity': readonly RankComplexityRow[];
@@ -704,6 +716,7 @@ export const EMPTY_TABLES: EngineTables = {
   'quick-words': [],
   results: [],
   'lab-baselines': [],
+  'lab-effects': [],
   consequences: [],
   'difficulty-profiles': [],
   'rank-complexity': [],

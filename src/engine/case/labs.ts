@@ -8,7 +8,7 @@
  * 3. 只有介入／治療才會真正改動儲存值（見 lab-effects）。
  */
 import { hashString } from '../core/rng';
-import type { EngineTables, LabBaselineRow, ResultItemRow } from './tables';
+import type { EngineTables, LabBaselineRow, LabEffectRow, ResultItemRow } from './tables';
 
 /** 建立病人時嘅個體差異（±2%）。 */
 export const LAB_SEED_SPREAD = 0.02;
@@ -115,4 +115,82 @@ export function normalValue(baseline: LabBaselineRow, sex: 'M' | 'F', age: numbe
 /** 報告顯示用：儲存值加一個睇不出走勢嘅小變動，唔會寫回病人身上。 */
 export function readingForReport(reading: LabReading, decimals: number, key: string): number {
   return roundTo(reading.value * (1 + stableNoise(key, LAB_REPEAT_SPREAD)), decimals);
+}
+
+/** 一個介入對某一項化驗嘅修飾。 */
+export interface LabModifier {
+  analyte: string;
+  delta: number;
+  appliedAt: number;
+  decayPerHour: number;
+  decayUnless: string | null;
+  capLow: number | null;
+  capHigh: number | null;
+}
+
+function clamp(value: number, low: number | null, high: number | null): number {
+  let out = value;
+  if (low !== null && out < low) out = low;
+  if (high !== null && out > high) out = high;
+  return out;
+}
+
+/**
+ * 把修飾值換算成「此刻仍然有效嘅幅度」。
+ * 有 `decayUnless` 而病人已經有該旗標，就當病因斷了，唔再回跌。
+ * 回跌最多扣到 0，唔會反過來拉低原本嘅值。
+ */
+export function modifierDeltaAt(
+  modifier: LabModifier,
+  t: number,
+  flags: readonly string[],
+): number {
+  const addressed = modifier.decayUnless !== null && flags.includes(modifier.decayUnless);
+  if (addressed || modifier.decayPerHour === 0) return modifier.delta;
+  const hours = Math.max(0, t - modifier.appliedAt) / 3600;
+  const left = modifier.delta - Math.sign(modifier.delta) * modifier.decayPerHour * hours;
+  if (modifier.delta >= 0) return Math.max(0, left);
+  return Math.min(0, left);
+}
+
+/**
+ * 病人此刻嘅化驗值：儲存值 ＋ 各項介入修飾（會回跌、有上下限）。
+ * 冇儲存值就回 undefined，交由舊做法按表查。
+ */
+export function labValueAt(
+  base: LabReading | undefined,
+  modifiers: readonly LabModifier[],
+  analyte: string,
+  decimals: number,
+  t: number,
+  flags: readonly string[],
+): number | undefined {
+  if (!base) return undefined;
+  let value = base.value;
+  for (const modifier of modifiers) {
+    if (modifier.analyte !== analyte) continue;
+    const delta = modifierDeltaAt(modifier, t, flags);
+    if (delta === 0) continue;
+    value = clamp(value + delta, modifier.capLow, modifier.capHigh);
+  }
+  return roundTo(value, decimals);
+}
+
+/** 由 order 嘅旗標產生修飾值。 */
+export function modifiersForFlags(
+  effects: readonly LabEffectRow[],
+  flags: readonly string[],
+  t: number,
+): LabModifier[] {
+  return effects
+    .filter((row) => flags.includes(row.flag))
+    .map((row) => ({
+      analyte: row.analyte,
+      delta: row.delta,
+      appliedAt: t,
+      decayPerHour: row.decayPerHour,
+      decayUnless: row.decayUnless,
+      capLow: row.capLow,
+      capHigh: row.capHigh,
+    }));
 }
