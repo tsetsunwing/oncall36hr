@@ -3,8 +3,8 @@
  * 有 reviewStatus 嘅列必須仍然係 PENDING_CLINICAL_REVIEW。
  * T1／T2／T3／T8 冇呢個欄位，但係臨床內容，一併列為未簽核。
  */
-import { getContent } from '../src/content';
 import { TABLE_NAMES, type TableName } from '../src/content/schema/tables';
+import { nodeContent } from './node-content';
 
 export interface PlaceholderRow {
   table: TableName;
@@ -37,7 +37,7 @@ function statusOf(row: object): string | null {
 }
 
 export function clinicalPlaceholders(): ClinicalPlaceholderReport {
-  const tables = getContent().tables;
+  const tables = nodeContent().tables;
   const pending: PlaceholderRow[] = [];
   const other: PlaceholderRow[] = [];
   const noField: TableName[] = [];

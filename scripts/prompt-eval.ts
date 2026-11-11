@@ -3,7 +3,7 @@
  * 模型係本機 contract fixture（mock 契約函數），唔係臨床 LLM，亦唔會打外網。
  * 換模型時用同一批 case 回歸：粵語對白、無裸數字、無診斷洩露；解析類只核對結構。
  */
-import { getConfig } from '../src/content';
+import { nodeContent } from './node-content';
 import {
   consultAssessContract,
   consultReplyContract,
@@ -205,7 +205,7 @@ function gateLocal(role: 'PHARMACY' | 'NURSE') {
   };
 }
 
-const CONSULT_ITEMS = getConfig().consult.items;
+const CONSULT_ITEMS = nodeContent().config.consult.items;
 
 const SBAR = {
   S: '七號床黃生而家氣促',
