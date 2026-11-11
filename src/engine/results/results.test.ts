@@ -1,7 +1,7 @@
 /** M3：化驗／檢查結果按 T7 表延遲報告；內容查表（採樣當刻狀態）、AI 只做口頭通知。 */
 import { describe, expect, it } from 'vitest';
 import { effectDeltaAt } from '../case/vitals';
-import { capReports } from './results';
+import { capReports, pickByDiagnosisAndState } from './results';
 import type { PatientReport } from '../case/patient';
 import type { GameState } from '../core/state';
 import {
@@ -25,6 +25,8 @@ const engine = realEngine(tables);
 const start = (seed = 'res-1') => engine.init(params(seed));
 
 const resultRows = tables['order-catalog'].filter((r) => r.resultId);
+/** 一個夜更內等得到嘅報告上限（14 小時）。超過就只驗「排咗隊、未出」。 */
+const LONGEST_WAITABLE_DELAY = 12 * 3600;
 const orderOf = (state: GameState, catalogId: string) =>
   Object.values(state.orders).find((o) => o.catalogId === catalogId);
 
@@ -42,6 +44,9 @@ describe('化驗／檢查結果（T7）', () => {
         expect(orderOf(state, row.id)?.resultStatus, row.id).toBe('PENDING');
         expect(state.patients.p1?.visible.reports, row.id).toHaveLength(0);
       }
+      // 報告延遲長過一個夜更（例如結核培養 24 小時、活檢 72 小時）就唔會喺局內出，
+      // 呢個 test 只驗「按表內延遲出報告」，所以跳過唔會等到嘅項目。
+      if (result.reportDelaySec > LONGEST_WAITABLE_DELAY) continue;
       const before = placed?.completesAt ?? 0;
       state = advance(engine, state, result.reportDelaySec + 1).state;
       const report = state.patients.p1?.visible.reports[0];
@@ -269,5 +274,29 @@ describe('每個檢查只保留最近 5 份報告', () => {
   it('未夠 5 份時原封不動', () => {
     const reports = [report('a', 'res.cbc'), report('b', 'res.cbc')];
     expect(capReports(reports, 'res.cbc').map((item) => item.id)).toEqual(['a', 'b']);
+  });
+});
+
+describe('報告按診斷再按狀態揀內容', () => {
+  const byState = { DETERIORATING: 1, '*': 9 };
+  const byDiagnosis = { 'gi-bleed': { '*': 5 }, pe: { DETERIORATING: 7 } };
+
+  it('診斷＋狀態優先', () => {
+    expect(pickByDiagnosisAndState(byDiagnosis, ['pe'], byState, 'DETERIORATING')).toBe(7);
+  });
+
+  it('診斷有寫過就唔會退回通用值', () => {
+    expect(pickByDiagnosisAndState(byDiagnosis, ['gi-bleed'], byState, 'DETERIORATING')).toBe(5);
+  });
+
+  it('診斷未寫過該狀態，先用該診斷嘅 * ，再退回通用狀態值', () => {
+    expect(
+      pickByDiagnosisAndState({ pe: { STABILISING: 3 } }, ['pe'], byState, 'DETERIORATING'),
+    ).toBe(1);
+  });
+
+  it('冇診斷資料就照舊用狀態', () => {
+    expect(pickByDiagnosisAndState(undefined, ['sepsis'], byState, 'DETERMINING')).toBe(9);
+    expect(pickByDiagnosisAndState(byDiagnosis, ['sepsis'], byState, 'DETERIORATING')).toBe(1);
   });
 });
