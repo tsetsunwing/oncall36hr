@@ -130,6 +130,8 @@ export {
 export { DRAIN_CATALOG_ID, normalizeDrainSite } from './orders/drains';
 export { matchQuickPhrase, normalizePhrase } from './orders/quickPhrase';
 export { meanArterialPressure, computeMews, type MewsResult } from './case/mews';
+export { awayOf, contrastScreened, CONTRAST_SCREENED_FLAG } from './case/away';
+export type { AwayState } from './case/away';
 export type { Patient, VitalsSample } from './case/patient';
 export {
   CONCERN_CATEGORIES,

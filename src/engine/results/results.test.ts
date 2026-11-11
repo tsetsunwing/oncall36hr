@@ -17,6 +17,10 @@ import {
 } from '../test/realEngine';
 
 const tables = zeroNoiseTables();
+/** X 光：拍攝時間 ＋ 報告延遲。由表讀，改報告時間唔會令測試壞。 */
+const cxrDelay =
+  (tables['order-catalog'].find((row) => row.id === 'img.cxr')?.fixedDurationSec ?? 0) +
+  (tables.results.find((row) => row.id === 'res.cxr')?.reportDelaySec ?? 0);
 const engine = realEngine(tables);
 const start = (seed = 'res-1') => engine.init(params(seed));
 
@@ -80,7 +84,7 @@ describe('化驗／檢查結果（T7）', () => {
 
   it('REPORT 報告：文字來自 T7 textByState', () => {
     let state = feed(engine, start(), [say('cxr')]).state;
-    state = advance(engine, state, 900 + 900 + 10).state;
+    state = advance(engine, state, cxrDelay + 10).state;
     const report = state.patients.p1?.visible.reports[0];
     expect(report?.kind).toBe('REPORT');
     const def = tables.results.find((r) => r.id === 'res.cxr');
@@ -123,7 +127,7 @@ describe('化驗／檢查結果（T7）', () => {
         },
       },
     };
-    state = advance(eng, state, 900 + 5).state;
+    state = advance(eng, state, cxrDelay + 5).state;
     const report = state.patients.p1?.visible.reports[0];
     expect(report?.text).toBe('AT-SAMPLING-STATE');
     expect(report?.abnormal).toBe(true);

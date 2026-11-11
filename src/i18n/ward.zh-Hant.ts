@@ -59,6 +59,8 @@ export const wardUi = {
   legend: { NORMAL: '低風險', CAUTION: '中風險', ALARM: '高風險', EMPTY: '空床' },
   notAtBed: '你不在這位病人的床邊。請先在平面圖按床位前往。',
   notAtBedHeading: '尚未到達床邊',
+  awayTitle: (place: string) => `病人不在病房：${place}`,
+  awayDetail: (until: string) => `預計 ${until} 回來。離開期間看不到監察儀，亦量不到血壓。`,
   tabs: { label: '工作區', chat: '床邊對話', phone: '電話', family: '家屬', ward: '病房' },
   phone: {
     heading: '共用電話',
