@@ -46,6 +46,7 @@ function makeActions() {
     saveManual: vi.fn(),
     measureNibp: vi.fn(),
     assessGcs: vi.fn(),
+    placeTests: vi.fn(),
   } satisfies GameActions;
 }
 
@@ -429,12 +430,20 @@ describe('ChatPanel', () => {
     await user.click(screen.getByTestId('test-section-haem'));
     expect(screen.getByTestId('test-action-qw.cbc')).toHaveTextContent('CBC');
     expect(screen.getByTestId('test-action-qw.crossmatch')).toHaveTextContent('Cross-match');
+    // 檢查唔會即刻落單：先入抽血籃，確認才一次過送出。
+    expect(screen.getByTestId('test-basket-count')).toHaveTextContent(ui.game.chat.basketEmpty);
     await user.click(screen.getByTestId('test-action-qw.cbc'));
-    expect(actions.placeOrder).toHaveBeenCalledWith('p1', 'lab.cbc', 'CBC', {
-      drugFormularyId: null,
-      dose: null,
-      route: null,
-    });
+    expect(actions.placeOrder).not.toHaveBeenCalled();
+    expect(actions.placeTests).not.toHaveBeenCalled();
+    expect(screen.getByTestId('test-basket-count')).toHaveTextContent(ui.game.chat.basketCount(1));
+    await user.click(screen.getByTestId('test-action-qw.crossmatch'));
+    expect(screen.getByTestId('test-basket-count')).toHaveTextContent(ui.game.chat.basketCount(2));
+    // 再按一次同一項會取消
+    await user.click(screen.getByTestId('test-action-qw.crossmatch'));
+    expect(screen.getByTestId('test-basket-count')).toHaveTextContent(ui.game.chat.basketCount(1));
+    await user.click(screen.getByTestId('test-basket-confirm'));
+    expect(actions.placeTests).toHaveBeenCalledWith('p1', ['lab.cbc'], '抽血：CBC');
+    expect(actions.placeOrder).not.toHaveBeenCalled();
     expect(actions.submitChat).not.toHaveBeenCalled();
     expect(screen.queryByTestId('test-menu')).not.toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: ui.game.chat.chipGroup.observe ?? '' }));
