@@ -139,7 +139,9 @@ const FOCUSABLE =
 function DrugOrderPopup({ onClose, children }: { onClose: () => void; children: ReactNode }) {
   const layerRef = useRef<HTMLDivElement>(null);
   const onCloseRef = useRef(onClose);
-  onCloseRef.current = onClose;
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
   const [mount] = useState(
     () => document.querySelector<HTMLElement>('[data-testid="play-frame"]') ?? document.body,
   );
@@ -249,6 +251,18 @@ function ChipMenus({
   const [section, setSection] = useState<string | null>(null);
   const [resusColumn, setResusColumn] = useState<string | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
+  // 藥物／氧氣／導管視窗開啟時收起選單並保持關閉：用 render 期間比對上一個 prop 的寫法，
+  // 不用 effect，避免 effect 內同步 setState 造成連環 render。
+  const [wasSuspended, setWasSuspended] = useState(suspended);
+  if (suspended !== wasSuspended) {
+    setWasSuspended(suspended);
+    if (suspended) {
+      setOpen(null);
+      setBucket(null);
+      setSection(null);
+      setResusColumn(null);
+    }
+  }
 
   function close() {
     setOpen(null);
@@ -264,14 +278,6 @@ function ChipMenus({
     else onPick(chip);
     close();
   }
-
-  useEffect(() => {
-    if (!suspended) return;
-    setOpen(null);
-    setBucket(null);
-    setSection(null);
-    setResusColumn(null);
-  }, [suspended]);
 
   useEffect(() => {
     if (!open) return;

@@ -77,7 +77,15 @@ describe('把關 ViewModel', () => {
       { type: 'PLAYER_INTENT', intent: { type: 'INSIST_ORDER', orderId: id } },
       { type: 'PLAYER_INTENT', intent: { type: 'INSIST_ORDER', orderId: id } },
     ]);
-    const json = JSON.stringify(selectGameView(state, env));
+    // 只掃把關會用到的區塊。掃整個 view 會撞到 treatmentMedications 的藥物 id
+    // （例如 ...--self-financed-items-with-safety-net），令 "safety" 誤報。
+    const view = selectGameView(state, env);
+    const json = JSON.stringify({
+      gates: view.gates,
+      orders: view.orders,
+      chat: view.chat,
+      actionLog: view.actionLog,
+    });
     for (const secret of [
       '"roll"',
       'rolled',
