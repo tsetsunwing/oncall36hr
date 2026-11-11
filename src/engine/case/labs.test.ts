@@ -165,3 +165,35 @@ describe('介入對化驗值的影響', () => {
     expect(labValueAt({ value: 6.2, at: 0 }, modifiers, 'k', 1, 4 * 3600, [])).toBe(6.2);
   });
 });
+
+describe('定性後果：旗標代替藥名', () => {
+  const fsm = realTables()['case-fsm'];
+  const transitions = (caseId: string) =>
+    (fsm.find((row) => row.id === caseId)?.transitions ?? []).filter(
+      (row) => row.to === 'STABILISING',
+    );
+
+  it('GI bleed：補液或者 PPI 止血，任何一個都令病人好轉', () => {
+    const rows = transitions('ugib-01');
+    const any = (flag: string) => rows.some((row) => row.when?.flagsAll?.includes(flag));
+    expect(any('fluid.bolus')).toBe(true);
+    expect(any('bleeding.stopped')).toBe(true);
+  });
+
+  it('GI bleed：兩個都做漏才會惡化', () => {
+    const worsening = (fsm.find((row) => row.id === 'ugib-01')?.transitions ?? []).filter((row) =>
+      row.when?.missingAny?.includes('fluid.bolus'),
+    );
+    expect(worsening.length).toBeGreaterThan(0);
+    for (const row of worsening) {
+      expect(row.when?.flagsNone, row.to).toContain('bleeding.stopped');
+    }
+  });
+
+  it('心衰：氧氣或者利尿劑，任何一個都令病人好轉', () => {
+    const rows = transitions('hf-01');
+    const any = (flag: string) => rows.some((row) => row.when?.flagsAll?.includes(flag));
+    expect(any('oxygen.on')).toBe(true);
+    expect(any('furosemide.iv')).toBe(true);
+  });
+});

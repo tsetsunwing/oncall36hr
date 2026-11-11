@@ -306,7 +306,8 @@
         "to": "DETERIORATING",
         "when": {
           "timeInStateSec": 5400,
-          "missingAny": ["oxygen.on"]
+          "missingAny": ["oxygen.on"],
+          "flagsNone": ["furosemide.iv"]
         },
         "p": 0.7
       },
@@ -324,7 +325,8 @@
         "to": "SEPTIC_SHOCK",
         "when": {
           "timeInStateSec": 7200,
-          "missingAny": ["oxygen.on"]
+          "missingAny": ["oxygen.on"],
+          "flagsNone": ["furosemide.iv"]
         },
         "p": 0.6
       },
@@ -334,6 +336,24 @@
         "when": {
           "timeInStateSec": 1200,
           "flagsAll": ["oxygen.on"]
+        },
+        "p": 1
+      },
+      {
+        "from": "DETERIORATING",
+        "to": "STABILISING",
+        "when": {
+          "timeInStateSec": 900,
+          "flagsAll": ["furosemide.iv"]
+        },
+        "p": 1
+      },
+      {
+        "from": "SEPTIC_SHOCK",
+        "to": "STABILISING",
+        "when": {
+          "timeInStateSec": 1200,
+          "flagsAll": ["furosemide.iv"]
         },
         "p": 1
       }
@@ -369,7 +389,8 @@
         "to": "DETERIORATING",
         "when": {
           "timeInStateSec": 5400,
-          "missingAny": ["fluid.bolus"]
+          "missingAny": ["fluid.bolus"],
+          "flagsNone": ["bleeding.stopped"]
         },
         "p": 0.7
       },
@@ -387,7 +408,8 @@
         "to": "SEPTIC_SHOCK",
         "when": {
           "timeInStateSec": 7200,
-          "missingAny": ["fluid.bolus"]
+          "missingAny": ["fluid.bolus"],
+          "flagsNone": ["bleeding.stopped"]
         },
         "p": 0.6
       },
@@ -397,6 +419,24 @@
         "when": {
           "timeInStateSec": 1200,
           "flagsAll": ["fluid.bolus"]
+        },
+        "p": 1
+      },
+      {
+        "from": "DETERIORATING",
+        "to": "STABILISING",
+        "when": {
+          "timeInStateSec": 900,
+          "flagsAll": ["bleeding.stopped"]
+        },
+        "p": 1
+      },
+      {
+        "from": "SEPTIC_SHOCK",
+        "to": "STABILISING",
+        "when": {
+          "timeInStateSec": 1200,
+          "flagsAll": ["bleeding.stopped"]
         },
         "p": 1
       }
