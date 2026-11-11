@@ -3075,3 +3075,25 @@ button.place-room-action:disabled:not([data-active='true']) {
   opacity: 0.4;
   cursor: not-allowed;
 }
+
+/* 病人離開病房（放射科等）：貼在監察儀下面，講明去哪裡、幾點回來。 */
+.away-banner {
+  margin: 6px 0 0;
+  padding: 8px 12px;
+  border: 1px solid var(--warn, #b7791f);
+  border-radius: 6px;
+  background: rgba(183, 121, 31, 0.12);
+}
+
+.away-banner-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--warn, #e0a34a);
+}
+
+.away-banner-detail {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+}
