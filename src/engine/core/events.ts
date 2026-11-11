@@ -19,9 +19,25 @@ export type CoreIntent =
         route: string | null;
         frequency?: string;
         prnReason?: string;
+        fluidRegimen?: {
+          solutions: string[];
+          volumeMl: number;
+          durationSeconds: number;
+          maxBags?: number;
+          maxDurationSeconds?: number;
+          additive?: string;
+        };
+        prnCondition?: {
+          metric: 'PAIN' | 'TEMPERATURE';
+          comparison: '>' | '>=' | '<' | '<=' | '=';
+          threshold: number;
+        };
         times?: number;
         rate?: { value: number; unit: string };
         concentration?: string;
+        diluent?: string;
+        volumeMl?: number;
+        infuseOverMinutes?: number;
         treatmentDrugId?: string;
         /** 行動記錄與護士確認用的短標籤。引擎不解析這句。 */
         summary?: string;

@@ -46,10 +46,14 @@ describe('藥物選項括號', () => {
       rateValue: '5',
       rateUnit: 'mL/hr',
       concentration: '  4 mg in 50 mL  ',
+      infuseOverMins: '30',
     });
     expect(RATE_UNITS).toEqual(['mL/hr', 'unit/hr']);
     expect(placedDrugParams('adrenaline', infusion)).toMatchObject({
       concentration: '4 mg in 50 mL',
+      diluent: 'Neat',
+      volumeMl: 50,
+      infuseOverMinutes: 30,
       rate: { value: 5, unit: 'mL/hr' },
     });
     expect(composeDrugOrderPhrase(infusion)).toContain('4 mg in 50 mL');
@@ -59,12 +63,23 @@ describe('藥物選項括號', () => {
   });
 
   it('按需原因同頻次分開寫入結構化欄位', () => {
-    const bolus = draft({ frequency: 'Q6H', prn: 'Pain' });
+    const bolus = draft({ frequency: 'Q6H', prn: 'Fever', prnComparison: '≥', prnThreshold: '38' });
     expect(placedDrugParams('adrenaline', bolus)).toMatchObject({
       frequency: 'Q6H',
-      prnReason: 'Pain',
+      prnReason: 'Fever',
+      prnCondition: { metric: 'TEMPERATURE', comparison: '>=', threshold: 38 },
     });
-    expect(composeDrugOrderPhrase(bolus)).toContain('PRN Pain');
+    expect(composeDrugOrderPhrase(bolus)).toContain('PRN Fever');
+  });
+
+  it('does not offer unimplemented pain PRN', () => {
+    const pending = draft({
+      frequency: 'Q4H',
+      prn: 'Pain',
+      prnComparison: '＞',
+      prnThreshold: '4',
+    });
+    expect(placedDrugParams('adrenaline', pending)).toBeNull();
   });
 
   it('聊天句子、途徑同頻次都唔帶括號', () => {

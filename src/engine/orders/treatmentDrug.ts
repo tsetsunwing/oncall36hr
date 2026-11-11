@@ -46,9 +46,17 @@ export interface TreatmentParams {
   route: string | null;
   frequency?: string;
   prnReason?: string;
+  prnCondition?: {
+    metric: 'PAIN' | 'TEMPERATURE';
+    comparison: '>' | '>=' | '<' | '<=' | '=';
+    threshold: number;
+  };
   times?: number;
   rate?: { value: number; unit: string };
   concentration?: string;
+  diluent?: string;
+  volumeMl?: number;
+  infuseOverMinutes?: number;
   treatmentDrugId?: string;
 }
 
@@ -63,9 +71,13 @@ function storedParams(
     route: params.route,
     ...(params.frequency ? { frequency: params.frequency } : {}),
     ...(params.prnReason ? { prnReason: params.prnReason } : {}),
+    ...(params.prnCondition ? { prnCondition: params.prnCondition } : {}),
     ...(params.times ? { times: params.times } : {}),
     ...(params.rate ? { rate: params.rate } : {}),
     ...(params.concentration ? { concentration: params.concentration } : {}),
+    ...(params.diluent ? { diluent: params.diluent } : {}),
+    ...(params.volumeMl ? { volumeMl: params.volumeMl } : {}),
+    ...(params.infuseOverMinutes ? { infuseOverMinutes: params.infuseOverMinutes } : {}),
     ...(drugName ? { drugName } : {}),
   };
 }

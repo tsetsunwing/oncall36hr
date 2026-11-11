@@ -298,13 +298,52 @@ function selectOrders(
         patientId: order.patientId,
         label: composeOrderLabel(row, order),
         status: order.status,
-        isMedication: row?.type === 'DRUG',
+        isMedication: row?.type === 'DRUG' || order.catalogId === 'fluid.maintenance',
+        ...(order.prnAssessments
+          ? {
+              prnAssessments: order.prnAssessments.map((a) => ({
+                timeLabel: clockLabel(a.at),
+                observed: a.observed,
+                outcome: a.outcome,
+              })),
+            }
+          : {}),
+        ...(order.fluidBags
+          ? {
+              fluidBags: order.fluidBags.map((bag) => ({
+                solution: bag.solution,
+                ...(bag.additive ? { additive: bag.additive } : {}),
+                volumeMl: bag.volumeMl,
+                startTimeLabel: clockLabel(bag.startAt),
+                endTimeLabel: bag.endedAt === null ? null : clockLabel(bag.endedAt),
+                status: bag.status,
+              })),
+            }
+          : {}),
+        ...(order.administrations
+          ? {
+              administrations: order.administrations.map((dose) => ({
+                status: dose.status,
+                ...(dose.startedAt !== undefined
+                  ? { startedTimeLabel: clockLabel(dose.startedAt) }
+                  : {}),
+                ...(dose.stoppedAt !== undefined
+                  ? { stoppedTimeLabel: clockLabel(dose.stoppedAt) }
+                  : {}),
+                scheduledTimeLabel: clockLabel(dose.scheduledAt),
+                givenTimeLabel: dose.givenAt === null ? null : clockLabel(dose.givenAt),
+              })),
+            }
+          : {}),
         executorName: executorName(state, order.executor),
         executorKind: order.executorKind,
         timeLabel: clockLabel(order.createdAt),
         // 下屬嘅預計完成時間會洩露速度（資歷），所以唔顯示（B7）
         etaSeconds:
-          running && order.executorKind !== 'SUBORDINATE'
+          running &&
+          !order.administrations &&
+          !order.params.fluidRegimen &&
+          order.executorKind !== 'SUBORDINATE'
             ? Math.max(0, order.completesAt - state.clock.t)
             : null,
         cancellable: isCancellable(order, row),

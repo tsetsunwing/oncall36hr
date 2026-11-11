@@ -57,11 +57,40 @@ describe('治療同觀察選單', () => {
       within(menu)
         .getAllByRole('menuitem')
         .map((item) => item.textContent),
-    ).toEqual(['Oxygen therapy', 'Catheters and drains', 'Drugs']);
+    ).toEqual(['Oxygen therapy', 'Catheters and drains', '持續輸液', 'Drugs']);
     expect(screen.queryByRole('menuitem', { name: 'Ceftriaxone' })).not.toBeInTheDocument();
     expect(screen.queryByRole('menuitem', { name: 'Normal saline' })).not.toBeInTheDocument();
     expect(screen.queryByRole('menuitem', { name: 'Oxygen NRB' })).not.toBeInTheDocument();
     expect(screen.queryByRole('menuitem', { name: 'NG tube' })).not.toBeInTheDocument();
+  });
+
+  it('持續輸液表單傳入循環、容量、時間和上限', async () => {
+    const user = userEvent.setup();
+    const calls = actions();
+    render(<ChatPanel chat={chat()} chips={[]} notice={null} actions={calls} />);
+    await user.click(screen.getByRole('button', { name: ui.game.chat.chipGroup.treat ?? '' }));
+    await user.click(screen.getByTestId('treat-fluid'));
+    await user.type(screen.getByLabelText('每瓶容量 mL'), '500');
+    await user.type(screen.getByLabelText('每瓶輸注時間（小時）'), '8');
+    await user.type(screen.getByLabelText('每瓶添加物'), '20K');
+    await user.type(screen.getByLabelText('最多瓶數'), '2');
+    await user.click(
+      within(screen.getByTestId('continuous-fluid-form')).getByRole('button', { name: '確認' }),
+    );
+    expect(calls.placeOrder).toHaveBeenCalledWith(
+      'p1',
+      'fluid.maintenance',
+      expect.any(String),
+      expect.objectContaining({
+        fluidRegimen: {
+          solutions: ['D5', 'D5', 'NS'],
+          volumeMl: 500,
+          durationSeconds: 28800,
+          additive: '20K',
+          maxBags: 2,
+        },
+      }),
+    );
   });
 
   it('氧氣彈窗用短標籤，超出範圍不落單也不改數字', async () => {

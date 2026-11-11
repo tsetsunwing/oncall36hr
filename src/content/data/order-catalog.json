@@ -230,6 +230,20 @@
     "reviewStatus": "PENDING_CLINICAL_REVIEW"
   },
   {
+    "id": "fluid.maintenance",
+    "type": "FLUID",
+    "label": "Continuous IV fluid",
+    "aliases": [],
+    "executors": ["NURSE"],
+    "fixedDurationSec": 0,
+    "setsFlags": [],
+    "cancelWhile": ["QUEUED", "RUNNING"],
+    "sunkEffectRule": "DISCARD",
+    "pharmacyGate": false,
+    "nurseGate": "NEVER",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
     "id": "drug.ceftriaxone",
     "type": "DRUG",
     "label": "Ceftriaxone",

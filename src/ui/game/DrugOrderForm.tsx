@@ -55,6 +55,10 @@ export function DrugOrderForm({
   const [rateUnit, setRateUnit] = useState<string | null>(null);
   const [concentration, setConcentration] = useState('');
   const [prn, setPrn] = useState<string | null>(null);
+  const [prnComparison, setPrnComparison] = useState<NonNullable<
+    DrugOrderDraft['prnComparison']
+  > | null>(null);
+  const [prnThreshold, setPrnThreshold] = useState('');
   const [titration, setTitration] = useState<string | null>(null);
   const [infuseOverMins, setInfuseOverMins] = useState('');
   const [afterFood, setAfterFood] = useState(false);
@@ -96,6 +100,8 @@ export function DrugOrderForm({
     rateUnit,
     concentration,
     prn,
+    prnComparison,
+    prnThreshold,
     titration,
     infuseOverMins,
     afterFood,
@@ -354,6 +360,43 @@ export function DrugOrderForm({
                 }}
               />
             </label>
+            {prn ? (
+              <>
+                <label className="drug-order-field">
+                  PRN condition
+                  <select
+                    aria-label="PRN comparison"
+                    data-testid="drug-order-prn-comparison"
+                    value={prnComparison ?? ''}
+                    onChange={(event) =>
+                      setPrnComparison(
+                        event.target.value as NonNullable<DrugOrderDraft['prnComparison']> | null,
+                      )
+                    }
+                  >
+                    <option value="">Select</option>
+                    <option>＞</option>
+                    <option>≥</option>
+                    <option>＜</option>
+                    <option>≤</option>
+                    <option>=</option>
+                  </select>
+                </label>
+                <label className="drug-order-field">
+                  Temperature (°C)
+                  <input
+                    aria-label="PRN threshold"
+                    data-testid="drug-order-prn-threshold"
+                    inputMode="decimal"
+                    value={prnThreshold}
+                    onChange={(event) => setPrnThreshold(event.target.value)}
+                  />
+                </label>
+                <p>
+                  Fever PRN requires a Q-hourly minimum interval. Pain PRN is not yet supported.
+                </p>
+              </>
+            ) : null}
           </>
         )}
       </div>

@@ -30,11 +30,33 @@ export const orderSchema = z
         frequency: z.string().min(1).optional(),
         /** 按需用藥的原因；舊存檔沒有這欄。 */
         prnReason: z.string().min(1).max(120).optional(),
+        fluidRegimen: z
+          .object({
+            solutions: z.array(z.string().trim().min(1).max(120)).min(1).max(20),
+            volumeMl: z.number().positive(),
+            durationSeconds: z.number().int().positive(),
+            maxBags: z.number().int().positive().optional(),
+            maxDurationSeconds: z.number().int().positive().optional(),
+            additive: z.string().trim().min(1).max(120).optional(),
+          })
+          .strict()
+          .optional(),
+        prnCondition: z
+          .object({
+            metric: z.enum(['PAIN', 'TEMPERATURE']),
+            comparison: z.enum(['>', '>=', '<', '<=', '=']),
+            threshold: z.number(),
+          })
+          .strict()
+          .optional(),
         /** x1–x3。舊存檔冇呢欄。 */
         times: z.number().int().min(1).max(3).optional(),
         /** 輸液速率。舊存檔冇呢欄。 */
         rate: z.object({ value: z.number(), unit: z.string() }).strict().optional(),
         concentration: z.string().min(1).max(120).optional(),
+        diluent: z.string().min(1).max(120).optional(),
+        volumeMl: z.number().positive().optional(),
+        infuseOverMinutes: z.number().positive().optional(),
         /** 未收錄藥物的顯示藥名。舊存檔冇呢欄。目錄醫囑不用。 */
         drugName: z.string().min(1).optional(),
         /** 選單寫下的短標籤。有這欄時行動記錄與護士確認用它，不用目錄長名。舊存檔沒有。 */
@@ -55,6 +77,49 @@ export const orderSchema = z
         temp: z.number(),
       })
       .strict()
+      .optional(),
+    /** Explicit nurse administration history; omitted for legacy orders. */
+    administrations: z
+      .array(
+        z
+          .object({
+            orderId: z.string().min(1),
+            patientId: z.string().min(1),
+            scheduledAt: z.number().int().min(0),
+            status: z.enum(['PLANNED', 'INFUSING', 'GIVEN', 'CANCELLED']),
+            startedAt: z.number().int().min(0).optional(),
+            stoppedAt: z.number().int().min(0).optional(),
+            givenAt: z.number().int().min(0).nullable(),
+          })
+          .strict(),
+      )
+      .optional(),
+    fluidBags: z
+      .array(
+        z
+          .object({
+            index: z.number().int().min(0),
+            solution: z.string().min(1),
+            additive: z.string().optional(),
+            volumeMl: z.number().positive(),
+            startAt: z.number().int().min(0),
+            scheduledEndAt: z.number().int().min(0),
+            endedAt: z.number().int().min(0).nullable(),
+            status: z.enum(['INFUSING', 'COMPLETE', 'STOPPED']),
+          })
+          .strict(),
+      )
+      .optional(),
+    prnAssessments: z
+      .array(
+        z
+          .object({
+            at: z.number().int().min(0),
+            observed: z.number().nullable(),
+            outcome: z.enum(['INVALID', 'UNKNOWN', 'NOT_MET', 'INTERVAL', 'INFUSING', 'ELIGIBLE']),
+          })
+          .strict(),
+      )
       .optional(),
     executor: z.string().nullable(),
     executorKind: z.enum(['NURSE', 'SUBORDINATE', 'PLAYER']).nullable(),

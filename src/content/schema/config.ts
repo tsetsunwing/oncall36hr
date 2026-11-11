@@ -93,7 +93,12 @@ export const configSchema = z
         alertCooldownSeconds: z.number().int().min(0),
       })
       .strict(),
-    orders: z.object({ maxActionsPerParse: z.number().int().positive() }).strict(),
+    orders: z
+      .object({
+        maxActionsPerParse: z.number().int().positive(),
+        medicationAnchorHour: z.number().int().min(0).max(23),
+      })
+      .strict(),
     gate: z
       .object({
         pharmacyName: z.string().min(1),

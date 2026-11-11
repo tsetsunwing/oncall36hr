@@ -211,6 +211,56 @@ function MedicalRecord({
           {medicines.map((order) => (
             <li key={order.id}>
               {order.timeLabel} · {order.label} · {ui.game.orders.status[order.status]}
+              {order.prnAssessments?.length ? (
+                <ul>
+                  {order.prnAssessments.map((a, index) => (
+                    <li key={index}>
+                      評估 {a.timeLabel} · {a.observed ?? '數值未知'} ·{' '}
+                      {
+                        {
+                          INVALID: '條件未完整',
+                          UNKNOWN: '未有數值',
+                          NOT_MET: '未達條件',
+                          INTERVAL: '未到最短間隔',
+                          INFUSING: '給藥進行中',
+                          ELIGIBLE: '符合條件',
+                        }[a.outcome]
+                      }
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+              {order.fluidBags?.length ? (
+                <ul>
+                  {order.fluidBags.map((bag, index) => (
+                    <li key={index}>
+                      {bag.solution}
+                      {bag.additive ? ` + ${bag.additive}` : ''} · {bag.volumeMl} mL · 開始{' '}
+                      {bag.startTimeLabel} ·{' '}
+                      {bag.status === 'INFUSING'
+                        ? '輸注中'
+                        : `${bag.status === 'STOPPED' ? '已停止' : '完成'} ${bag.endTimeLabel ?? ''}`}
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+              {order.administrations?.length ? (
+                <ul>
+                  {order.administrations.map((dose, index) => (
+                    <li key={`${dose.scheduledTimeLabel}-${String(index)}`}>
+                      {dose.status === 'GIVEN'
+                        ? `${dose.startedTimeLabel ? `開始 ${dose.startedTimeLabel} · 完成` : '已給'} ${dose.givenTimeLabel ?? ''}`
+                        : dose.status === 'INFUSING'
+                          ? `輸注中 · 開始 ${dose.startedTimeLabel ?? ''}`
+                          : dose.status === 'CANCELLED'
+                            ? dose.startedTimeLabel
+                              ? `開始 ${dose.startedTimeLabel} · 已停止 ${dose.stoppedTimeLabel ?? ''}`
+                              : `已取消 ${dose.scheduledTimeLabel}`
+                            : `預定 ${dose.scheduledTimeLabel}`}
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
             </li>
           ))}
         </ul>

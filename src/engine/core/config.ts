@@ -34,7 +34,7 @@ export interface EngineConfig {
     playerTextMaxChars: number;
     alertCooldownSeconds: number;
   };
-  orders: { maxActionsPerParse: number };
+  orders: { maxActionsPerParse: number; medicationAnchorHour: number };
   gate: {
     pharmacyName: string;
     maxConcerns: number;

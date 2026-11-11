@@ -7,6 +7,7 @@ import {
   aiRequests,
   advance,
   feed,
+  intentEvent,
   params,
   realConfig,
   realEngine,
@@ -24,6 +25,23 @@ const phraseFor = (row: (typeof tables)['order-catalog'][number]) => {
     : (row.aliases[0] ?? row.label);
 };
 
+// Maintenance fluids require their structured regimen; free text is not enough to infer one.
+const eventFor = (row: (typeof tables)['order-catalog'][number]) =>
+  row.id === 'fluid.maintenance'
+    ? intentEvent({
+        type: 'PLACE_CATALOG',
+        patientId: 'p1',
+        catalogId: row.id,
+        text: 'maintenance',
+        params: {
+          drugFormularyId: null,
+          dose: null,
+          route: 'IV Infusion',
+          fluidRegimen: { solutions: ['D5'], volumeMl: 500, durationSeconds: 60, maxBags: 1 },
+        },
+      })
+    : say(phraseFor(row));
+
 const orderOf = (state: GameState, catalogId: string) =>
   Object.values(state.orders).find((o) => o.catalogId === catalogId);
 
@@ -35,7 +53,7 @@ describe('§11 全部 order 種類可落（T4）', () => {
 
   it('每一行都可以用玩家打嘅句子落單，執行者喺 catalog 允許範圍內，全部標 PENDING_CLINICAL_REVIEW', () => {
     for (const row of tables['order-catalog']) {
-      const run = feed(engine, engine.init(params(`place-${row.id}`)), [say(phraseFor(row))]);
+      const run = feed(engine, engine.init(params(`place-${row.id}`)), [eventFor(row)]);
       const order = orderOf(run.state, row.id);
       expect(order, row.id).toBeDefined();
       expect(row.executors as readonly string[], row.id).toContain(order?.executorKind);
@@ -46,7 +64,7 @@ describe('§11 全部 order 種類可落（T4）', () => {
 
   it('每個 order 都按表內固定時間完成（有 gate 嘅放行後起計）', () => {
     for (const row of tables['order-catalog']) {
-      let run = feed(engine, engine.init(params(`dur-${row.id}`)), [say(phraseFor(row))]);
+      let run = feed(engine, engine.init(params(`dur-${row.id}`)), [eventFor(row)]);
       const requests = aiRequests(run.effects).filter((r) => r.kind.startsWith('gate.'));
       run = feed(
         engine,
@@ -60,7 +78,11 @@ describe('§11 全部 order 種類可落（T4）', () => {
       const order = orderOf(run.state, row.id);
       expect(order?.status, row.id).toBe('RUNNING');
       expect((order?.completesAt ?? 0) - (order?.startsAt ?? 0), row.id).toBe(row.fixedDurationSec);
-      const done = advance(engine, run.state, row.fixedDurationSec + 1).state;
+      const done = advance(
+        engine,
+        run.state,
+        row.id === 'fluid.maintenance' ? 61 : row.fixedDurationSec + 1,
+      ).state;
       expect(orderOf(done, row.id)?.status, row.id).toBe('DONE');
     }
   });

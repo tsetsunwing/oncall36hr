@@ -849,6 +849,41 @@ describe('ChatPanel', () => {
     expect(submitted?.params.route).toBe('IV');
   });
 
+  it('PRN 需要明確條件與 Q 小時最短間隔，並傳入結構化條件', async () => {
+    const user = userEvent.setup();
+    const onSubmit =
+      vi.fn<(order: { catalogId: string; text: string; params: PlacedOrderParams }) => void>();
+    render(
+      <DrugOrderForm
+        drugId="paracetamol"
+        medications={[
+          {
+            id: 'paracetamol',
+            label: 'Paracetamol',
+            stem: 'paracetamol',
+            catalogId: 'drug.paracetamol',
+          },
+        ]}
+        onSubmit={onSubmit}
+        onClose={() => undefined}
+      />,
+    );
+    await user.selectOptions(screen.getByTestId('drug-order-route'), 'PO (Oral)');
+    await user.type(screen.getByTestId('drug-order-dose'), '1');
+    await user.selectOptions(screen.getByTestId('drug-order-unit'), 'g');
+    await user.selectOptions(screen.getByTestId('drug-order-frequency'), 'Q4H');
+    await user.selectOptions(screen.getByTestId('drug-order-prn'), 'Fever');
+    expect(screen.getByTestId('drug-order-confirm')).toBeDisabled();
+    await user.selectOptions(screen.getByTestId('drug-order-prn-comparison'), '≥');
+    await user.type(screen.getByTestId('drug-order-prn-threshold'), '38');
+    await user.click(screen.getByTestId('drug-order-confirm'));
+    expect(onSubmit.mock.calls[0]?.[0].params).toMatchObject({
+      frequency: 'Q4H',
+      prnReason: 'Fever',
+      prnCondition: { metric: 'TEMPERATURE', comparison: '>=', threshold: 38 },
+    });
+  });
+
   it('搶救藥物表不顯示類別徽章或篩選', async () => {
     const user = userEvent.setup();
     render(

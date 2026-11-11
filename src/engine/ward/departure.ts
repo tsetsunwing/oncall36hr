@@ -4,6 +4,7 @@ import type { GameState } from '../core/state';
 import { logEvent, updateOrderLog } from '../log/log';
 import { removeWhere } from '../core/eventQueue';
 import { CANCELLABLE_STATUSES } from '../orders/orderTypes';
+import { cancelPlannedAdministrations } from '../orders/medicationAdministration';
 
 export const DEPARTED_FLAG = 'ward.departed';
 export function isWardPatientActive(patient: Patient): boolean {
@@ -62,7 +63,26 @@ export function departPatient(
     if (order.patientId !== patientId || !CANCELLABLE_STATUSES.includes(order.status)) continue;
     next = {
       ...next,
-      orders: { ...next.orders, [order.id]: { ...order, status: 'CANCELLED', cancelledAt: t } },
+      orders: {
+        ...next.orders,
+        [order.id]: {
+          ...order,
+          status: 'CANCELLED',
+          cancelledAt: t,
+          ...(order.administrations
+            ? { administrations: cancelPlannedAdministrations(order.administrations, order.id, t) }
+            : {}),
+          ...(order.fluidBags
+            ? {
+                fluidBags: order.fluidBags.map((bag) =>
+                  bag.status === 'INFUSING'
+                    ? { ...bag, status: 'STOPPED' as const, endedAt: t }
+                    : bag,
+                ),
+              }
+            : {}),
+        },
+      },
     };
     next = updateOrderLog(next, order.id, { reasonCode: 'PATIENT_DEPARTED' });
   }

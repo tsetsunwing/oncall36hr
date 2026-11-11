@@ -94,7 +94,7 @@ function releaseOrder(
     completesAt: now + duration,
     gate: { ...gate, phase: 'RELEASED' },
   };
-  let next = scheduleCompletion(setOrder(state, released), released);
+  let next = scheduleCompletion(setOrder(state, released), released, ctx);
   next = updateOrderLog(next, order.id, { reasonCode: null });
   next = scoreRelease(next, released, gate, ctx);
   next = scoreOrderCommitted(next, released, ctx);

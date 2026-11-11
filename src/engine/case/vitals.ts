@@ -83,11 +83,23 @@ export function effectDeltaAt(
   const total: Record<VitalKey, number> = { hr: 0, sbp: 0, dbp: 0, spo2: 0, rr: 0, temp: 0 };
   for (const order of Object.values(orders)) {
     if (order.patientId !== patient.id) continue;
-    const scale = isEffectiveOrder(order, patient.id) ? 1 : sunkFraction(order, tables);
+    const latestAdministration = order.administrations
+      ?.filter((dose) => dose.status === 'GIVEN' && dose.givenAt !== null && dose.givenAt <= t)
+      .at(-1);
+    // A scheduled prescription has no effect until a dose is actually given.
+    const scale =
+      order.administrations || order.params.prnReason
+        ? latestAdministration
+          ? 1
+          : 0
+        : isEffectiveOrder(order, patient.id)
+          ? 1
+          : sunkFraction(order, tables);
     if (scale === 0) continue;
+    const effectStart = latestAdministration?.givenAt ?? order.startsAt;
     const row = pickEffectRow(tables['order-effects'], order.catalogId, patient.hidden.fsm.state);
     if (row) {
-      const factor = effectFactor(row, order.startsAt, t) * scale;
+      const factor = effectFactor(row, effectStart, t) * scale;
       if (factor !== 0) {
         const delta: VitalDelta = row.delta;
         for (const key of VITAL_KEYS) total[key] += (delta[key] ?? 0) * factor;

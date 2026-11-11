@@ -54,12 +54,34 @@ const placedParamsSchema = z
     route: z.string().min(1).nullable(),
     frequency: z.string().min(1).optional(),
     prnReason: z.string().trim().min(1).max(120).optional(),
+    fluidRegimen: z
+      .object({
+        solutions: z.array(z.string().trim().min(1).max(120)).min(1).max(20),
+        volumeMl: z.number().positive(),
+        durationSeconds: z.number().int().positive(),
+        maxBags: z.number().int().positive().optional(),
+        maxDurationSeconds: z.number().int().positive().optional(),
+        additive: z.string().trim().min(1).max(120).optional(),
+      })
+      .strict()
+      .optional(),
+    prnCondition: z
+      .object({
+        metric: z.enum(['PAIN', 'TEMPERATURE']),
+        comparison: z.enum(['>', '>=', '<', '<=', '=']),
+        threshold: z.number(),
+      })
+      .strict()
+      .optional(),
     times: z.number().int().min(1).max(3).optional(),
     rate: z
       .object({ value: z.number().positive(), unit: z.string().min(1) })
       .strict()
       .optional(),
     concentration: z.string().trim().min(1).max(120).optional(),
+    diluent: z.string().trim().min(1).max(120).optional(),
+    volumeMl: z.number().positive().optional(),
+    infuseOverMinutes: z.number().positive().optional(),
     treatmentDrugId: z.string().min(1).optional(),
     summary: z.string().min(1).optional(),
     site: z.string().min(1).max(80).optional(),
@@ -86,6 +108,8 @@ function placeCatalog(
   const parsed = placedParamsSchema.safeParse(intent.params);
   if (!parsed.success) return reject(state, 'ORDER_INVALID');
   const params = parsed.data;
+  if ((intent.catalogId === 'fluid.maintenance') !== Boolean(params.fluidRegimen))
+    return reject(state, 'ORDER_INVALID');
   if (params.treatmentDrugId) {
     if (intent.catalogId !== UNLISTED_DRUG_CATALOG_ID || params.drugFormularyId !== null) {
       return reject(state, 'ORDER_INVALID');
@@ -100,9 +124,13 @@ function placeCatalog(
         route: params.route,
         ...(params.frequency ? { frequency: params.frequency } : {}),
         ...(params.prnReason ? { prnReason: params.prnReason } : {}),
+        ...(params.prnCondition ? { prnCondition: params.prnCondition } : {}),
         ...(params.times ? { times: params.times } : {}),
         ...(params.rate ? { rate: params.rate } : {}),
         ...(params.concentration ? { concentration: params.concentration } : {}),
+        ...(params.diluent ? { diluent: params.diluent } : {}),
+        ...(params.volumeMl ? { volumeMl: params.volumeMl } : {}),
+        ...(params.infuseOverMinutes ? { infuseOverMinutes: params.infuseOverMinutes } : {}),
         ...(params.treatmentDrugId ? { treatmentDrugId: params.treatmentDrugId } : {}),
       },
       ctx,
@@ -118,14 +146,19 @@ function placeCatalog(
     row.id === DRAIN_CATALOG_ID ? (params.site ? normalizeDrainSite(params.site) : null) : null;
   if (row.id === DRAIN_CATALOG_ID && !drainSite) return reject(state, 'ORDER_INVALID');
   const stored = {
+    ...(params.fluidRegimen ? { fluidRegimen: params.fluidRegimen } : {}),
     drugFormularyId: params.drugFormularyId,
     dose: params.dose,
     route: params.route,
     ...(params.frequency ? { frequency: params.frequency } : {}),
     ...(params.prnReason ? { prnReason: params.prnReason } : {}),
+    ...(params.prnCondition ? { prnCondition: params.prnCondition } : {}),
     ...(params.times ? { times: params.times } : {}),
     ...(params.rate ? { rate: params.rate } : {}),
     ...(params.concentration ? { concentration: params.concentration } : {}),
+    ...(params.diluent ? { diluent: params.diluent } : {}),
+    ...(params.volumeMl ? { volumeMl: params.volumeMl } : {}),
+    ...(params.infuseOverMinutes ? { infuseOverMinutes: params.infuseOverMinutes } : {}),
     ...(drainSite
       ? { site: drainSite, summary: params.summary ?? `Surgical drain ${drainSite}` }
       : params.summary

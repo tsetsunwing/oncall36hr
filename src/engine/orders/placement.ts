@@ -107,7 +107,7 @@ export function placeCatalogOrder(state: GameState, input: PlaceInput, ctx: Engi
     ...(input.effectPreset ? { effectPreset: input.effectPreset } : {}),
   };
 
-  let next = registerOrder(working, base);
+  let next = registerOrder(working, base, ctx);
   if (subMode) next = recordSubordinateOrder(next, base, input.row, subMode);
   next = appendLog(next, {
     patientId: input.patientId,
@@ -182,6 +182,10 @@ export function placeAndAck(
   const running: Order[] = [];
   const orders: Order[] = [];
   for (const input of inputs) {
+    if (input.row.id === 'fluid.maintenance' && !input.params.fluidRegimen) {
+      effects.push({ type: 'NOTICE', kind: 'ORDER_INVALID', tone: 'warn' });
+      continue;
+    }
     if (
       patient.demographics.code === 'DNR' &&
       (input.row.acls?.action === 'CPR_START' || input.row.acls?.action === 'DEFIB')

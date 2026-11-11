@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { getDrugEffectTables, presetOf, classRowFor } from '@/content/drugEffects';
 import type { Effect } from '../core/events';
-import type { GameState } from '../core/state';
+import { gameStateSchema, type GameState } from '../core/state';
 import { orderSchema } from './orderTypes';
 import { composeOrderLabel } from './label';
 import {
@@ -90,13 +90,23 @@ describe('治療藥物彈窗', () => {
           route: 'IV Infusion',
           rate: { value: 5, unit: 'mL/hr' },
           concentration: '4 mg in 50 mL',
+          diluent: 'Neat',
+          volumeMl: 50,
+          infuseOverMinutes: 30,
           treatmentDrugId: 'dobutamine--sympathomimetics--general-drugs',
         },
       }),
     ]);
     const placed = orderOf(run.state);
-    expect(placed.params.concentration).toBe('4 mg in 50 mL');
-    expect(composeOrderLabel(undefined, placed)).toContain('4 mg in 50 mL');
+    expect(placed.params).toMatchObject({
+      concentration: '4 mg in 50 mL',
+      diluent: 'Neat',
+      volumeMl: 50,
+      infuseOverMinutes: 30,
+    });
+    expect(composeOrderLabel(undefined, placed)).toContain(
+      '4 mg in 50 mL, Neat, 50 mL, Infuse over 30 mins',
+    );
     expect(orderSchema.parse(JSON.parse(JSON.stringify(placed))).params.concentration).toBe(
       '4 mg in 50 mL',
     );
@@ -123,6 +133,32 @@ describe('治療藥物彈窗', () => {
     expect(placed.params.prnReason).toBe('Pain');
     expect(composeOrderLabel(undefined, placed)).toContain('PRN Pain');
     expect(orderSchema.parse(JSON.parse(JSON.stringify(placed))).params.prnReason).toBe('Pain');
+  });
+
+  it('藥典醫囑與完整狀態存檔保留輸液欄位', () => {
+    const run = feed(engine, fresh('catalog-infusion'), [
+      intentEvent({
+        type: 'PLACE_CATALOG',
+        patientId: 'p1',
+        catalogId: 'drug.adrenaline',
+        text: 'Adrenaline 1 mg IV over 30 min',
+        params: {
+          drugFormularyId: 'adrenaline',
+          dose: { value: 1, unit: 'mg' },
+          route: 'IV',
+          frequency: 'STAT',
+          diluent: '0.9% NaCl',
+          volumeMl: 50,
+          infuseOverMinutes: 30,
+        },
+      }),
+    ]);
+    const state = gameStateSchema.parse(JSON.parse(JSON.stringify(run.state)));
+    expect(orderOf(state).params).toMatchObject({
+      diluent: '0.9% NaCl',
+      volumeMl: 50,
+      infuseOverMinutes: 30,
+    });
   });
 
   it('藥典目錄醫囑同樣保存按需原因', () => {

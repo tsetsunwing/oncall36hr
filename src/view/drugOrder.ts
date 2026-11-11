@@ -37,7 +37,7 @@ export const INFUSION_VOLUMES = ['10 mL', '50 mL', '100 mL', '250 mL', '500 mL']
 
 export const RATE_UNITS = ['mL/hr', 'unit/hr'] as const;
 
-export const PRN_REASONS = ['Fever', 'Pain', 'Agitation', 'Nausea'] as const;
+export const PRN_REASONS = ['Fever'] as const;
 
 export const TITRATION_TARGETS = ['MAP > 65 mmHg', 'HR 60-100 bpm', 'BP < 140 mmHg'] as const;
 
@@ -59,6 +59,8 @@ export interface DrugOrderDraft {
   rateUnit: string | null;
   concentration: string;
   prn: string | null;
+  prnComparison?: '＞' | '≥' | '＜' | '≤' | '=' | null;
+  prnThreshold?: string;
   titration: string | null;
   infuseOverMins: string;
   afterFood: boolean;
@@ -107,6 +109,17 @@ export function drugOrderReady(draft: DrugOrderDraft): boolean {
       positiveNumber(draft.rateValue)
     );
   }
+  if (draft.prn) {
+    const value = draft.prnThreshold?.trim() ?? '';
+    if (
+      !draft.frequency ||
+      !/^Q(1|2|4|6|8|12|24)H$/.test(draft.frequency) ||
+      !draft.prnComparison ||
+      !/^-?\d+(?:\.\d+)?$/.test(value)
+    )
+      return false;
+    if (draft.prn !== 'Fever') return false;
+  }
   return draft.frequency !== null;
 }
 
@@ -130,9 +143,23 @@ export function placedDrugParams(
   if (isInfusionRoute(draft.route) && draft.rateUnit) {
     params.rate = { value: Number(draft.rateValue), unit: shortOptionLabel(draft.rateUnit) };
     if (draft.concentration.trim()) params.concentration = draft.concentration.trim();
+    if (draft.diluent) params.diluent = shortOptionLabel(draft.diluent);
+    const volume = draft.volume?.match(/^(\d+(?:\.\d+)?) mL$/);
+    if (volume?.[1] && Number(volume[1]) > 0) params.volumeMl = Number(volume[1]);
   } else if (draft.frequency) {
     params.frequency = shortOptionLabel(draft.frequency);
-    if (draft.prn) params.prnReason = shortOptionLabel(draft.prn);
+    if (draft.prn && draft.prnComparison && draft.prnThreshold !== undefined) {
+      const comparison = { '＞': '>', '≥': '>=', '＜': '<', '≤': '<=', '=': '=' } as const;
+      params.prnReason = shortOptionLabel(draft.prn);
+      params.prnCondition = {
+        metric: 'TEMPERATURE',
+        comparison: comparison[draft.prnComparison],
+        threshold: Number(draft.prnThreshold),
+      };
+    }
+  }
+  if (positiveNumber(draft.infuseOverMins)) {
+    params.infuseOverMinutes = Number(draft.infuseOverMins.trim());
   }
   return params;
 }
@@ -155,7 +182,10 @@ export function composeDrugOrderPhrase(draft: DrugOrderDraft): string | null {
     if (draft.diluent) extras.push(shortOptionLabel(draft.diluent));
     if (draft.volume) extras.push(shortOptionLabel(draft.volume));
     if (draft.titration) extras.push(shortOptionLabel(draft.titration));
-  } else if (draft.prn) extras.push(`PRN ${shortOptionLabel(draft.prn)}`);
+  } else if (draft.prn)
+    extras.push(
+      `PRN ${shortOptionLabel(draft.prn)} ${draft.prnComparison ?? ''} ${draft.prnThreshold ?? ''}`.trim(),
+    );
   if (positiveNumber(draft.infuseOverMins)) {
     extras.push(`Infuse over ${draft.infuseOverMins.trim()} mins`);
   }

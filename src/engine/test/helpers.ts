@@ -36,7 +36,7 @@ export const testConfig: EngineConfig = {
     playerTextMaxChars: 200,
     alertCooldownSeconds: 600,
   },
-  orders: { maxActionsPerParse: 3 },
+  orders: { maxActionsPerParse: 3, medicationAnchorHour: 8 },
   gate: { pharmacyName: '藥房', maxConcerns: 3, insistRequired: { CONFIRM: 1, OBJECT: 2 } },
   staff: {
     nurseSeniorityByDifficulty: { EASY: 'SENIOR', MEDIUM: 'NORMAL', HARD: 'NEW' },

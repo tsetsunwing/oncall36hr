@@ -133,6 +133,26 @@ export interface OrderRowView {
   patientId: string;
   label: string;
   status: OrderStatusCode;
+  administrations?: {
+    status: 'PLANNED' | 'INFUSING' | 'GIVEN' | 'CANCELLED';
+    startedTimeLabel?: string;
+    stoppedTimeLabel?: string;
+    scheduledTimeLabel: string;
+    givenTimeLabel: string | null;
+  }[];
+  prnAssessments?: {
+    timeLabel: string;
+    observed: number | null;
+    outcome: 'INVALID' | 'UNKNOWN' | 'NOT_MET' | 'INTERVAL' | 'INFUSING' | 'ELIGIBLE';
+  }[];
+  fluidBags?: {
+    solution: string;
+    additive?: string;
+    volumeMl: number;
+    startTimeLabel: string;
+    endTimeLabel: string | null;
+    status: 'INFUSING' | 'COMPLETE' | 'STOPPED';
+  }[];
   /** 目錄標記為藥物，用於病歷；狀態不等於已給藥。 */
   isMedication?: boolean;
   executorName: string | null;
@@ -267,9 +287,25 @@ export interface PlacedOrderParams {
   route: string | null;
   frequency?: string;
   prnReason?: string;
+  fluidRegimen?: {
+    solutions: string[];
+    volumeMl: number;
+    durationSeconds: number;
+    maxBags?: number;
+    maxDurationSeconds?: number;
+    additive?: string;
+  };
+  prnCondition?: {
+    metric: 'PAIN' | 'TEMPERATURE';
+    comparison: '>' | '>=' | '<' | '<=' | '=';
+    threshold: number;
+  };
   times?: number;
   rate?: { value: number; unit: string };
   concentration?: string;
+  diluent?: string;
+  volumeMl?: number;
+  infuseOverMinutes?: number;
   /** 治療藥表的列 id。引擎用來對藥典、類別或醫囑 AI。 */
   treatmentDrugId?: string;
   /** 行動記錄與護士確認顯示的短標籤。 */

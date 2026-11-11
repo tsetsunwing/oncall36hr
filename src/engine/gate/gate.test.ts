@@ -111,7 +111,20 @@ describe('新入職護士：冇提醒、冇 gate 請求', () => {
   it('HARD（NEW 護士）：任何 order 都唔會發 gate.nurse', () => {
     for (const row of tables['order-catalog']) {
       const run = feed(engine, fresh(`new-${row.id}`, { difficulty: 'HARD' }), [
-        say(phraseFor(row)),
+        row.id === 'fluid.maintenance'
+          ? intentEvent({
+              type: 'PLACE_CATALOG',
+              patientId: 'p1',
+              catalogId: row.id,
+              text: 'maintenance',
+              params: {
+                drugFormularyId: null,
+                dose: null,
+                route: 'IV Infusion',
+                fluidRegimen: { solutions: ['D5'], volumeMl: 500, durationSeconds: 60 },
+              },
+            })
+          : say(phraseFor(row)),
       ]);
       expect(requestsOf(run, 'gate.nurse'), row.id).toHaveLength(0);
       const order = firstOrder(run.state);
