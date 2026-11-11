@@ -18,7 +18,7 @@ import { emptyShift, shiftSchema } from '../shift/shiftState';
 import { emptyWard, wardStateSchema } from '../ward/wardTypes';
 import type { EngineConfig } from './config';
 
-export const CURRENT_SCHEMA = 13;
+export const CURRENT_SCHEMA = 14;
 
 export const MODES = ['DAY', 'NIGHT', 'ONCALL'] as const;
 export const DIFFICULTIES = ['EASY', 'MEDIUM', 'HARD'] as const;

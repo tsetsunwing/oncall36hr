@@ -169,6 +169,14 @@ export const patientSchema = z
         vitalsHistory: z.array(vitalsSampleSchema),
         /** 已回報嘅化驗／檢查（T7 查表結果，唔係 AI 文字） */
         reports: z.array(reportSchema),
+        /**
+         * 病人身上儲存嘅化驗值。建立病人時由診斷或正常基準算好，
+         * 重複檢查只加睇不出走勢嘅小變動；只有治療才會真正改動。
+         */
+        labs: z.record(
+          z.string().min(1),
+          z.object({ value: z.number(), at: z.number().int().min(0) }).strict(),
+        ),
         rhythm: z.string().min(1),
         consciousness: z.enum(['A', 'V', 'P', 'U']),
         /** 疼痛分數 0–10；未問過病人＝null。唔上心臟監察儀。 */

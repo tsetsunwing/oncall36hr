@@ -13,6 +13,7 @@ import { scoreStateExit } from '../score/requiredOrders';
 import { awayOf } from './away';
 import { evaluateFsm } from './fsm';
 import { pickHkName } from './hkNames';
+import { seedLabs } from './labs';
 import { NORMAL_PUPILS, gcsForConsciousness } from './patient';
 import { computeMews } from './mews';
 import type { Patient } from './patient';
@@ -201,6 +202,16 @@ export function createPatientState(
       cuff: { sbp: base.sbp, dbp: base.dbp },
       vitalsHistory: [],
       reports: [],
+      labs: seedLabs({
+        patientId: id,
+        seed: state.seed,
+        sex: template.demographics.sex,
+        age: template.demographics.age,
+        diagnosisIds: template.diagnosisIds,
+        state: fsm.initial,
+        tables: ctx.tables,
+        t,
+      }),
       rhythm: trajectory.rhythm,
       consciousness: trajectory.consciousness,
       pain: null,

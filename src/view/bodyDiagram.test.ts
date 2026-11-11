@@ -31,6 +31,7 @@ function patientWith(flags: string[], drains: Patient['visible']['drains'] = [])
       cuff: { sbp: 120, dbp: 70 },
       vitalsHistory: [],
       reports: [],
+      labs: {},
       rhythm: 'SINUS',
       consciousness: 'A',
       pain: null,

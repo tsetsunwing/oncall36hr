@@ -3,6 +3,9 @@
  * 報告內容由 T7 按「採樣當刻」嘅 case 狀態查表產生，AI 只負責護士口頭通知（唔寫數值）。
  */
 import { z } from 'zod';
+import { pickByDiagnosisAndState, readingForReport } from '../case/labs';
+
+export { pickByDiagnosisAndState };
 import { patientTokens, queueDialogue, vitalTokens, type Beat } from '../chat/dialogue';
 import { renderTemplate } from '../chat/tokens';
 import type { Patient, PatientReport } from '../case/patient';
@@ -50,28 +53,27 @@ function flagOf(value: number, item: ResultItemRow): 'H' | 'L' | null {
   return null;
 }
 
-function pickByState<T>(byState: Readonly<Record<string, T>>, state: string): T | undefined {
-  return byState[state] ?? byState['*'];
-}
-
 /**
- * 報告內容先按診斷、再按狀態揀。次序：
- * 診斷＋狀態 → 診斷＋'*' → 任何診斷＋狀態 → 任何診斷＋'*'。
- * 診斷有寫過就唔會退回通用值，避免「肺炎片」出現在肺栓塞病人身上。
+ * 病人身上有儲存值就用儲存值（加一個睇不出走勢嘅小變動）；
+ * 舊存檔或者未建立基準嘅項目，就照舊按診斷／狀態查表。
  */
-export function pickByDiagnosisAndState<T>(
-  byDiagnosis: Readonly<Record<string, Readonly<Record<string, T>>>> | undefined,
-  diagnosisIds: readonly string[],
-  byState: Readonly<Record<string, T>>,
+function labValueOf(
+  item: ResultItemRow,
+  patient: Patient,
+  order: Order,
   state: string,
-): T | undefined {
-  for (const diagnosisId of diagnosisIds) {
-    const bucket = byDiagnosis?.[diagnosisId];
-    if (!bucket) continue;
-    const hit = pickByState(bucket, state);
-    if (hit !== undefined) return hit;
+  seed: string,
+): number | undefined {
+  const reading = patient.visible.labs[item.id];
+  if (reading) {
+    return readingForReport(reading, item.decimals, `${seed}|${patient.id}|${item.id}|${order.id}`);
   }
-  return pickByState(byState, state);
+  return pickByDiagnosisAndState(
+    item.byDiagnosis,
+    patient.hidden.diagnosisIds,
+    item.byState,
+    state,
+  );
 }
 
 export function buildReport(
@@ -81,6 +83,7 @@ export function buildReport(
   label: string,
   ctx: EngineContext,
   t: number,
+  seed = '',
 ): PatientReport {
   const base = {
     id: `rep:${order.id}`,
@@ -94,7 +97,7 @@ export function buildReport(
   const diagnosisIds = patient.hidden.diagnosisIds;
   if (result.kind === 'PANEL') {
     const items = result.items.flatMap((item) => {
-      const value = pickByDiagnosisAndState(item.byDiagnosis, diagnosisIds, item.byState, state);
+      const value = labValueOf(item, patient, order, state, seed);
       if (value === undefined) return [];
       return [
         {
@@ -162,7 +165,7 @@ export function handleResultReport(
   if (!patient || !row || !result) return { state, effects: [] };
 
   const label = composeOrderLabel(row, order);
-  const report = buildReport(order, result, patient, label, ctx, state.clock.t);
+  const report = buildReport(order, result, patient, label, ctx, state.clock.t, state.seed);
   let next: GameState = {
     ...state,
     orders: { ...state.orders, [order.id]: { ...order, resultStatus: 'REPORTED' } },
