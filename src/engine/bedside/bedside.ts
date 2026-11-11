@@ -7,6 +7,7 @@
 import { z } from 'zod';
 import type { Patient } from '../case/patient';
 import type { Present } from '../chat/chatTypes';
+import type { OrderCatalogRow } from '../case/tables';
 import { appendLine, DIALOGUE_KIND, handleDialogueResult } from '../chat/dialogue';
 import { parseMentions } from '../chat/mentions';
 import { requestAi } from '../core/ai';
@@ -144,6 +145,55 @@ function placeCatalog(
     ],
     parseMentions(text, thread.present),
     ctx,
+  );
+}
+
+/** 抽血籃：一次落多張化驗單。同一批共用同一個抽血時間，但每張報告各自延遲。 */
+function placeCatalogBatch(
+  state: GameState,
+  intent: Extract<PlayerIntent, { type: 'PLACE_CATALOG_BATCH' }>,
+  ctx: EngineContext,
+): Reduction {
+  if (state.paused) return reject(state, 'ORDER_BLOCKED_PAUSED');
+  const text = intent.text.trim();
+  if (text.length === 0) return reject(state, 'CHAT_EMPTY');
+  if (text.length > ctx.config.chat.playerTextMaxChars) return reject(state, 'CHAT_TOO_LONG');
+  const patient = state.patients[intent.patientId];
+  const thread = state.chats[intent.patientId];
+  if (!patient || !thread) return reject(state, 'PATIENT_UNKNOWN');
+  if (intent.catalogIds.length === 0) return reject(state, 'ORDER_INVALID');
+  const rows: OrderCatalogRow[] = [];
+  for (const id of intent.catalogIds) {
+    const row = ctx.tables['order-catalog'].find((item) => item.id === id);
+    if (!row) return reject(state, 'ORDER_UNKNOWN');
+    // 籃只裝檢查。要填劑量、途徑或位置的醫囑逐張落。
+    if (row.formularyId || row.id === DRAIN_CATALOG_ID) return reject(state, 'ORDER_INVALID');
+    if (rows.some((existing) => existing.id === row.id)) return reject(state, 'ORDER_INVALID');
+    rows.push(row);
+  }
+  const submittedAt = state.clock.t;
+  const withPlayerLine = appendLine(state, {
+    t: submittedAt,
+    patientId: patient.id,
+    speaker: { kind: 'PLAYER', id: 'player' },
+    template: text,
+    tokenValues: {},
+    orderId: null,
+  });
+  return placeAndAck(
+    withPlayerLine,
+    patient,
+    rows.map((row) => ({
+      patientId: patient.id,
+      row,
+      params: { drugFormularyId: null, dose: null, route: null },
+      source: 'QUICKWORD',
+      preferredExecutor: null,
+      submittedAt,
+    })),
+    parseMentions(text, thread.present),
+    ctx,
+    { combineAck: true },
   );
 }
 
@@ -326,6 +376,9 @@ export const bedsideModule: EngineModule = {
 
       case 'PLACE_CATALOG':
         return placeCatalog(state, intent, ctx);
+
+      case 'PLACE_CATALOG_BATCH':
+        return placeCatalogBatch(state, intent, ctx);
 
       default:
         return undefined;

@@ -202,7 +202,8 @@ function handleBedIntents(
     case 'LEAVE_BED':
       return moveTo(state, null, ctx);
     case 'SUBMIT_CHAT':
-    case 'PLACE_CATALOG': {
+    case 'PLACE_CATALOG':
+    case 'PLACE_CATALOG_BATCH': {
       const patient = state.patients[intent.patientId];
       if (patient && state.ward.location.bed !== patient.bed) return reject(state, 'NOT_AT_BED');
       return undefined;

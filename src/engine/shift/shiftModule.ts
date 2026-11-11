@@ -156,7 +156,10 @@ function gateIntent(state: GameState, intent: PlayerIntent): Reduction | undefin
   if (phase === 'ENDED' || phase === 'HANDOVER') return reject(state, 'SHIFT_NOT_ACTIVE');
 
   const wardAction = intent.type === 'EXTENSION' && intent.module === 'ward';
-  const bedsideOrder = intent.type === 'SUBMIT_CHAT' || intent.type === 'PLACE_CATALOG';
+  const bedsideOrder =
+    intent.type === 'SUBMIT_CHAT' ||
+    intent.type === 'PLACE_CATALOG' ||
+    intent.type === 'PLACE_CATALOG_BATCH';
   const newWork =
     intent.type === 'PLACE_ORDER' ||
     bedsideOrder ||
