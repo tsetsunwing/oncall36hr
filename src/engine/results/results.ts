@@ -111,6 +111,17 @@ export function reportSummaryText(report: PatientReport): string {
     : (report.text ?? '');
 }
 
+/** 每個檢查只保留最近幾份報告，夠看走勢又唔會無限增長。 */
+export const REPORTS_KEPT_PER_TEST = 5;
+
+export function capReports(reports: readonly PatientReport[], resultId: string): PatientReport[] {
+  const same = reports.filter((item) => item.resultId === resultId);
+  if (same.length <= REPORTS_KEPT_PER_TEST) return [...reports];
+  const drop = same.length - REPORTS_KEPT_PER_TEST;
+  const dropped = new Set(same.slice(0, drop));
+  return reports.filter((item) => !dropped.has(item));
+}
+
 export function handleResultReport(
   state: GameState,
   payload: unknown,
@@ -133,7 +144,10 @@ export function handleResultReport(
       ...state.patients,
       [patient.id]: {
         ...patient,
-        visible: { ...patient.visible, reports: [...patient.visible.reports, report] },
+        visible: {
+          ...patient.visible,
+          reports: capReports([...patient.visible.reports, report], report.resultId),
+        },
       },
     },
   };

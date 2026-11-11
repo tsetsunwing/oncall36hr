@@ -1,6 +1,8 @@
 /** M3：化驗／檢查結果按 T7 表延遲報告；內容查表（採樣當刻狀態）、AI 只做口頭通知。 */
 import { describe, expect, it } from 'vitest';
 import { effectDeltaAt } from '../case/vitals';
+import { capReports } from './results';
+import type { PatientReport } from '../case/patient';
 import type { GameState } from '../core/state';
 import {
   advance,
@@ -229,5 +231,39 @@ describe('取消規則：KEEP_PARTIAL vs DISCARD', () => {
     expect(refused.effects).toEqual([
       { type: 'NOTICE', kind: 'ORDER_NOT_CANCELLABLE', tone: 'warn' },
     ]);
+  });
+});
+
+describe('每個檢查只保留最近 5 份報告', () => {
+  const report = (id: string, resultId: string): PatientReport => ({
+    id,
+    orderId: `o-${id}`,
+    resultId,
+    label: resultId,
+    kind: 'REPORT',
+    reportedAt: 0,
+    abnormal: false,
+    items: [],
+    text: 'x',
+    reviewStatus: 'PENDING_CLINICAL_REVIEW',
+  });
+
+  it('第 6 份出爐時，最舊一份被丟走，其餘檢查不受影響', () => {
+    const reports = [
+      report('r-1', 'res.cbc'),
+      report('r-2', 'res.cbc'),
+      report('r-3', 'res.cbc'),
+      report('r-4', 'res.cbc'),
+      report('r-5', 'res.cbc'),
+      report('other', 'res.rft'),
+      report('r-6', 'res.cbc'),
+    ];
+    const kept = capReports(reports, 'res.cbc');
+    expect(kept.map((item) => item.id)).toEqual(['r-2', 'r-3', 'r-4', 'r-5', 'other', 'r-6']);
+  });
+
+  it('未夠 5 份時原封不動', () => {
+    const reports = [report('a', 'res.cbc'), report('b', 'res.cbc')];
+    expect(capReports(reports, 'res.cbc').map((item) => item.id)).toEqual(['a', 'b']);
   });
 });
