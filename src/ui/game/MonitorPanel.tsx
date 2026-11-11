@@ -194,7 +194,11 @@ export function MonitorPanel({ patient, monitor, onMeasureNibp }: MonitorPanelPr
     setExtra([]);
     setMenuOpen(false);
   }
-  const shownExtra = extra.filter((kind) => monitor.lines[kind]);
+  // 有動脈導管就自動顯示 ABP，唔需要玩家喺波形選單揀。其餘額外波形仍然由玩家決定。
+  const autoExtra: OptionalWave[] = monitor.lines.abp ? ['abp'] : [];
+  const shownExtra = [...new Set([...autoExtra, ...extra])]
+    .filter((kind) => monitor.lines[kind])
+    .slice(0, MAX_OPTIONAL);
   const level = maxLevel([
     monitor.mews.level,
     monitor.rhythmAlarm,
@@ -371,16 +375,18 @@ export function MonitorPanel({ patient, monitor, onMeasureNibp }: MonitorPanelPr
           <div id="optional-waves" className="wave-menu" role="group" aria-label={m.waveMenu}>
             {OPTIONAL_WAVES.map((kind) => {
               const ready = monitor.lines[kind];
-              const checked = ready && extra.includes(kind);
+              // ABP 有導管就自動開，所以選單裡面固定勾住、唔可以由玩家關掉。
+              const auto = kind === 'abp' && monitor.lines.abp;
+              const checked = ready && (auto || extra.includes(kind));
               const full = extra.length >= MAX_OPTIONAL && !checked;
               return (
                 <label key={kind} title={ready ? undefined : m.waveNeeds[kind]}>
                   <input
                     type="checkbox"
                     checked={checked}
-                    disabled={!ready || full}
+                    disabled={!ready || full || auto}
                     onChange={() => {
-                      if (!ready) return;
+                      if (!ready || auto) return;
                       setExtra((current) => {
                         if (current.includes(kind)) return current.filter((item) => item !== kind);
                         if (current.length >= MAX_OPTIONAL) return current;

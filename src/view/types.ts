@@ -825,4 +825,6 @@ export interface GameActions {
   saveManual: (slot: number) => void;
   /** 用而家嘅血壓更新上次 NIBP 袖帶。 */
   measureNibp: (patientId: string) => void;
+  /** 評估 GCS：只讀當下清醒程度，唔會自己變。 */
+  assessGcs: (patientId: string) => void;
 }
