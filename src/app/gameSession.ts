@@ -177,6 +177,12 @@ export function createGameSession(options: GameSessionOptions): GameSession {
         intent: { type: 'PLACE_CATALOG', patientId, catalogId, text, params },
       });
     },
+    placeTests(patientId, catalogIds, text) {
+      dispatch({
+        type: 'PLAYER_INTENT',
+        intent: { type: 'PLACE_CATALOG_BATCH', patientId, catalogIds, text },
+      });
+    },
     togglePause() {
       const state = runtime.getState();
       if (state.paused?.by === 'ai-failure') return;

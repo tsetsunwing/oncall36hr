@@ -175,6 +175,7 @@ export function placeAndAck(
   inputs: readonly PlaceInput[],
   addressed: string[],
   ctx: EngineContext,
+  options: { combineAck?: boolean } = {},
 ): Reduction & { orders: Order[] } {
   let next = state;
   const effects: Effect[] = [];
@@ -192,7 +193,7 @@ export function placeAndAck(
     return aclsNurseDecision(next, order.patientId, row?.acls?.action, ctx.tables) === 'PROCEED';
   });
   if (accepted.length === 0) return { state: next, effects, orders };
-  const { beats, tokens } = ackBeatsFor(accepted, ctx);
+  const { beats, tokens } = ackBeatsFor(accepted, ctx, options.combineAck === true);
   const dialogue = queueBeatsForOrders(next, patient, beats, tokens, addressed, ctx);
   return { state: dialogue.state, effects: [...effects, ...dialogue.effects], orders };
 }

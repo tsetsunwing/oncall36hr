@@ -97,6 +97,7 @@ export function attendedPatientOf(
       return after.counters.order > before.counters.order ? intent.patientId : null;
     case 'SUBMIT_CHAT':
     case 'PLACE_CATALOG':
+    case 'PLACE_CATALOG_BATCH':
     case 'ENTER_BED':
       return intent.patientId;
     case 'EXTENSION': {

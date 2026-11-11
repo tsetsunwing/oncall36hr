@@ -1,5 +1,5 @@
-/** 報告面板嘅分類。result id → 化驗／影像／即場，同埋下一層部門。 */
-export type ReportBucket = 'laboratory' | 'radiology' | 'poct';
+/** 報告面板嘅分類。result id → 化驗／影像／即場／核子醫學，同埋下一層部門。 */
+export type ReportBucket = 'laboratory' | 'radiology' | 'poct' | 'nm';
 
 export interface ReportCategory {
   bucket: ReportBucket;
@@ -17,7 +17,9 @@ export const LAB_SECTIONS = [
   'tox',
 ] as const;
 
-export const RAD_SECTIONS = ['xr', 'ct', 'mri', 'us'] as const;
+export const RAD_SECTIONS = ['xr', 'fl', 'ct', 'mri', 'us'] as const;
+
+export const NM_SECTIONS = ['nm'] as const;
 
 export const POCT_SECTIONS = [
   'glucose',
@@ -47,6 +49,14 @@ const BY_RESULT: Record<string, ReportCategory> = {
   'res.mri': { bucket: 'radiology', section: 'mri' },
   'res.us.abdomen': { bucket: 'radiology', section: 'us' },
   'res.pocus': { bucket: 'radiology', section: 'us' },
+  'res.barium.swallow': { bucket: 'radiology', section: 'fl' },
+  'res.barium.meal': { bucket: 'radiology', section: 'fl' },
+  'res.barium.enema': { bucket: 'radiology', section: 'fl' },
+  'res.vq': { bucket: 'nm', section: 'nm' },
+  'res.bone.scan': { bucket: 'nm', section: 'nm' },
+  'res.dmsa': { bucket: 'nm', section: 'nm' },
+  'res.muga': { bucket: 'nm', section: 'nm' },
+  'res.pet': { bucket: 'nm', section: 'nm' },
   'res.glucose': { bucket: 'poct', section: 'glucose' },
   'res.abg': { bucket: 'poct', section: 'istat' },
   'res.rat': { bucket: 'poct', section: 'rat' },
@@ -67,12 +77,13 @@ export function knownReportCategory(resultId: string): ReportCategory | null {
 }
 
 /** 檢查選單由左至右：組別，然後報告面板的部門。空部門仍然列出。 */
-export const TEST_MENU_BUCKETS: readonly ReportBucket[] = ['laboratory', 'radiology', 'poct'];
+export const TEST_MENU_BUCKETS: readonly ReportBucket[] = ['laboratory', 'radiology', 'poct', 'nm'];
 
 export const TEST_MENU_SECTIONS: Record<ReportBucket, readonly string[]> = {
   laboratory: ['haem', 'biochem', 'micro', 'cytology', 'histo', 'immuno', 'genetics', 'tox'],
-  radiology: ['xr', 'ct', 'mri', 'us'],
+  radiology: ['xr', 'fl', 'ct', 'mri', 'us'],
   poct: ['ecg', 'istat', 'glucose', 'rat', 'inr', 'tropT', 'urine', 'hb', 'hba1c'],
+  nm: ['nm'],
 };
 
 /** 同一部門內，現有檢查的次序。唔喺表內的真檢查會排在後面。 */
@@ -84,6 +95,8 @@ export const TEST_ACTION_ORDER: Record<string, readonly string[]> = {
   ct: ['img.ct.thorax'],
   mri: ['img.mri'],
   us: ['img.us.abdomen', 'img.pocus'],
+  fl: ['img.barium.swallow', 'img.barium.meal', 'img.barium.enema'],
+  nm: ['img.vq', 'img.bone.scan', 'img.dmsa', 'img.muga', 'img.pet'],
   ecg: ['ecg.12lead'],
   istat: ['lab.abg'],
   glucose: ['poct.glucose'],
@@ -98,5 +111,6 @@ export const TEST_ACTION_ORDER: Record<string, readonly string[]> = {
 export function sectionsFor(bucket: ReportBucket): readonly string[] {
   if (bucket === 'laboratory') return LAB_SECTIONS;
   if (bucket === 'radiology') return RAD_SECTIONS;
+  if (bucket === 'nm') return NM_SECTIONS;
   return POCT_SECTIONS;
 }
