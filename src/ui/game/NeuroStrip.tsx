@@ -8,6 +8,8 @@ import type { PatientView, PupilView } from '@/view';
  */
 export interface NeuroStripProps {
   patient: PatientView;
+  /** 評估 GCS。只讀當下清醒程度；唔會自己變。 */
+  onAssessGcs?: () => void;
 }
 
 function Pupil({ label, pupil }: { label: string; pupil: PupilView }) {
@@ -26,7 +28,7 @@ function Pupil({ label, pupil }: { label: string; pupil: PupilView }) {
   );
 }
 
-export function NeuroStrip({ patient }: NeuroStripProps) {
+export function NeuroStrip({ patient, onAssessGcs }: NeuroStripProps) {
   const n = ui.game.neuro;
   const { gcs, pupils } = patient.neuro;
   return (
@@ -55,6 +57,16 @@ export function NeuroStrip({ patient }: NeuroStripProps) {
           {gcs.m}
         </span>
       </div>
+      {onAssessGcs ? (
+        <button
+          type="button"
+          className="neuro-action"
+          data-testid="assess-gcs"
+          onClick={onAssessGcs}
+        >
+          {n.assessGcs}
+        </button>
+      ) : null}
       <div className="neuro-item neuro-item-pupils" data-testid="neuro-pupils">
         <span className="neuro-label">{n.pupils}</span>
         <Pupil label={n.left} pupil={pupils.left} />
