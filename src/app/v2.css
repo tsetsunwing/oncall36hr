@@ -2965,3 +2965,66 @@ button.place-room-action:disabled:not([data-active='true']) {
   height: 44px;
   min-height: 44px;
 }
+
+/* 神經與疼痛：GCS、瞳孔、疼痛分數。刻意唔放喺監察儀，所以用中性底色，唔用監察儀嘅黑底霓虹色。 */
+.neuro-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  align-items: baseline;
+  padding: 8px 14px;
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--ink);
+  background: var(--panel, #1b1b1b);
+  border: 1px solid var(--line, #2c2c2c);
+  border-radius: 8px;
+}
+
+.neuro-item {
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+}
+
+.neuro-label {
+  color: var(--ink-dim, #9aa0a6);
+}
+
+.neuro-value {
+  font-weight: 600;
+}
+
+.neuro-unasked {
+  font-weight: 400;
+  color: var(--ink-dim, #9aa0a6);
+  font-style: italic;
+}
+
+.neuro-parts {
+  color: var(--ink-dim, #9aa0a6);
+  font-size: 12px;
+}
+
+.neuro-item-pupils {
+  gap: 10px;
+}
+
+.neuro-pupil {
+  display: flex;
+  gap: 4px;
+  align-items: baseline;
+}
+
+.neuro-pupil-side {
+  color: var(--ink-dim, #9aa0a6);
+}
+
+.neuro-pupil-reaction[data-reaction='SLUGGISH'] {
+  color: #ffd400;
+}
+
+.neuro-pupil-reaction[data-reaction='FIXED'] {
+  color: #ff5a6a;
+  font-weight: 600;
+}
