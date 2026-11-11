@@ -3,6 +3,7 @@
  * 未來每次改 GameState 形狀：CURRENT_SCHEMA + 1，並喺度加一個函數（implementation-plan §12.1、T-L）。
  */
 import { hashString } from '../core/rng';
+import { NORMAL_PUPILS, gcsForConsciousness } from '../case/patient';
 
 export type RawState = Record<string, unknown>;
 export type Migration = (raw: RawState) => RawState;
@@ -268,6 +269,35 @@ function migrateV11toV12(raw: RawState): RawState {
   };
 }
 
+/** 13：病人加疼痛分數同 GCS／瞳孔（唔上心臟監察儀）。舊存檔由 ACVPU 推一個 GCS 起點。 */
+function migrateV12toV13(raw: RawState): RawState {
+  const patients = (raw.patients ?? {}) as Record<string, Record<string, unknown>>;
+  return {
+    ...raw,
+    patients: Object.fromEntries(
+      Object.entries(patients).map(([id, patient]) => {
+        const visible = (patient.visible ?? {}) as Record<string, unknown>;
+        const consciousness = visible.consciousness;
+        const acuity =
+          consciousness === 'A' || consciousness === 'V' || consciousness === 'P'
+            ? consciousness
+            : 'U';
+        return [
+          id,
+          {
+            ...patient,
+            visible: {
+              ...visible,
+              pain: null,
+              neuro: { gcs: gcsForConsciousness(acuity), pupils: NORMAL_PUPILS },
+            },
+          },
+        ];
+      }),
+    ),
+  };
+}
+
 export const migrations: MigrationRegistry = {
   1: migrateV1toV2,
   2: migrateV2toV3,
@@ -280,6 +310,7 @@ export const migrations: MigrationRegistry = {
   9: migrateV9toV10,
   10: migrateV10toV11,
   11: migrateV11toV12,
+  12: migrateV12toV13,
 };
 
 export type MigrateResult =

@@ -60,6 +60,51 @@ const reportSchema = z
 
 export type PatientReport = z.infer<typeof reportSchema>;
 
+/** 瞳孔：直徑（mm）同對光反應。唔上心臟監察儀。 */
+const pupilSchema = z
+  .object({
+    sizeMm: z.number().min(1).max(9),
+    reaction: z.enum(['BRISK', 'SLUGGISH', 'FIXED']),
+  })
+  .strict();
+
+/** GCS 用 E/V/M 三個分項，同 ACVPU 並存：ACVPU 係護士口頭用，GCS 係評分用。 */
+const neuroSchema = z
+  .object({
+    gcs: z
+      .object({
+        e: z.number().int().min(1).max(4),
+        v: z.number().int().min(1).max(5),
+        m: z.number().int().min(1).max(6),
+      })
+      .strict(),
+    pupils: z.object({ left: pupilSchema, right: pupilSchema }).strict(),
+  })
+  .strict();
+
+export type Pupil = z.infer<typeof pupilSchema>;
+export type Neuro = z.infer<typeof neuroSchema>;
+
+/** ACVPU 對應的 GCS 起點。之後由病程改，唔會自動跟 ACVPU 走。 */
+export function gcsForConsciousness(consciousness: 'A' | 'V' | 'P' | 'U'): Neuro['gcs'] {
+  switch (consciousness) {
+    case 'A':
+      return { e: 4, v: 5, m: 6 };
+    case 'V':
+      return { e: 3, v: 4, m: 5 };
+    case 'P':
+      return { e: 2, v: 2, m: 4 };
+    case 'U':
+      return { e: 1, v: 1, m: 1 };
+  }
+}
+
+/** 正常瞳孔：3 mm，對光反應靈敏。 */
+export const NORMAL_PUPILS: Neuro['pupils'] = {
+  left: { sizeMm: 3, reaction: 'BRISK' },
+  right: { sizeMm: 3, reaction: 'BRISK' },
+};
+
 const baseSchema = z
   .object({
     hr: z.number(),
@@ -126,6 +171,10 @@ export const patientSchema = z
         reports: z.array(reportSchema),
         rhythm: z.string().min(1),
         consciousness: z.enum(['A', 'V', 'P', 'U']),
+        /** 疼痛分數 0–10；未問過病人＝null。唔上心臟監察儀。 */
+        pain: z.number().int().min(0).max(10).nullable(),
+        /** GCS（E/V/M）同瞳孔。唔上心臟監察儀。 */
+        neuro: neuroSchema,
         mews: z
           .object({
             score: z.number().int().min(0),

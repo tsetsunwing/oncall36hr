@@ -12,6 +12,7 @@ import { trackBandUrgency } from '../score/priority';
 import { scoreStateExit } from '../score/requiredOrders';
 import { evaluateFsm } from './fsm';
 import { pickHkName } from './hkNames';
+import { NORMAL_PUPILS, gcsForConsciousness } from './patient';
 import { computeMews } from './mews';
 import type { Patient } from './patient';
 import type {
@@ -201,6 +202,11 @@ export function createPatientState(
       reports: [],
       rhythm: trajectory.rhythm,
       consciousness: trajectory.consciousness,
+      pain: null,
+      neuro: {
+        gcs: gcsForConsciousness(trajectory.consciousness),
+        pupils: NORMAL_PUPILS,
+      },
       mews: { score: 0, band: '', components: {} },
       drains: [],
     },
