@@ -39,6 +39,7 @@ describe('content loader', () => {
   ] as const;
   const FILLED_TABLES = [
     ...M2_TABLES,
+    'lab-baselines',
     'treatment-drugs',
     'drug-class-effects',
     'drug-effect-overrides',

@@ -21,6 +21,43 @@
           "SEPTIC_SHOCK": 22.4,
           "STABILISING": 13.1,
           "*": 22.4
+        },
+        "byDiagnosis": {
+          "pneumonia": {
+            "*": 15.2
+          },
+          "sepsis": {
+            "DETERIORATING": 18.6,
+            "SEPTIC_SHOCK": 24.0,
+            "STABILISING": 12.0
+          },
+          "cellulitis": {
+            "*": 12.8
+          },
+          "uti": {
+            "*": 14.6
+          },
+          "copd": {
+            "*": 9.8
+          },
+          "hypertension": {
+            "*": 7.2
+          },
+          "heart-failure": {
+            "*": 8.4
+          },
+          "gi-bleed": {
+            "*": 9.6
+          },
+          "pe": {
+            "*": 10.2
+          },
+          "acs": {
+            "*": 9.4
+          },
+          "end-stage-malignancy": {
+            "*": 11.5
+          }
         }
       },
       {
@@ -34,6 +71,21 @@
         },
         "byState": {
           "*": 13.4
+        },
+        "byDiagnosis": {
+          "gi-bleed": {
+            "DETERIORATING": 7.6,
+            "STABILISING": 9.2
+          },
+          "sepsis": {
+            "SEPTIC_SHOCK": 9.4
+          },
+          "end-stage-malignancy": {
+            "*": 9.1
+          },
+          "heart-failure": {
+            "*": 11.6
+          }
         }
       },
       {
@@ -50,6 +102,17 @@
           "SEPTIC_SHOCK": 110,
           "STABILISING": 190,
           "*": 110
+        },
+        "byDiagnosis": {
+          "sepsis": {
+            "SEPTIC_SHOCK": 88
+          },
+          "gi-bleed": {
+            "*": 168
+          },
+          "end-stage-malignancy": {
+            "*": 140
+          }
         }
       }
     ],
@@ -77,6 +140,14 @@
           "SEPTIC_SHOCK": 134,
           "STABILISING": 137,
           "*": 134
+        },
+        "byDiagnosis": {
+          "heart-failure": {
+            "*": 133
+          },
+          "sepsis": {
+            "*": 134
+          }
         }
       },
       {
@@ -93,6 +164,14 @@
           "SEPTIC_SHOCK": 5.3,
           "STABILISING": 4.3,
           "*": 5.3
+        },
+        "byDiagnosis": {
+          "heart-failure": {
+            "*": 5.2
+          },
+          "sepsis": {
+            "SEPTIC_SHOCK": 5.4
+          }
         }
       },
       {
@@ -109,6 +188,17 @@
           "SEPTIC_SHOCK": 14.2,
           "STABILISING": 9,
           "*": 14.2
+        },
+        "byDiagnosis": {
+          "gi-bleed": {
+            "*": 12.8
+          },
+          "heart-failure": {
+            "*": 11.4
+          },
+          "sepsis": {
+            "SEPTIC_SHOCK": 15.6
+          }
         }
       },
       {
@@ -125,6 +215,17 @@
           "SEPTIC_SHOCK": 186,
           "STABILISING": 125,
           "*": 186
+        },
+        "byDiagnosis": {
+          "heart-failure": {
+            "*": 148
+          },
+          "sepsis": {
+            "SEPTIC_SHOCK": 186
+          },
+          "gi-bleed": {
+            "*": 108
+          }
         }
       }
     ],
@@ -152,6 +253,21 @@
           "SEPTIC_SHOCK": 38,
           "STABILISING": 12,
           "*": 38
+        },
+        "byDiagnosis": {
+          "acs": {
+            "DETERIORATING": 480,
+            "STABILISING": 210
+          },
+          "sepsis": {
+            "*": 68
+          },
+          "pe": {
+            "*": 42
+          },
+          "heart-failure": {
+            "*": 38
+          }
         }
       }
     ],

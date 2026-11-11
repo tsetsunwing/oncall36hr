@@ -125,3 +125,20 @@ export const consequenceSchema = z
     levels: z.object({ LOW: levelSchema, MID: levelSchema, HIGH: levelSchema }).strict(),
   })
   .strict();
+
+/**
+ * T7b lab-baselines：每項化驗嘅正常值基準，分性別同性別長者偏差。
+ * 診斷有指定值嘅項目唔用呢個基準（見 results 的 byDiagnosis）。
+ */
+export const labBaselineSchema = z
+  .object({
+    id: z.string().min(1),
+    label: z.string().min(1),
+    unit: z.string(),
+    decimals: z.number().int().min(0).max(3),
+    ref: z.object({ low: z.number(), high: z.number() }).strict(),
+    typical: z.object({ M: z.number(), F: z.number() }).strict(),
+    /** 70 歲或以上加落去嘅偏差 */
+    elderlyDelta: z.number(),
+  })
+  .strict();

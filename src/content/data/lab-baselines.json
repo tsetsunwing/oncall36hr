@@ -1,0 +1,932 @@
+[
+  {
+    "id": "wbc",
+    "label": "WBC",
+    "unit": "×10⁹/L",
+    "decimals": 1,
+    "ref": {
+      "low": 4,
+      "high": 11
+    },
+    "typical": {
+      "M": 6.8,
+      "F": 6.6
+    },
+    "elderlyDelta": 0
+  },
+  {
+    "id": "hb",
+    "label": "Hb",
+    "unit": "g/dL",
+    "decimals": 1,
+    "ref": {
+      "low": 13,
+      "high": 17
+    },
+    "typical": {
+      "M": 14.8,
+      "F": 13.2
+    },
+    "elderlyDelta": -0.8
+  },
+  {
+    "id": "plt",
+    "label": "Platelet",
+    "unit": "×10⁹/L",
+    "decimals": 0,
+    "ref": {
+      "low": 150,
+      "high": 400
+    },
+    "typical": {
+      "M": 250,
+      "F": 260
+    },
+    "elderlyDelta": 0
+  },
+  {
+    "id": "na",
+    "label": "Na",
+    "unit": "mmol/L",
+    "decimals": 0,
+    "ref": {
+      "low": 135,
+      "high": 145
+    },
+    "typical": {
+      "M": 140,
+      "F": 140
+    },
+    "elderlyDelta": 0
+  },
+  {
+    "id": "k",
+    "label": "K",
+    "unit": "mmol/L",
+    "decimals": 1,
+    "ref": {
+      "low": 3.5,
+      "high": 5
+    },
+    "typical": {
+      "M": 4.1,
+      "F": 4.0
+    },
+    "elderlyDelta": 0.1
+  },
+  {
+    "id": "urea",
+    "label": "Urea",
+    "unit": "mmol/L",
+    "decimals": 1,
+    "ref": {
+      "low": 2.5,
+      "high": 7.8
+    },
+    "typical": {
+      "M": 4.8,
+      "F": 4.4
+    },
+    "elderlyDelta": 0.9
+  },
+  {
+    "id": "creat",
+    "label": "Creatinine",
+    "unit": "µmol/L",
+    "decimals": 0,
+    "ref": {
+      "low": 60,
+      "high": 110
+    },
+    "typical": {
+      "M": 82,
+      "F": 62
+    },
+    "elderlyDelta": 4
+  },
+  {
+    "id": "tni",
+    "label": "Troponin I",
+    "unit": "ng/L",
+    "decimals": 0,
+    "ref": {
+      "low": 0,
+      "high": 14
+    },
+    "typical": {
+      "M": 7.0,
+      "F": 7.0
+    },
+    "elderlyDelta": 0
+  },
+  {
+    "id": "ph",
+    "label": "pH",
+    "unit": "",
+    "decimals": 2,
+    "ref": {
+      "low": 7.35,
+      "high": 7.45
+    },
+    "typical": {
+      "M": 7.4,
+      "F": 7.4
+    },
+    "elderlyDelta": 0
+  },
+  {
+    "id": "pco2",
+    "label": "pCO₂",
+    "unit": "kPa",
+    "decimals": 1,
+    "ref": {
+      "low": 4.7,
+      "high": 6
+    },
+    "typical": {
+      "M": 5.3,
+      "F": 5.3
+    },
+    "elderlyDelta": 0
+  },
+  {
+    "id": "po2",
+    "label": "pO₂",
+    "unit": "kPa",
+    "decimals": 1,
+    "ref": {
+      "low": 10,
+      "high": 13
+    },
+    "typical": {
+      "M": 11.5,
+      "F": 11.5
+    },
+    "elderlyDelta": 0
+  },
+  {
+    "id": "hco3",
+    "label": "HCO₃⁻",
+    "unit": "mmol/L",
+    "decimals": 1,
+    "ref": {
+      "low": 22,
+      "high": 26
+    },
+    "typical": {
+      "M": 24.0,
+      "F": 24.0
+    },
+    "elderlyDelta": 0
+  },
+  {
+    "id": "lactate",
+    "label": "Lactate",
+    "unit": "mmol/L",
+    "decimals": 1,
+    "ref": {
+      "low": 0.5,
+      "high": 2
+    },
+    "typical": {
+      "M": 1.2,
+      "F": 1.2
+    },
+    "elderlyDelta": 0
+  },
+  {
+    "id": "pt",
+    "label": "PT",
+    "unit": "s",
+    "decimals": 1,
+    "ref": {
+      "low": 11,
+      "high": 14
+    },
+    "typical": {
+      "M": 12.5,
+      "F": 12.5
+    },
+    "elderlyDelta": 0
+  },
+  {
+    "id": "aptt",
+    "label": "APTT",
+    "unit": "s",
+    "decimals": 1,
+    "ref": {
+      "low": 25,
+      "high": 35
+    },
+    "typical": {
+      "M": 30.0,
+      "F": 30.0
+    },
+    "elderlyDelta": 0
+  },
+  {
+    "id": "inr",
+    "label": "INR",
+    "unit": "",
+    "decimals": 1,
+    "ref": {
+      "low": 0.9,
+      "high": 1.2
+    },
+    "typical": {
+      "M": 1.1,
+      "F": 1.1
+    },
+    "elderlyDelta": 0
+  },
+  {
+    "id": "retic",
+    "label": "Reticulocyte",
+    "unit": "%",
+    "decimals": 1,
+    "ref": {
+      "low": 0.5,
+      "high": 2.5
+    },
+    "typical": {
+      "M": 1.2,
+      "F": 1.2
+    },
+    "elderlyDelta": 0
+  },
+  {
+    "id": "ddimer",
+    "label": "D-dimer",
+    "unit": "µg/mL FEU",
+    "decimals": 2,
+    "ref": {
+      "low": 0,
+      "high": 0.5
+    },
+    "typical": {
+      "M": 0.25,
+      "F": 0.25
+    },
+    "elderlyDelta": 0
+  },
+  {
+    "id": "fib",
+    "label": "Fibrinogen",
+    "unit": "g/L",
+    "decimals": 1,
+    "ref": {
+      "low": 2.0,
+      "high": 4.0
+    },
+    "typical": {
+      "M": 3.0,
+      "F": 3.0
+    },
+    "elderlyDelta": 0
+  },
+  {
+    "id": "g6pd",
+    "label": "G6PD",
+    "unit": "U/g Hb",
+    "decimals": 1,
+    "ref": {
+      "low": 7.0,
+      "high": 20.5
+    },
+    "typical": {
+      "M": 13.8,
+      "F": 13.8
+    },
+    "elderlyDelta": 0
+  },
+  {
+    "id": "ldh",
+    "label": "LDH",
+    "unit": "U/L",
+    "decimals": 0,
+    "ref": {
+      "low": 120,
+      "high": 250
+    },
+    "typical": {
+      "M": 180,
+      "F": 175
+    },
+    "elderlyDelta": 0
+  },
+  {
+    "id": "hapto",
+    "label": "Haptoglobin",
+    "unit": "g/L",
+    "decimals": 2,
+    "ref": {
+      "low": 0.3,
+      "high": 2.0
+    },
+    "typical": {
+      "M": 1.15,
+      "F": 1.15
+    },
+    "elderlyDelta": 0
+  },
+  {
+    "id": "ucbil",
+    "label": "Unconjugated bilirubin",
+    "unit": "µmol/L",
+    "decimals": 0,
+    "ref": {
+      "low": 0,
+      "high": 17
+    },
+    "typical": {
+      "M": 8,
+      "F": 7
+    },
+    "elderlyDelta": 0
+  },
+  {
+    "id": "alt",
+    "label": "ALT",
+    "unit": "U/L",
+    "decimals": 0,
+    "ref": {
+      "low": 0,
+      "high": 40
+    },
+    "typical": {
+      "M": 24,
+      "F": 19
+    },
+    "elderlyDelta": 0
+  },
+  {
+    "id": "ast",
+    "label": "AST",
+    "unit": "U/L",
+    "decimals": 0,
+    "ref": {
+      "low": 0,
+      "high": 40
+    },
+    "typical": {
+      "M": 25,
+      "F": 20
+    },
+    "elderlyDelta": 0
+  },
+  {
+    "id": "alp",
+    "label": "ALP",
+    "unit": "U/L",
+    "decimals": 0,
+    "ref": {
+      "low": 30,
+      "high": 120
+    },
+    "typical": {
+      "M": 78,
+      "F": 72
+    },
+    "elderlyDelta": 12
+  },
+  {
+    "id": "ggt",
+    "label": "GGT",
+    "unit": "U/L",
+    "decimals": 0,
+    "ref": {
+      "low": 0,
+      "high": 55
+    },
+    "typical": {
+      "M": 34,
+      "F": 22
+    },
+    "elderlyDelta": 2
+  },
+  {
+    "id": "tbil",
+    "label": "Total bilirubin",
+    "unit": "µmol/L",
+    "decimals": 0,
+    "ref": {
+      "low": 0,
+      "high": 20
+    },
+    "typical": {
+      "M": 11,
+      "F": 10
+    },
+    "elderlyDelta": 0
+  },
+  {
+    "id": "alb",
+    "label": "Albumin",
+    "unit": "g/L",
+    "decimals": 0,
+    "ref": {
+      "low": 35,
+      "high": 50
+    },
+    "typical": {
+      "M": 42,
+      "F": 41
+    },
+    "elderlyDelta": -2
+  },
+  {
+    "id": "tp",
+    "label": "Total protein",
+    "unit": "g/L",
+    "decimals": 0,
+    "ref": {
+      "low": 60,
+      "high": 80
+    },
+    "typical": {
+      "M": 71,
+      "F": 70
+    },
+    "elderlyDelta": -2
+  },
+  {
+    "id": "ca",
+    "label": "Adjusted Ca",
+    "unit": "mmol/L",
+    "decimals": 2,
+    "ref": {
+      "low": 2.15,
+      "high": 2.55
+    },
+    "typical": {
+      "M": 2.32,
+      "F": 2.3
+    },
+    "elderlyDelta": -0.05
+  },
+  {
+    "id": "po4",
+    "label": "Phosphate",
+    "unit": "mmol/L",
+    "decimals": 2,
+    "ref": {
+      "low": 0.8,
+      "high": 1.5
+    },
+    "typical": {
+      "M": 1.05,
+      "F": 1.05
+    },
+    "elderlyDelta": 0.02
+  },
+  {
+    "id": "mg",
+    "label": "Magnesium",
+    "unit": "mmol/L",
+    "decimals": 2,
+    "ref": {
+      "low": 0.7,
+      "high": 1.0
+    },
+    "typical": {
+      "M": 0.86,
+      "F": 0.86
+    },
+    "elderlyDelta": 0
+  },
+  {
+    "id": "crp",
+    "label": "CRP",
+    "unit": "mg/L",
+    "decimals": 0,
+    "ref": {
+      "low": 0,
+      "high": 5
+    },
+    "typical": {
+      "M": 2,
+      "F": 2
+    },
+    "elderlyDelta": 1
+  },
+  {
+    "id": "ck",
+    "label": "CK",
+    "unit": "U/L",
+    "decimals": 0,
+    "ref": {
+      "low": 30,
+      "high": 200
+    },
+    "typical": {
+      "M": 140,
+      "F": 100
+    },
+    "elderlyDelta": -10
+  },
+  {
+    "id": "bnp",
+    "label": "NT-proBNP",
+    "unit": "pg/mL",
+    "decimals": 0,
+    "ref": {
+      "low": 0,
+      "high": 300
+    },
+    "typical": {
+      "M": 150.0,
+      "F": 150.0
+    },
+    "elderlyDelta": 0
+  },
+  {
+    "id": "amylase",
+    "label": "Amylase",
+    "unit": "U/L",
+    "decimals": 0,
+    "ref": {
+      "low": 30,
+      "high": 110
+    },
+    "typical": {
+      "M": 70.0,
+      "F": 70.0
+    },
+    "elderlyDelta": 0
+  },
+  {
+    "id": "ferritin",
+    "label": "Ferritin",
+    "unit": "µg/L",
+    "decimals": 0,
+    "ref": {
+      "low": 15,
+      "high": 300
+    },
+    "typical": {
+      "M": 110,
+      "F": 55
+    },
+    "elderlyDelta": 20
+  },
+  {
+    "id": "iron",
+    "label": "Iron",
+    "unit": "µmol/L",
+    "decimals": 1,
+    "ref": {
+      "low": 10,
+      "high": 30
+    },
+    "typical": {
+      "M": 17,
+      "F": 14
+    },
+    "elderlyDelta": -1
+  },
+  {
+    "id": "tibc",
+    "label": "TIBC",
+    "unit": "µmol/L",
+    "decimals": 1,
+    "ref": {
+      "low": 45,
+      "high": 80
+    },
+    "typical": {
+      "M": 60,
+      "F": 63
+    },
+    "elderlyDelta": 0
+  },
+  {
+    "id": "tsat",
+    "label": "Transferrin saturation",
+    "unit": "%",
+    "decimals": 0,
+    "ref": {
+      "low": 20,
+      "high": 50
+    },
+    "typical": {
+      "M": 28,
+      "F": 24
+    },
+    "elderlyDelta": 0
+  },
+  {
+    "id": "tsh",
+    "label": "TSH",
+    "unit": "mIU/L",
+    "decimals": 2,
+    "ref": {
+      "low": 0.35,
+      "high": 4.94
+    },
+    "typical": {
+      "M": 2.65,
+      "F": 2.65
+    },
+    "elderlyDelta": 0
+  },
+  {
+    "id": "ft4",
+    "label": "Free T4",
+    "unit": "pmol/L",
+    "decimals": 0,
+    "ref": {
+      "low": 9,
+      "high": 19
+    },
+    "typical": {
+      "M": 14.0,
+      "F": 14.0
+    },
+    "elderlyDelta": 0
+  },
+  {
+    "id": "cortisol",
+    "label": "Cortisol",
+    "unit": "nmol/L",
+    "decimals": 0,
+    "ref": {
+      "low": 170,
+      "high": 500
+    },
+    "typical": {
+      "M": 335.0,
+      "F": 335.0
+    },
+    "elderlyDelta": 0
+  },
+  {
+    "id": "urate",
+    "label": "Urate",
+    "unit": "mmol/L",
+    "decimals": 2,
+    "ref": {
+      "low": 0.15,
+      "high": 0.42
+    },
+    "typical": {
+      "M": 0.36,
+      "F": 0.26
+    },
+    "elderlyDelta": 0.01
+  },
+  {
+    "id": "ammonia",
+    "label": "Ammonia",
+    "unit": "µmol/L",
+    "decimals": 0,
+    "ref": {
+      "low": 11,
+      "high": 32
+    },
+    "typical": {
+      "M": 22.0,
+      "F": 22.0
+    },
+    "elderlyDelta": 0
+  },
+  {
+    "id": "osmo",
+    "label": "Osmolality",
+    "unit": "mOsm/kg",
+    "decimals": 0,
+    "ref": {
+      "low": 275,
+      "high": 295
+    },
+    "typical": {
+      "M": 285.0,
+      "F": 285.0
+    },
+    "elderlyDelta": 0
+  },
+  {
+    "id": "rf",
+    "label": "Rheumatoid factor",
+    "unit": "IU/mL",
+    "decimals": 0,
+    "ref": {
+      "low": 0,
+      "high": 14
+    },
+    "typical": {
+      "M": 7.0,
+      "F": 7.0
+    },
+    "elderlyDelta": 0
+  },
+  {
+    "id": "accp",
+    "label": "anti-CCP",
+    "unit": "U/mL",
+    "decimals": 1,
+    "ref": {
+      "low": 0,
+      "high": 7
+    },
+    "typical": {
+      "M": 3.5,
+      "F": 3.5
+    },
+    "elderlyDelta": 0
+  },
+  {
+    "id": "c3",
+    "label": "C3",
+    "unit": "g/L",
+    "decimals": 2,
+    "ref": {
+      "low": 0.9,
+      "high": 1.8
+    },
+    "typical": {
+      "M": 1.35,
+      "F": 1.35
+    },
+    "elderlyDelta": 0
+  },
+  {
+    "id": "c4",
+    "label": "C4",
+    "unit": "g/L",
+    "decimals": 2,
+    "ref": {
+      "low": 0.1,
+      "high": 0.4
+    },
+    "typical": {
+      "M": 0.25,
+      "F": 0.25
+    },
+    "elderlyDelta": 0
+  },
+  {
+    "id": "hba2",
+    "label": "Hb A2",
+    "unit": "%",
+    "decimals": 1,
+    "ref": {
+      "low": 2.2,
+      "high": 3.5
+    },
+    "typical": {
+      "M": 2.8,
+      "F": 2.8
+    },
+    "elderlyDelta": 0
+  },
+  {
+    "id": "mcv",
+    "label": "MCV",
+    "unit": "fL",
+    "decimals": 0,
+    "ref": {
+      "low": 80,
+      "high": 100
+    },
+    "typical": {
+      "M": 88,
+      "F": 87
+    },
+    "elderlyDelta": 1
+  },
+  {
+    "id": "pcm",
+    "label": "Paracetamol",
+    "unit": "mg/L",
+    "decimals": 0,
+    "ref": {
+      "low": 0,
+      "high": 20
+    },
+    "typical": {
+      "M": 10.0,
+      "F": 10.0
+    },
+    "elderlyDelta": 0
+  },
+  {
+    "id": "sal",
+    "label": "Salicylate",
+    "unit": "mg/L",
+    "decimals": 0,
+    "ref": {
+      "low": 0,
+      "high": 30
+    },
+    "typical": {
+      "M": 15.0,
+      "F": 15.0
+    },
+    "elderlyDelta": 0
+  },
+  {
+    "id": "etoh",
+    "label": "Ethanol",
+    "unit": "mg/dL",
+    "decimals": 0,
+    "ref": {
+      "low": 0,
+      "high": 10
+    },
+    "typical": {
+      "M": 5.0,
+      "F": 5.0
+    },
+    "elderlyDelta": 0
+  },
+  {
+    "id": "meoh",
+    "label": "Methanol",
+    "unit": "mg/L",
+    "decimals": 0,
+    "ref": {
+      "low": 0,
+      "high": 5
+    },
+    "typical": {
+      "M": 2.0,
+      "F": 2.0
+    },
+    "elderlyDelta": 0
+  },
+  {
+    "id": "eg",
+    "label": "Ethylene glycol",
+    "unit": "mg/L",
+    "decimals": 0,
+    "ref": {
+      "low": 0,
+      "high": 5
+    },
+    "typical": {
+      "M": 2.0,
+      "F": 2.0
+    },
+    "elderlyDelta": 0
+  },
+  {
+    "id": "tca",
+    "label": "Tricyclic",
+    "unit": "µg/L",
+    "decimals": 0,
+    "ref": {
+      "low": 0,
+      "high": 100
+    },
+    "typical": {
+      "M": 50.0,
+      "F": 50.0
+    },
+    "elderlyDelta": 0
+  },
+  {
+    "id": "phenytoin",
+    "label": "Phenytoin",
+    "unit": "mg/L",
+    "decimals": 1,
+    "ref": {
+      "low": 10,
+      "high": 20
+    },
+    "typical": {
+      "M": 15.0,
+      "F": 15.0
+    },
+    "elderlyDelta": 0
+  },
+  {
+    "id": "cohb",
+    "label": "Carboxyhaemoglobin",
+    "unit": "%",
+    "decimals": 1,
+    "ref": {
+      "low": 0,
+      "high": 3
+    },
+    "typical": {
+      "M": 1.5,
+      "F": 1.5
+    },
+    "elderlyDelta": 0
+  },
+  {
+    "id": "methb",
+    "label": "Methaemoglobin",
+    "unit": "%",
+    "decimals": 1,
+    "ref": {
+      "low": 0,
+      "high": 1.5
+    },
+    "typical": {
+      "M": 0.8,
+      "F": 0.8
+    },
+    "elderlyDelta": 0
+  }
+]
