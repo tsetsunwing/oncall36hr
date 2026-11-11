@@ -3028,3 +3028,18 @@ button.place-room-action:disabled:not([data-active='true']) {
   color: #ff5a6a;
   font-weight: 600;
 }
+
+.neuro-action {
+  margin-left: auto;
+  padding: 2px 10px;
+  font: inherit;
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid var(--line, #2c2c2c);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.neuro-action:hover {
+  background: #262626;
+}
