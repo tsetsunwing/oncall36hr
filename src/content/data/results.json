@@ -271,7 +271,7 @@
     "id": "res.cxr",
     "kind": "REPORT",
     "label": "Chest X-ray",
-    "reportDelaySec": 900,
+    "reportDelaySec": 1800,
     "reviewStatus": "PENDING_CLINICAL_REVIEW",
     "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
     "items": [],
@@ -286,7 +286,7 @@
     "id": "res.ct.thorax",
     "kind": "REPORT",
     "label": "CT thorax",
-    "reportDelaySec": 1800,
+    "reportDelaySec": 3600,
     "reviewStatus": "PENDING_CLINICAL_REVIEW",
     "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
     "items": [],
@@ -301,7 +301,7 @@
     "id": "res.us.abdomen",
     "kind": "REPORT",
     "label": "Ultrasound abdomen",
-    "reportDelaySec": 600,
+    "reportDelaySec": 2700,
     "reviewStatus": "PENDING_CLINICAL_REVIEW",
     "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
     "items": [],
@@ -346,7 +346,7 @@
     "id": "res.pocus",
     "kind": "REPORT",
     "label": "POCUS",
-    "reportDelaySec": 0,
+    "reportDelaySec": 2700,
     "reviewStatus": "PENDING_CLINICAL_REVIEW",
     "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
     "items": [],
@@ -466,13 +466,163 @@
     "id": "res.mri",
     "kind": "REPORT",
     "label": "MRI",
-    "reportDelaySec": 1800,
+    "reportDelaySec": 7200,
     "reviewStatus": "PENDING_CLINICAL_REVIEW",
     "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
     "items": [],
     "textByState": {
       "*": {
         "text": "MRI: placeholder report pending clinical review. No verified finding in this placeholder.",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.barium.swallow",
+    "kind": "REPORT",
+    "label": "Barium swallow",
+    "reportDelaySec": 3600,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "Barium swallow: placeholder report pending clinical review.",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.barium.meal",
+    "kind": "REPORT",
+    "label": "Barium meal",
+    "reportDelaySec": 3600,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "Barium meal: placeholder report pending clinical review.",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.barium.enema",
+    "kind": "REPORT",
+    "label": "Barium enema",
+    "reportDelaySec": 3600,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "Barium enema: placeholder report pending clinical review.",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.vq",
+    "kind": "REPORT",
+    "label": "V/Q scan",
+    "reportDelaySec": 7200,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "V/Q scan: placeholder report pending clinical review.",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.bone.scan",
+    "kind": "REPORT",
+    "label": "Bone scan",
+    "reportDelaySec": 10800,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "Bone scan: placeholder report pending clinical review.",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.dmsa",
+    "kind": "REPORT",
+    "label": "DMSA scan",
+    "reportDelaySec": 10800,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "DMSA scan: placeholder report pending clinical review.",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.muga",
+    "kind": "REPORT",
+    "label": "MUGA scan",
+    "reportDelaySec": 10800,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "MUGA scan: placeholder report pending clinical review.",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.pet",
+    "kind": "REPORT",
+    "label": "PET scan",
+    "reportDelaySec": 14400,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "PET scan: placeholder report pending clinical review.",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.ctpa",
+    "kind": "REPORT",
+    "label": "CT pulmonary angiogram",
+    "reportDelaySec": 3600,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "CT pulmonary angiogram: placeholder report pending clinical review.",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.ct.abdomen",
+    "kind": "REPORT",
+    "label": "CT abdomen and pelvis",
+    "reportDelaySec": 3600,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "CT abdomen and pelvis: placeholder report pending clinical review.",
         "abnormal": false
       }
     }

@@ -82,6 +82,8 @@ export type NoticeKind =
   | 'CHAT_EMPTY'
   | 'CHAT_TOO_LONG'
   | 'PATIENT_UNKNOWN'
+  | 'PATIENT_AWAY'
+  | 'CONTRAST_NOT_SCREENED'
   | 'NOT_AT_BED'
   | 'PLAYER_MOVING'
   | 'CALL_UNKNOWN'

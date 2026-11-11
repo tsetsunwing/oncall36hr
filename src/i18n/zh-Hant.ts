@@ -496,6 +496,9 @@ export const ui = {
       CHAT_EMPTY: '請先輸入內容。',
       CHAT_TOO_LONG: '內容太長，請縮短後再傳送。',
       PATIENT_UNKNOWN: '找不到這位病人。',
+      PATIENT_AWAY: '病人正在離開病房做檢查，等他回來再落單。',
+      CONTRAST_NOT_SCREENED:
+        '未問過對比劑過敏及懷孕，放射科不會接受這張單。先做「問對比劑過敏及懷孕」。',
       ORDER_NOT_CANCELLABLE: '這個 order 已經無法取消。',
       ORDER_UNKNOWN: '找不到這個 order。',
       ORDER_INVALID: '這個 order 無效。',
