@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import userEvent from '@testing-library/user-event';
+import { describe, expect, it, vi } from 'vitest';
 import { MonitorPanel } from './MonitorPanel';
 import { NeuroStrip } from './NeuroStrip';
 import { monitor, patient } from './fixtures';
@@ -45,5 +46,17 @@ describe('神經與疼痛', () => {
     expect(screen.queryByTestId('neuro-strip')).toBeNull();
     expect(screen.queryByTestId('neuro-gcs')).toBeNull();
     expect(screen.queryByTestId('neuro-pain')).toBeNull();
+  });
+
+  it('按「評估 GCS」會叫 engine 評估，唔會自己改數字', async () => {
+    const onAssessGcs = vi.fn();
+    render(<NeuroStrip patient={patient} onAssessGcs={onAssessGcs} />);
+    await userEvent.click(screen.getByTestId('assess-gcs'));
+    expect(onAssessGcs).toHaveBeenCalledTimes(1);
+  });
+
+  it('冇提供 handler 時唔顯示「評估 GCS」按鈕', () => {
+    render(<NeuroStrip patient={patient} />);
+    expect(screen.queryByTestId('assess-gcs')).toBeNull();
   });
 });

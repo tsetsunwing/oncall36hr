@@ -196,7 +196,14 @@ export function WardGame({ view, ward, actions }: WardGameProps) {
             <p>{w.notAtBed}</p>
           </section>
         )}
-        {atBed && view.patient ? <NeuroStrip patient={view.patient} /> : null}
+        {atBed && view.patient ? (
+          <NeuroStrip
+            patient={view.patient}
+            onAssessGcs={() => {
+              if (view.patient) actions.assessGcs(view.patient.id);
+            }}
+          />
+        ) : null}
         {atBed && view.patient && view.resus?.patientId === view.patient.id ? (
           <ResusPanel
             patientId={view.patient.id}

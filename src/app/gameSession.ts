@@ -276,6 +276,9 @@ export function createGameSession(options: GameSessionOptions): GameSession {
     measureNibp(patientId) {
       dispatch({ type: 'PLAYER_INTENT', intent: { type: 'MEASURE_NIBP', patientId } });
     },
+    assessGcs(patientId) {
+      dispatch({ type: 'PLAYER_INTENT', intent: { type: 'ASSESS_GCS', patientId } });
+    },
   };
 
   function saveBecauseHidden(): void {
