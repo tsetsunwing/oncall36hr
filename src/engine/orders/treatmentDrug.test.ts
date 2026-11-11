@@ -35,7 +35,8 @@ function place(
   route: string | null,
 ) {
   const name = drug(drugId).name;
-  const text = `${name} ${dose ? String(dose.value) : ''} ${dose?.unit ?? ''} ${route ?? ''}`.trim();
+  const text =
+    `${name} ${dose ? String(dose.value) : ''} ${dose?.unit ?? ''} ${route ?? ''}`.trim();
   return feed(engine, state, [
     intentEvent({
       type: 'PLACE_CATALOG',
@@ -145,9 +146,11 @@ describe('治療藥物彈窗', () => {
         : null;
     expect(Array.isArray(listed)).toBe(true);
     if (!Array.isArray(listed)) return;
-    expect(listed.every((item) => JSON.stringify(Object.keys(item as object).sort()) === '["id","label"]')).toBe(
-      true,
-    );
+    expect(
+      listed.every(
+        (item) => JSON.stringify(Object.keys(item as object).sort()) === '["id","label"]',
+      ),
+    ).toBe(true);
 
     const oral = place(fresh('dob-po'), id, { value: 5, unit: 'mg' }, 'PO');
     expect(kinds(oral.effects)).toContain('order.effect');
@@ -202,7 +205,8 @@ describe('治療藥物彈窗', () => {
     );
     expect(kinds(saline.effects)).not.toContain('order.effect');
 
-    const hyoscineId = 'hyoscine--antispasmodics-and-other-drugs-altering-gut-motility--general-drugs';
+    const hyoscineId =
+      'hyoscine--antispasmodics-and-other-drugs-altering-gut-motility--general-drugs';
     const hyoscine = place(fresh('hyo'), hyoscineId, { value: 10, unit: 'mg' }, 'IV');
     const chosen = classRowFor(drug(hyoscineId).classes, effects.classes);
     expect(orderOf(hyoscine.state).effectPreset).toEqual(chosen ? presetOf(chosen) : undefined);
@@ -220,7 +224,12 @@ describe('治療藥物彈窗', () => {
     ]);
     const preset = effects.categories.find((row) => row.id === 'bradycardia');
     expect(orderOf(applied.state).effectPreset).toEqual(
-      preset && { sbp: preset.deltaSbp, hr: preset.deltaHr, rr: preset.deltaRr, temp: preset.deltaTempC },
+      preset && {
+        sbp: preset.deltaSbp,
+        hr: preset.deltaHr,
+        rr: preset.deltaRr,
+        temp: preset.deltaTempC,
+      },
     );
     const after = advance(engine, applied.state, 60);
     const plain = advance(engine, fresh('ai-brady'), 60);

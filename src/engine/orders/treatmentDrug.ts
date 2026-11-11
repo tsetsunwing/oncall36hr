@@ -90,9 +90,7 @@ export function placeTreatmentDrug(
 ): Reduction {
   const thread = state.chats[patient.id];
   const drugId = params.treatmentDrugId;
-  const drug = drugId
-    ? ctx.tables['treatment-drugs'].find((row) => row.id === drugId)
-    : undefined;
+  const drug = drugId ? ctx.tables['treatment-drugs'].find((row) => row.id === drugId) : undefined;
   const unlisted = ctx.tables['order-catalog'].find((row) => row.id === UNLISTED_DRUG_CATALOG_ID);
   if (!thread || !drug || !unlisted || params.drugFormularyId !== null) {
     return { state, effects: [{ type: 'NOTICE', kind: 'ORDER_INVALID', tone: 'warn' }] };
@@ -118,12 +116,7 @@ export function placeTreatmentDrug(
     row = matched;
     orderParams = storedParams(params, matched.formularyId ?? null, null);
   } else {
-    const decision = resolveDrugPreset(
-      drug,
-      params.dose,
-      params.route,
-      getDrugEffectTables(),
-    );
+    const decision = resolveDrugPreset(drug, params.dose, params.route, getDrugEffectTables());
     if (decision.kind === 'preset') effectPreset = decision.preset;
     else askEffect = true;
   }

@@ -765,7 +765,8 @@ function orderEffect(prompt: Record<string, unknown>, mode: ContractMode): strin
   if (mode === 'numbers' || mode === 'extra-fields' || mode === 'inject') {
     return envelope('order.effect', { effectCategory: id, sbp: 40 });
   }
-  if (mode === 'unknown-catalog') return envelope('order.effect', { effectCategory: 'not-a-category' });
+  if (mode === 'unknown-catalog')
+    return envelope('order.effect', { effectCategory: 'not-a-category' });
   return envelope('order.effect', { effectCategory: id });
 }
 
