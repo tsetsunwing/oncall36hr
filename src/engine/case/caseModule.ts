@@ -244,6 +244,35 @@ export const caseModule: EngineModule = {
   name: 'case',
 
   handleIntent(state, intent) {
+    if (intent.type === 'ASSESS_GCS') {
+      const patient = state.patients[intent.patientId];
+      if (!patient) {
+        return {
+          state,
+          effects: [{ type: 'NOTICE', kind: 'PATIENT_UNKNOWN', tone: 'warn' }],
+        };
+      }
+      // 評估 GCS 只讀當下嘅清醒程度，唔另外發明數字。瞳孔要玩家自己睇，唔會自動變。
+      return {
+        state: {
+          ...state,
+          patients: {
+            ...state.patients,
+            [patient.id]: {
+              ...patient,
+              visible: {
+                ...patient.visible,
+                neuro: {
+                  ...patient.visible.neuro,
+                  gcs: gcsForConsciousness(patient.visible.consciousness),
+                },
+              },
+            },
+          },
+        },
+        effects: [],
+      };
+    }
     if (intent.type !== 'MEASURE_NIBP') return undefined;
     const patient = state.patients[intent.patientId];
     if (!patient) {
