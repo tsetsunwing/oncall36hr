@@ -28,7 +28,7 @@ import {
   requestDanger,
 } from './gateRequest';
 import { scoreOrderCommitted } from '../score/requiredOrders';
-import { openPharmacyCheckCall, pharmacyCheckReason } from '../ward/calls';
+import { openPharmacyCheckCall, pharmacyCheckReason } from '../ward/pharmacyCall';
 import { composeOrderLabel } from '../orders/label';
 import { scoreConsequence, scoreRelease } from './gateScoring';
 import { EMPTY_REVIEW_TEXT, guardReviewText } from './reviewText';
