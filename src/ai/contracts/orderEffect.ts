@@ -39,23 +39,22 @@ export type OrderEffectPrompt = z.infer<typeof orderEffectPromptSchema>;
 export type OrderEffectLocal = z.infer<typeof orderEffectLocalSchema>;
 export type OrderEffectData = z.infer<typeof orderEffectDataSchema>;
 
-export const orderEffectContract: Contract<OrderEffectPrompt, OrderEffectLocal, OrderEffectData> =
-  {
-    kind: ORDER_EFFECT_KIND,
-    promptSchema: orderEffectPromptSchema,
-    localSchema: orderEffectLocalSchema,
-    dataSchema: orderEffectDataSchema,
-    temperatureKey: 'parseTemperature',
-    system: ORDER_EFFECT_SYSTEM,
-    guard(data, prompt) {
-      const ids = new Set(prompt.categories.map((item) => item.id));
-      if (!ids.has(data.effectCategory)) {
-        return {
-          issues: [
-            `effectCategory "${data.effectCategory}" is not in categories. Return only one listed id.`,
-          ],
-        };
-      }
-      return { issues: [] };
-    },
-  };
+export const orderEffectContract: Contract<OrderEffectPrompt, OrderEffectLocal, OrderEffectData> = {
+  kind: ORDER_EFFECT_KIND,
+  promptSchema: orderEffectPromptSchema,
+  localSchema: orderEffectLocalSchema,
+  dataSchema: orderEffectDataSchema,
+  temperatureKey: 'parseTemperature',
+  system: ORDER_EFFECT_SYSTEM,
+  guard(data, prompt) {
+    const ids = new Set(prompt.categories.map((item) => item.id));
+    if (!ids.has(data.effectCategory)) {
+      return {
+        issues: [
+          `effectCategory "${data.effectCategory}" is not in categories. Return only one listed id.`,
+        ],
+      };
+    }
+    return { issues: [] };
+  },
+};

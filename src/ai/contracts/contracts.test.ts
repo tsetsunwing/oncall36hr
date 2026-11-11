@@ -334,11 +334,9 @@ describe('order.effect', () => {
       ).issues,
     ).toEqual([]);
     expect(
-      orderEffectContract.guard(
-        { effectCategory: 'sbp-40' },
-        parsed,
-        orderEffectContract.localSchema.parse(local),
-      ).issues.join(' '),
+      orderEffectContract
+        .guard({ effectCategory: 'sbp-40' }, parsed, orderEffectContract.localSchema.parse(local))
+        .issues.join(' '),
     ).toMatch(/not in categories/);
     expect(
       orderEffectContract.dataSchema.safeParse({ effectCategory: 'bradycardia', sbp: 40 }).success,
