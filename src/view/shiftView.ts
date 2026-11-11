@@ -5,6 +5,7 @@
 import {
   buildReview,
   energyLevel,
+  isWardPatientActive,
   energyModel,
   mealWindowFor,
   overtimeEndOf,
@@ -289,13 +290,33 @@ export function selectShift(state: GameState, env: ViewEnv, clockLabel: ClockLab
       phase === 'HANDOVER'
         ? {
             candidates: Object.values(state.patients)
+              .filter(
+                (p) =>
+                  isWardPatientActive(p) ||
+                  Object.values(state.orders).some(
+                    (o) =>
+                      o.patientId === p.id && o.status === 'DONE' && o.resultStatus === 'PENDING',
+                  ),
+              )
               .sort((a, b) => a.bed - b.bed)
               .map((p) => ({
                 patientId: p.id,
                 bed: p.bed,
-                name: p.demographics.name,
+                name: isWardPatientActive(p)
+                  ? p.demographics.name
+                  : `${p.demographics.name}（已離開病房）`,
                 level: levelOf(p, env),
                 selected: state.shift.handover.selected.includes(p.id),
+                pendingReports: Object.values(state.orders)
+                  .filter(
+                    (o) =>
+                      o.patientId === p.id && o.status === 'DONE' && o.resultStatus === 'PENDING',
+                  )
+                  .map(
+                    (o) =>
+                      env.tables['order-catalog'].find((row) => row.id === o.catalogId)?.label ??
+                      o.catalogId,
+                  ),
               })),
           }
         : null,

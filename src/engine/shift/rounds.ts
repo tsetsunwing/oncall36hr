@@ -1,3 +1,4 @@
+import { isWardPatientActive } from '../ward/departure';
 /**
  * 巡房（spec §8、T25）：AC 主持，每個活躍病人問一次、約一條題（病史／病理／藥理）。
  * 題目由 AI 按 T25 topic 生成、答案要點一律取自 T25；評分只准引用 T25 key fact id，
@@ -56,7 +57,7 @@ export function roundTextOk(text: string, maxChars: number): boolean {
 function roundQueue(state: GameState, ctx: EngineContext): string[] {
   const deadId = state.death?.patientId ?? null;
   return Object.values(state.patients)
-    .filter((p) => p.id !== deadId && topicsFor(ctx, p).length > 0)
+    .filter((p) => isWardPatientActive(p) && p.id !== deadId && topicsFor(ctx, p).length > 0)
     .sort((a, b) => a.bed - b.bed)
     .map((p) => p.id);
 }

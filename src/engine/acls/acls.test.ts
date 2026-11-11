@@ -37,6 +37,26 @@ function showAsystole(session: Session): Session {
 
 const baseRate = 60 / (config.clock.realSecondsPerGameMinuteAt1x * 1000);
 
+describe('DNR', () => {
+  it('不執行 CPR 或電擊，其他一般治療仍可下單，並可直接進入死亡流程', () => {
+    let session = untilArrest(start('dnr-arrest', 'terminal-dnr-01'));
+    expect(session.state.patients.p1?.demographics.code).toBe('DNR');
+    session = give(session, 'cpr', 10);
+    expect(session.state.resus?.cpr.firstAt).toBeNull();
+    expect(session.effects.some((e) => e.type === 'NOTICE' && e.kind === 'DNR_NO_RESUS')).toBe(
+      true,
+    );
+    session = give(session, 'defib 200 j', 15);
+    expect(session.state.resus?.shocks).toBe(0);
+    const before = Object.keys(session.state.orders).length;
+    session = give(session, 'oxygen nasal', 20);
+    expect(Object.keys(session.state.orders).length).toBeGreaterThan(before);
+    session = give(session, 'stop cpr', 10);
+    expect(session.state.resus?.status).toBe('STOPPED');
+    expect(session.state.death?.status).toBe('PENDING_PROCESS');
+  });
+});
+
 describe('CPR 有效速率：固定 1/2、無視玩家倍速', () => {
   it('CPR 期間每真實毫秒推進 ＝ 1x 嘅 0.5 倍（所有倍速一樣）', () => {
     const s = untilArrest(start('rate-1', 'acs-vf-01'));

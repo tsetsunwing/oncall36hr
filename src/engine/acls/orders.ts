@@ -215,7 +215,10 @@ export function applyAclsOrder(
       );
     }
     case 'TERMINATE': {
-      if (resus.cycles < ctx.config.acls.minCyclesBeforeStop) {
+      if (
+        state.patients[resus.patientId]?.demographics.code !== 'DNR' &&
+        resus.cycles < ctx.config.acls.minCyclesBeforeStop
+      ) {
         return finish(
           narrate(
             logEvent(next, { patientId: resus.patientId, reasonCode: 'STOP_REFUSED' }),

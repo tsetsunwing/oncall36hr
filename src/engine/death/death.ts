@@ -1,3 +1,4 @@
+import { departPatient } from '../ward/departure';
 /**
  * 死亡流程（spec §18、plan §11）：病人死亡後要完成四步（死亡證明、通知上一級、致電家屬、簡短記錄）。
  * 四步全部完成前床位不釋放；遊戲繼續行，每隔一段時間按 T23 扣「臨床結果」分（幅度係預設值）。
@@ -33,7 +34,8 @@ function scheduleDelay(state: GameState, at: number): GameState {
 export function beginDeath(state: GameState, patientId: string, ctx: EngineContext): Step {
   const model = deathModelOf(ctx);
   const patient = state.patients[patientId];
-  if (!model || !patient || state.death) return { state, effects: [] };
+  if (!model || !patient || state.death?.status === 'PENDING_PROCESS')
+    return { state, effects: [] };
   const t = state.clock.t;
   const resus = state.resus;
   let next: GameState = {
@@ -93,6 +95,7 @@ export function completeDeathStep(state: GameState, step: DeathStepId): Reductio
       ...next,
       scheduler: removeWhere(next.scheduler, (e) => e.kind === DEATH_DELAY_EVENT),
     };
+    next = departPatient(next, death.patientId, 'DEATH');
   }
   return { state: next, effects: [] };
 }

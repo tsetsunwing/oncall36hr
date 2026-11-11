@@ -1,3 +1,4 @@
+import { isWardPatientActive } from '../ward/departure';
 /**
  * 優先次序與時間管理（C5 A）：對比玩家處理次序同 MEWS band、未回覆來電、必要處置時間窗。
  * - 緊急度：搶救 3、MEWS ALARM／EMERGENCY 來電 2、MEWS CAUTION／URGENT 來電／必要處置逾時 1、其餘 0。
@@ -127,7 +128,7 @@ export function judgeAttention(
   const now = state.clock.t;
   const mine = urgencyOf(state, attended, ctx);
   const others = Object.values(state.patients)
-    .filter((p) => p.id !== attendedId)
+    .filter((p) => p.id !== attendedId && isWardPatientActive(p))
     .map((p) => ({ patient: p, urgency: urgencyOf(state, p, ctx) }))
     .filter((o) => o.urgency.level >= 1);
 

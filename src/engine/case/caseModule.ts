@@ -1,3 +1,4 @@
+import { isWardPatientActive } from '../ward/departure';
 /**
  * Case 模組：病人建立、vitals 取樣排程、FSM 轉移、MEWS、rhythm。
  * 全部由 content 表驅動；呢度冇任何臨床數字。
@@ -190,7 +191,8 @@ export function createPatientState(
     hidden: {
       caseTemplateId: template.id,
       diagnosisIds: [...template.diagnosisIds],
-      fsm: { state: fsm.initial, enteredAt: t, rolled: [], flags: [] },
+      // New admissions have a peripheral IV access. Older saves retain their existing flags.
+      fsm: { state: fsm.initial, enteredAt: t, rolled: [], flags: ['piv.in'] },
       base,
       lastSampleAt: t,
       alertedBand: null,
@@ -329,7 +331,8 @@ export const caseModule: EngineModule = {
     if (event.kind !== VITALS_SAMPLE_EVENT) return undefined;
     if (!isSamplePayload(event.payload)) return { state, effects: [] };
     const patient = state.patients[event.payload.patientId];
-    if (!patient) return { state, effects: [] };
+    if (!patient || (state.ward.enabled && !isWardPatientActive(patient)))
+      return { state, effects: [] };
     const template = ctx.tables['case-templates'].find(
       (c) => c.id === patient.hidden.caseTemplateId,
     );

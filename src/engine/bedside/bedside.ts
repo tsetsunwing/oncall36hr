@@ -58,6 +58,7 @@ const placedParamsSchema = z
       .object({ value: z.number().positive(), unit: z.string().min(1) })
       .strict()
       .optional(),
+    concentration: z.string().trim().min(1).max(120).optional(),
     treatmentDrugId: z.string().min(1).optional(),
     summary: z.string().min(1).optional(),
     site: z.string().min(1).max(80).optional(),
@@ -99,6 +100,7 @@ function placeCatalog(
         ...(params.frequency ? { frequency: params.frequency } : {}),
         ...(params.times ? { times: params.times } : {}),
         ...(params.rate ? { rate: params.rate } : {}),
+        ...(params.concentration ? { concentration: params.concentration } : {}),
         ...(params.treatmentDrugId ? { treatmentDrugId: params.treatmentDrugId } : {}),
       },
       ctx,
@@ -120,6 +122,7 @@ function placeCatalog(
     ...(params.frequency ? { frequency: params.frequency } : {}),
     ...(params.times ? { times: params.times } : {}),
     ...(params.rate ? { rate: params.rate } : {}),
+    ...(params.concentration ? { concentration: params.concentration } : {}),
     ...(drainSite
       ? { site: drainSite, summary: params.summary ?? `Surgical drain ${drainSite}` }
       : params.summary

@@ -464,5 +464,104 @@
     "deathCause": "末期疾病惡化引致心臟停頓",
     "complexity": "SCENARIO",
     "wards": ["MED"]
+  },
+  {
+    "id": "terminal-dnr-01",
+    "fsmId": "terminal-01",
+    "bed": 7,
+    "demographics": {
+      "name": "阮美玲（DNR 劇本）",
+      "age": 86,
+      "sex": "F",
+      "code": "DNR"
+    },
+    "presentingComplaint": "末期病患、精神轉差",
+    "allergies": [],
+    "diagnosisIds": ["end-stage-malignancy"],
+    "diagnosisTerms": [
+      "癌症",
+      "癌",
+      "末期",
+      "cancer",
+      "malignancy",
+      "metastasis",
+      "轉移",
+      "terminal"
+    ],
+    "symptomsByState": {
+      "END_STAGE": ["神志模糊", "乏力"],
+      "ARREST_ASYSTOLE": [],
+      "POST_ROSC": []
+    },
+    "reversibleCauseIds": [],
+    "deathCause": "末期疾病惡化引致心臟停頓",
+    "complexity": "SCENARIO",
+    "wards": ["MED"]
+  },
+  {
+    "id": "acs-vf-ward-01",
+    "fsmId": "acs-vf-ward-01",
+    "bed": 7,
+    "demographics": {
+      "name": "陳大文",
+      "age": 58,
+      "sex": "M",
+      "code": "FULL"
+    },
+    "presentingComplaint": "胸口翳痛、出冷汗",
+    "allergies": [],
+    "diagnosisIds": ["acs"],
+    "diagnosisTerms": [
+      "心肌梗塞",
+      "心梗",
+      "myocardial infarction",
+      "MI",
+      "STEMI",
+      "NSTEMI",
+      "ACS",
+      "acute coronary",
+      "冠心病"
+    ],
+    "symptomsByState": {
+      "CHEST_PAIN": ["胸口翳痛", "出冷汗"],
+      "ARREST_VF": [],
+      "POST_ROSC": [],
+      "STABILISING": ["胸口仍然有少少痛"],
+      "CHEST_PAIN_NO_VF": ["胸口仍然翳痛", "出冷汗"]
+    },
+    "reversibleCauseIds": ["cause.thrombosis"],
+    "deathCause": "急性冠狀動脈綜合症引致心室顫動，心臟停頓",
+    "complexity": "COMPLEX",
+    "wards": ["MED"]
+  },
+  {
+    "id": "hf-dnr-01",
+    "fsmId": "hf-01",
+    "bed": 11,
+    "demographics": {
+      "name": "鄭婆婆",
+      "age": 83,
+      "sex": "F",
+      "code": "DNR"
+    },
+    "presentingComplaint": "夜間氣促、咳嗽",
+    "complexity": "COMPLEX",
+    "allergies": [],
+    "diagnosisIds": ["heart-failure"],
+    "diagnosisTerms": [
+      "心衰竭",
+      "heart failure",
+      "hf",
+      "肺水腫",
+      "pulmonary oedema",
+      "pulmonary edema",
+      "心臟衰竭"
+    ],
+    "symptomsByState": {
+      "STABILISING": ["腳有啲腫"],
+      "DETERIORATING": ["喘", "要坐起身"],
+      "SEPTIC_SHOCK": ["好喘", "冒冷汗"]
+    },
+    "wards": ["MED"]
   }
 ]

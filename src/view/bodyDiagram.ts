@@ -78,7 +78,8 @@ function oxygenLabel(patient: Patient, orders: GameState['orders']): string | nu
 }
 
 function hasIv(patient: Patient, orders: GameState['orders'], tables: EngineTables): boolean {
-  if (hasFlag(patient, 'fluid.bolus')) return true;
+  if (hasFlag(patient, 'piv.in') || hasFlag(patient, 'ivio.in') || hasFlag(patient, 'fluid.bolus'))
+    return true;
   return Object.values(orders).some((order) => {
     if (order.patientId !== patient.id) return false;
     if (order.status !== 'RUNNING' && order.status !== 'DONE') return false;
@@ -117,7 +118,21 @@ export function selectBodyDiagram(
   if (hasFlag(patient, 'chesttube.in')) {
     markers.push(marker('chest-tube', 'chestTube', 'Chest tube', SPOT.chestTube));
   }
-  if (hasIv(patient, orders, tables)) markers.push(marker('iv', 'iv', 'IV', SPOT.iv));
+  if (hasIv(patient, orders, tables)) markers.push(marker('iv', 'iv', 'IV / IO', SPOT.iv));
+  const runningInfusions = Object.values(orders).filter((order) => {
+    if (order.patientId !== patient.id || order.status !== 'RUNNING') return false;
+    const row = tables['order-catalog'].find((item) => item.id === order.catalogId);
+    return (
+      row?.type === 'FLUID' ||
+      order.catalogId.startsWith('blood.') ||
+      (order.params.route ?? '').toLowerCase().startsWith('iv infusion')
+    );
+  });
+  for (const [index, order] of runningInfusions.entries()) {
+    const row = tables['order-catalog'].find((item) => item.id === order.catalogId);
+    const label = order.params.drugName ?? row?.label ?? order.catalogId;
+    markers.push(marker(`infusion-${order.id}`, 'infusion', label, { x: 14, y: 16 + index * 7 }));
+  }
   if (hasFlag(patient, 'aline.in')) {
     markers.push(marker('arterial', 'arterial', 'Arterial line', SPOT.arterial));
   }

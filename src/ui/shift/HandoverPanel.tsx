@@ -31,6 +31,12 @@ export function HandoverPanel({ candidates, actions }: HandoverPanelProps) {
                 <span className="badge" data-level={c.level}>
                   {h.level[c.level]}
                 </span>
+                {c.pendingReports?.length ? (
+                  <span data-testid={`handover-pending-${String(c.bed)}`}>
+                    {' '}
+                    · {h.pendingReports}: {c.pendingReports.join('、')}
+                  </span>
+                ) : null}
               </span>
             </label>
           </li>

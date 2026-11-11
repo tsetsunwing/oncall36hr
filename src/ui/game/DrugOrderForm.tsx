@@ -53,6 +53,7 @@ export function DrugOrderForm({
   const [volume, setVolume] = useState<string | null>(null);
   const [rateValue, setRateValue] = useState('');
   const [rateUnit, setRateUnit] = useState<string | null>(null);
+  const [concentration, setConcentration] = useState('');
   const [prn, setPrn] = useState<string | null>(null);
   const [titration, setTitration] = useState<string | null>(null);
   const [infuseOverMins, setInfuseOverMins] = useState('');
@@ -93,6 +94,7 @@ export function DrugOrderForm({
     volume,
     rateValue,
     rateUnit,
+    concentration,
     prn,
     titration,
     infuseOverMins,
@@ -124,6 +126,7 @@ export function DrugOrderForm({
       setVolume(null);
       setRateValue('');
       setRateUnit(null);
+      setConcentration('');
       setTitration(null);
     }
   }
@@ -256,6 +259,19 @@ export function DrugOrderForm({
         </label>
         {infusion ? (
           <>
+            <label className="drug-order-field">
+              {t.concentration}
+              <input
+                type="text"
+                maxLength={120}
+                value={concentration}
+                placeholder={t.concentrationHint}
+                data-testid="drug-order-concentration"
+                onChange={(event) => {
+                  setConcentration(event.target.value);
+                }}
+              />
+            </label>
             <label className="drug-order-field">
               {t.diluent}
               <ChoiceSelect

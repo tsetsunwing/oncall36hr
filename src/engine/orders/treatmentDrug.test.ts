@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { getDrugEffectTables, presetOf, classRowFor } from '@/content/drugEffects';
 import type { Effect } from '../core/events';
 import type { GameState } from '../core/state';
+import { orderSchema } from './orderTypes';
+import { composeOrderLabel } from './label';
 import {
   advance,
   aiRequests,
@@ -75,6 +77,31 @@ function vitals(state: GameState) {
 }
 
 describe('治療藥物彈窗', () => {
+  it('輸注濃度經落單保存，標籤顯示，並可經存檔 schema 讀回', () => {
+    const run = feed(engine, fresh('concentration'), [
+      intentEvent({
+        type: 'PLACE_CATALOG',
+        patientId: 'p1',
+        catalogId: 'drug.unlisted',
+        text: 'Dobutamine 5 mg IV Infusion 5 mL/hr | 4 mg in 50 mL',
+        params: {
+          drugFormularyId: null,
+          dose: { value: 5, unit: 'mg' },
+          route: 'IV Infusion',
+          rate: { value: 5, unit: 'mL/hr' },
+          concentration: '4 mg in 50 mL',
+          treatmentDrugId: 'dobutamine--sympathomimetics--general-drugs',
+        },
+      }),
+    ]);
+    const placed = orderOf(run.state);
+    expect(placed.params.concentration).toBe('4 mg in 50 mL');
+    expect(composeOrderLabel(undefined, placed)).toContain('4 mg in 50 mL');
+    expect(orderSchema.parse(JSON.parse(JSON.stringify(placed))).params.concentration).toBe(
+      '4 mg in 50 mL',
+    );
+  });
+
   it('範圍內套用類別佔位，不呼叫模型，護士用收到模板', () => {
     const id = 'dobutamine--sympathomimetics--general-drugs';
     const row = classRowFor(drug(id).classes, effects.classes);

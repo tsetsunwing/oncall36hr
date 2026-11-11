@@ -1,3 +1,4 @@
+import { isWardPatientActive } from './departure';
 /**
  * 共用電話（S-7 A）：護士／低階醫生／其他部門來電、三種回應、步步上報同 SBAR、其他專科會診。
  * 所有結果由 T17／T18／T22／T24 表驅動；對白只係 engine 凍結嘅模板＋token，冇 AI 數字。
@@ -55,6 +56,7 @@ function worstPatientId(state: GameState): string | null {
   let best: string | null = null;
   let bestScore = -1;
   for (const patient of Object.values(state.patients)) {
+    if (!isWardPatientActive(patient)) continue;
     if (patient.visible.mews.score > bestScore) {
       best = patient.id;
       bestScore = patient.visible.mews.score;
@@ -65,14 +67,14 @@ function worstPatientId(state: GameState): string | null {
 
 function patientsWithAbnormalReport(state: GameState): string[] {
   return Object.values(state.patients)
-    .filter((p) => p.visible.reports.some((r) => r.abnormal))
+    .filter((p) => isWardPatientActive(p) && p.visible.reports.some((r) => r.abnormal))
     .map((p) => p.id);
 }
 
 function templateEligible(state: GameState, row: CallTemplateRow, ctx: EngineContext): boolean {
   if (!row.playerRanks.includes(state.playerRank)) return false;
   if (row.tag === 'JUNIOR' && !state.ward.sub) return false;
-  const hasPatients = Object.keys(state.patients).length > 0;
+  const hasPatients = Object.values(state.patients).some(isWardPatientActive);
   switch (row.needs) {
     case 'NONE':
       return true;
@@ -101,9 +103,14 @@ function admitNewPatient(
   if (bed === undefined) return undefined;
   const used = new Set(Object.values(state.patients).map((p) => p.hidden.caseTemplateId));
   const all = ctx.tables['case-templates'];
-  const pool: CaseTemplateRow[] = all.filter((t) => !used.has(t.id) && t.complexity === 'COMPLEX');
-  const fallback = all.filter((t) => !used.has(t.id));
-  const choices = pool.length > 0 ? pool : fallback.length > 0 ? fallback : [...all];
+  const eligible = all.filter(
+    (t) => t.wards.includes(state.ward.code) && t.complexity !== 'SCENARIO',
+  );
+  const pool: CaseTemplateRow[] = eligible.filter(
+    (t) => !used.has(t.id) && t.complexity === 'COMPLEX',
+  );
+  const fallback = eligible.filter((t) => !used.has(t.id));
+  const choices = pool.length > 0 ? pool : fallback.length > 0 ? fallback : [...eligible];
   const template = choices[cursor.int('calls', 0, choices.length)];
   if (!template) return undefined;
   const index =
@@ -136,7 +143,10 @@ export function handleCallArrival(state: GameState, ctx: EngineContext): Reducti
     case 'ANY_PATIENT': {
       const here = next.ward.location.bed;
       const ids = Object.keys(next.patients)
-        .filter((id) => !bedsideCaller(row.tag) || next.patients[id]?.bed !== here)
+        .filter((id) => {
+          const p = next.patients[id];
+          return p && isWardPatientActive(p) && (!bedsideCaller(row.tag) || p.bed !== here);
+        })
         .sort();
       patientId = ids.length > 0 ? (ids[cursor.int('calls', 0, ids.length)] ?? null) : null;
       break;

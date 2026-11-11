@@ -1,3 +1,4 @@
+import type { ReportBucket } from './reportGroup';
 import type { VitalBand } from './vitalBands';
 import type { WaveSpec } from './waveform';
 
@@ -78,6 +79,7 @@ export interface PatientView {
   age: number;
   sex: 'M' | 'F';
   code: 'FULL' | 'DNR';
+  icuTransferReady?: boolean;
   complaint: string;
   allergies: string[];
   /** 疼痛分數 0–10；未問過病人＝null。 */
@@ -129,6 +131,8 @@ export interface OrderRowView {
   patientId: string;
   label: string;
   status: OrderStatusCode;
+  /** 目錄標記為藥物，用於病歷；狀態不等於已給藥。 */
+  isMedication?: boolean;
   executorName: string | null;
   executorKind: 'NURSE' | 'SUBORDINATE' | 'PLAYER' | null;
   timeLabel: string;
@@ -136,6 +140,7 @@ export interface OrderRowView {
   cancellable: boolean;
   /** 化驗／檢查：PENDING＝等報告；REPORTED＝報告已出；其他 order＝null */
   resultStatus: 'PENDING' | 'REPORTED' | null;
+  resultCategory?: { bucket: ReportBucket; section: string };
   /** 即時完成嘅 order（例如量生命體徵）嘅結果文字；等報告嘅 order 用 reports */
   resultText: string | null;
 }
@@ -261,6 +266,7 @@ export interface PlacedOrderParams {
   frequency?: string;
   times?: number;
   rate?: { value: number; unit: string };
+  concentration?: string;
   /** 治療藥表的列 id。引擎用來對藥典、類別或醫囑 AI。 */
   treatmentDrugId?: string;
   /** 行動記錄與護士確認顯示的短標籤。 */
@@ -451,6 +457,7 @@ export interface WardView {
   delegation: DelegationView;
   occupied: number;
   total: number;
+  name: string;
 }
 
 export type CprState = 'NOT_STARTED' | 'ACTIVE' | 'PAUSED';
@@ -573,6 +580,7 @@ export interface HandoverCandidateView {
   name: string;
   level: AlarmLevel;
   selected: boolean;
+  pendingReports?: string[];
 }
 
 export type GradeCode = 'EXCELLENT' | 'GOOD' | 'FAIR' | 'NEEDS_IMPROVEMENT';
@@ -723,7 +731,7 @@ export interface ShiftView {
 }
 
 export type BodyDeviceKind =
-  'oxygen' | 'iv' | 'ng' | 'foley' | 'cvc' | 'arterial' | 'chestTube' | 'drain';
+  'oxygen' | 'iv' | 'infusion' | 'ng' | 'foley' | 'cvc' | 'arterial' | 'chestTube' | 'drain';
 
 /** 身體圖上的一個裝置。座標是示意圖百分比，正面朝向玩家。 */
 export interface BodyMarkerView {
@@ -797,6 +805,8 @@ export interface GameActions {
   retryAi: () => void;
   goToBed: (bed: number | null) => void;
   enterPlace: (place: 'STATION' | 'PANTRY' | 'REST' | 'WC') => void;
+  transferOut: (patientId: string) => void;
+  discharge: (patientId: string) => void;
   respondCall: (callId: string, response: CallResponseCode) => void;
   prepareCall: (
     patientId: string,

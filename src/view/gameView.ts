@@ -8,6 +8,7 @@ import {
   awayOf,
   composeOrderLabel,
   isCancellable,
+  isWardPatientActive,
   meanArterialPressure,
   renderTemplate,
   typingSpeakerIds,
@@ -176,6 +177,7 @@ function selectPatient(
     age: patient.demographics.age,
     sex: patient.demographics.sex,
     code: patient.demographics.code,
+    icuTransferReady: patient.hidden.fsm.flags.includes('icu.accepted'),
     complaint: patient.presentingComplaint,
     allergies: [...patient.allergies],
     pain: patient.visible.pain,
@@ -294,6 +296,7 @@ function selectOrders(
         patientId: order.patientId,
         label: composeOrderLabel(row, order),
         status: order.status,
+        isMedication: row?.type === 'DRUG',
         executorName: executorName(state, order.executor),
         executorKind: order.executorKind,
         timeLabel: clockLabel(order.createdAt),
@@ -304,6 +307,7 @@ function selectOrders(
             : null,
         cancellable: isCancellable(order, row),
         resultStatus: order.resultStatus,
+        ...(row?.resultId ? { resultCategory: reportCategory(row.resultId) } : {}),
         resultText:
           state.actionLog.find((entry) => entry.orderId === order.id && entry.resultText)
             ?.resultText ?? null,
@@ -541,7 +545,9 @@ function awayViewOf(
 export function selectGameView(state: GameState, env: ViewEnv): GameView {
   const clockLabel = (t: number) => formatClock(t, state.mode, env.config);
   const current = state.ward.enabled
-    ? (Object.values(state.patients).find((p) => p.bed === state.ward.location.bed) ?? null)
+    ? (Object.values(state.patients).find(
+        (p) => p.bed === state.ward.location.bed && isWardPatientActive(p),
+      ) ?? null)
     : (Object.values(state.patients).sort((a, b) => a.bed - b.bed)[0] ?? null);
   const actionLog = selectActionLog(state, env, clockLabel);
   const failedReq =

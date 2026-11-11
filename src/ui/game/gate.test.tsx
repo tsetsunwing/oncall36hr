@@ -19,6 +19,8 @@ function makeActions() {
     retryAi: vi.fn(),
     goToBed: vi.fn(),
     enterPlace: vi.fn(),
+    transferOut: vi.fn(),
+    discharge: vi.fn(),
     respondCall: vi.fn(),
     prepareCall: vi.fn(),
     sendCall: vi.fn(),
@@ -200,6 +202,33 @@ describe('LogPanel：報告同執行者', () => {
       />,
     );
     expect(screen.getByText(ui.game.reports.empty)).toBeInTheDocument();
+  });
+
+  it('未出的檢查在報告頁顯示，不當成已出報告', () => {
+    render(
+      <LogPanel
+        orders={[
+          order({
+            id: 'pending',
+            label: 'CBC',
+            status: 'DONE',
+            resultStatus: 'PENDING',
+            resultCategory: { bucket: 'laboratory', section: 'haem' },
+          }),
+        ]}
+        reports={[]}
+        log={{ all: [], patient: [] }}
+        actions={makeActions()}
+        open
+        onClose={() => undefined}
+        focus="labs"
+      />,
+    );
+    expect(screen.getByTestId('report-pending')).toHaveTextContent('CBC');
+    expect(screen.getByTestId('report-pending')).toHaveTextContent(
+      ui.game.orders.resultStatus.PENDING,
+    );
+    expect(screen.queryByTestId('report-row')).not.toBeInTheDocument();
   });
 
   it('order 列顯示執行者種類同報告狀態；等把關嘅 order 可取消', () => {

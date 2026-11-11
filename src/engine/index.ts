@@ -291,3 +291,5 @@ export {
 } from './shift/selfCare';
 export { interruptsSuppressed, overtimeFrozen, roundInProgress } from './shift/suppress';
 export type { EnergyModelRow, RoundTopicRow, SelfCareRow } from './case/tables';
+
+export { isWardPatientActive } from './ward/departure';

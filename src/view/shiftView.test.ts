@@ -76,6 +76,41 @@ describe('更次 ViewModel', () => {
     expect(selectGameView(engine.init(params('NIGHT')), env).shift.rounds.total).toBe(0);
   });
 
+  it('交更顯示已採樣但未出結果，並排除已出的報告', () => {
+    const base = engine.init(params('DAY'));
+    const patient = Object.values(base.patients)[0];
+    if (!patient) throw new Error('missing patient');
+    const mkOrder = (
+      id: string,
+      resultStatus: 'PENDING' | 'REPORTED',
+    ): GameState['orders'][string] => ({
+      id,
+      patientId: patient.id,
+      catalogId: 'lab.cbc',
+      createdAt: 0,
+      startsAt: 0,
+      completesAt: 0,
+      status: 'DONE',
+      source: 'MANUAL',
+      params: { drugFormularyId: null, dose: null, route: null },
+      executor: null,
+      executorKind: null,
+      cancelledAt: null,
+      resultStatus,
+      sampledState: null,
+      gate: null,
+    });
+    const state: GameState = {
+      ...base,
+      clock: { ...base.clock, phase: 'HANDOVER' },
+      orders: { p: mkOrder('p', 'PENDING'), r: mkOrder('r', 'REPORTED') },
+    };
+    const candidate = selectGameView(state, env).shift.handover?.candidates.find(
+      (c) => c.patientId === patient.id,
+    );
+    expect(candidate?.pendingReports).toEqual(['CBC']);
+  });
+
   it('等 AI 回覆時 waitingForAi 為 true（C1）', () => {
     const state = engine.init(params('DAY'));
     const pending = {

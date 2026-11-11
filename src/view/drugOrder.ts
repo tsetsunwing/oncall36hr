@@ -35,7 +35,7 @@ export const DILUENTS = ['0.9% NaCl', '5% Dextrose', "Hartmann's", 'Neat (No dil
 
 export const INFUSION_VOLUMES = ['10 mL', '50 mL', '100 mL', '250 mL', '500 mL'] as const;
 
-export const RATE_UNITS = ['mL/hr', 'microgram/kg/min', 'microgram/min', 'unit/hr'] as const;
+export const RATE_UNITS = ['mL/hr', 'unit/hr'] as const;
 
 export const PRN_REASONS = ['Fever', 'Pain', 'Agitation', 'Nausea'] as const;
 
@@ -57,6 +57,7 @@ export interface DrugOrderDraft {
   volume: string | null;
   rateValue: string;
   rateUnit: string | null;
+  concentration: string;
   prn: string | null;
   titration: string | null;
   infuseOverMins: string;
@@ -128,6 +129,7 @@ export function placedDrugParams(
   };
   if (isInfusionRoute(draft.route) && draft.rateUnit) {
     params.rate = { value: Number(draft.rateValue), unit: shortOptionLabel(draft.rateUnit) };
+    if (draft.concentration.trim()) params.concentration = draft.concentration.trim();
   } else if (draft.frequency) {
     params.frequency = shortOptionLabel(draft.frequency);
   }
@@ -148,6 +150,7 @@ export function composeDrugOrderPhrase(draft: DrugOrderDraft): string | null {
   } else if (draft.frequency) head.push(shortOptionLabel(draft.frequency));
   const extras: string[] = [];
   if (infusion) {
+    if (draft.concentration.trim()) extras.push(draft.concentration.trim());
     if (draft.diluent) extras.push(shortOptionLabel(draft.diluent));
     if (draft.volume) extras.push(shortOptionLabel(draft.volume));
     if (draft.titration) extras.push(shortOptionLabel(draft.titration));

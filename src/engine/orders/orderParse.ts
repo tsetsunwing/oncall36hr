@@ -1,3 +1,4 @@
+import { isWardPatientActive } from '../ward/departure';
 /**
  * 套用 AI 嘅 order.parse 結果（B1）：AI 只係「理解」——意圖、被引用嘅 catalog id、逐字抽取嘅劑量。
  * 任何數值（劑量）必須逐字喺玩家原文出現；catalog／formulary 唔存在嘅 id 一律丟棄。
@@ -110,7 +111,8 @@ export function handleOrderParseResult(
   const { patientId, playerText, submittedAt } = local.data.local;
   const patient = state.patients[patientId];
   const thread = state.chats[patientId];
-  if (!patient || !thread) return { state, effects: [] };
+  if (!patient || !thread || (state.ward.enabled && !isWardPatientActive(patient)))
+    return { state, effects: [] };
   const result = parsed.data;
   const mentioned = parseMentions(playerText, thread.present);
 

@@ -103,6 +103,11 @@ export function GamePage({ view, actions, onExit }: GamePageProps) {
       <h1 id="game-heading" className="visually-hidden">
         {g.heading}
       </h1>
+      {view.ward ? (
+        <p className="ward-current" data-testid="ward-current">
+          {view.ward.name}
+        </p>
+      ) : null}
       <ClockBar
         clock={view.clock}
         shift={shift}

@@ -1,15 +1,25 @@
 import { ui } from '@/i18n';
-import type { BodyDiagramView, GameActions } from '@/view';
+import { useState } from 'react';
+import { Droplets } from 'lucide-react';
+import type { BodyDiagramView, GameActions, OrderRowView, PatientView, ReportView } from '@/view';
 
 export function BodyDiagram({
   body,
   patientId,
   actions,
+  patient,
+  orders,
+  reports,
 }: {
   body: BodyDiagramView;
   patientId: string;
   actions: GameActions;
+  patient: PatientView;
+  orders: OrderRowView[];
+  reports: ReportView[];
 }) {
+  const [recordOpen, setRecordOpen] = useState(false);
+  const [departure, setDeparture] = useState<'transfer' | 'discharge' | null>(null);
   const w = ui.game.ward;
   const ioOrder = body.ioOrder;
   return (
@@ -20,7 +30,91 @@ export function BodyDiagram({
     >
       <header className="floor-plan-head">
         <h2 id="body-diagram-heading">{w.bodyHeading}</h2>
+        <button
+          type="button"
+          className="btn btn-small"
+          data-testid="open-medical-record"
+          aria-expanded={recordOpen}
+          aria-controls="medical-record"
+          onClick={() => {
+            setRecordOpen(!recordOpen);
+          }}
+        >
+          {w.medicalRecord.open}
+        </button>
+        <button
+          type="button"
+          className="btn btn-small"
+          data-testid="leave-bed"
+          onClick={() => {
+            actions.enterPlace('STATION');
+          }}
+        >
+          {w.medicalRecord.leave}
+        </button>
       </header>
+      {recordOpen ? <MedicalRecord patient={patient} orders={orders} reports={reports} /> : null}
+      <div className="departure-actions">
+        {patient.icuTransferReady ? (
+          <button
+            type="button"
+            className="btn btn-small"
+            data-testid="transfer-out"
+            onClick={() => {
+              setDeparture('transfer');
+            }}
+          >
+            {w.medicalRecord.transfer}
+          </button>
+        ) : null}
+        <button
+          type="button"
+          className="btn btn-small"
+          data-testid="discharge"
+          onClick={() => {
+            setDeparture('discharge');
+          }}
+        >
+          {w.medicalRecord.discharge}
+        </button>
+        {departure ? (
+          <div
+            role="group"
+            aria-label={
+              departure === 'transfer'
+                ? w.medicalRecord.confirmTransfer
+                : w.medicalRecord.confirmDischarge
+            }
+          >
+            <span>
+              {departure === 'transfer'
+                ? w.medicalRecord.confirmTransfer
+                : w.medicalRecord.confirmDischarge}
+            </span>
+            <button
+              type="button"
+              className="btn btn-small"
+              data-testid="confirm-departure"
+              onClick={() => {
+                if (departure === 'transfer') actions.transferOut(patientId);
+                else actions.discharge(patientId);
+                setDeparture(null);
+              }}
+            >
+              {w.medicalRecord.confirm}
+            </button>
+            <button
+              type="button"
+              className="btn btn-small"
+              onClick={() => {
+                setDeparture(null);
+              }}
+            >
+              {w.medicalRecord.cancel}
+            </button>
+          </div>
+        ) : null}
+      </div>
       <div className="body-diagram-stage">
         <svg className="body-outline" viewBox="0 0 200 360" aria-hidden="true" focusable="false">
           <circle cx="100" cy="40" r="26" />
@@ -60,12 +154,85 @@ export function BodyDiagram({
                 data-testid={`body-${marker.id}`}
                 data-kind={marker.kind}
               >
+                {marker.kind === 'infusion' ? <Droplets size={13} aria-hidden="true" /> : null}
                 {marker.label}
               </span>
             );
           })}
         </div>
       </div>
+    </section>
+  );
+}
+
+/** 只顯示可見記錄，不暴露引擎的隱藏診斷。醫囑狀態不是給藥紀錄。 */
+function MedicalRecord({
+  patient,
+  orders,
+  reports,
+}: {
+  patient: PatientView;
+  orders: OrderRowView[];
+  reports: ReportView[];
+}) {
+  const t = ui.game.ward.medicalRecord;
+  const medicines = orders.filter((order) => order.isMedication);
+  const results = reports
+    .filter(
+      (report) =>
+        report.bucket === 'laboratory' || report.bucket === 'radiology' || report.bucket === 'nm',
+    )
+    .slice(0, 5);
+  return (
+    <section
+      className="medical-record"
+      id="medical-record"
+      aria-label={t.open}
+      data-testid="medical-record"
+    >
+      <h3>{t.open}</h3>
+      <h4>{t.background}</h4>
+      <p>
+        {patient.name} · {patient.age} · {ui.game.ward.sex[patient.sex]}
+      </p>
+      <p>
+        {t.reason}: {patient.complaint || t.unknown}
+      </p>
+      <p>
+        {t.pmh}: {t.unknown}
+      </p>
+      <h4>{t.allergies}</h4>
+      <p>{patient.allergies.length ? patient.allergies.join('、') : t.unknown}</p>
+      <h4>{t.medications}</h4>
+      <p>{t.marNote}</p>
+      {medicines.length ? (
+        <ul>
+          {medicines.map((order) => (
+            <li key={order.id}>
+              {order.timeLabel} · {order.label} · {ui.game.orders.status[order.status]}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p>{t.noOrders}</p>
+      )}
+      <h4>{t.results}</h4>
+      {results.length ? (
+        <ul>
+          {results.map((report) => (
+            <li key={report.id}>
+              {report.timeLabel} · {report.label}:{' '}
+              {report.text ??
+                (report.items.map((item) => `${item.label} ${item.valueText}`).join('、') ||
+                  t.unknown)}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p>{t.noReports}</p>
+      )}
+      <h4>{t.diagnosis}</h4>
+      <p>{t.unknown}</p>
     </section>
   );
 }

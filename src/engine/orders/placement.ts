@@ -182,6 +182,13 @@ export function placeAndAck(
   const running: Order[] = [];
   const orders: Order[] = [];
   for (const input of inputs) {
+    if (
+      patient.demographics.code === 'DNR' &&
+      (input.row.acls?.action === 'CPR_START' || input.row.acls?.action === 'DEFIB')
+    ) {
+      effects.push({ type: 'NOTICE', kind: 'DNR_NO_RESUS', tone: 'warn' });
+      continue;
+    }
     const placed = placeCatalogOrder(next, input, ctx);
     next = placed.state;
     effects.push(...placed.effects);

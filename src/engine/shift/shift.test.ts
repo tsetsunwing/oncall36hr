@@ -6,7 +6,14 @@ import type { GameState } from '../core/state';
 import { feed, fullTables, intentEvent, say } from '../test/realEngine';
 import { gameSecondsPerRealMs } from '../core/clock';
 import { createEngine } from '../core/reducer';
-import { answerRoundAi, drive, kitEngine, kitParams, shiftAct } from './shiftKit';
+import {
+  answerRoundAi,
+  baselineCaseTemplates,
+  drive,
+  kitEngine,
+  kitParams,
+  shiftAct,
+} from './shiftKit';
 
 const H = 3600;
 
@@ -237,7 +244,11 @@ describe('巡房（§8）', () => {
 
 describe('超時與強制交更（§2.1）', () => {
   function toOvertime(seed: string, mode: 'DAY' | 'NIGHT' | 'ONCALL' = 'DAY') {
-    const engine = kitEngine({ ...noEnergy, 'rounds-topics': [] });
+    const engine = kitEngine({
+      ...noEnergy,
+      'rounds-topics': [],
+      'case-templates': baselineCaseTemplates(),
+    });
     const init = engine.init(kitParams(seed, mode));
     const length =
       engine.config.shifts[mode === 'ONCALL' ? 'onCall' : mode === 'DAY' ? 'day' : 'night']
@@ -378,7 +389,7 @@ describe('精力同暈倒（T20）', () => {
   }, 60_000);
 
   it('正常食飯加短睡可以撐到尾（On call 34 小時）', () => {
-    const engine = kitEngine({ 'rounds-topics': [] });
+    const engine = kitEngine({ 'rounds-topics': [], 'case-templates': baselineCaseTemplates() });
     const init = engine.init(kitParams('survive-1', 'ONCALL'));
     const end = drive(engine, init, 34 * H + 10, {
       step: 300,

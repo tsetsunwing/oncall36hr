@@ -94,6 +94,27 @@ describe('身體圖只顯示在位裝置', () => {
     });
   });
 
+  it('靜脈通路同進行中輸注分開顯示，完成後只保留通路', () => {
+    const current = patientWith(['piv.in']);
+    const running = order('o1', 'fluid.ns500', 'RUNNING');
+    const finished = order('o2', 'fluid.ns500', 'DONE');
+    const other = { ...order('o3', 'fluid.ns500', 'RUNNING'), patientId: 'p2' };
+    const push = order('o4', 'drug.paracetamol', 'RUNNING', { route: 'IV' });
+    const drip = order('o5', 'drug.paracetamol', 'RUNNING', {
+      route: 'IV Infusion',
+      drugName: 'Example drip',
+    });
+    const body = selectBodyDiagram(current, { running, finished, other, push, drip }, tables);
+    expect(body.markers.filter((item) => item.kind === 'iv')).toHaveLength(1);
+    expect(body.markers.filter((item) => item.kind === 'infusion').map((item) => item.id)).toEqual([
+      'infusion-o1',
+      'infusion-o5',
+    ]);
+    const after = selectBodyDiagram(current, { finished }, tables);
+    expect(after.markers.some((item) => item.kind === 'iv')).toBe(true);
+    expect(after.markers.some((item) => item.kind === 'infusion')).toBe(false);
+  });
+
   it('氧氣用短名，點滴要有靜脈途徑，多條引流各自保留位置', () => {
     const orders = {
       o1: order('o1', 'oxygen.nasal', 'DONE'),
@@ -113,7 +134,7 @@ describe('身體圖只顯示在位裝置', () => {
       tables,
     );
     expect(body.markers.find((item) => item.kind === 'oxygen')?.label).toBe('HFNC');
-    expect(body.markers.find((item) => item.kind === 'iv')?.label).toBe('IV');
+    expect(body.markers.find((item) => item.kind === 'iv')?.label).toBe('IV / IO');
     expect(body.markers.filter((item) => item.kind === 'drain').map((item) => item.label)).toEqual([
       'left chest',
       'right abdomen',

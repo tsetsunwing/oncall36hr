@@ -99,7 +99,17 @@
         "from": "CHEST_PAIN",
         "to": "ARREST_VF",
         "when": {
-          "timeInStateSec": 120
+          "timeInStateSec": 120,
+          "flagsNone": ["acs.antiplatelet"]
+        },
+        "p": 1
+      },
+      {
+        "from": "CHEST_PAIN",
+        "to": "ARREST_VF",
+        "when": {
+          "timeInStateSec": 600,
+          "flagsAll": ["acs.antiplatelet"]
         },
         "p": 1
       },
@@ -499,6 +509,79 @@
         "to": "STABILISING",
         "when": {
           "timeInStateSec": 1200,
+          "flagsAll": ["oxygen.on"]
+        },
+        "p": 1
+      }
+    ]
+  },
+  {
+    "id": "acs-vf-ward-01",
+    "initial": "CHEST_PAIN",
+    "salvageable": true,
+    "states": {
+      "CHEST_PAIN": {
+        "trajectory": "acs.chestpain"
+      },
+      "ARREST_VF": {
+        "trajectory": "acls.pulseless",
+        "arrest": {
+          "rhythm": "VENTRICULAR_FIBRILLATION"
+        }
+      },
+      "POST_ROSC": {
+        "trajectory": "acls.postrosc"
+      },
+      "STABILISING": {
+        "trajectory": "acs.stabilising"
+      },
+      "CHEST_PAIN_NO_VF": {
+        "trajectory": "acs.chestpain"
+      }
+    },
+    "postRoscState": "POST_ROSC",
+    "transitions": [
+      {
+        "from": "CHEST_PAIN",
+        "to": "ARREST_VF",
+        "when": {
+          "timeInStateSec": 1800,
+          "flagsNone": ["acs.antiplatelet"]
+        },
+        "p": 0.05
+      },
+      {
+        "from": "CHEST_PAIN",
+        "to": "CHEST_PAIN_NO_VF",
+        "when": {
+          "timeInStateSec": 1800,
+          "flagsNone": ["acs.antiplatelet"]
+        },
+        "p": 1
+      },
+      {
+        "from": "CHEST_PAIN",
+        "to": "ARREST_VF",
+        "when": {
+          "timeInStateSec": 3600,
+          "flagsAll": ["acs.antiplatelet"]
+        },
+        "p": 0.05
+      },
+      {
+        "from": "CHEST_PAIN",
+        "to": "CHEST_PAIN_NO_VF",
+        "when": {
+          "timeInStateSec": 3600,
+          "flagsAll": ["acs.antiplatelet"]
+        },
+        "p": 1
+      },
+      {
+        "from": "POST_ROSC",
+        "to": "STABILISING",
+        "when": {
+          "timeInStateSec": 1800,
           "flagsAll": ["oxygen.on"]
         },
         "p": 1

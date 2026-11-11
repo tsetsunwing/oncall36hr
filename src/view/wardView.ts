@@ -4,6 +4,7 @@
  * 委派畫面只顯示已經發生嘅實際結果。
  */
 import {
+  isWardPatientActive,
   reachableRanks,
   renderTemplate,
   skippedRanks,
@@ -12,6 +13,7 @@ import {
   type GameState,
   type Rank,
 } from '@/engine';
+import { wardLabel } from '@/content/wards';
 import type { ViewEnv } from './viewEnv';
 import type {
   BedView,
@@ -81,7 +83,11 @@ function bedLevel(bandId: string | null, tables: EngineTables) {
 
 function selectBeds(state: GameState, env: ViewEnv): BedView[] {
   const { tables } = env;
-  const byBed = new Map(Object.values(state.patients).map((p) => [p.bed, p] as const));
+  const byBed = new Map(
+    Object.values(state.patients)
+      .filter(isWardPatientActive)
+      .map((p) => [p.bed, p] as const),
+  );
   const beds: BedView[] = [];
   for (const row of tables['ward-layout']) {
     if (row.kind !== 'BED') continue;
@@ -232,7 +238,7 @@ function selectPhone(state: GameState, env: ViewEnv, clockLabel: ClockLabel): Ph
     .map((call) => selectCall(state, call, env, clockLabel));
   const reachable = reachableRanks(state.playerRank);
   const ladders: Record<string, LadderStepView[]> = {};
-  for (const patient of Object.values(state.patients)) {
+  for (const patient of Object.values(state.patients).filter(isWardPatientActive)) {
     ladders[patient.id] = ALL_RANKS.filter((r) => r !== 'HO').map((rank) => ({
       rank,
       reachable: reachable.includes(rank),
@@ -310,5 +316,6 @@ export function selectWard(
     delegation: selectDelegation(state, env, clockLabel),
     occupied: beds.filter((b) => b.patientId !== null).length,
     total: beds.length,
+    name: wardLabel(state.ward.code),
   };
 }

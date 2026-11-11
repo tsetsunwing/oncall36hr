@@ -13,7 +13,7 @@ import type {
   ShiftView,
   WardView,
 } from '@/view';
-import { chat, monitor, patient } from '../game/fixtures';
+import { chat, monitor, order, patient } from '../game/fixtures';
 import { WardGame } from '../pages/WardGame';
 import { DelegationDialog } from './DelegationDialog';
 import { FloorPlan } from './FloorPlan';
@@ -32,6 +32,8 @@ function makeActions() {
     retryAi: vi.fn(),
     goToBed: vi.fn(),
     enterPlace: vi.fn(),
+    transferOut: vi.fn(),
+    discharge: vi.fn(),
     respondCall: vi.fn(),
     prepareCall: vi.fn(),
     sendCall: vi.fn(),
@@ -140,6 +142,7 @@ function ward(over: Partial<WardView> = {}): WardView {
     playerRank: 'MO',
     occupied: 2,
     total: 20,
+    name: '內科病房 General Medicine Ward',
     phone: {
       ringing: 1,
       calls: [call],
@@ -344,6 +347,58 @@ describe('房間取代平面圖', () => {
     rerender(<WardGame view={gameAt('STATION')} ward={ward()} actions={actions} />);
     expect(screen.getByTestId('floor-plan')).toHaveClass('floor-plan--compact');
     expect(screen.queryByTestId('bed-table')).not.toBeInTheDocument();
+  });
+
+  it('病歷可獨立開關，僅列可見資料，離開床邊返回病房', async () => {
+    const actions = makeActions();
+    const atBed = {
+      ...gameAt(null),
+      patient,
+      monitor: monitor(),
+      chat: chat(),
+      body: { markers: [], ioOrder: null },
+      orders: [
+        order({ id: 'med', label: 'Paracetamol 1 g PO', isMedication: true }),
+        order({ id: 'nonmed', label: '非藥物醫囑', isMedication: false }),
+      ],
+    };
+    render(<WardGame view={atBed} ward={ward()} actions={actions} />);
+    expect(screen.queryByTestId('medical-record')).not.toBeInTheDocument();
+    await userEvent.click(screen.getByTestId('open-medical-record'));
+    const record = screen.getByTestId('medical-record');
+    expect(record).toHaveTextContent(patient.name);
+    expect(record).toHaveTextContent(patient.complaint);
+    expect(record).toHaveTextContent('Paracetamol 1 g PO');
+    expect(record).not.toHaveTextContent('非藥物醫囑');
+    expect(record).toHaveTextContent(ui.game.ward.medicalRecord.unknown);
+    expect(record).toHaveTextContent(ui.game.ward.medicalRecord.marNote);
+    await userEvent.click(screen.getByTestId('open-medical-record'));
+    expect(screen.queryByTestId('medical-record')).not.toBeInTheDocument();
+    await userEvent.click(screen.getByTestId('leave-bed'));
+    expect(actions.enterPlace).toHaveBeenCalledWith('STATION');
+  });
+
+  it('ICU 接收後確認轉出才觸發清床；取消不觸發', async () => {
+    const actions = makeActions();
+    const atBed = {
+      ...gameAt(null),
+      patient: { ...patient, icuTransferReady: true },
+      monitor: monitor(),
+      chat: chat(),
+      body: { markers: [], ioOrder: null },
+    };
+    render(<WardGame view={atBed} ward={ward()} actions={actions} />);
+    await userEvent.click(screen.getByTestId('transfer-out'));
+    expect(actions.transferOut).not.toHaveBeenCalled();
+    await userEvent.click(
+      within(
+        screen.getByRole('group', { name: ui.game.ward.medicalRecord.confirmTransfer }),
+      ).getByText(ui.game.ward.medicalRecord.cancel),
+    );
+    expect(actions.transferOut).not.toHaveBeenCalled();
+    await userEvent.click(screen.getByTestId('transfer-out'));
+    await userEvent.click(screen.getByTestId('confirm-departure'));
+    expect(actions.transferOut).toHaveBeenCalledWith(patient.id);
   });
 
   it('床邊以身體圖取代小地圖，返回病房先見床位圖', async () => {

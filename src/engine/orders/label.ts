@@ -17,5 +17,6 @@ export function composeOrderLabel(
   const rate = order.params.rate
     ? ` ${String(order.params.rate.value)} ${order.params.rate.unit}`
     : '';
-  return `${base}${dose}${route}${frequency}${times}${rate}`;
+  const concentration = order.params.concentration ? ` | ${order.params.concentration}` : '';
+  return `${base}${dose}${route}${frequency}${times}${rate}${concentration}`;
 }

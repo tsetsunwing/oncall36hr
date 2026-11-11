@@ -2591,6 +2591,48 @@ main:has(.page.setup) {
   box-shadow: var(--card-shadow);
 }
 
+.body-diagram > .floor-plan-head {
+  padding: 0.65rem 0.75rem;
+  align-items: center;
+}
+
+.body-diagram h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.medical-record {
+  margin: 0 0.75rem 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow-wrap: anywhere;
+}
+
+.medical-record h3,
+.medical-record h4 {
+  margin: 0.5rem 0 0.2rem;
+}
+
+.medical-record p,
+.medical-record ul {
+  margin: 0.2rem 0;
+}
+
+.departure-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0 0.75rem;
+}
+
+.departure-actions [role='group'] {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .body-diagram-stage {
   position: relative;
   width: min(100%, 220px);

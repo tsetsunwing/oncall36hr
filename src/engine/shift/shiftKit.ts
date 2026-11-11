@@ -10,6 +10,13 @@ import { shiftIntent } from './shiftModule';
 
 export const kitConfig = realConfig();
 
+/** 隔離依賴固定病人／無額外 VF 中斷的平衡測試；其他測試仍用完整病例庫。 */
+export function baselineCaseTemplates() {
+  return fullTables()['case-templates'].filter(
+    (row) => row.id !== 'acs-vf-ward-01' && row.id !== 'hf-dnr-01',
+  );
+}
+
 export function kitEngine(overrides: Partial<EngineTables> = {}): Engine {
   return createEngine(kitConfig, { tables: { ...fullTables(), ...overrides } });
 }

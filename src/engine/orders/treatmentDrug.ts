@@ -47,6 +47,7 @@ export interface TreatmentParams {
   frequency?: string;
   times?: number;
   rate?: { value: number; unit: string };
+  concentration?: string;
   treatmentDrugId?: string;
 }
 
@@ -62,6 +63,7 @@ function storedParams(
     ...(params.frequency ? { frequency: params.frequency } : {}),
     ...(params.times ? { times: params.times } : {}),
     ...(params.rate ? { rate: params.rate } : {}),
+    ...(params.concentration ? { concentration: params.concentration } : {}),
     ...(drugName ? { drugName } : {}),
   };
 }

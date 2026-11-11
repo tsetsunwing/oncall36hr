@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   composeDrugOrderPhrase,
   placedDrugParams,
+  RATE_UNITS,
   shortOptionLabel,
   suggestTreatmentDrugs,
   type DrugOrderDraft,
@@ -18,6 +19,7 @@ const draft = (patch: Partial<DrugOrderDraft>): DrugOrderDraft => ({
   volume: null,
   rateValue: '',
   rateUnit: null,
+  concentration: '',
   prn: null,
   titration: null,
   infuseOverMins: '',
@@ -33,6 +35,27 @@ describe('藥物選項括號', () => {
     expect(shortOptionLabel('BD (twice)')).toBe('BD');
     expect(shortOptionLabel('Neat (No diluent)')).toBe('Neat');
     expect(shortOptionLabel('STAT')).toBe('STAT');
+  });
+
+  it('輸注濃度會寫入結構化欄位，速率只用泵可設定的單位', () => {
+    const infusion = draft({
+      route: 'IV Infusion (Continuous drip / syringe pump)',
+      frequency: null,
+      diluent: 'Neat (No diluent)',
+      volume: '50 mL',
+      rateValue: '5',
+      rateUnit: 'mL/hr',
+      concentration: '  4 mg in 50 mL  ',
+    });
+    expect(RATE_UNITS).toEqual(['mL/hr', 'unit/hr']);
+    expect(placedDrugParams('adrenaline', infusion)).toMatchObject({
+      concentration: '4 mg in 50 mL',
+      rate: { value: 5, unit: 'mL/hr' },
+    });
+    expect(composeDrugOrderPhrase(infusion)).toContain('4 mg in 50 mL');
+    expect(placedDrugParams('adrenaline', { ...infusion, concentration: '  ' })).not.toHaveProperty(
+      'concentration',
+    );
   });
 
   it('聊天句子、途徑同頻次都唔帶括號', () => {

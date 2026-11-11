@@ -1,3 +1,5 @@
+import { departPatient, isWardPatientActive } from './departure';
+import { awayOf } from '../case/away';
 /**
  * Ward 模組（M4）：病房生成、玩家位置、電話、上報、委派。
  * 所有 M4 玩家動作經 `EXTENSION` intent（module: 'ward'）進入；暫停時唔接受。
@@ -61,6 +63,8 @@ const reject = (
 });
 
 const payloads = {
+  TRANSFER_OUT: z.object({ patientId: z.string().min(1) }).strict(),
+  DISCHARGE: z.object({ patientId: z.string().min(1) }).strict(),
   GO_TO_BED: z.object({ bed: z.number().int().min(0).nullable() }).strict(),
   RESPOND_CALL: z.object({ callId: z.string().min(1), response: z.enum(CALL_RESPONSES) }).strict(),
   PREPARE_CALL: z
@@ -97,6 +101,26 @@ function handleExtension(
 ): Reduction | undefined {
   if (!state.ward.enabled) return undefined;
   switch (name) {
+    case 'TRANSFER_OUT':
+    case 'DISCHARGE': {
+      const parsed = payloads[name].safeParse(payload);
+      if (!parsed.success) return reject(state, 'PATIENT_UNKNOWN');
+      if (state.paused) return blocked(state);
+      const patient = state.patients[parsed.data.patientId];
+      if (!patient || !isWardPatientActive(patient) || state.ward.location.bed !== patient.bed)
+        return reject(state, 'PATIENT_UNKNOWN');
+      if (awayOf(state, patient.id, ctx)) return reject(state, 'ORDER_INVALID');
+      if (state.resus?.patientId === patient.id && state.resus.status === 'ARREST')
+        return reject(state, 'ORDER_INVALID');
+      if (state.death?.patientId === patient.id && state.death.status === 'PENDING_PROCESS')
+        return reject(state, 'ORDER_INVALID');
+      if (name === 'TRANSFER_OUT' && !patient.hidden.fsm.flags.includes('icu.accepted'))
+        return reject(state, 'ORDER_INVALID');
+      return {
+        state: departPatient(state, patient.id, name === 'TRANSFER_OUT' ? 'TRANSFER' : 'DISCHARGE'),
+        effects: [],
+      };
+    }
     case 'GO_TO_BED': {
       const parsed = payloads.GO_TO_BED.safeParse(payload);
       if (!parsed.success) return reject(state, 'PATIENT_UNKNOWN');
@@ -114,7 +138,8 @@ function handleExtension(
       if (!parsed.success) return reject(state, 'CALL_TARGET_INVALID');
       if (state.paused) return blocked(state);
       const { patientId, target } = parsed.data;
-      if (!state.patients[patientId]) return reject(state, 'PATIENT_UNKNOWN');
+      if (!state.patients[patientId] || !isWardPatientActive(state.patients[patientId]))
+        return reject(state, 'PATIENT_UNKNOWN');
       if (!targetValid(state, target, ctx)) return reject(state, 'CALL_TARGET_INVALID');
       const sbar = buildSbarDraft(state, patientId, target, ctx);
       const vitalsRef = vitalsRefOf(state, patientId);
@@ -196,7 +221,7 @@ function handleBedIntents(
   switch (intent.type) {
     case 'ENTER_BED': {
       const patient = state.patients[intent.patientId];
-      if (!patient) return reject(state, 'PATIENT_UNKNOWN');
+      if (!patient || !isWardPatientActive(patient)) return reject(state, 'PATIENT_UNKNOWN');
       return moveTo(state, patient.bed, ctx);
     }
     case 'LEAVE_BED':
@@ -205,6 +230,7 @@ function handleBedIntents(
     case 'PLACE_CATALOG':
     case 'PLACE_CATALOG_BATCH': {
       const patient = state.patients[intent.patientId];
+      if (patient && !isWardPatientActive(patient)) return reject(state, 'PATIENT_UNKNOWN');
       if (patient && state.ward.location.bed !== patient.bed) return reject(state, 'NOT_AT_BED');
       return undefined;
     }

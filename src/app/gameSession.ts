@@ -219,6 +219,12 @@ export function createGameSession(options: GameSessionOptions): GameSession {
     enterPlace(place) {
       dispatch({ type: 'PLAYER_INTENT', intent: shiftIntent('ENTER_PLACE', { place }) });
     },
+    transferOut(patientId) {
+      wardIntent('TRANSFER_OUT', { patientId });
+    },
+    discharge(patientId) {
+      wardIntent('DISCHARGE', { patientId });
+    },
     respondCall(callId, response) {
       wardIntent('RESPOND_CALL', { callId, response });
     },

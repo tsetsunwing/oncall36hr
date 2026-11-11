@@ -23,6 +23,8 @@ function makeActions() {
     retryAi: vi.fn(),
     goToBed: vi.fn(),
     enterPlace: vi.fn(),
+    transferOut: vi.fn(),
+    discharge: vi.fn(),
     respondCall: vi.fn(),
     prepareCall: vi.fn(),
     sendCall: vi.fn(),

@@ -52,6 +52,26 @@ const FORBIDDEN_KEYS = [
 ];
 
 describe('ward ViewModel', () => {
+  it('新病房的病人已有靜脈通路，view 顯示病房名稱', () => {
+    const state = engine.init(wardParams('initial-iv', 'MO'));
+    const patients = Object.values(state.patients);
+    expect(patients.length).toBeGreaterThan(0);
+    expect(patients.every((p) => p.hidden.fsm.flags.includes('piv.in'))).toBe(true);
+    expect(selectGameView(state, env).ward?.name).toBeTruthy();
+  });
+
+  it('病人離開後床位空出，歷史記錄保留', () => {
+    const state = engine.init(wardParams('depart-view', 'MO'));
+    const patient = Object.values(state.patients)[0];
+    if (!patient) throw new Error('no patient');
+    const at = run(state, [ward('GO_TO_BED', { bed: patient.bed })]).state;
+    const done = run(at, [ward('DISCHARGE', { patientId: patient.id })]).state;
+    expect(
+      selectGameView(done, env).ward?.beds.find((b) => b.bed === patient.bed)?.patientId,
+    ).toBeNull();
+    expect(done.patients[patient.id]).toBeDefined();
+  });
+
   it('外撥部門係瑪麗醫院臨床部門，順序固定，藥房仍然係外撥會診', () => {
     const state = engine.init(wardParams('depts', 'MO'));
     const depts = selectGameView(state, env).ward?.phone.depts ?? [];

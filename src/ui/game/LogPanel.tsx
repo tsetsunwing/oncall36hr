@@ -287,7 +287,7 @@ function ReportFilters({
 }: {
   bucket: 'all' | ReportBucket;
   section: string;
-  reports: ReportView[];
+  reports: Pick<ReportView, 'bucket' | 'section'>[];
   onSection: (next: string) => void;
 }) {
   const r = ui.game.reports;
@@ -334,6 +334,15 @@ export function LogPanel({
   const [bucket, setBucket] = useState<'all' | ReportBucket>('all');
   const [section, setSection] = useState('all');
   const rows = scope === 'all' ? log.all : log.patient;
+  const pending = orders.filter(
+    (order) => order.status === 'DONE' && order.resultStatus === 'PENDING',
+  );
+  const pendingShown = pending.filter(
+    (order) =>
+      bucket === 'all' ||
+      (order.resultCategory?.bucket === bucket &&
+        (section === 'all' || order.resultCategory.section === section)),
+  );
   const shown = reports.filter(
     (report) =>
       bucket === 'all' ||
@@ -396,13 +405,26 @@ export function LogPanel({
             ))}
           </span>
         </h2>
-        <ReportFilters bucket={bucket} section={section} reports={reports} onSection={setSection} />
-        {reports.length === 0 ? (
+        <ReportFilters
+          bucket={bucket}
+          section={section}
+          reports={[
+            ...reports,
+            ...pending.flatMap((order) => (order.resultCategory ? [order.resultCategory] : [])),
+          ]}
+          onSection={setSection}
+        />
+        {reports.length === 0 && pending.length === 0 ? (
           <p className="hint">{ui.game.reports.empty}</p>
-        ) : shown.length === 0 ? (
+        ) : shown.length === 0 && pendingShown.length === 0 ? (
           <p className="hint">{ui.game.reports.emptyFiltered}</p>
         ) : (
           <ul className="report-list">
+            {pendingShown.map((order) => (
+              <li className="report-row" key={`pending-${order.id}`} data-testid="report-pending">
+                {order.timeLabel} · {order.label} · {ui.game.orders.resultStatus.PENDING}
+              </li>
+            ))}
             {shown.map((report) => (
               <ReportItem key={report.id} report={report} />
             ))}

@@ -10,7 +10,7 @@ import { serializeSnapshot } from '../save/snapshot';
 import { advance } from '../test/realEngine';
 import { plannedCallCount, shiftSeconds } from '../ward/generate';
 import { selfCareAvailable, selfCareRow } from './selfCare';
-import { drive, kitEngine, kitParams, shiftAct } from './shiftKit';
+import { baselineCaseTemplates, drive, kitEngine, kitParams, shiftAct } from './shiftKit';
 
 const H = 3600;
 /** implementation-plan 儲存節：34 小時局可能超過 localStorage ~5 MB，所以先守住呢條線 */
@@ -93,7 +93,7 @@ describe('M9 平衡模擬（T-E）', () => {
   }, 60_000);
 
   it('食飯加低精力短睡可以撐完 On call 規定時間，存檔細過 5 MB', () => {
-    const engine = kitEngine();
+    const engine = kitEngine({ 'case-templates': baselineCaseTemplates() });
     const play = (seed: string) =>
       drive(engine, engine.init(kitParams(seed, 'ONCALL')), 34 * H + 30, {
         step: 300,
@@ -114,7 +114,7 @@ describe('M9 平衡模擬（T-E）', () => {
     expect(calm.shift.rounds.completed).toBe(0);
     expect(calm.shift.mealsTaken).toHaveLength(3);
     expect(calm.shift.energy.percent).toBeGreaterThan(0);
-    // 有心臟停頓未完結時唔可以食飯；呢個 seed 少食一餐都唔會暈
+    // 有心臟停頓未完結時唔可以食飯；容許較少餐數但仍需撐過更次
     expect(end.shift.ending?.reason).not.toBe('FAINT');
     expect(end.clock.phase).toBe('OVERTIME');
     expect(end.clock.t).toBeGreaterThanOrEqual(34 * H);

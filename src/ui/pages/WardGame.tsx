@@ -164,6 +164,9 @@ export function WardGame({ view, ward, actions }: WardGameProps) {
           atBed={atBed}
           body={view.body}
           patientId={view.patient?.id ?? null}
+          patient={view.patient}
+          orders={view.orders}
+          reports={view.reports}
           shift={view.shift}
           ward={ward}
           actions={actions}
@@ -369,6 +372,9 @@ function MapOrRoom({
   atBed,
   body,
   patientId,
+  patient,
+  orders,
+  reports,
   shift,
   ward,
   actions,
@@ -379,6 +385,9 @@ function MapOrRoom({
   atBed: boolean;
   body: BodyDiagramView | null;
   patientId: string | null;
+  patient: GameView['patient'];
+  orders: GameView['orders'];
+  reports: GameView['reports'];
   shift: ShiftView;
   ward: WardView;
   actions: GameActions;
@@ -408,8 +417,16 @@ function MapOrRoom({
           </button>
         </div>
       ) : null}
-      {atBed && body && patientId ? (
-        <BodyDiagram body={body} patientId={patientId} actions={actions} />
+      {atBed && body && patientId && patient ? (
+        <BodyDiagram
+          key={patientId}
+          body={body}
+          patientId={patientId}
+          patient={patient}
+          orders={orders}
+          reports={reports}
+          actions={actions}
+        />
       ) : (
         <FloorPlan
           ward={ward}

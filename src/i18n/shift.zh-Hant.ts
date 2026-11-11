@@ -106,6 +106,7 @@ export const shiftUi = {
   },
   handover: {
     heading: '交更',
+    pendingReports: '報告未出',
     intro: '選擇你會向接更同事逐一提及的病人。漏報需要跟進的病人會被扣「溝通」分。',
     level: { NORMAL: '穩定', CAUTION: '注意', ALARM: '警報' } as Record<string, string>,
     bed: (bed: number, name: string) => `${String(bed)} 號床 ${name}`,

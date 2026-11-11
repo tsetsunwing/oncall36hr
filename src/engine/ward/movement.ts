@@ -1,4 +1,5 @@
 /** 玩家在病房內的位置。前往床邊與返回病房皆即時到達，不推進班次時鐘。 */
+import { isWardPatientActive } from './departure';
 import { buildPresent } from '../bedside/bedside';
 import { appendLine } from '../chat/dialogue';
 import { removeWhere } from '../core/eventQueue';
@@ -10,7 +11,8 @@ import { resolveArrestCallsAtBed } from './arrestCall';
 export const PLAYER_ARRIVE_EVENT = 'PLAYER_ARRIVE';
 
 export function patientAtBed(state: GameState, bed: number): string | null {
-  for (const patient of Object.values(state.patients)) if (patient.bed === bed) return patient.id;
+  for (const patient of Object.values(state.patients))
+    if (patient.bed === bed && isWardPatientActive(patient)) return patient.id;
   return null;
 }
 

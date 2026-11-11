@@ -20,6 +20,7 @@ export type CoreIntent =
         frequency?: string;
         times?: number;
         rate?: { value: number; unit: string };
+        concentration?: string;
         treatmentDrugId?: string;
         /** 行動記錄與護士確認用的短標籤。引擎不解析這句。 */
         summary?: string;
@@ -72,6 +73,7 @@ export type SaveReason = 'INTERVAL' | 'PAUSE' | 'MANUAL' | 'AI_FAILURE';
 export type NoticeKind =
   | 'ORDER_BLOCKED_PAUSED'
   | 'ORDER_INVALID'
+  | 'DNR_NO_RESUS'
   | 'ORDER_UNKNOWN'
   | 'ORDER_NOT_CANCELLABLE'
   | 'INSIST_NOT_AVAILABLE'

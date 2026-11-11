@@ -1,3 +1,4 @@
+import { isWardPatientActive } from '../ward/departure';
 /** 超時、交更同強制結局（spec §2.1、§19；implementation-plan §8.2）。 */
 import type { Effect, Reduction } from '../core/events';
 import type { EngineContext } from '../core/module';
@@ -33,6 +34,10 @@ export function patientNeedsHandover(
 ): boolean {
   const patient = state.patients[patientId];
   if (!patient) return false;
+  if (!isWardPatientActive(patient))
+    return Object.values(state.orders).some(
+      (o) => o.patientId === patientId && o.status === 'DONE' && o.resultStatus === 'PENDING',
+    );
   const band = ctx.tables.mews[0]?.bands.find((b) => b.id === patient.visible.mews.band);
   if (band && band.alert !== 'NONE') return true;
   if (Object.values(state.orders).some((o) => o.patientId === patientId && orderOpen(o))) {

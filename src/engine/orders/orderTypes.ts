@@ -32,6 +32,7 @@ export const orderSchema = z
         times: z.number().int().min(1).max(3).optional(),
         /** 輸液速率。舊存檔冇呢欄。 */
         rate: z.object({ value: z.number(), unit: z.string() }).strict().optional(),
+        concentration: z.string().min(1).max(120).optional(),
         /** 未收錄藥物的顯示藥名。舊存檔冇呢欄。目錄醫囑不用。 */
         drugName: z.string().min(1).optional(),
         /** 選單寫下的短標籤。有這欄時行動記錄與護士確認用它，不用目錄長名。舊存檔沒有。 */

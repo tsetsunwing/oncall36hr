@@ -95,6 +95,20 @@ export function cancelOrderState(state: GameState, order: Order, reasonCode: str
 
 export function completeOrder(state: GameState, order: Order, ctx: EngineContext): Reduction {
   const row = ctx.tables['order-catalog'].find((r) => r.id === order.catalogId);
+  const existingPatient = state.patients[order.patientId];
+  if (
+    existingPatient?.demographics.code === 'DNR' &&
+    (row?.acls?.action === 'CPR_START' || row?.acls?.action === 'DEFIB')
+  ) {
+    const failed = {
+      ...state,
+      orders: { ...state.orders, [order.id]: { ...order, status: 'FAILED' as const } },
+    };
+    return {
+      state: updateOrderLog(failed, order.id, { reasonCode: 'DNR_NO_RESUS' }),
+      effects: [{ type: 'NOTICE', kind: 'DNR_NO_RESUS', tone: 'warn' }],
+    };
+  }
   let next: GameState = {
     ...state,
     orders: { ...state.orders, [order.id]: { ...order, status: 'DONE' } },

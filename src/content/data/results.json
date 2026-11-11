@@ -257,7 +257,8 @@
         "byDiagnosis": {
           "acs": {
             "DETERIORATING": 480,
-            "STABILISING": 210
+            "STABILISING": 210,
+            "CHEST_PAIN": 480
           },
           "sepsis": {
             "*": 68
@@ -380,6 +381,18 @@
       "STABILISING": {
         "text": "{{rhythm.label}}, ventricular rate {{vital.hr}}/min. No acute ST-segment change reported.",
         "abnormal": false
+      }
+    },
+    "textByDiagnosis": {
+      "acs": {
+        "CHEST_PAIN": {
+          "text": "{{rhythm.label}}, ventricular rate {{vital.hr}}/min. ST-segment elevation in anterior leads; urgent clinical correlation recommended.",
+          "abnormal": true
+        },
+        "CHEST_PAIN_NO_VF": {
+          "text": "{{rhythm.label}}, ventricular rate {{vital.hr}}/min. ST-segment elevation in anterior leads; urgent clinical correlation recommended.",
+          "abnormal": true
+        }
       }
     }
   },

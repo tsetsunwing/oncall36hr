@@ -24,6 +24,8 @@ function makeActions() {
     retryAi: vi.fn(),
     goToBed: vi.fn(),
     enterPlace: vi.fn(),
+    transferOut: vi.fn(),
+    discharge: vi.fn(),
     respondCall: vi.fn(),
     prepareCall: vi.fn(),
     sendCall: vi.fn(),
@@ -263,12 +265,20 @@ describe('超時與交更', () => {
     render(
       <HandoverPanel
         candidates={[
-          { patientId: 'p1', bed: 2, name: '張婆婆', level: 'NORMAL', selected: false },
+          {
+            patientId: 'p1',
+            bed: 2,
+            name: '張婆婆',
+            level: 'NORMAL',
+            selected: false,
+            pendingReports: ['CBC'],
+          },
           { patientId: 'p2', bed: 7, name: '李大文', level: 'ALARM', selected: true },
         ]}
         actions={actions}
       />,
     );
+    expect(screen.getByTestId('handover-pending-2')).toHaveTextContent('CBC');
     await userEvent.click(screen.getByTestId('handover-2'));
     expect(actions.toggleHandover).toHaveBeenCalledWith('p1');
     expect(screen.getByTestId('handover-7')).toBeChecked();
