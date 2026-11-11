@@ -7,6 +7,7 @@ import { ChatPanel } from '../game/ChatPanel';
 import { LogPanel } from '../game/LogPanel';
 import { DeathFlowPanel } from '../game/DeathFlowPanel';
 import { MonitorPanel } from '../game/MonitorPanel';
+import { NeuroStrip } from '../game/NeuroStrip';
 import { ResusPanel } from '../game/ResusPanel';
 import { DelegationDialog } from '../ward/DelegationDialog';
 import { useFrame } from '../frame/PlayFrame';
@@ -195,6 +196,7 @@ export function WardGame({ view, ward, actions }: WardGameProps) {
             <p>{w.notAtBed}</p>
           </section>
         )}
+        {atBed && view.patient ? <NeuroStrip patient={view.patient} /> : null}
         {atBed && view.patient && view.resus?.patientId === view.patient.id ? (
           <ResusPanel
             patientId={view.patient.id}
