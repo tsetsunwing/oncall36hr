@@ -3043,3 +3043,35 @@ button.place-room-action:disabled:not([data-active='true']) {
 .neuro-action:hover {
   background: #262626;
 }
+
+/* 抽血籃：勾選的檢查排成第四欄，確認才一次過落單。 */
+.chip-basket {
+  border-left: 1px solid var(--line);
+}
+
+.chip-basket-count {
+  margin: 0 0 4px;
+  padding: 0 4px;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.chip-col .chip-basket-item {
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.chip-col .chip-primary {
+  margin-top: 4px;
+  font-weight: 600;
+  color: #10161f;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.chip-col .chip-primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
