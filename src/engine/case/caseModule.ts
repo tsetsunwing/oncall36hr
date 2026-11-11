@@ -10,6 +10,7 @@ import type { GameState, NewGameParams } from '../core/state';
 import { logEvent } from '../log/log';
 import { trackBandUrgency } from '../score/priority';
 import { scoreStateExit } from '../score/requiredOrders';
+import { awayOf } from './away';
 import { evaluateFsm } from './fsm';
 import { pickHkName } from './hkNames';
 import { NORMAL_PUPILS, gcsForConsciousness } from './patient';
@@ -243,7 +244,7 @@ export function createPatientState(
 export const caseModule: EngineModule = {
   name: 'case',
 
-  handleIntent(state, intent) {
+  handleIntent(state, intent, ctx) {
     if (intent.type === 'ASSESS_GCS') {
       const patient = state.patients[intent.patientId];
       if (!patient) {
@@ -251,6 +252,9 @@ export const caseModule: EngineModule = {
           state,
           effects: [{ type: 'NOTICE', kind: 'PATIENT_UNKNOWN', tone: 'warn' }],
         };
+      }
+      if (awayOf(state, patient.id, ctx)) {
+        return { state, effects: [{ type: 'NOTICE', kind: 'PATIENT_AWAY', tone: 'warn' }] };
       }
       // 評估 GCS 只讀當下嘅清醒程度，唔另外發明數字。瞳孔要玩家自己睇，唔會自動變。
       return {
@@ -280,6 +284,9 @@ export const caseModule: EngineModule = {
         state,
         effects: [{ type: 'NOTICE', kind: 'PATIENT_UNKNOWN', tone: 'warn' }],
       };
+    }
+    if (awayOf(state, patient.id, ctx)) {
+      return { state, effects: [{ type: 'NOTICE', kind: 'PATIENT_AWAY', tone: 'warn' }] };
     }
     const { sbp, dbp } = patient.visible.vitals;
     return {

@@ -26,6 +26,7 @@ import { DRAIN_CATALOG_ID, normalizeDrainSite } from '../orders/drains';
 import { oxygenOrderRejected } from '../orders/oxygen';
 import { matchQuickPhrase } from '../orders/quickPhrase';
 import { nurseForBed } from '../ward/nurses';
+import { awayOf, contrastScreened } from '../case/away';
 
 const reject = (
   state: GameState,
@@ -35,7 +36,9 @@ const reject = (
     | 'PATIENT_UNKNOWN'
     | 'ORDER_BLOCKED_PAUSED'
     | 'ORDER_UNKNOWN'
-    | 'ORDER_INVALID',
+    | 'ORDER_INVALID'
+    | 'PATIENT_AWAY'
+    | 'CONTRAST_NOT_SCREENED',
 ): Reduction => ({
   state,
   effects: [{ type: 'NOTICE', kind, tone: 'warn' }],
@@ -75,6 +78,9 @@ function placeCatalog(
   if (!patient || !thread) return reject(state, 'PATIENT_UNKNOWN');
   const row = ctx.tables['order-catalog'].find((item) => item.id === intent.catalogId);
   if (!row) return reject(state, 'ORDER_UNKNOWN');
+  if (awayOf(state, patient.id, ctx)) return reject(state, 'PATIENT_AWAY');
+  if (row.requiresContrastScreen && !contrastScreened(state, patient.id))
+    return reject(state, 'CONTRAST_NOT_SCREENED');
   const parsed = placedParamsSchema.safeParse(intent.params);
   if (!parsed.success) return reject(state, 'ORDER_INVALID');
   const params = parsed.data;
@@ -171,6 +177,9 @@ function placeCatalogBatch(
     if (rows.some((existing) => existing.id === row.id)) return reject(state, 'ORDER_INVALID');
     rows.push(row);
   }
+  if (awayOf(state, patient.id, ctx)) return reject(state, 'PATIENT_AWAY');
+  if (rows.some((row) => row.requiresContrastScreen) && !contrastScreened(state, patient.id))
+    return reject(state, 'CONTRAST_NOT_SCREENED');
   const submittedAt = state.clock.t;
   const withPlayerLine = appendLine(state, {
     t: submittedAt,

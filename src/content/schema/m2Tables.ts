@@ -154,6 +154,8 @@ export const ORDER_TYPES = [
   'CROSSMATCH',
   'PROCEDURE',
   'RESUSCITATION',
+  'FLUOROSCOPY',
+  'NUCLEAR_MEDICINE',
 ] as const;
 
 export const EXECUTOR_KINDS = ['NURSE', 'SUBORDINATE', 'PLAYER'] as const;
@@ -181,6 +183,10 @@ export const orderCatalogEntrySchema = z
     formularyId: id.optional(),
     resultId: id.optional(),
     resultTemplate: z.string().min(1).optional(),
+    /** 病人要離開病房幾秒（放射科、內窺鏡）。0 或省略＝牀邊做。 */
+    leavesWardSec: z.number().int().min(0).optional(),
+    /** 要先用「問對比劑過敏及懷孕」醫囑篩查過才可以落單。 */
+    requiresContrastScreen: z.boolean().optional(),
     cancelWhile: z.array(z.enum(['QUEUED', 'RUNNING'])),
     sunkEffectRule: z.enum(SUNK_EFFECT_RULES),
     pharmacyGate: z.boolean(),
