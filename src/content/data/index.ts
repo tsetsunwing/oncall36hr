@@ -34,6 +34,11 @@ import config from '../config/config.json';
 
 import type { RawContent } from '../loader';
 
+/**
+ * 只放 JSON 表。三張 CSV 表（drug-class-effects、drug-effect-overrides、effect-categories）
+ * 由 csvTables.ts 喺瀏覽器 bundle 讀入，或者由 scripts/node-content.ts 喺 Node 讀入，
+ * 兩邊都用 withDrugEffectTables 併入，避免 tsx 讀唔到 ?raw。
+ */
 export const rawContent: RawContent = {
   config,
   tables: {

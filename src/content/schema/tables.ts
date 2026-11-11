@@ -27,6 +27,7 @@ import { familyScenarioSchema } from './familyTables';
 import { aclsTransitionSchema, deathProcessSchema } from './m5Tables';
 import { endingTagSchema, energyModelSchema, roundTopicSchema, selfCareSchema } from './m6Tables';
 import { requiredActionSchema, scoringModelSchema } from './m7Tables';
+import { CSV_TABLE_NAMES, csvTableSchemas } from './csvTables';
 
 /**
  * implementation-plan §5：T1–T29 為陣列型內容表（T30 config 另有 schema）。
@@ -66,6 +67,7 @@ export const TABLE_NAMES = [
   'scoring-model',
   'required-actions',
   'treatment-drugs',
+  ...CSV_TABLE_NAMES,
 ] as const;
 
 export type TableName = (typeof TABLE_NAMES)[number];
@@ -118,6 +120,7 @@ export const tableSchemas = {
   'scoring-model': z.array(scoringModelSchema),
   'required-actions': z.array(requiredActionSchema),
   'treatment-drugs': z.array(treatmentDrugSchema),
+  ...csvTableSchemas,
 } satisfies Record<TableName, z.ZodType<readonly ContentRecord[]>>;
 
 export type Tables = { [K in TableName]: z.infer<(typeof tableSchemas)[K]> };

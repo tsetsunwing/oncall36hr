@@ -37,7 +37,13 @@ describe('content loader', () => {
     'scoring-model',
     'required-actions',
   ] as const;
-  const FILLED_TABLES = [...M2_TABLES, 'treatment-drugs'] as const;
+  const FILLED_TABLES = [
+    ...M2_TABLES,
+    'treatment-drugs',
+    'drug-class-effects',
+    'drug-effect-overrides',
+    'effect-categories',
+  ] as const;
 
   it('accepts the shipped bundle: M2–M7、M4b 同治療藥表有資料，其餘表仍然是空陣列', () => {
     const content = getContent();

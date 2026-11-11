@@ -4,3 +4,6 @@ coverage
 playwright-report
 test-results
 package-lock.json
+
+# 485 KB 的藥物名冊資料檔：內容由 content:validate 驗證，不經 Prettier 排版，免得每次改動都產生幾千行 diff
+src/content/data/treatment-drugs.json
