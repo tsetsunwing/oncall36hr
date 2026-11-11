@@ -41,6 +41,7 @@ function makeActions() {
     confirmHandover: vi.fn(),
     saveManual: vi.fn(),
     measureNibp: vi.fn(),
+    assessGcs: vi.fn(),
   } satisfies GameActions;
 }
 
