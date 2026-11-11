@@ -41,6 +41,7 @@ export const patient: PatientView = {
       right: { sizeMm: 3, reaction: 'BRISK' },
     },
   },
+  away: null,
 };
 
 export function monitor(over: Partial<MonitorView> = {}): MonitorView {

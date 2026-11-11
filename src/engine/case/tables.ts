@@ -68,7 +68,9 @@ export type OrderType =
   | 'BLOOD_CULTURE'
   | 'CROSSMATCH'
   | 'PROCEDURE'
-  | 'RESUSCITATION';
+  | 'RESUSCITATION'
+  | 'FLUOROSCOPY'
+  | 'NUCLEAR_MEDICINE';
 
 export type ExecutorKind = 'NURSE' | 'SUBORDINATE' | 'PLAYER';
 export type ReviewStatus = 'PENDING_CLINICAL_REVIEW' | 'REVIEWED';
@@ -84,6 +86,10 @@ export interface OrderCatalogRow {
   formularyId?: string | undefined;
   resultId?: string | undefined;
   resultTemplate?: string | undefined;
+  /** 病人離開病房幾秒（放射科、內窺鏡）。省略＝牀邊做。 */
+  leavesWardSec?: number | undefined;
+  /** 落單前要用對比劑篩查醫囑問過。 */
+  requiresContrastScreen?: boolean | undefined;
   cancelWhile: readonly ('QUEUED' | 'RUNNING')[];
   sunkEffectRule: 'DISCARD' | 'KEEP_PARTIAL';
   pharmacyGate: boolean;

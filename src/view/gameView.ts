@@ -5,6 +5,7 @@
  */
 import {
   abnormalOf,
+  awayOf,
   composeOrderLabel,
   isCancellable,
   meanArterialPressure,
@@ -164,7 +165,10 @@ export function selectMonitor(
   };
 }
 
-function selectPatient(patient: Patient): PatientView {
+function selectPatient(
+  patient: Patient,
+  away: { place: string; untilLabel: string } | null,
+): PatientView {
   return {
     id: patient.id,
     bed: patient.bed,
@@ -186,6 +190,7 @@ function selectPatient(patient: Patient): PatientView {
         right: { ...patient.visible.neuro.pupils.right },
       },
     },
+    away,
   };
 }
 
@@ -523,6 +528,16 @@ function selectQuickChips(tables: EngineTables): QuickChipView[] {
   });
 }
 
+function awayViewOf(
+  state: GameState,
+  patientId: string,
+  env: ViewEnv,
+  clockLabel: (t: number) => string,
+): { place: string; untilLabel: string } | null {
+  const away = awayOf(state, patientId, { tables: env.tables } as Parameters<typeof awayOf>[2]);
+  return away ? { place: away.place, untilLabel: clockLabel(away.until) } : null;
+}
+
 export function selectGameView(state: GameState, env: ViewEnv): GameView {
   const clockLabel = (t: number) => formatClock(t, state.mode, env.config);
   const current = state.ward.enabled
@@ -542,7 +557,9 @@ export function selectGameView(state: GameState, env: ViewEnv): GameView {
       cprSlow: state.clock.cprSlow,
       effectiveSpeed: state.clock.cprSlow ? env.config.clock.cprSlowFactor : state.clock.speed,
     },
-    patient: current ? selectPatient(current) : null,
+    patient: current
+      ? selectPatient(current, awayViewOf(state, current.id, env, clockLabel))
+      : null,
     monitor: current ? selectMonitor(current, env, clockLabel) : null,
     body: current ? selectBodyDiagram(current, state.orders, env.tables) : null,
     chat: current ? selectChat(state, current.id, env, clockLabel) : null,
