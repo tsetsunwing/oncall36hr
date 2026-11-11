@@ -27,11 +27,11 @@ describe('監察儀生命體徵分段', () => {
     expect(heartRateBand(130)).toBe('severe');
   });
 
-  it('血氧：95 只係輕度，93 中度，91 嚴重', () => {
+  it('血氧：94 及以上正常，93 中度，91 嚴重', () => {
     expect(spo2Band(96)).toBe('normal');
     expect(spo2Band(100)).toBe('normal');
-    expect(spo2Band(95)).toBe('mild');
-    expect(spo2Band(94)).toBe('mild');
+    expect(spo2Band(95)).toBe('normal');
+    expect(spo2Band(94)).toBe('normal');
     expect(spo2Band(93)).toBe('moderate');
     expect(spo2Band(92)).toBe('moderate');
     expect(spo2Band(91)).toBe('severe');

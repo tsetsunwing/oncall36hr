@@ -79,7 +79,7 @@ export function CatheterOrders({
         <p className="chip-empty">{t.drainHint}</p>
         <button
           type="submit"
-          className="btn btn-primary"
+          className="chip"
           data-testid="catheter-proc.drain"
           disabled={drainSite.length === 0}
         >

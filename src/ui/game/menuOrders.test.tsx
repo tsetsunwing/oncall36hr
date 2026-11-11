@@ -87,10 +87,10 @@ describe('治療同觀察選單', () => {
     expect(calls.placeOrder).toHaveBeenCalledWith(
       'p1',
       'oxygen.nasal',
-      'Oxygen therapy Nasal cannula 4 L/min 94–98% None | 按目標血氧飽和度調節氧氣',
+      'Oxygen therapy Nasal cannula 4 L/min 94–98% | 按目標血氧飽和度調節氧氣',
       expect.objectContaining({
         dose: { value: 4, unit: 'L/min' },
-        summary: 'Oxygen therapy Nasal cannula 4 L/min 94–98% None | 按目標血氧飽和度調節氧氣',
+        summary: 'Oxygen therapy Nasal cannula 4 L/min 94–98% | 按目標血氧飽和度調節氧氣',
       }),
     );
     expect(calls.submitChat).not.toHaveBeenCalled();

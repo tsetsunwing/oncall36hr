@@ -42,7 +42,8 @@ describe('氧氣治療組句', () => {
     expect(nasal.ok).toBe(true);
     if (!nasal.ok) return;
     expect(nasal.catalogId).toBe('oxygen.nasal');
-    expect(nasal.text).toBe('Oxygen therapy Nasal cannula 4 L/min 94–98% None');
+    expect(nasal.text).toBe('Oxygen therapy Nasal cannula 4 L/min 94–98%');
+    expect(nasal.text).not.toContain('None');
     expect(nasal.text).not.toContain('(');
     expect(nasal.params.summary).toBe(nasal.text);
     expect(nasal.params.dose).toEqual({ value: 4, unit: 'L/min' });
@@ -72,7 +73,7 @@ describe('氧氣治療組句', () => {
     expect(venturi.ok).toBe(true);
     if (!venturi.ok) return;
     expect(venturi.catalogId).toBe('oxygen.venturi');
-    expect(venturi.text).toBe('Oxygen therapy Venturi mask 28% 94–98% None');
+    expect(venturi.text).toBe('Oxygen therapy Venturi mask 28% 94–98%');
     expect(venturi.text).not.toContain('White');
     expect(venturi.params.dose).toEqual({ value: 28, unit: '%' });
     expect(venturi.params.rate).toBeUndefined();

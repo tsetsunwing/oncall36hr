@@ -16,6 +16,7 @@ const OXYGEN_MARK: Record<string, string> = {
   'oxygen.niv': 'NIV',
   'oxygen.bvm': 'BVM',
   'oxygen.invasive': 'IMV',
+  'proc.bvm': 'BVM',
 };
 
 const SPOT = {
@@ -64,7 +65,6 @@ function routeIsIntravenous(route: string | null): boolean {
 }
 
 function oxygenLabel(patient: Patient, orders: GameState['orders']): string | null {
-  if (!hasFlag(patient, 'oxygen.on')) return null;
   const done = Object.values(orders)
     .filter(
       (order) =>
@@ -74,7 +74,8 @@ function oxygenLabel(patient: Patient, orders: GameState['orders']): string | nu
     )
     .sort((a, b) => b.completesAt - a.completesAt || b.createdAt - a.createdAt);
   const latest = done[0];
-  return latest ? (OXYGEN_MARK[latest.catalogId] ?? 'O2') : 'O2';
+  if (latest) return OXYGEN_MARK[latest.catalogId] ?? 'O2';
+  return hasFlag(patient, 'oxygen.on') ? 'O2' : null;
 }
 
 function hasIv(patient: Patient, orders: GameState['orders'], tables: EngineTables): boolean {

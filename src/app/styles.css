@@ -2648,7 +2648,12 @@ button.body-marker {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
+  align-items: stretch;
   margin-top: 0.75rem;
+}
+
+.drain-order .chip {
+  align-self: flex-start;
 }
 
 .drain-order label {

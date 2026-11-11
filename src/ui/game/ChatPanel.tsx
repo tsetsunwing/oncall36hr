@@ -422,6 +422,7 @@ function ChipMenus({
                       onObserve(order);
                       close();
                     }}
+                    onClose={close}
                   />
                 ) : null}
               </div>
