@@ -692,5 +692,82 @@
     "params": {
       "drugFormularyId": "calcium-gluconate"
     }
+  },
+  {
+    "id": "qw.contrast",
+    "aliases": ["contrast check", "ask contrast allergy", "問對比劑", "問過敏"],
+    "catalogId": "obs.contrast",
+    "chipLabel": "問對比劑過敏及懷孕",
+    "chipGroup": "tests"
+  },
+  {
+    "id": "qw.barium.swallow",
+    "aliases": ["barium swallow", "鋇吞"],
+    "catalogId": "img.barium.swallow",
+    "chipLabel": "Barium swallow",
+    "chipGroup": "tests"
+  },
+  {
+    "id": "qw.barium.meal",
+    "aliases": ["barium meal", "鋇餐"],
+    "catalogId": "img.barium.meal",
+    "chipLabel": "Barium meal",
+    "chipGroup": "tests"
+  },
+  {
+    "id": "qw.barium.enema",
+    "aliases": ["barium enema", "鋇灌腸"],
+    "catalogId": "img.barium.enema",
+    "chipLabel": "Barium enema",
+    "chipGroup": "tests"
+  },
+  {
+    "id": "qw.vq",
+    "aliases": ["v/q scan", "vq scan", "肺通氣灌注掃描"],
+    "catalogId": "img.vq",
+    "chipLabel": "V/Q scan",
+    "chipGroup": "tests"
+  },
+  {
+    "id": "qw.bone.scan",
+    "aliases": ["bone scan", "骨掃描"],
+    "catalogId": "img.bone.scan",
+    "chipLabel": "Bone scan",
+    "chipGroup": "tests"
+  },
+  {
+    "id": "qw.dmsa",
+    "aliases": ["dmsa scan", "dmsa"],
+    "catalogId": "img.dmsa",
+    "chipLabel": "DMSA scan",
+    "chipGroup": "tests"
+  },
+  {
+    "id": "qw.muga",
+    "aliases": ["muga scan", "muga"],
+    "catalogId": "img.muga",
+    "chipLabel": "MUGA scan",
+    "chipGroup": "tests"
+  },
+  {
+    "id": "qw.pet",
+    "aliases": ["pet scan", "pet"],
+    "catalogId": "img.pet",
+    "chipLabel": "PET scan",
+    "chipGroup": "tests"
+  },
+  {
+    "id": "qw.ctpa",
+    "aliases": ["ctpa", "ct pulmonary angiogram"],
+    "catalogId": "img.ctpa",
+    "chipLabel": "CT pulmonary angiogram",
+    "chipGroup": "tests"
+  },
+  {
+    "id": "qw.ct.abdomen",
+    "aliases": ["ct abdomen", "ct ap"],
+    "catalogId": "img.ct.abdomen",
+    "chipLabel": "CT abdomen and pelvis",
+    "chipGroup": "tests"
   }
 ]

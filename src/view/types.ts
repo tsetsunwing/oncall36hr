@@ -83,6 +83,8 @@ export interface PatientView {
   /** 疼痛分數 0–10；未問過病人＝null。 */
   pain: number | null;
   neuro: NeuroView;
+  /** 病人離開病房做檢查時非 null：畫面要顯示他不在，亦唔可以量血壓／評估 GCS。 */
+  away: { place: string; untilLabel: string } | null;
 }
 
 export type ChatLineKind = 'PLAYER' | 'NURSE' | 'PATIENT' | 'SYSTEM' | 'PHARMACY';
