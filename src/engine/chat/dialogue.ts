@@ -6,12 +6,7 @@
 import { z } from 'zod';
 import { meanArterialPressure } from '../case/mews';
 import type { Patient } from '../case/patient';
-import {
-  MEWS_COMPONENT_KEYS,
-  type EngineTables,
-  type ExecutorKind,
-  type MewsComponentKey,
-} from '../case/tables';
+import { MEWS_COMPONENT_KEYS, type EngineTables } from '../case/tables';
 import { rejectAiResult, requestAi } from '../core/ai';
 import type { JsonValue } from '../core/eventQueue';
 import type { Effect, Reduction } from '../core/events';
@@ -21,66 +16,14 @@ import type { ChatLine, ChatThread } from './chatTypes';
 import { shortReplyTemplate } from './shortReplies';
 import { extractTokens, leaksDiagnosis, validateTemplate } from './tokens';
 
+import { type Abnormal, type Beat } from './beats';
+
 export const DIALOGUE_KIND = 'dialogue.turn';
 
-// JSON 相容（有隱含 index signature）先可以放入 AI context，所以用 type 而唔係 interface
-// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-export type Abnormal = {
-  key: MewsComponentKey;
-  direction: 'LOW' | 'HIGH';
-};
+export { ACLS_ACTIONS_DONE } from './beats';
+export type { Abnormal, AclsActionDone, Beat } from './beats';
 
 export const PHARMACY_SPEAKER_ID = 'dept:pharmacy';
-
-export type Beat =
-  | { type: 'ACK_ORDER'; speaker: 'NURSE'; labelToken: string; executor: ExecutorKind | null }
-  | { type: 'GATE_RECONFIRM'; speaker: 'NURSE' | 'PHARMACY'; labelToken: string }
-  | { type: 'REPORT_LAB_READY'; speaker: 'NURSE'; labelToken: string; abnormal: boolean }
-  | { type: 'ORDER_CANCELLED'; speaker: 'NURSE'; labelToken: string }
-  | {
-      type: 'REPORT_RESULT';
-      speaker: 'NURSE';
-      labelToken: string;
-      tokens: string[];
-      abnormal: Abnormal[];
-      /** 目錄已經寫好嘅結果句。有呢句就本地講，唔再叫模型認 order。 */
-      preset?: string;
-    }
-  | { type: 'REPORT_STATUS'; speaker: 'NURSE'; tokens: string[]; abnormal: Abnormal[] }
-  | {
-      type: 'ANSWER_QUESTION';
-      speaker: 'NURSE';
-      question: string;
-      tokens: string[];
-      abnormal: Abnormal[];
-    }
-  | { type: 'ALERT_DETERIORATION'; speaker: 'NURSE'; tokens: string[]; abnormal: Abnormal[] }
-  | { type: 'PATIENT_SPEAKS'; speaker: 'PATIENT'; symptoms: string[]; question?: string }
-  | { type: 'ACK_CHAT'; speaker: 'NURSE' }
-  | { type: 'ASK_REPHRASE'; speaker: 'NURSE'; reason: 'UNKNOWN_ORDER' | 'UNSUPPORTED' }
-  | { type: 'ARREST_ANNOUNCED'; speaker: 'NURSE'; tokens: string[]; rearrest: boolean }
-  | { type: 'ACLS_CYCLE_DUE'; speaker: 'NURSE'; tokens: string[] }
-  | {
-      type: 'ACLS_ACTION_DONE';
-      speaker: 'NURSE';
-      action: AclsActionDone;
-      labelToken: string | null;
-    }
-  | { type: 'ACLS_RHYTHM_REPORTED'; speaker: 'NURSE'; tokens: string[]; shockable: boolean }
-  | { type: 'ACLS_ROSC'; speaker: 'NURSE' }
-  | { type: 'ACLS_STOP_REFUSED'; speaker: 'NURSE'; tokens: string[] }
-  | { type: 'ACLS_NOT_APPLICABLE'; speaker: 'NURSE'; labelToken: string }
-  | { type: 'ACLS_SHOCK_REFUSED'; speaker: 'NURSE'; labelToken: string; tokens: string[] }
-  | { type: 'DEATH_PRONOUNCED'; speaker: 'NURSE'; tokens: string[] };
-
-export const ACLS_ACTIONS_DONE = [
-  'CPR_STARTED',
-  'CPR_RESUMED',
-  'CPR_ALREADY_RUNNING',
-  'SHOCK_DELIVERED',
-  'DRUG_GIVEN',
-] as const;
-export type AclsActionDone = (typeof ACLS_ACTIONS_DONE)[number];
 
 export const VITAL_TOKEN_KEYS = [
   'vital.hr',

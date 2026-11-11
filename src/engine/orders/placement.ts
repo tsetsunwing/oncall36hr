@@ -19,7 +19,7 @@ import { chooseExecutor, executorDurationSec, executorRef } from './executors';
 import type { Order } from './orderTypes';
 import { registerOrder } from './orders';
 import { scoreOrderCommitted } from '../score/requiredOrders';
-import { openPharmacyCheckCall, pharmacyCheckReason } from '../ward/calls';
+import { openPharmacyCheckCall, pharmacyCheckReason } from '../ward/pharmacyCall';
 import { recordSubordinateOrder, rollSubordinate, taskKindOfCatalog } from '../ward/subRoll';
 import { composeOrderLabel } from './label';
 

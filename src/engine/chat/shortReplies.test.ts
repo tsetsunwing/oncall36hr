@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { Beat } from './dialogue';
+import type { Beat } from './beats';
 import { shortReplyTemplate } from './shortReplies';
 import { extractTokens, validateTemplate } from './tokens';
 

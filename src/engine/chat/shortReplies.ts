@@ -2,7 +2,7 @@
  * 護士短句（收到、已執行、量完生命體徵）由系統模板寫出。
  * 句中數字只可以係 {{token}}，值來自狀態機，唔交俾模型。
  */
-import type { Beat } from './dialogue';
+import type { Beat } from './beats';
 
 const VITAL_CHECK_TOKENS = [
   'vital.hr',
