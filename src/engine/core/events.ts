@@ -27,6 +27,14 @@ export type CoreIntent =
         site?: string;
       };
     }
+  | {
+      /** 抽血籃：一次落多張化驗單，共用同一個抽血時間。 */
+      type: 'PLACE_CATALOG_BATCH';
+      patientId: string;
+      catalogIds: string[];
+      /** 聊天顯示嘅句子。engine 唔解析佢。 */
+      text: string;
+    }
   | { type: 'CANCEL_ORDER'; orderId: string }
   | { type: 'INSIST_ORDER'; orderId: string }
   | { type: 'SAVE_GAME'; slot: number }

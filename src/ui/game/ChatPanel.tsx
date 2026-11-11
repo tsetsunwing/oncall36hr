@@ -232,6 +232,7 @@ function ChipMenus({
   onOxygen,
   onCatheters,
   onObserve,
+  onPickTests,
   suspended = false,
 }: {
   chips: QuickChipView[];
@@ -241,6 +242,8 @@ function ChipMenus({
   onOxygen: () => void;
   onCatheters: () => void;
   onObserve: (order: { catalogId: string; text: string; params: PlacedOrderParams }) => void;
+  /** 抽血籃確認：一次落多張檢查單。 */
+  onPickTests: (chips: QuickChipView[]) => void;
   /** 藥物視窗開啟時收起治療選單，並保持關閉。 */
   suspended?: boolean;
 }) {
@@ -250,6 +253,8 @@ function ChipMenus({
   const [bucket, setBucket] = useState<ReportBucket | null>(null);
   const [section, setSection] = useState<string | null>(null);
   const [resusColumn, setResusColumn] = useState<string | null>(null);
+  // 抽血籃：勾選的檢查。確認前唔會落單，所以唔入 engine state。
+  const [basket, setBasket] = useState<QuickChipView[]>([]);
   const rootRef = useRef<HTMLDivElement>(null);
   // 藥物／氧氣／導管視窗開啟時收起選單並保持關閉：用 render 期間比對上一個 prop 的寫法，
   // 不用 effect，避免 effect 內同步 setState 造成連環 render。
@@ -276,6 +281,22 @@ function ChipMenus({
     if (chip.medicationId) onDrug(chip);
     else if (chip.prompt) onPrompt(chip);
     else onPick(chip);
+    close();
+  }
+
+  function toggleBasket(chip: QuickChipView) {
+    if (suspended || !chip.catalogId) return;
+    setBasket((current) =>
+      current.some((item) => item.catalogId === chip.catalogId)
+        ? current.filter((item) => item.catalogId !== chip.catalogId)
+        : [...current, chip],
+    );
+  }
+
+  function confirmBasket() {
+    if (suspended || basket.length === 0) return;
+    onPickTests(basket);
+    setBasket([]);
     close();
   }
 
@@ -481,11 +502,16 @@ function ChipMenus({
                   <button
                     key={chip.id}
                     type="button"
-                    role="menuitem"
+                    role="menuitemcheckbox"
                     className="chip"
                     data-testid={`test-action-${chip.id}`}
+                    aria-checked={
+                      chip.catalogId
+                        ? basket.some((item) => item.catalogId === chip.catalogId)
+                        : false
+                    }
                     onClick={() => {
-                      choose(chip);
+                      toggleBasket(chip);
                     }}
                   >
                     {chip.label}
@@ -496,6 +522,47 @@ function ChipMenus({
                   {c.testsEmpty}
                 </p>
               )}
+            </div>
+          ) : null}
+          {bucket && section ? (
+            <div className="chip-col chip-basket" data-testid="test-basket">
+              <p className="chip-basket-count" data-testid="test-basket-count">
+                {basket.length === 0 ? c.basketEmpty : c.basketCount(basket.length)}
+              </p>
+              {basket.map((chip) => (
+                <button
+                  key={chip.id}
+                  type="button"
+                  className="chip chip-basket-item"
+                  data-testid={`test-basket-item-${chip.id}`}
+                  onClick={() => {
+                    toggleBasket(chip);
+                  }}
+                >
+                  {chip.label}
+                </button>
+              ))}
+              <button
+                type="button"
+                className="chip chip-primary"
+                data-testid="test-basket-confirm"
+                disabled={basket.length === 0}
+                onClick={confirmBasket}
+              >
+                {c.basketConfirm(basket.length)}
+              </button>
+              {basket.length > 0 ? (
+                <button
+                  type="button"
+                  className="chip"
+                  data-testid="test-basket-clear"
+                  onClick={() => {
+                    setBasket([]);
+                  }}
+                >
+                  {c.basketClear}
+                </button>
+              ) : null}
             </div>
           ) : null}
         </div>
@@ -816,6 +883,17 @@ export function ChatPanel({
           chips={chips}
           suspended={drugChip !== null || oxygenOpen || catheterOpen}
           onPick={placeChip}
+          onPickTests={(picked) => {
+            const ids = picked.flatMap((chip) => (chip.catalogId ? [chip.catalogId] : []));
+            if (ids.length === 0) return;
+            const bucket = picked[0]?.report?.bucket ?? 'laboratory';
+            const prefix = c.batchPrefix[bucket] ?? c.batchPrefix.laboratory ?? '';
+            actions.placeTests(
+              chat.patientId,
+              ids,
+              `${prefix}${picked.map((chip) => chip.label).join('、')}`,
+            );
+          }}
           onPrompt={(chip) => {
             setPromptChip(chip);
           }}
