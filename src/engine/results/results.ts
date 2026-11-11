@@ -54,6 +54,26 @@ function pickByState<T>(byState: Readonly<Record<string, T>>, state: string): T 
   return byState[state] ?? byState['*'];
 }
 
+/**
+ * 報告內容先按診斷、再按狀態揀。次序：
+ * 診斷＋狀態 → 診斷＋'*' → 任何診斷＋狀態 → 任何診斷＋'*'。
+ * 診斷有寫過就唔會退回通用值，避免「肺炎片」出現在肺栓塞病人身上。
+ */
+export function pickByDiagnosisAndState<T>(
+  byDiagnosis: Readonly<Record<string, Readonly<Record<string, T>>>> | undefined,
+  diagnosisIds: readonly string[],
+  byState: Readonly<Record<string, T>>,
+  state: string,
+): T | undefined {
+  for (const diagnosisId of diagnosisIds) {
+    const bucket = byDiagnosis?.[diagnosisId];
+    if (!bucket) continue;
+    const hit = pickByState(bucket, state);
+    if (hit !== undefined) return hit;
+  }
+  return pickByState(byState, state);
+}
+
 export function buildReport(
   order: Order,
   result: ResultRow,
@@ -71,9 +91,10 @@ export function buildReport(
     reviewStatus: result.reviewStatus,
   };
   const state = order.sampledState ?? patient.hidden.fsm.state;
+  const diagnosisIds = patient.hidden.diagnosisIds;
   if (result.kind === 'PANEL') {
     const items = result.items.flatMap((item) => {
-      const value = pickByState(item.byState, state);
+      const value = pickByDiagnosisAndState(item.byDiagnosis, diagnosisIds, item.byState, state);
       if (value === undefined) return [];
       return [
         {
@@ -92,7 +113,12 @@ export function buildReport(
       text: null,
     };
   }
-  const entry = pickByState(result.textByState, state);
+  const entry = pickByDiagnosisAndState(
+    result.textByDiagnosis,
+    diagnosisIds,
+    result.textByState,
+    state,
+  );
   const tokens = { ...vitalTokens(patient, ctx.tables), ...patientTokens(patient) };
   return {
     ...base,

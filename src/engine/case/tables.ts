@@ -215,6 +215,7 @@ export interface ResultItemRow {
   decimals: number;
   ref: { low: number; high: number };
   byState: Readonly<Record<string, number>>;
+  byDiagnosis?: Readonly<Record<string, Readonly<Record<string, number>>>> | undefined;
 }
 
 export interface ResultRow {
@@ -225,6 +226,9 @@ export interface ResultRow {
   reviewStatus: ReviewStatus;
   items: readonly ResultItemRow[];
   textByState: Readonly<Record<string, { text: string; abnormal: boolean }>>;
+  textByDiagnosis?:
+    | Readonly<Record<string, Readonly<Record<string, { text: string; abnormal: boolean }>>>>
+    | undefined;
 }
 
 export const CONCERN_CATEGORIES = [

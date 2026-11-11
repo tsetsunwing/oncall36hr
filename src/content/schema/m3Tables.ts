@@ -31,6 +31,8 @@ const resultItemSchema = z
     ref: z.object({ low: z.number(), high: z.number() }).strict(),
     /** 按 case FSM 狀態；'*' ＝ 任何狀態嘅後備值 */
     byState: z.record(z.string().min(1), z.number()),
+    /** 按診斷 id 再細分；入面同樣用狀態名，'*' ＝ 該診斷任何狀態 */
+    byDiagnosis: z.record(z.string().min(1), z.record(z.string().min(1), z.number())).optional(),
   })
   .strict();
 
@@ -56,6 +58,10 @@ export const resultSchema = z
     note: z.string(),
     items: z.array(resultItemSchema),
     textByState: z.record(z.string().min(1), resultTextSchema),
+    /** 按診斷 id 再細分報告文字；'*' ＝ 該診斷任何狀態 */
+    textByDiagnosis: z
+      .record(z.string().min(1), z.record(z.string().min(1), resultTextSchema))
+      .optional(),
   })
   .strict()
   .superRefine((row, ctx) => {

@@ -626,5 +626,2327 @@
         "abnormal": false
       }
     }
+  },
+  {
+    "id": "res.clotting",
+    "kind": "PANEL",
+    "label": "Clotting profile (PT/APTT/INR)",
+    "reportDelaySec": 1500,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [
+      {
+        "id": "pt",
+        "label": "PT",
+        "unit": "s",
+        "decimals": 1,
+        "ref": {
+          "low": 11,
+          "high": 14
+        },
+        "byState": {
+          "*": 12.0
+        }
+      },
+      {
+        "id": "aptt",
+        "label": "APTT",
+        "unit": "s",
+        "decimals": 1,
+        "ref": {
+          "low": 25,
+          "high": 35
+        },
+        "byState": {
+          "*": 30.0
+        },
+        "byDiagnosis": {
+          "sepsis": {
+            "SEPTIC_SHOCK": 52.0
+          },
+          "gi-bleed": {
+            "*": 38.0
+          }
+        }
+      },
+      {
+        "id": "inr",
+        "label": "INR",
+        "unit": "",
+        "decimals": 1,
+        "ref": {
+          "low": 0.9,
+          "high": 1.2
+        },
+        "byState": {
+          "*": 1.0
+        }
+      }
+    ],
+    "textByState": {}
+  },
+  {
+    "id": "res.film",
+    "kind": "REPORT",
+    "label": "Blood film",
+    "reportDelaySec": 1500,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "Normocytic normochromic；白血球形態無異常；血小板數量足夠，無碎片。",
+        "abnormal": false
+      }
+    },
+    "textByDiagnosis": {
+      "sepsis": {
+        "*": {
+          "text": "中毒性顆粒及 Döhle bodies；輕度左移，符合急性感染反應。",
+          "abnormal": true
+        }
+      },
+      "gi-bleed": {
+        "*": {
+          "text": "低色素性小細胞，未見裂細胞；血小板足夠。",
+          "abnormal": true
+        }
+      },
+      "end-stage-malignancy": {
+        "*": {
+          "text": "未見惡性細胞；輕度 rouleaux 形成。",
+          "abnormal": true
+        }
+      }
+    }
+  },
+  {
+    "id": "res.retic",
+    "kind": "PANEL",
+    "label": "Reticulocyte count",
+    "reportDelaySec": 1500,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [
+      {
+        "id": "retic",
+        "label": "Reticulocyte",
+        "unit": "%",
+        "decimals": 1,
+        "ref": {
+          "low": 0.5,
+          "high": 2.5
+        },
+        "byState": {
+          "*": 1.2
+        },
+        "byDiagnosis": {
+          "gi-bleed": {
+            "DETERIORATING": 4.8
+          },
+          "end-stage-malignancy": {
+            "*": 0.6
+          }
+        }
+      }
+    ],
+    "textByState": {}
+  },
+  {
+    "id": "res.ddimer",
+    "kind": "PANEL",
+    "label": "D-dimer",
+    "reportDelaySec": 1500,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [
+      {
+        "id": "ddimer",
+        "label": "D-dimer",
+        "unit": "µg/mL FEU",
+        "decimals": 2,
+        "ref": {
+          "low": 0,
+          "high": 0.5
+        },
+        "byState": {
+          "*": 0.3
+        },
+        "byDiagnosis": {
+          "pe": {
+            "*": 3.8
+          },
+          "sepsis": {
+            "*": 2.6
+          },
+          "gi-bleed": {
+            "*": 1.9
+          },
+          "acs": {
+            "*": 0.9
+          },
+          "pneumonia": {
+            "*": 1.4
+          },
+          "end-stage-malignancy": {
+            "*": 2.2
+          }
+        }
+      }
+    ],
+    "textByState": {}
+  },
+  {
+    "id": "res.fibrinogen",
+    "kind": "PANEL",
+    "label": "Fibrinogen",
+    "reportDelaySec": 1500,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [
+      {
+        "id": "fib",
+        "label": "Fibrinogen",
+        "unit": "g/L",
+        "decimals": 1,
+        "ref": {
+          "low": 2.0,
+          "high": 4.0
+        },
+        "byState": {
+          "*": 3.0
+        },
+        "byDiagnosis": {
+          "sepsis": {
+            "SEPTIC_SHOCK": 1.2
+          },
+          "gi-bleed": {
+            "*": 2.6
+          }
+        }
+      }
+    ],
+    "textByState": {}
+  },
+  {
+    "id": "res.coombs",
+    "kind": "REPORT",
+    "label": "Direct antiglobulin test (Coombs)",
+    "reportDelaySec": 1500,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "直接抗球蛋白試驗：陰性。",
+        "abnormal": false
+      }
+    },
+    "textByDiagnosis": {
+      "gi-bleed": {
+        "*": {
+          "text": "直接抗球蛋白試驗：陰性。",
+          "abnormal": false
+        }
+      }
+    }
+  },
+  {
+    "id": "res.g6pd",
+    "kind": "PANEL",
+    "label": "G6PD assay",
+    "reportDelaySec": 1500,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [
+      {
+        "id": "g6pd",
+        "label": "G6PD",
+        "unit": "U/g Hb",
+        "decimals": 1,
+        "ref": {
+          "low": 7.0,
+          "high": 20.5
+        },
+        "byState": {
+          "*": 12.0
+        }
+      }
+    ],
+    "textByState": {}
+  },
+  {
+    "id": "res.hbelectro",
+    "kind": "REPORT",
+    "label": "Haemoglobin electrophoresis",
+    "reportDelaySec": 1500,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "Hb A 97.0%，Hb A2 2.8%，Hb F 0.2%；未見異常血紅蛋白帶。",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.haemolysis",
+    "kind": "PANEL",
+    "label": "Haemolysis screen",
+    "reportDelaySec": 1500,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [
+      {
+        "id": "ldh",
+        "label": "LDH",
+        "unit": "U/L",
+        "decimals": 0,
+        "ref": {
+          "low": 120,
+          "high": 250
+        },
+        "byState": {
+          "*": 180
+        },
+        "byDiagnosis": {
+          "sepsis": {
+            "SEPTIC_SHOCK": 420
+          },
+          "gi-bleed": {
+            "*": 260
+          }
+        }
+      },
+      {
+        "id": "hapto",
+        "label": "Haptoglobin",
+        "unit": "g/L",
+        "decimals": 2,
+        "ref": {
+          "low": 0.3,
+          "high": 2.0
+        },
+        "byState": {
+          "*": 1.1
+        },
+        "byDiagnosis": {
+          "sepsis": {
+            "SEPTIC_SHOCK": 0.25
+          }
+        }
+      },
+      {
+        "id": "ucbil",
+        "label": "Unconjugated bilirubin",
+        "unit": "µmol/L",
+        "decimals": 0,
+        "ref": {
+          "low": 0,
+          "high": 17
+        },
+        "byState": {
+          "*": 8
+        },
+        "byDiagnosis": {
+          "heart-failure": {
+            "*": 22
+          },
+          "end-stage-malignancy": {
+            "*": 18
+          }
+        }
+      }
+    ],
+    "textByState": {}
+  },
+  {
+    "id": "res.lft",
+    "kind": "PANEL",
+    "label": "Liver function test",
+    "reportDelaySec": 1500,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [
+      {
+        "id": "alt",
+        "label": "ALT",
+        "unit": "U/L",
+        "decimals": 0,
+        "ref": {
+          "low": 0,
+          "high": 40
+        },
+        "byState": {
+          "*": 22
+        },
+        "byDiagnosis": {
+          "sepsis": {
+            "SEPTIC_SHOCK": 88
+          },
+          "heart-failure": {
+            "*": 46
+          },
+          "end-stage-malignancy": {
+            "*": 64
+          }
+        }
+      },
+      {
+        "id": "ast",
+        "label": "AST",
+        "unit": "U/L",
+        "decimals": 0,
+        "ref": {
+          "low": 0,
+          "high": 40
+        },
+        "byState": {
+          "*": 24
+        },
+        "byDiagnosis": {
+          "sepsis": {
+            "SEPTIC_SHOCK": 96
+          },
+          "acs": {
+            "*": 58
+          },
+          "gi-bleed": {
+            "*": 42
+          }
+        }
+      },
+      {
+        "id": "alp",
+        "label": "ALP",
+        "unit": "U/L",
+        "decimals": 0,
+        "ref": {
+          "low": 30,
+          "high": 120
+        },
+        "byState": {
+          "*": 78
+        },
+        "byDiagnosis": {
+          "end-stage-malignancy": {
+            "*": 310
+          }
+        }
+      },
+      {
+        "id": "ggt",
+        "label": "GGT",
+        "unit": "U/L",
+        "decimals": 0,
+        "ref": {
+          "low": 0,
+          "high": 55
+        },
+        "byState": {
+          "*": 32
+        }
+      },
+      {
+        "id": "tbil",
+        "label": "Total bilirubin",
+        "unit": "µmol/L",
+        "decimals": 0,
+        "ref": {
+          "low": 0,
+          "high": 20
+        },
+        "byState": {
+          "*": 10
+        },
+        "byDiagnosis": {
+          "heart-failure": {
+            "*": 34
+          },
+          "gi-bleed": {
+            "*": 16
+          },
+          "end-stage-malignancy": {
+            "*": 28
+          }
+        }
+      },
+      {
+        "id": "alb",
+        "label": "Albumin",
+        "unit": "g/L",
+        "decimals": 0,
+        "ref": {
+          "low": 35,
+          "high": 50
+        },
+        "byState": {
+          "*": 40
+        },
+        "byDiagnosis": {
+          "heart-failure": {
+            "*": 30
+          },
+          "sepsis": {
+            "SEPTIC_SHOCK": 26
+          },
+          "end-stage-malignancy": {
+            "*": 26
+          },
+          "gi-bleed": {
+            "*": 33
+          }
+        }
+      },
+      {
+        "id": "tp",
+        "label": "Total protein",
+        "unit": "g/L",
+        "decimals": 0,
+        "ref": {
+          "low": 60,
+          "high": 80
+        },
+        "byState": {
+          "*": 70
+        }
+      }
+    ],
+    "textByState": {}
+  },
+  {
+    "id": "res.bone",
+    "kind": "PANEL",
+    "label": "Bone profile",
+    "reportDelaySec": 1500,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [
+      {
+        "id": "ca",
+        "label": "Adjusted Ca",
+        "unit": "mmol/L",
+        "decimals": 2,
+        "ref": {
+          "low": 2.15,
+          "high": 2.55
+        },
+        "byState": {
+          "*": 2.32
+        },
+        "byDiagnosis": {
+          "end-stage-malignancy": {
+            "*": 2.78
+          }
+        }
+      },
+      {
+        "id": "po4",
+        "label": "Phosphate",
+        "unit": "mmol/L",
+        "decimals": 2,
+        "ref": {
+          "low": 0.8,
+          "high": 1.5
+        },
+        "byState": {
+          "*": 1.05
+        }
+      },
+      {
+        "id": "mg",
+        "label": "Magnesium",
+        "unit": "mmol/L",
+        "decimals": 2,
+        "ref": {
+          "low": 0.7,
+          "high": 1.0
+        },
+        "byState": {
+          "*": 0.86
+        }
+      }
+    ],
+    "textByState": {}
+  },
+  {
+    "id": "res.crp",
+    "kind": "PANEL",
+    "label": "C-reactive protein",
+    "reportDelaySec": 1500,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [
+      {
+        "id": "crp",
+        "label": "CRP",
+        "unit": "mg/L",
+        "decimals": 0,
+        "ref": {
+          "low": 0,
+          "high": 5
+        },
+        "byState": {
+          "*": 3
+        },
+        "byDiagnosis": {
+          "pneumonia": {
+            "*": 168
+          },
+          "sepsis": {
+            "DETERIORATING": 186,
+            "SEPTIC_SHOCK": 242,
+            "STABILISING": 112
+          },
+          "cellulitis": {
+            "*": 96
+          },
+          "uti": {
+            "*": 88
+          },
+          "copd": {
+            "*": 42
+          },
+          "pe": {
+            "*": 30
+          },
+          "gi-bleed": {
+            "*": 22
+          },
+          "heart-failure": {
+            "*": 18
+          },
+          "acs": {
+            "*": 12
+          },
+          "hypertension": {
+            "*": 4
+          },
+          "end-stage-malignancy": {
+            "*": 55
+          }
+        }
+      }
+    ],
+    "textByState": {}
+  },
+  {
+    "id": "res.ck",
+    "kind": "PANEL",
+    "label": "Creatine kinase",
+    "reportDelaySec": 1500,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [
+      {
+        "id": "ck",
+        "label": "CK",
+        "unit": "U/L",
+        "decimals": 0,
+        "ref": {
+          "low": 30,
+          "high": 200
+        },
+        "byState": {
+          "*": 120
+        },
+        "byDiagnosis": {
+          "sepsis": {
+            "SEPTIC_SHOCK": 480
+          },
+          "pe": {
+            "*": 92
+          },
+          "acs": {
+            "*": 240
+          }
+        }
+      }
+    ],
+    "textByState": {}
+  },
+  {
+    "id": "res.bnp",
+    "kind": "PANEL",
+    "label": "NT-proBNP",
+    "reportDelaySec": 1500,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [
+      {
+        "id": "bnp",
+        "label": "NT-proBNP",
+        "unit": "pg/mL",
+        "decimals": 0,
+        "ref": {
+          "low": 0,
+          "high": 300
+        },
+        "byState": {
+          "*": 90
+        },
+        "byDiagnosis": {
+          "heart-failure": {
+            "DETERIORATING": 4820,
+            "STABILISING": 1640
+          },
+          "acs": {
+            "*": 620
+          },
+          "sepsis": {
+            "*": 940
+          },
+          "pe": {
+            "*": 380
+          },
+          "copd": {
+            "*": 240
+          },
+          "end-stage-malignancy": {
+            "*": 520
+          }
+        }
+      }
+    ],
+    "textByState": {}
+  },
+  {
+    "id": "res.amylase",
+    "kind": "PANEL",
+    "label": "Amylase",
+    "reportDelaySec": 1500,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [
+      {
+        "id": "amylase",
+        "label": "Amylase",
+        "unit": "U/L",
+        "decimals": 0,
+        "ref": {
+          "low": 30,
+          "high": 110
+        },
+        "byState": {
+          "*": 62
+        }
+      }
+    ],
+    "textByState": {}
+  },
+  {
+    "id": "res.lactate",
+    "kind": "PANEL",
+    "label": "Lactate",
+    "reportDelaySec": 1500,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [
+      {
+        "id": "lactate",
+        "label": "Lactate",
+        "unit": "mmol/L",
+        "decimals": 1,
+        "ref": {
+          "low": 0.5,
+          "high": 2.0
+        },
+        "byState": {
+          "*": 1.1
+        },
+        "byDiagnosis": {
+          "sepsis": {
+            "DETERIORATING": 3.4,
+            "SEPTIC_SHOCK": 5.8,
+            "STABILISING": 1.9
+          },
+          "gi-bleed": {
+            "DETERIORATING": 4.2,
+            "STABILISING": 1.8
+          },
+          "pe": {
+            "*": 2.8
+          },
+          "acs": {
+            "*": 1.6
+          },
+          "heart-failure": {
+            "*": 2.2
+          },
+          "copd": {
+            "*": 1.5
+          }
+        }
+      }
+    ],
+    "textByState": {}
+  },
+  {
+    "id": "res.iron",
+    "kind": "PANEL",
+    "label": "Iron studies + ferritin",
+    "reportDelaySec": 1500,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [
+      {
+        "id": "ferritin",
+        "label": "Ferritin",
+        "unit": "µg/L",
+        "decimals": 0,
+        "ref": {
+          "low": 15,
+          "high": 300
+        },
+        "byState": {
+          "*": 88
+        },
+        "byDiagnosis": {
+          "gi-bleed": {
+            "*": 11
+          },
+          "end-stage-malignancy": {
+            "*": 480
+          },
+          "sepsis": {
+            "*": 320
+          }
+        }
+      },
+      {
+        "id": "iron",
+        "label": "Iron",
+        "unit": "µmol/L",
+        "decimals": 1,
+        "ref": {
+          "low": 10,
+          "high": 30
+        },
+        "byState": {
+          "*": 16
+        },
+        "byDiagnosis": {
+          "gi-bleed": {
+            "*": 4.0
+          }
+        }
+      },
+      {
+        "id": "tibc",
+        "label": "TIBC",
+        "unit": "µmol/L",
+        "decimals": 1,
+        "ref": {
+          "low": 45,
+          "high": 80
+        },
+        "byState": {
+          "*": 58
+        }
+      },
+      {
+        "id": "tsat",
+        "label": "Transferrin saturation",
+        "unit": "%",
+        "decimals": 0,
+        "ref": {
+          "low": 20,
+          "high": 50
+        },
+        "byState": {
+          "*": 28
+        },
+        "byDiagnosis": {
+          "gi-bleed": {
+            "*": 7
+          }
+        }
+      }
+    ],
+    "textByState": {}
+  },
+  {
+    "id": "res.tft",
+    "kind": "PANEL",
+    "label": "Thyroid function test",
+    "reportDelaySec": 1500,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [
+      {
+        "id": "tsh",
+        "label": "TSH",
+        "unit": "mIU/L",
+        "decimals": 2,
+        "ref": {
+          "low": 0.35,
+          "high": 4.94
+        },
+        "byState": {
+          "*": 1.8
+        }
+      },
+      {
+        "id": "ft4",
+        "label": "Free T4",
+        "unit": "pmol/L",
+        "decimals": 0,
+        "ref": {
+          "low": 9,
+          "high": 19
+        },
+        "byState": {
+          "*": 14
+        }
+      }
+    ],
+    "textByState": {}
+  },
+  {
+    "id": "res.cortisol",
+    "kind": "PANEL",
+    "label": "Cortisol (9 am)",
+    "reportDelaySec": 1500,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [
+      {
+        "id": "cortisol",
+        "label": "Cortisol",
+        "unit": "nmol/L",
+        "decimals": 0,
+        "ref": {
+          "low": 170,
+          "high": 500
+        },
+        "byState": {
+          "*": 420
+        },
+        "byDiagnosis": {
+          "sepsis": {
+            "SEPTIC_SHOCK": 880
+          }
+        }
+      }
+    ],
+    "textByState": {}
+  },
+  {
+    "id": "res.druglevel",
+    "kind": "REPORT",
+    "label": "Drug level",
+    "reportDelaySec": 1500,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "未指定藥物；請在化驗單註明藥物名稱及抽血時間。",
+        "abnormal": false
+      }
+    },
+    "textByDiagnosis": {
+      "sepsis": {
+        "*": {
+          "text": "Vancomycin trough 12 mg/L（目標 10–20）；Gentamicin trough <1 mg/L。",
+          "abnormal": true
+        }
+      }
+    }
+  },
+  {
+    "id": "res.spe",
+    "kind": "REPORT",
+    "label": "Serum protein electrophoresis",
+    "reportDelaySec": 1500,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "無單株蛋白帶；白蛋白 40 g/L，球蛋白 30 g/L，比例正常。",
+        "abnormal": false
+      }
+    },
+    "textByDiagnosis": {
+      "end-stage-malignancy": {
+        "*": {
+          "text": "細小單株帶於 gamma 區；白蛋白 26 g/L，球蛋白 38 g/L。",
+          "abnormal": true
+        }
+      }
+    }
+  },
+  {
+    "id": "res.urate",
+    "kind": "PANEL",
+    "label": "Urate / ammonia / osmolality",
+    "reportDelaySec": 1500,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [
+      {
+        "id": "urate",
+        "label": "Urate",
+        "unit": "mmol/L",
+        "decimals": 2,
+        "ref": {
+          "low": 0.15,
+          "high": 0.42
+        },
+        "byState": {
+          "*": 0.3
+        }
+      },
+      {
+        "id": "ammonia",
+        "label": "Ammonia",
+        "unit": "µmol/L",
+        "decimals": 0,
+        "ref": {
+          "low": 11,
+          "high": 32
+        },
+        "byState": {
+          "*": 20
+        }
+      },
+      {
+        "id": "osmo",
+        "label": "Osmolality",
+        "unit": "mOsm/kg",
+        "decimals": 0,
+        "ref": {
+          "low": 275,
+          "high": 295
+        },
+        "byState": {
+          "*": 285
+        }
+      }
+    ],
+    "textByState": {}
+  },
+  {
+    "id": "res.urine.culture",
+    "kind": "REPORT",
+    "label": "Urine culture (MSU)",
+    "reportDelaySec": 43200,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "48 小時無生長。",
+        "abnormal": false
+      }
+    },
+    "textByDiagnosis": {
+      "uti": {
+        "*": {
+          "text": "E. coli >10⁵ cfu/mL；對 Ampicillin 抗藥，對 Ceftriaxone 敏感。",
+          "abnormal": true
+        }
+      }
+    }
+  },
+  {
+    "id": "res.sputum.culture",
+    "kind": "REPORT",
+    "label": "Sputum culture",
+    "reportDelaySec": 43200,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "正常口腔菌叢，無致病菌。",
+        "abnormal": false
+      }
+    },
+    "textByDiagnosis": {
+      "pneumonia": {
+        "*": {
+          "text": "Streptococcus pneumoniae 大量生長；對 Penicillin 敏感，對 Erythromycin 抗藥。",
+          "abnormal": true
+        }
+      },
+      "copd": {
+        "*": {
+          "text": "Haemophilus influenzae 中等生長；對 Amoxicillin 敏感。",
+          "abnormal": true
+        }
+      }
+    }
+  },
+  {
+    "id": "res.wound.swab",
+    "kind": "REPORT",
+    "label": "Wound swab culture",
+    "reportDelaySec": 43200,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "無致病菌生長。",
+        "abnormal": false
+      }
+    },
+    "textByDiagnosis": {
+      "cellulitis": {
+        "*": {
+          "text": "Group A Streptococcus 生長；對 Penicillin 敏感。",
+          "abnormal": true
+        }
+      }
+    }
+  },
+  {
+    "id": "res.stool.culture",
+    "kind": "REPORT",
+    "label": "Stool culture",
+    "reportDelaySec": 43200,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "無 Salmonella／Shigella／Campylobacter 生長。",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.csf.culture",
+    "kind": "REPORT",
+    "label": "CSF culture",
+    "reportDelaySec": 43200,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "無生長；CSF 白血球 2 /µL，蛋白 0.32 g/L，葡萄糖 3.9 mmol/L。",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.fluid.culture",
+    "kind": "REPORT",
+    "label": "Fluid culture (pleural / ascites)",
+    "reportDelaySec": 43200,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "無生長；白血球 <50 /µL。",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.afb",
+    "kind": "REPORT",
+    "label": "AFB smear & culture + TB PCR",
+    "reportDelaySec": 86400,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "抗酸菌塗片陰性；TB PCR 陰性；培養 6 週陰性。",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.mrsa",
+    "kind": "REPORT",
+    "label": "MRSA screen",
+    "reportDelaySec": 43200,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "鼻拭子及腋下拭子：MRSA 陰性。",
+        "abnormal": false
+      }
+    },
+    "textByDiagnosis": {
+      "sepsis": {
+        "*": {
+          "text": "鼻拭子：MRSA 陽性（只作移殖篩查）。",
+          "abnormal": true
+        }
+      }
+    }
+  },
+  {
+    "id": "res.cdiff",
+    "kind": "REPORT",
+    "label": "C. difficile toxin",
+    "reportDelaySec": 7200,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "C. difficile toxin A/B：陰性。",
+        "abnormal": false
+      }
+    },
+    "textByDiagnosis": {
+      "sepsis": {
+        "*": {
+          "text": "C. difficile toxin A/B：陰性。",
+          "abnormal": false
+        }
+      }
+    }
+  },
+  {
+    "id": "res.urine.antigen",
+    "kind": "REPORT",
+    "label": "Urine antigen (pneumococcus / legionella)",
+    "reportDelaySec": 7200,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "肺炎球菌及退伍軍人菌尿液抗原：陰性。",
+        "abnormal": false
+      }
+    },
+    "textByDiagnosis": {
+      "pneumonia": {
+        "*": {
+          "text": "肺炎球菌尿液抗原：陽性。退伍軍人菌抗原：陰性。",
+          "abnormal": true
+        }
+      }
+    }
+  },
+  {
+    "id": "res.viral.pcr",
+    "kind": "REPORT",
+    "label": "Viral PCR (influenza, COVID)",
+    "reportDelaySec": 7200,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "流感 A／B、SARS-CoV-2 PCR：陰性。",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.gram",
+    "kind": "REPORT",
+    "label": "Gram stain + sensitivity / MIC",
+    "reportDelaySec": 3600,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "革蘭氏染色：未見白血球及細菌。",
+        "abnormal": false
+      }
+    },
+    "textByDiagnosis": {
+      "pneumonia": {
+        "*": {
+          "text": "革蘭氏染色：大量革蘭氏陽性雙球菌，見白血球吞噬。",
+          "abnormal": true
+        }
+      },
+      "cellulitis": {
+        "*": {
+          "text": "革蘭氏染色：革蘭氏陽性鏈球菌成鏈排列。",
+          "abnormal": true
+        }
+      },
+      "uti": {
+        "*": {
+          "text": "革蘭氏染色：革蘭氏陰性桿菌，大量白血球。",
+          "abnormal": true
+        }
+      }
+    }
+  },
+  {
+    "id": "res.hpylori",
+    "kind": "REPORT",
+    "label": "H. pylori stool antigen / urea breath test",
+    "reportDelaySec": 86400,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "幽門螺旋菌糞便抗原：陰性。",
+        "abnormal": false
+      }
+    },
+    "textByDiagnosis": {
+      "gi-bleed": {
+        "*": {
+          "text": "幽門螺旋菌糞便抗原：陽性。",
+          "abnormal": true
+        }
+      }
+    }
+  },
+  {
+    "id": "res.stool.op",
+    "kind": "REPORT",
+    "label": "Stool ova & parasites / FIT",
+    "reportDelaySec": 86400,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "未見寄生蟲蟲卵或囊胞；糞便隱血（FIT）：陰性。",
+        "abnormal": false
+      }
+    },
+    "textByDiagnosis": {
+      "gi-bleed": {
+        "*": {
+          "text": "未見寄生蟲蟲卵或囊胞；糞便隱血（FIT）：陽性。",
+          "abnormal": true
+        }
+      }
+    }
+  },
+  {
+    "id": "res.cyt.sputum",
+    "kind": "REPORT",
+    "label": "Sputum cytology",
+    "reportDelaySec": 86400,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "未見惡性細胞；以中性白血球及巨噬細胞為主。",
+        "abnormal": false
+      }
+    },
+    "textByDiagnosis": {
+      "end-stage-malignancy": {
+        "*": {
+          "text": "見非典型腺細胞，可疑惡性。",
+          "abnormal": true
+        }
+      }
+    }
+  },
+  {
+    "id": "res.cyt.urine",
+    "kind": "REPORT",
+    "label": "Urine cytology",
+    "reportDelaySec": 86400,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "未見惡性細胞。",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.cyt.csf",
+    "kind": "REPORT",
+    "label": "CSF cytology",
+    "reportDelaySec": 86400,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "未見惡性細胞；淋巴細胞 2 /µL。",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.cyt.fluid",
+    "kind": "REPORT",
+    "label": "Fluid cytology",
+    "reportDelaySec": 86400,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "未見惡性細胞；以淋巴細胞為主。",
+        "abnormal": false
+      }
+    },
+    "textByDiagnosis": {
+      "end-stage-malignancy": {
+        "*": {
+          "text": "見腺癌細胞，符合惡性積液。",
+          "abnormal": true
+        }
+      }
+    }
+  },
+  {
+    "id": "res.cyt.fna",
+    "kind": "REPORT",
+    "label": "FNA cytology",
+    "reportDelaySec": 86400,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "樣本細胞量不足，建議重抽。",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.hist.gastric",
+    "kind": "REPORT",
+    "label": "Gastric / duodenal biopsy",
+    "reportDelaySec": 259200,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "慢性胃炎，活動性輕；H. pylori 陰性；未見惡性變化。",
+        "abnormal": false
+      }
+    },
+    "textByDiagnosis": {
+      "gi-bleed": {
+        "*": {
+          "text": "慢性胃炎伴輕度活動性；未見惡性變化。",
+          "abnormal": true
+        }
+      }
+    }
+  },
+  {
+    "id": "res.hist.liver",
+    "kind": "REPORT",
+    "label": "Liver biopsy",
+    "reportDelaySec": 259200,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "輕度大泡性脂肪變性；無明顯纖維化。",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.hist.renal",
+    "kind": "REPORT",
+    "label": "Renal biopsy",
+    "reportDelaySec": 259200,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "腎小球輕度系膜增生；免疫螢光未見明顯沉積。",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.hist.skin",
+    "kind": "REPORT",
+    "label": "Skin biopsy",
+    "reportDelaySec": 259200,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "表皮及真皮慢性炎症；未見惡性變化。",
+        "abnormal": false
+      }
+    },
+    "textByDiagnosis": {
+      "cellulitis": {
+        "*": {
+          "text": "真皮深層中性白血球浸潤，符合急性蜂窩組織炎。",
+          "abnormal": true
+        }
+      }
+    }
+  },
+  {
+    "id": "res.hist.marrow",
+    "kind": "REPORT",
+    "label": "Bone marrow biopsy",
+    "reportDelaySec": 259200,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "三系造血正常；未見腫瘤浸潤。",
+        "abnormal": false
+      }
+    },
+    "textByDiagnosis": {
+      "end-stage-malignancy": {
+        "*": {
+          "text": "見轉移性腺癌細胞浸潤骨髓。",
+          "abnormal": true
+        }
+      }
+    }
+  },
+  {
+    "id": "res.hist.pleural",
+    "kind": "REPORT",
+    "label": "Pleural biopsy",
+    "reportDelaySec": 259200,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "慢性纖維性胸膜炎；未見肉芽腫或惡性細胞。",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.ana",
+    "kind": "REPORT",
+    "label": "ANA + anti-dsDNA",
+    "reportDelaySec": 86400,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "ANA 陰性（<1:80）；anti-dsDNA 陰性。",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.ena",
+    "kind": "REPORT",
+    "label": "ENA (Ro/La/Sm/RNP)",
+    "reportDelaySec": 86400,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "ENA（Ro／La／Sm／RNP）全部陰性。",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.anca",
+    "kind": "REPORT",
+    "label": "ANCA (c / p)",
+    "reportDelaySec": 86400,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "c-ANCA 陰性；p-ANCA 陰性。",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.rf",
+    "kind": "PANEL",
+    "label": "anti-CCP + RF",
+    "reportDelaySec": 86400,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [
+      {
+        "id": "rf",
+        "label": "Rheumatoid factor",
+        "unit": "IU/mL",
+        "decimals": 0,
+        "ref": {
+          "low": 0,
+          "high": 14
+        },
+        "byState": {
+          "*": 8
+        }
+      },
+      {
+        "id": "accp",
+        "label": "anti-CCP",
+        "unit": "U/mL",
+        "decimals": 1,
+        "ref": {
+          "low": 0,
+          "high": 7
+        },
+        "byState": {
+          "*": 2.0
+        }
+      }
+    ],
+    "textByState": {}
+  },
+  {
+    "id": "res.complement",
+    "kind": "PANEL",
+    "label": "Complement C3 / C4",
+    "reportDelaySec": 86400,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [
+      {
+        "id": "c3",
+        "label": "C3",
+        "unit": "g/L",
+        "decimals": 2,
+        "ref": {
+          "low": 0.9,
+          "high": 1.8
+        },
+        "byState": {
+          "*": 1.25
+        },
+        "byDiagnosis": {
+          "sepsis": {
+            "SEPTIC_SHOCK": 0.62
+          }
+        }
+      },
+      {
+        "id": "c4",
+        "label": "C4",
+        "unit": "g/L",
+        "decimals": 2,
+        "ref": {
+          "low": 0.1,
+          "high": 0.4
+        },
+        "byState": {
+          "*": 0.25
+        }
+      }
+    ],
+    "textByState": {}
+  },
+  {
+    "id": "res.thyroid.ab",
+    "kind": "REPORT",
+    "label": "anti-TPO / anti-thyroglobulin",
+    "reportDelaySec": 86400,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "anti-TPO 陰性；anti-thyroglobulin 陰性。",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.ttg",
+    "kind": "REPORT",
+    "label": "anti-TTG / EMA",
+    "reportDelaySec": 86400,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "anti-TTG IgA 陰性；EMA 陰性。",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.antigbm",
+    "kind": "REPORT",
+    "label": "anti-GBM",
+    "reportDelaySec": 86400,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "anti-GBM 抗體：陰性。",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.apl",
+    "kind": "REPORT",
+    "label": "Antiphospholipid panel",
+    "reportDelaySec": 86400,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "Lupus anticoagulant 陰性；anticardiolipin 陰性；anti-β2GPI 陰性。",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.viral.serology",
+    "kind": "REPORT",
+    "label": "Hepatitis B/C serology, HIV",
+    "reportDelaySec": 86400,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "HBsAg 陰性、anti-HBc 陰性、anti-HBs 陽性（已接種）；anti-HCV 陰性；HIV 陰性。",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.monospot",
+    "kind": "REPORT",
+    "label": "Monospot / EBV",
+    "reportDelaySec": 86400,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "Monospot 陰性；EBV VCA IgM 陰性。",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.rast",
+    "kind": "REPORT",
+    "label": "Specific IgE (RAST) + skin prick test",
+    "reportDelaySec": 86400,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "特異性 IgE：塵蟎 0.35 kU/L（class 1），其餘常見致敏原陰性。",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.karyotype",
+    "kind": "REPORT",
+    "label": "Karyotype",
+    "reportDelaySec": 604800,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "46,XY 正常男性核型。",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.fish",
+    "kind": "REPORT",
+    "label": "FISH",
+    "reportDelaySec": 604800,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "未見特定基因重排。",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.mutation",
+    "kind": "REPORT",
+    "label": "Targeted mutation panel (JAK2 / EGFR / KRAS)",
+    "reportDelaySec": 604800,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "JAK2 V617F 陰性；EGFR 及 KRAS 未檢出突變。",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.thal",
+    "kind": "PANEL",
+    "label": "Thalassaemia screening",
+    "reportDelaySec": 604800,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [
+      {
+        "id": "hba2",
+        "label": "Hb A2",
+        "unit": "%",
+        "decimals": 1,
+        "ref": {
+          "low": 2.2,
+          "high": 3.5
+        },
+        "byState": {
+          "*": 2.8
+        }
+      },
+      {
+        "id": "mcv",
+        "label": "MCV",
+        "unit": "fL",
+        "decimals": 0,
+        "ref": {
+          "low": 80,
+          "high": 100
+        },
+        "byState": {
+          "*": 88
+        }
+      }
+    ],
+    "textByState": {}
+  },
+  {
+    "id": "res.paracetamol",
+    "kind": "PANEL",
+    "label": "Paracetamol level",
+    "reportDelaySec": 3600,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [
+      {
+        "id": "pcm",
+        "label": "Paracetamol",
+        "unit": "mg/L",
+        "decimals": 0,
+        "ref": {
+          "low": 0,
+          "high": 20
+        },
+        "byState": {
+          "*": 3
+        }
+      }
+    ],
+    "textByState": {}
+  },
+  {
+    "id": "res.salicylate",
+    "kind": "PANEL",
+    "label": "Salicylate level",
+    "reportDelaySec": 3600,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [
+      {
+        "id": "sal",
+        "label": "Salicylate",
+        "unit": "mg/L",
+        "decimals": 0,
+        "ref": {
+          "low": 0,
+          "high": 30
+        },
+        "byState": {
+          "*": 4
+        }
+      }
+    ],
+    "textByState": {}
+  },
+  {
+    "id": "res.ethanol",
+    "kind": "PANEL",
+    "label": "Ethanol",
+    "reportDelaySec": 3600,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [
+      {
+        "id": "etoh",
+        "label": "Ethanol",
+        "unit": "mg/dL",
+        "decimals": 0,
+        "ref": {
+          "low": 0,
+          "high": 10
+        },
+        "byState": {
+          "*": 0
+        }
+      }
+    ],
+    "textByState": {}
+  },
+  {
+    "id": "res.methanol",
+    "kind": "PANEL",
+    "label": "Methanol / ethylene glycol",
+    "reportDelaySec": 3600,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [
+      {
+        "id": "meoh",
+        "label": "Methanol",
+        "unit": "mg/L",
+        "decimals": 0,
+        "ref": {
+          "low": 0,
+          "high": 5
+        },
+        "byState": {
+          "*": 0
+        }
+      },
+      {
+        "id": "eg",
+        "label": "Ethylene glycol",
+        "unit": "mg/L",
+        "decimals": 0,
+        "ref": {
+          "low": 0,
+          "high": 5
+        },
+        "byState": {
+          "*": 0
+        }
+      }
+    ],
+    "textByState": {}
+  },
+  {
+    "id": "res.urine.drug",
+    "kind": "REPORT",
+    "label": "Urine drug screen",
+    "reportDelaySec": 3600,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "尿液毒品篩查：鴉片類、安培他命、苯二氮平類：陰性。",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.tca",
+    "kind": "PANEL",
+    "label": "Tricyclic / anticonvulsant level",
+    "reportDelaySec": 3600,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [
+      {
+        "id": "tca",
+        "label": "Tricyclic",
+        "unit": "µg/L",
+        "decimals": 0,
+        "ref": {
+          "low": 0,
+          "high": 100
+        },
+        "byState": {
+          "*": 20
+        }
+      },
+      {
+        "id": "phenytoin",
+        "label": "Phenytoin",
+        "unit": "mg/L",
+        "decimals": 1,
+        "ref": {
+          "low": 10,
+          "high": 20
+        },
+        "byState": {
+          "*": 8.0
+        }
+      }
+    ],
+    "textByState": {}
+  },
+  {
+    "id": "res.cohb",
+    "kind": "PANEL",
+    "label": "Carboxyhaemoglobin / methaemoglobin",
+    "reportDelaySec": 3600,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [
+      {
+        "id": "cohb",
+        "label": "Carboxyhaemoglobin",
+        "unit": "%",
+        "decimals": 1,
+        "ref": {
+          "low": 0,
+          "high": 3
+        },
+        "byState": {
+          "*": 1.0
+        }
+      },
+      {
+        "id": "methb",
+        "label": "Methaemoglobin",
+        "unit": "%",
+        "decimals": 1,
+        "ref": {
+          "low": 0,
+          "high": 1.5
+        },
+        "byState": {
+          "*": 0.5
+        }
+      }
+    ],
+    "textByState": {}
+  },
+  {
+    "id": "res.axr",
+    "kind": "REPORT",
+    "label": "Abdominal X-ray",
+    "reportDelaySec": 1800,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "腸氣分佈正常，無氣液平面；無游離氣；未見明顯異常鈣化。",
+        "abnormal": false
+      }
+    },
+    "textByDiagnosis": {
+      "gi-bleed": {
+        "*": {
+          "text": "腸氣稍多，無氣液平面；無游離氣。",
+          "abnormal": true
+        }
+      },
+      "uti": {
+        "*": {
+          "text": "腸氣分佈正常；未見明顯尿路結石。",
+          "abnormal": true
+        }
+      }
+    }
+  },
+  {
+    "id": "res.cxr.erect",
+    "kind": "REPORT",
+    "label": "Erect CXR / lateral decubitus",
+    "reportDelaySec": 1800,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "無游離氣於橫膈下；無氣液平面。",
+        "abnormal": false
+      }
+    },
+    "textByDiagnosis": {
+      "gi-bleed": {
+        "*": {
+          "text": "橫膈下未見游離氣。",
+          "abnormal": false
+        }
+      }
+    }
+  },
+  {
+    "id": "res.xr.cspine",
+    "kind": "REPORT",
+    "label": "C-spine X-ray",
+    "reportDelaySec": 1800,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "頸椎排列正常，椎體高度及椎間隙保持；未見骨折。",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.xr.lspine",
+    "kind": "REPORT",
+    "label": "L-spine X-ray",
+    "reportDelaySec": 1800,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "腰椎排列正常，輕度骨質增生；未見壓迫性骨折。",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.xr.pelvis",
+    "kind": "REPORT",
+    "label": "Pelvis / hip X-ray",
+    "reportDelaySec": 1800,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "骨盆環完整，雙髖關節間隙保持；未見骨折。",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.xr.longbone",
+    "kind": "REPORT",
+    "label": "Long bone X-ray",
+    "reportDelaySec": 1800,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "所見長骨皮質完整，無骨折線；軟組織未見異常。",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.ct.brain",
+    "kind": "REPORT",
+    "label": "CT brain",
+    "reportDelaySec": 3600,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "腦實質密度正常，無出血、無中線移位；腦室大小正常。",
+        "abnormal": false
+      }
+    },
+    "textByDiagnosis": {
+      "sepsis": {
+        "*": {
+          "text": "腦實質未見出血或梗塞；與年齡相符的輕度皮質萎縮。",
+          "abnormal": true
+        }
+      }
+    }
+  },
+  {
+    "id": "res.ct.kub",
+    "kind": "REPORT",
+    "label": "CT KUB",
+    "reportDelaySec": 3600,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "雙腎大小正常，無腎積水；輸尿管及膀胱未見結石。",
+        "abnormal": false
+      }
+    },
+    "textByDiagnosis": {
+      "uti": {
+        "*": {
+          "text": "右腎輕度腎盂擴張；未見明顯結石。",
+          "abnormal": true
+        }
+      }
+    }
+  },
+  {
+    "id": "res.mri.spine",
+    "kind": "REPORT",
+    "label": "MRI spine",
+    "reportDelaySec": 7200,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "多節段輕度椎間盤突出，無脊髓壓迫；椎管通暢。",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.mrcp",
+    "kind": "REPORT",
+    "label": "MRCP",
+    "reportDelaySec": 7200,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "膽總管口徑正常，無管內結石；胰管未見擴張。",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.us.renal",
+    "kind": "REPORT",
+    "label": "US renal tract",
+    "reportDelaySec": 2700,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "雙腎大小及皮質厚度正常，無腎積水；膀胱排空良好。",
+        "abnormal": false
+      }
+    },
+    "textByDiagnosis": {
+      "uti": {
+        "*": {
+          "text": "右腎輕度腎盂擴張，皮質回聲稍增；膀胱壁增厚。",
+          "abnormal": true
+        }
+      }
+    }
+  },
+  {
+    "id": "res.us.pelvis",
+    "kind": "REPORT",
+    "label": "US pelvis",
+    "reportDelaySec": 2700,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "子宮及雙側附件未見明顯異常；無盆腔積液。",
+        "abnormal": false
+      }
+    }
+  },
+  {
+    "id": "res.us.soft",
+    "kind": "REPORT",
+    "label": "US soft tissue",
+    "reportDelaySec": 2700,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "軟組織層次清晰；未見膿腫或積液。",
+        "abnormal": false
+      }
+    },
+    "textByDiagnosis": {
+      "cellulitis": {
+        "*": {
+          "text": "皮下組織增厚及回聲增強，符合蜂窩組織炎；未見膿腫形成。",
+          "abnormal": true
+        }
+      }
+    }
+  },
+  {
+    "id": "res.doppler.legs",
+    "kind": "REPORT",
+    "label": "Doppler legs (DVT)",
+    "reportDelaySec": 2700,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "雙下肢深靜脈可壓縮，血流良好；未見深靜脈血栓。",
+        "abnormal": false
+      }
+    },
+    "textByDiagnosis": {
+      "pe": {
+        "*": {
+          "text": "右下肢股靜脈不可壓縮，管腔內見低回聲血栓，符合深靜脈血栓。",
+          "abnormal": true
+        }
+      }
+    }
+  },
+  {
+    "id": "res.echo",
+    "kind": "REPORT",
+    "label": "Echo TTE",
+    "reportDelaySec": 2700,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW",
+    "note": "佔位數值：數值未經臨床審核，唔代表真實臨床資料（implementation-plan R6）。",
+    "items": [],
+    "textByState": {
+      "*": {
+        "text": "左心室射血分數約 60%；無心包積液；瓣膜未見明顯異常。",
+        "abnormal": false
+      }
+    },
+    "textByDiagnosis": {
+      "heart-failure": {
+        "*": {
+          "text": "左心室射血分數約 30%，全局收縮力減弱；中度二尖瓣反流；無心包積液。",
+          "abnormal": true
+        }
+      },
+      "acs": {
+        "*": {
+          "text": "左心室前壁運動減弱，射血分數約 40%；無心包積液。",
+          "abnormal": true
+        }
+      },
+      "pe": {
+        "*": {
+          "text": "右心室擴大，右心室收縮力減弱；主動脈根部正常；無心包積液。",
+          "abnormal": true
+        }
+      }
+    }
   }
 ]
