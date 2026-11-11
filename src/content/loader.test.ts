@@ -40,6 +40,7 @@ describe('content loader', () => {
   const FILLED_TABLES = [
     ...M2_TABLES,
     'lab-baselines',
+    'lab-effects',
     'treatment-drugs',
     'drug-class-effects',
     'drug-effect-overrides',

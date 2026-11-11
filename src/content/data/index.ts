@@ -20,6 +20,7 @@ import quickWords from './quick-words.json';
 import rankBehaviour from './rank-behaviour.json';
 import rankComplexity from './rank-complexity.json';
 import labBaselines from './lab-baselines.json';
+import labEffects from './lab-effects.json';
 import results from './results.json';
 import rhythms from './rhythms.json';
 import roundsTopics from './rounds-topics.json';
@@ -66,6 +67,7 @@ export const rawContent: RawContent = {
     'rank-complexity': rankComplexity,
     results: results,
     'lab-baselines': labBaselines,
+    'lab-effects': labEffects,
     rhythms: rhythms,
     'rounds-topics': roundsTopics,
     'required-actions': requiredActions,

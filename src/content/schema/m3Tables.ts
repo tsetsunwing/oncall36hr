@@ -142,3 +142,23 @@ export const labBaselineSchema = z
     elderlyDelta: z.number(),
   })
   .strict();
+
+/**
+ * T7c lab-effects：介入／治療對病人身上化驗值的影響。
+ * `flag` 由 order-catalog 的 setsFlags 寫入病人；寫入時把這幾行加成一個修飾值。
+ * `decayPerHour`：每小時回跌多少；若病人有 `decayUnless` 旗標就唔再回跌（等於斷了病因）。
+ */
+export const labEffectSchema = z
+  .object({
+    id: z.string().min(1),
+    flag: z.string().min(1),
+    analyte: z.string().min(1),
+    delta: z.number(),
+    capLow: z.number().nullable(),
+    capHigh: z.number().nullable(),
+    decayPerHour: z.number().min(0),
+    decayUnless: z.string().min(1).nullable(),
+    note: z.string(),
+    reviewStatus: z.enum(REVIEW_STATUSES),
+  })
+  .strict();

@@ -1,0 +1,98 @@
+[
+  {
+    "id": "le.transfusion",
+    "flag": "transfusion.prc",
+    "analyte": "hb",
+    "delta": 1.0,
+    "capLow": null,
+    "capHigh": 9.0,
+    "decayPerHour": 0.15,
+    "decayUnless": "bleeding.stopped",
+    "note": "輸血一包升 Hb 1 g/dL；未止血每兩小時跌 0.3",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "le.fluid.hb",
+    "flag": "fluid.bolus",
+    "analyte": "hb",
+    "delta": -0.4,
+    "capLow": 6.0,
+    "capHigh": null,
+    "decayPerHour": 0.02,
+    "decayUnless": null,
+    "note": "補液稀釋令 Hb 略降",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "le.fluid.lactate",
+    "flag": "fluid.bolus",
+    "analyte": "lactate",
+    "delta": -0.8,
+    "capLow": 1.0,
+    "capHigh": null,
+    "decayPerHour": 0.05,
+    "decayUnless": null,
+    "note": "補液改善灌注，乳酸下降",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "le.ppi.stop",
+    "flag": "ppi.iv",
+    "analyte": "hb",
+    "delta": 0.0,
+    "capLow": null,
+    "capHigh": null,
+    "decayPerHour": 0.0,
+    "decayUnless": null,
+    "note": "PPI 不直接改 Hb，只令輸血升幅固定",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "le.insulin.k",
+    "flag": "insulin.iv",
+    "analyte": "k",
+    "delta": -1.0,
+    "capLow": 3.0,
+    "capHigh": null,
+    "decayPerHour": 0.25,
+    "decayUnless": null,
+    "note": "胰島素令鉀下降，四小時後回彈",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "le.kcl.k",
+    "flag": "kcl.iv",
+    "analyte": "k",
+    "delta": 0.5,
+    "capLow": null,
+    "capHigh": 6.0,
+    "decayPerHour": 0.0,
+    "decayUnless": null,
+    "note": "氯化鉀令鉀上升",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "le.furosemide.creat",
+    "flag": "furosemide.iv",
+    "analyte": "creat",
+    "delta": 18.0,
+    "capLow": null,
+    "capHigh": 400.0,
+    "decayPerHour": 0.02,
+    "decayUnless": null,
+    "note": "利尿令肌酸酐上升",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "le.oxygen.po2",
+    "flag": "oxygen.on",
+    "analyte": "po2",
+    "delta": 8.0,
+    "capLow": null,
+    "capHigh": 500.0,
+    "decayPerHour": 0.1,
+    "decayUnless": null,
+    "note": "氧氣令動脈血氧分壓上升",
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  }
+]

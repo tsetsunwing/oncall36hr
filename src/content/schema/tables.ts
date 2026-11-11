@@ -11,7 +11,7 @@ import {
   rhythmSchema,
   trajectorySchema,
 } from './m2Tables';
-import { consequenceSchema, labBaselineSchema, resultSchema } from './m3Tables';
+import { consequenceSchema, labBaselineSchema, labEffectSchema, resultSchema } from './m3Tables';
 import {
   callOrSbarSchema,
   consultDepartmentSchema,
@@ -43,6 +43,7 @@ export const TABLE_NAMES = [
   'order-effects',
   'results',
   'lab-baselines',
+  'lab-effects',
   'rhythms',
   'acls-transitions',
   'mews',
@@ -97,6 +98,7 @@ export const tableSchemas = {
   'order-effects': z.array(orderEffectSchema),
   results: z.array(resultSchema),
   'lab-baselines': z.array(labBaselineSchema),
+  'lab-effects': z.array(labEffectSchema),
   rhythms: z.array(rhythmSchema),
   'acls-transitions': z.array(aclsTransitionSchema),
   mews: z.array(mewsSchema),
