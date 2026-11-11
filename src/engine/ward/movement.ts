@@ -1,5 +1,6 @@
 /** 玩家在病房內的位置。前往床邊與返回病房皆即時到達，不推進班次時鐘。 */
 import { isWardPatientActive } from './departure';
+import { startOrResumeCpr } from '../acls/arrest';
 import { buildPresent } from '../bedside/bedside';
 import { appendLine } from '../chat/dialogue';
 import { removeWhere } from '../core/eventQueue';
@@ -129,9 +130,25 @@ export function moveTo(state: GameState, bed: number | null, ctx: EngineContext)
     return { state: cleared, effects: [] };
   }
   let next = cleared;
+  const effects: Reduction['effects'] = [];
   if (location.bed !== null) {
     const here = patientAtBed(next, location.bed);
-    if (here) next = leaveVisit(next, here);
+    if (here) {
+      const resus = next.resus;
+      // 離床時只恢復已開始、但目前暫停的 CPR；不替玩家開始新的搶救。
+      if (
+        resus?.patientId === here &&
+        resus.status === 'ARREST' &&
+        resus.cpr.state === 'PAUSED' &&
+        resus.cpr.firstAt !== null &&
+        next.patients[here]?.demographics.code !== 'DNR'
+      ) {
+        const resumed = startOrResumeCpr(next, resus, ctx, null);
+        next = resumed.state;
+        effects.push(...resumed.effects);
+      }
+      next = leaveVisit(next, here);
+    }
   }
-  return { state: arriveAt(next, bed, ctx), effects: [] };
+  return { state: arriveAt(next, bed, ctx), effects };
 }

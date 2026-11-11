@@ -135,6 +135,8 @@ export const patientSchema = z
       })
       .strict(),
     presentingComplaint: z.string(),
+    pastMedicalHistory: z.array(z.string().min(1)).optional(),
+    knownDiagnoses: z.array(z.string().min(1)).optional(),
     allergies: z.array(z.string()),
     hidden: z
       .object({

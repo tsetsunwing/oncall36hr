@@ -55,6 +55,34 @@ describe('ViewModel：只映射可見資料', () => {
     }
   });
 
+  it('只顯示明確公開的病史和已知診斷，不從隱藏診斷推導', () => {
+    const original = tables['case-templates'][0];
+    if (!original) throw new Error('缺病例');
+    const publicTemplate = {
+      ...original,
+      pastMedicalHistory: ['已知高血壓'],
+      knownDiagnoses: ['已知慢性腎病'],
+    };
+    const testTables = {
+      ...tables,
+      'case-templates': [publicTemplate, ...tables['case-templates'].slice(1)],
+    };
+    const testEngine = createEngine(config, { tables: testTables });
+    const state = testEngine.init({
+      seed: 'known-record',
+      mode: 'NIGHT',
+      difficulty: 'MEDIUM',
+      playerRank: 'MO',
+      caseId: original.id,
+    });
+    const view = selectGameView(state, { tables: testTables, config });
+    expect(view.patient?.pastMedicalHistory).toEqual(['已知高血壓']);
+    expect(view.patient?.knownDiagnoses).toEqual(['已知慢性腎病']);
+    for (const term of original.diagnosisTerms) {
+      expect(JSON.stringify(view.patient).toLowerCase()).not.toContain(term.toLowerCase());
+    }
+  });
+
   it('監察儀數字 ＝ visible vitals（血壓一格含 MAP、MEWS）', () => {
     const state = play([tick(1800)]);
     const patient = state.patients.p1;

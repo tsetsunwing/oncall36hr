@@ -45,6 +45,9 @@ export interface CaseTemplateRow {
   wards: readonly string[];
   demographics: { name: string; age: number; sex: 'M' | 'F'; code: 'FULL' | 'DNR' };
   presentingComplaint: string;
+  /** Explicitly known to the player; never derive from hidden diagnoses. */
+  pastMedicalHistory?: readonly string[] | undefined;
+  knownDiagnoses?: readonly string[] | undefined;
   allergies: readonly string[];
   diagnosisIds: readonly string[];
   diagnosisTerms: readonly string[];

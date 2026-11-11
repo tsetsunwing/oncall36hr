@@ -102,6 +102,50 @@ describe('治療藥物彈窗', () => {
     );
   });
 
+  it('按需原因經治療藥物落單保存，並能從存檔 schema 讀回', () => {
+    const run = feed(engine, fresh('prn-reason'), [
+      intentEvent({
+        type: 'PLACE_CATALOG',
+        patientId: 'p1',
+        catalogId: 'drug.unlisted',
+        text: 'Dobutamine 5 mg IV Q6H | PRN Pain',
+        params: {
+          drugFormularyId: null,
+          dose: { value: 5, unit: 'mg' },
+          route: 'IV',
+          frequency: 'Q6H',
+          prnReason: 'Pain',
+          treatmentDrugId: 'dobutamine--sympathomimetics--general-drugs',
+        },
+      }),
+    ]);
+    const placed = orderOf(run.state);
+    expect(placed.params.prnReason).toBe('Pain');
+    expect(composeOrderLabel(undefined, placed)).toContain('PRN Pain');
+    expect(orderSchema.parse(JSON.parse(JSON.stringify(placed))).params.prnReason).toBe('Pain');
+  });
+
+  it('藥典目錄醫囑同樣保存按需原因', () => {
+    const run = feed(engine, fresh('catalog-prn-reason'), [
+      intentEvent({
+        type: 'PLACE_CATALOG',
+        patientId: 'p1',
+        catalogId: 'drug.adrenaline',
+        text: 'Adrenaline 1 mg IV Q6H | PRN Pain',
+        params: {
+          drugFormularyId: 'adrenaline',
+          dose: { value: 1, unit: 'mg' },
+          route: 'IV',
+          frequency: 'Q6H',
+          prnReason: 'Pain',
+        },
+      }),
+    ]);
+    const placed = orderOf(run.state);
+    expect(placed.params.prnReason).toBe('Pain');
+    expect(orderSchema.parse(JSON.parse(JSON.stringify(placed))).params.prnReason).toBe('Pain');
+  });
+
   it('範圍內套用類別佔位，不呼叫模型，護士用收到模板', () => {
     const id = 'dobutamine--sympathomimetics--general-drugs';
     const row = classRowFor(drug(id).classes, effects.classes);

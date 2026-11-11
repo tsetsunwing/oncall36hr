@@ -58,6 +58,15 @@ describe('藥物選項括號', () => {
     );
   });
 
+  it('按需原因同頻次分開寫入結構化欄位', () => {
+    const bolus = draft({ frequency: 'Q6H', prn: 'Pain' });
+    expect(placedDrugParams('adrenaline', bolus)).toMatchObject({
+      frequency: 'Q6H',
+      prnReason: 'Pain',
+    });
+    expect(composeDrugOrderPhrase(bolus)).toContain('PRN Pain');
+  });
+
   it('聊天句子、途徑同頻次都唔帶括號', () => {
     const bolus = draft({});
     expect(composeDrugOrderPhrase(bolus)).toBe('adrenaline 1 mg IV BD');

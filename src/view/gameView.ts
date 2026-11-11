@@ -179,6 +179,8 @@ function selectPatient(
     code: patient.demographics.code,
     icuTransferReady: patient.hidden.fsm.flags.includes('icu.accepted'),
     complaint: patient.presentingComplaint,
+    pastMedicalHistory: [...(patient.pastMedicalHistory ?? [])],
+    knownDiagnoses: [...(patient.knownDiagnoses ?? [])],
     allergies: [...patient.allergies],
     pain: patient.visible.pain,
     neuro: {

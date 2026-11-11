@@ -69,7 +69,7 @@ const NEW_IDS = [
 ] as const;
 
 describe('搶救選單', () => {
-  it('每個按鈕用指定英文，並且對到現有或新加嘅 order', () => {
+  it('每個按鈕標籤一致，並且對到現有或新加嘅 order', () => {
     const shown = new Set<string>();
     for (const column of RESUS_MENU) {
       for (const item of column.items) {

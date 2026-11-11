@@ -117,21 +117,21 @@
       "繼續 cpr"
     ],
     "catalogId": "acls.cpr",
-    "chipLabel": "High-Quality CPR",
+    "chipLabel": "高質素心肺復甦 High-Quality CPR",
     "chipGroup": "resus"
   },
   {
     "id": "qw.rhythm",
     "aliases": ["rhythm check", "check rhythm", "rhythm", "睇rhythm", "睇 rhythm"],
     "catalogId": "acls.rhythmcheck",
-    "chipLabel": "Rhythm Check",
+    "chipLabel": "節律檢查 Rhythm Check",
     "chipGroup": "resus"
   },
   {
     "id": "qw.defib200",
     "aliases": ["defib", "defibrillate"],
     "catalogId": "acls.defib",
-    "chipLabel": "Defibrillation (Shock)",
+    "chipLabel": "電擊 Defibrillation (Shock)",
     "promptStem": "defib",
     "prompt": ["energy"],
     "params": {
@@ -300,21 +300,21 @@
     "id": "qw.intubation",
     "aliases": ["intubation"],
     "catalogId": "proc.intubation",
-    "chipLabel": "Advanced Airway Insertion",
+    "chipLabel": "建立進階氣道 Advanced Airway Insertion",
     "chipGroup": "resus"
   },
   {
     "id": "qw.decompression",
     "aliases": ["needle decompression"],
     "catalogId": "proc.decompression",
-    "chipLabel": "Needle Decompression",
+    "chipLabel": "針刺減壓 Needle Decompression",
     "chipGroup": "resus"
   },
   {
     "id": "qw.pericardial",
     "aliases": ["pericardiocentesis"],
     "catalogId": "proc.pericardiocentesis",
-    "chipLabel": "Pericardiocentesis",
+    "chipLabel": "心包穿刺 Pericardiocentesis",
     "chipGroup": "resus"
   },
   {
@@ -377,77 +377,77 @@
     "id": "qw.resus.pulse",
     "aliases": ["Pulse Check"],
     "catalogId": "obs.pulse",
-    "chipLabel": "Pulse Check",
+    "chipLabel": "脈搏檢查 Pulse Check",
     "chipGroup": "resus"
   },
   {
     "id": "qw.resus.etco2",
     "aliases": ["Capnography (EtCO2)"],
     "catalogId": "monitor.etco2",
-    "chipLabel": "Capnography (EtCO2)",
+    "chipLabel": "呼氣末二氧化碳 Capnography (EtCO2)",
     "chipGroup": "resus"
   },
   {
     "id": "qw.resus.ecg",
     "aliases": ["12-Lead ECG"],
     "catalogId": "ecg.12lead",
-    "chipLabel": "12-Lead ECG",
+    "chipLabel": "十二導聯心電圖 12-Lead ECG",
     "chipGroup": "resus"
   },
   {
     "id": "qw.resus.glucose",
     "aliases": ["Blood Glucose"],
     "catalogId": "poct.glucose",
-    "chipLabel": "Blood Glucose",
+    "chipLabel": "血糖 Blood Glucose",
     "chipGroup": "resus"
   },
   {
     "id": "qw.resus.pocus",
     "aliases": ["Point-of-Care Ultrasound (POCUS)"],
     "catalogId": "img.pocus",
-    "chipLabel": "Point-of-Care Ultrasound (POCUS)",
+    "chipLabel": "床邊超聲波 Point-of-Care Ultrasound (POCUS)",
     "chipGroup": "resus"
   },
   {
     "id": "qw.resus.ct",
     "aliases": ["Non-Contrast CT Scan"],
     "catalogId": "proc.ct.noncontrast",
-    "chipLabel": "Non-Contrast CT Scan",
+    "chipLabel": "無對比劑電腦掃描 Non-Contrast CT Scan",
     "chipGroup": "resus"
   },
   {
     "id": "qw.resus.bvm",
     "aliases": ["Bag-Valve-Mask (BVM) Ventilation"],
     "catalogId": "proc.bvm",
-    "chipLabel": "Bag-Valve-Mask (BVM) Ventilation",
+    "chipLabel": "球囊面罩通氣 Bag-Valve-Mask (BVM) Ventilation",
     "chipGroup": "resus"
   },
   {
     "id": "qw.resus.ventilation",
     "aliases": ["Continuous Ventilation"],
     "catalogId": "proc.ventilation",
-    "chipLabel": "Continuous Ventilation",
+    "chipLabel": "持續通氣 Continuous Ventilation",
     "chipGroup": "resus"
   },
   {
     "id": "qw.resus.ivio",
     "aliases": ["Establish IV / IO Access"],
     "catalogId": "proc.ivio",
-    "chipLabel": "Establish IV / IO Access",
+    "chipLabel": "建立靜脈／骨內通道 Establish IV / IO Access",
     "chipGroup": "resus"
   },
   {
     "id": "qw.resus.ttm",
     "aliases": ["Targeted Temperature Management"],
     "catalogId": "proc.ttm",
-    "chipLabel": "Targeted Temperature Management",
+    "chipLabel": "目標體溫管理 Targeted Temperature Management",
     "chipGroup": "resus"
   },
   {
     "id": "qw.resus.cath",
     "aliases": ["Activate Cath Lab"],
     "catalogId": "proc.cathlab",
-    "chipLabel": "Activate Cath Lab",
+    "chipLabel": "啟動導管室 Activate Cath Lab",
     "chipGroup": "resus"
   },
   {
@@ -634,7 +634,7 @@
     "id": "qw.resus.cardioversion",
     "aliases": ["synchronized cardioversion"],
     "catalogId": "proc.cardioversion",
-    "chipLabel": "Synchronized Cardioversion",
+    "chipLabel": "同步電復律 Synchronized Cardioversion",
     "promptStem": "synchronized cardioversion",
     "prompt": ["energy"],
     "chipGroup": "resus"
@@ -643,7 +643,7 @@
     "id": "qw.resus.pacing",
     "aliases": ["Transcutaneous Pacing"],
     "catalogId": "proc.pacing",
-    "chipLabel": "Transcutaneous Pacing",
+    "chipLabel": "經皮起搏 Transcutaneous Pacing",
     "chipGroup": "resus"
   },
   {

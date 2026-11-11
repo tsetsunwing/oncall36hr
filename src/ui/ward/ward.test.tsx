@@ -378,6 +378,26 @@ describe('房間取代平面圖', () => {
     expect(actions.enterPlace).toHaveBeenCalledWith('STATION');
   });
 
+  it('病歷顯示已知病史和診斷', async () => {
+    const knownPatient = {
+      ...patient,
+      pastMedicalHistory: ['Hypertension'],
+      knownDiagnoses: ['Chronic kidney disease'],
+    };
+    const atBed = {
+      ...gameAt(null),
+      patient: knownPatient,
+      monitor: monitor(),
+      chat: chat(),
+      body: { markers: [], ioOrder: null },
+    };
+    render(<WardGame view={atBed} ward={ward()} actions={makeActions()} />);
+    await userEvent.click(screen.getByTestId('open-medical-record'));
+    const record = screen.getByTestId('medical-record');
+    expect(record).toHaveTextContent('Hypertension');
+    expect(record).toHaveTextContent('Chronic kidney disease');
+  });
+
   it('ICU 接收後確認轉出才觸發清床；取消不觸發', async () => {
     const actions = makeActions();
     const atBed = {

@@ -28,6 +28,8 @@ export const orderSchema = z
         route: z.string().nullable(),
         /** 彈窗填嘅頻次，例如 stat、TDS、Q4H。舊存檔冇呢欄。 */
         frequency: z.string().min(1).optional(),
+        /** 按需用藥的原因；舊存檔沒有這欄。 */
+        prnReason: z.string().min(1).max(120).optional(),
         /** x1–x3。舊存檔冇呢欄。 */
         times: z.number().int().min(1).max(3).optional(),
         /** 輸液速率。舊存檔冇呢欄。 */

@@ -187,6 +187,10 @@ export function createPatientState(
       name: pickHkName(state.seed, id, template.demographics.sex, usedNames),
     },
     presentingComplaint: template.presentingComplaint,
+    ...(template.pastMedicalHistory
+      ? { pastMedicalHistory: [...template.pastMedicalHistory] }
+      : {}),
+    ...(template.knownDiagnoses ? { knownDiagnoses: [...template.knownDiagnoses] } : {}),
     allergies: [...template.allergies],
     hidden: {
       caseTemplateId: template.id,

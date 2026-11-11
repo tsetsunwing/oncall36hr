@@ -18,6 +18,7 @@ export type CoreIntent =
         dose: { value: number; unit: string } | null;
         route: string | null;
         frequency?: string;
+        prnReason?: string;
         times?: number;
         rate?: { value: number; unit: string };
         concentration?: string;

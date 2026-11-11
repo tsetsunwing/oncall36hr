@@ -119,6 +119,9 @@ export const caseTemplateSchema = z
       })
       .strict(),
     presentingComplaint: z.string().min(1),
+    /** 明確可公開的病史及診斷；與隱藏病例診斷分開。 */
+    pastMedicalHistory: z.array(z.string().min(1)).optional(),
+    knownDiagnoses: z.array(z.string().min(1)).optional(),
     /** 病人組生成用：簡單／複雜個案（T12 比例、T13 職級複雜度）；冇寫＝複雜 */
     /** SCENARIO：劇本式個案（例如心臟停頓），唔會被隨機病房生成揀中 */
     complexity: z.enum(['SIMPLE', 'COMPLEX', 'SCENARIO']).default('COMPLEX'),

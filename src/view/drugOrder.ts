@@ -132,6 +132,7 @@ export function placedDrugParams(
     if (draft.concentration.trim()) params.concentration = draft.concentration.trim();
   } else if (draft.frequency) {
     params.frequency = shortOptionLabel(draft.frequency);
+    if (draft.prn) params.prnReason = shortOptionLabel(draft.prn);
   }
   return params;
 }

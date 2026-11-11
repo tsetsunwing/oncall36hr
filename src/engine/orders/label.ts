@@ -13,10 +13,11 @@ export function composeOrderLabel(
     : '';
   const route = order.params.route ? ` ${order.params.route}` : '';
   const frequency = order.params.frequency ? ` ${order.params.frequency}` : '';
+  const prn = order.params.prnReason ? ` PRN ${order.params.prnReason}` : '';
   const times = order.params.times ? ` x${String(order.params.times)}` : '';
   const rate = order.params.rate
     ? ` ${String(order.params.rate.value)} ${order.params.rate.unit}`
     : '';
   const concentration = order.params.concentration ? ` | ${order.params.concentration}` : '';
-  return `${base}${dose}${route}${frequency}${times}${rate}${concentration}`;
+  return `${base}${dose}${route}${frequency}${prn}${times}${rate}${concentration}`;
 }

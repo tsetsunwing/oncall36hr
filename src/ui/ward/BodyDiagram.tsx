@@ -199,7 +199,8 @@ function MedicalRecord({
         {t.reason}: {patient.complaint || t.unknown}
       </p>
       <p>
-        {t.pmh}: {t.unknown}
+        {t.pmh}:{' '}
+        {patient.pastMedicalHistory?.length ? patient.pastMedicalHistory.join('、') : t.unknown}
       </p>
       <h4>{t.allergies}</h4>
       <p>{patient.allergies.length ? patient.allergies.join('、') : t.unknown}</p>
@@ -232,7 +233,7 @@ function MedicalRecord({
         <p>{t.noReports}</p>
       )}
       <h4>{t.diagnosis}</h4>
-      <p>{t.unknown}</p>
+      <p>{patient.knownDiagnoses?.length ? patient.knownDiagnoses.join('、') : t.unknown}</p>
     </section>
   );
 }

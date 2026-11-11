@@ -53,6 +53,7 @@ const placedParamsSchema = z
       .nullable(),
     route: z.string().min(1).nullable(),
     frequency: z.string().min(1).optional(),
+    prnReason: z.string().trim().min(1).max(120).optional(),
     times: z.number().int().min(1).max(3).optional(),
     rate: z
       .object({ value: z.number().positive(), unit: z.string().min(1) })
@@ -98,6 +99,7 @@ function placeCatalog(
         dose: params.dose,
         route: params.route,
         ...(params.frequency ? { frequency: params.frequency } : {}),
+        ...(params.prnReason ? { prnReason: params.prnReason } : {}),
         ...(params.times ? { times: params.times } : {}),
         ...(params.rate ? { rate: params.rate } : {}),
         ...(params.concentration ? { concentration: params.concentration } : {}),
@@ -120,6 +122,7 @@ function placeCatalog(
     dose: params.dose,
     route: params.route,
     ...(params.frequency ? { frequency: params.frequency } : {}),
+    ...(params.prnReason ? { prnReason: params.prnReason } : {}),
     ...(params.times ? { times: params.times } : {}),
     ...(params.rate ? { rate: params.rate } : {}),
     ...(params.concentration ? { concentration: params.concentration } : {}),

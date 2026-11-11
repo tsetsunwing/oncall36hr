@@ -1,36 +1,36 @@
-/** 搶救選單：左欄分類，右欄按鈕。標籤係玩家指定嘅英文，順序唔好改。 */
+/** 搶救選單：左欄分類，右欄按鈕。標籤保留原有英文並加中文，順序唔好改。 */
 export const RESUS_MENU = [
   {
     id: 'diagnostics',
-    label: 'Diagnostics',
+    label: '檢查 Diagnostics',
     items: [
-      { id: 'qw.rhythm', label: 'Rhythm Check' },
-      { id: 'qw.resus.pulse', label: 'Pulse Check' },
-      { id: 'qw.resus.etco2', label: 'Capnography (EtCO2)' },
-      { id: 'qw.resus.ecg', label: '12-Lead ECG' },
-      { id: 'qw.resus.glucose', label: 'Blood Glucose' },
-      { id: 'qw.resus.pocus', label: 'Point-of-Care Ultrasound (POCUS)' },
-      { id: 'qw.resus.ct', label: 'Non-Contrast CT Scan' },
+      { id: 'qw.rhythm', label: '節律檢查 Rhythm Check' },
+      { id: 'qw.resus.pulse', label: '脈搏檢查 Pulse Check' },
+      { id: 'qw.resus.etco2', label: '呼氣末二氧化碳 Capnography (EtCO2)' },
+      { id: 'qw.resus.ecg', label: '十二導聯心電圖 12-Lead ECG' },
+      { id: 'qw.resus.glucose', label: '血糖 Blood Glucose' },
+      { id: 'qw.resus.pocus', label: '床邊超聲波 Point-of-Care Ultrasound (POCUS)' },
+      { id: 'qw.resus.ct', label: '無對比劑電腦掃描 Non-Contrast CT Scan' },
     ],
   },
   {
     id: 'actions',
-    label: 'Actions',
+    label: '處置 Actions',
     items: [
-      { id: 'qw.cpr', label: 'High-Quality CPR' },
-      { id: 'qw.resus.bvm', label: 'Bag-Valve-Mask (BVM) Ventilation' },
-      { id: 'qw.intubation', label: 'Advanced Airway Insertion' },
-      { id: 'qw.resus.ventilation', label: 'Continuous Ventilation' },
-      { id: 'qw.resus.ivio', label: 'Establish IV / IO Access' },
-      { id: 'qw.resus.ttm', label: 'Targeted Temperature Management' },
-      { id: 'qw.decompression', label: 'Needle Decompression' },
-      { id: 'qw.pericardial', label: 'Pericardiocentesis' },
-      { id: 'qw.resus.cath', label: 'Activate Cath Lab' },
+      { id: 'qw.cpr', label: '高質素心肺復甦 High-Quality CPR' },
+      { id: 'qw.resus.bvm', label: '球囊面罩通氣 Bag-Valve-Mask (BVM) Ventilation' },
+      { id: 'qw.intubation', label: '建立進階氣道 Advanced Airway Insertion' },
+      { id: 'qw.resus.ventilation', label: '持續通氣 Continuous Ventilation' },
+      { id: 'qw.resus.ivio', label: '建立靜脈／骨內通道 Establish IV / IO Access' },
+      { id: 'qw.resus.ttm', label: '目標體溫管理 Targeted Temperature Management' },
+      { id: 'qw.decompression', label: '針刺減壓 Needle Decompression' },
+      { id: 'qw.pericardial', label: '心包穿刺 Pericardiocentesis' },
+      { id: 'qw.resus.cath', label: '啟動導管室 Activate Cath Lab' },
     ],
   },
   {
     id: 'drugs',
-    label: 'Drugs',
+    label: '藥物 Drugs',
     items: [
       { id: 'qw.adrenaline', label: 'Adrenaline' },
       { id: 'qw.amiodarone', label: 'Amiodarone' },
@@ -53,11 +53,11 @@ export const RESUS_MENU = [
   },
   {
     id: 'defibrillator',
-    label: 'Biphasic Defibrillator',
+    label: '雙相除顫器 Biphasic Defibrillator',
     items: [
-      { id: 'qw.defib200', label: 'Defibrillation (Shock)' },
-      { id: 'qw.resus.cardioversion', label: 'Synchronized Cardioversion' },
-      { id: 'qw.resus.pacing', label: 'Transcutaneous Pacing' },
+      { id: 'qw.defib200', label: '電擊 Defibrillation (Shock)' },
+      { id: 'qw.resus.cardioversion', label: '同步電復律 Synchronized Cardioversion' },
+      { id: 'qw.resus.pacing', label: '經皮起搏 Transcutaneous Pacing' },
     ],
   },
 ] as const;

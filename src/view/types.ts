@@ -81,6 +81,8 @@ export interface PatientView {
   code: 'FULL' | 'DNR';
   icuTransferReady?: boolean;
   complaint: string;
+  pastMedicalHistory?: string[];
+  knownDiagnoses?: string[];
   allergies: string[];
   /** 疼痛分數 0–10；未問過病人＝null。 */
   pain: number | null;
@@ -264,6 +266,7 @@ export interface PlacedOrderParams {
   dose: { value: number; unit: string } | null;
   route: string | null;
   frequency?: string;
+  prnReason?: string;
   times?: number;
   rate?: { value: number; unit: string };
   concentration?: string;
