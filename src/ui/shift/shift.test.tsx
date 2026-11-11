@@ -332,7 +332,20 @@ describe('StartPage 設定畫面', () => {
     await userEvent.click(screen.getByTestId('choice-difficulty-HARD'));
     await userEvent.click(screen.getByTestId('choice-mode-ONCALL'));
     await userEvent.click(screen.getByRole('button', { name: ui.start.startButton }));
-    expect(onStart).toHaveBeenCalledWith({ rank: 'RES', difficulty: 'HARD', mode: 'ONCALL' });
+    expect(onStart).toHaveBeenCalledWith({
+      rank: 'RES',
+      difficulty: 'HARD',
+      mode: 'ONCALL',
+      ward: 'MED',
+    });
+  });
+
+  it('可揀外科病房，開局帶出 SRG', async () => {
+    const onStart = vi.fn();
+    render(<StartPage gate={{ canStart: true }} onStart={onStart} />);
+    await userEvent.click(screen.getByTestId('choice-ward-SRG'));
+    await userEvent.click(screen.getByRole('button', { name: ui.start.startButton }));
+    expect(onStart).toHaveBeenCalledWith(expect.objectContaining({ ward: 'SRG' }));
   });
 
   it('AI 設定可直接在設定畫面修改，API key 缺少時不能開始', async () => {

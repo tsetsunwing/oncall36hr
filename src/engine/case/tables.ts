@@ -41,6 +41,8 @@ export interface CaseTemplateRow {
   fsmId: string;
   bed: number;
   complexity: 'SIMPLE' | 'COMPLEX' | 'SCENARIO';
+  /** 邊啲病房會出呢個病例（src/content/wards.ts 嘅代碼） */
+  wards: readonly string[];
   demographics: { name: string; age: number; sex: 'M' | 'F'; code: 'FULL' | 'DNR' };
   presentingComplaint: string;
   allergies: readonly string[];

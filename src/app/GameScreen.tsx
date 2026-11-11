@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { createAiGateway, type DevProxy } from '@/ai';
 import { getConfig, getContent } from '@/content';
+import { DEFAULT_WARD_CODE, WARD_CODES } from '@/content/wards';
 import { ui } from '@/i18n';
 import type { GameState } from '@/engine';
 import type { Settings } from '@/storage';
@@ -23,14 +24,18 @@ function pick<T extends string>(value: string | null, allowed: readonly T[], fal
   return allowed.find((a) => a === value) ?? fallback;
 }
 
-/** 開局選項（hash 參數，供測試與預覽用）：mode／difficulty／rank；ward=single 為舊式單一病人 */
+/**
+ * 開局選項（hash 參數，供測試與預覽用）：mode／difficulty／rank／ward（病房代碼，例如 MED、SRG）。
+ * 開局一律 20 床病房；單病人模式只保留 `#/game?case=<模板 id>` 一條路，唔再由 `ward=single` 開啟。
+ */
 function pickParams() {
   const params = hashParams(window.location.hash);
   return {
     mode: pick(params.get('mode'), MODES, 'NIGHT'),
     difficulty: pick(params.get('difficulty'), DIFFICULTIES, 'MEDIUM'),
     playerRank: pick(params.get('rank'), RANKS, 'MO'),
-    ward: params.get('ward') !== 'single',
+    ward: true,
+    wardCode: pick(params.get('ward'), WARD_CODES, DEFAULT_WARD_CODE),
   };
 }
 

@@ -122,6 +122,8 @@ export const caseTemplateSchema = z
     /** 病人組生成用：簡單／複雜個案（T12 比例、T13 職級複雜度）；冇寫＝複雜 */
     /** SCENARIO：劇本式個案（例如心臟停頓），唔會被隨機病房生成揀中 */
     complexity: z.enum(['SIMPLE', 'COMPLEX', 'SCENARIO']).default('COMPLEX'),
+    /** 邊啲病房會出呢個病例（病房代碼見 src/content/wards.ts）；開局只抽中你所屬病房嘅病例 */
+    wards: z.array(z.string().min(1)).min(1).default(['MED']),
     allergies: z.array(id),
     diagnosisIds: z.array(id).min(1),
     /** 護士／病人對白唔可以講出嘅診斷詞（B6、numeric guard deny-list）；只留喺本機，唔送去 AI */

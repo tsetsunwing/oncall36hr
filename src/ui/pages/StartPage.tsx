@@ -1,16 +1,19 @@
 import { useState } from 'react';
 import {
   AlarmClock,
+  BedDouble,
   CircleAlert,
   CircleUserRound,
   Gauge,
   Moon,
+  Scissors,
   ShieldCheck,
   Stethoscope,
   Sun,
   Users,
   type LucideIcon,
 } from 'lucide-react';
+import { OPEN_WARDS, wardLabel } from '@/content/wards';
 import { ui } from '@/i18n';
 import { normalizeSettings, validateSettings, type SaveSlotView, type Settings } from '@/storage';
 import type { StartGate } from '@/view';
@@ -21,11 +24,14 @@ import { describeOutcome, type ConnectionOutcome } from './SettingsPage';
 export type SetupRank = 'HO' | 'MO' | 'RES';
 export type SetupDifficulty = 'EASY' | 'MEDIUM' | 'HARD';
 export type SetupMode = 'DAY' | 'NIGHT' | 'ONCALL';
+/** 病房代碼（src/content/wards.ts）；現階段只有 MED、SRG */
+export type SetupWard = string;
 
 export interface StartChoice {
   rank: SetupRank;
   difficulty: SetupDifficulty;
   mode: SetupMode;
+  ward: SetupWard;
 }
 
 export interface StartPageProps {
@@ -45,6 +51,7 @@ export interface StartPageProps {
 const RANKS: readonly SetupRank[] = ['HO', 'MO', 'RES'];
 const DIFFICULTIES: readonly SetupDifficulty[] = ['EASY', 'MEDIUM', 'HARD'];
 const MODES: readonly SetupMode[] = ['DAY', 'NIGHT', 'ONCALL'];
+const WARDLIST = OPEN_WARDS;
 
 interface ChoiceGroupProps<T extends string> {
   name: string;
@@ -120,6 +127,7 @@ export function StartPage({
   const [rank, setRank] = useState<SetupRank>('MO');
   const [difficulty, setDifficulty] = useState<SetupDifficulty>('MEDIUM');
   const [mode, setMode] = useState<SetupMode>('NIGHT');
+  const [ward, setWard] = useState<SetupWard>(WARDLIST[0]?.code ?? 'MED');
   const [draft, setDraft] = useState<Settings | null>(settings ?? null);
   const [test, setTest] = useState<
     { phase: 'idle' } | { phase: 'running' } | { phase: 'done'; message: string; ok: boolean }
@@ -141,6 +149,7 @@ export function StartPage({
     s.rank[rank]?.name ?? rank,
     s.difficulty[difficulty]?.name ?? difficulty,
     s.modeCard[mode]?.name ?? mode,
+    wardLabel(ward),
   );
 
   return (
@@ -162,7 +171,7 @@ export function StartPage({
             className="primary"
             disabled={!gate.canStart}
             onClick={() => {
-              if (gate.canStart) onStart({ rank, difficulty, mode });
+              if (gate.canStart) onStart({ rank, difficulty, mode, ward });
             }}
           >
             {ui.start.startButton}
@@ -199,8 +208,22 @@ export function StartPage({
             }))}
           />
           <ChoiceGroup
+            name="ward"
+            legend={`③ ${s.wardHeading}`}
+            hint={s.wardHint}
+            value={ward}
+            onChange={setWard}
+            options={WARDLIST.map((def) => ({
+              id: def.code,
+              title: def.zh,
+              line1: def.en,
+              line2: def.code,
+              icon: def.code === 'SRG' ? Scissors : BedDouble,
+            }))}
+          />
+          <ChoiceGroup
             name="mode"
-            legend={`③ ${s.modeHeading}`}
+            legend={`④ ${s.modeHeading}`}
             hint={s.modeHint}
             value={mode}
             onChange={setMode}
@@ -217,7 +240,7 @@ export function StartPage({
         <aside className="setup-side" aria-label={s.apiHeading} tabIndex={0}>
           {draft ? (
             <div className="soft-panel setup-api">
-              <h2 className="setup-api-title">{`④ ${s.apiHeading}`}</h2>
+              <h2 className="setup-api-title">{`⑤ ${s.apiHeading}`}</h2>
               {onTestConnection ? (
                 <div className="setup-test">
                   <button

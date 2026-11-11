@@ -31,7 +31,8 @@
     },
     "complexity": "COMPLEX",
     "reversibleCauseIds": ["cause.hypoxia", "cause.hypovolaemia"],
-    "deathCause": "敗血性休克並發心臟停頓（肺部感染）"
+    "deathCause": "敗血性休克並發心臟停頓（肺部感染）",
+    "wards": ["MED"]
   },
   {
     "id": "cell-01",
@@ -51,7 +52,8 @@
     "symptomsByState": {
       "STABILISING": ["小腿仍然紅同痛"],
       "DETERIORATING": ["小腿更痛", "發冷"]
-    }
+    },
+    "wards": ["MED", "SRG"]
   },
   {
     "id": "cell-02",
@@ -71,7 +73,8 @@
     "symptomsByState": {
       "STABILISING": ["手臂有啲腫"],
       "DETERIORATING": ["手臂越嚟越痛", "覺得熱"]
-    }
+    },
+    "wards": ["MED", "SRG"]
   },
   {
     "id": "uti-01",
@@ -91,7 +94,8 @@
     "symptomsByState": {
       "STABILISING": ["小便有少少痛"],
       "DETERIORATING": ["發冷", "小便好痛"]
-    }
+    },
+    "wards": ["MED", "SRG"]
   },
   {
     "id": "uti-02",
@@ -111,7 +115,8 @@
     "symptomsByState": {
       "STABILISING": ["下腹有啲痛"],
       "DETERIORATING": ["發燒", "下腹好痛"]
-    }
+    },
+    "wards": ["MED", "SRG"]
   },
   {
     "id": "copd-01",
@@ -131,7 +136,8 @@
     "symptomsByState": {
       "STABILISING": ["有少少氣喘"],
       "DETERIORATING": ["氣喘加重", "咳得厲害"]
-    }
+    },
+    "wards": ["MED"]
   },
   {
     "id": "copd-02",
@@ -151,7 +157,8 @@
     "symptomsByState": {
       "STABILISING": ["痰比平時多"],
       "DETERIORATING": ["喘得緊要", "講嘢要停"]
-    }
+    },
+    "wards": ["MED"]
   },
   {
     "id": "htn-01",
@@ -171,7 +178,8 @@
     "symptomsByState": {
       "STABILISING": ["有少少頭暈"],
       "DETERIORATING": ["頭好暈", "頭痛"]
-    }
+    },
+    "wards": ["MED"]
   },
   {
     "id": "htn-02",
@@ -191,7 +199,8 @@
     "symptomsByState": {
       "STABILISING": ["頭有啲痛"],
       "DETERIORATING": ["頭痛得緊要", "眼矇矇"]
-    }
+    },
+    "wards": ["MED"]
   },
   {
     "id": "pna-sepsis-02",
@@ -221,7 +230,8 @@
       "DETERIORATING": ["氣促", "發冷"],
       "SEPTIC_SHOCK": ["頭暈", "乏力"],
       "STABILISING": ["好返少少"]
-    }
+    },
+    "wards": ["MED"]
   },
   {
     "id": "hf-01",
@@ -250,7 +260,8 @@
       "STABILISING": ["腳仲有啲腫"],
       "DETERIORATING": ["氣促", "瞓低就喘"],
       "SEPTIC_SHOCK": ["喘到講唔到嘢", "好虛弱"]
-    }
+    },
+    "wards": ["MED"]
   },
   {
     "id": "hf-02",
@@ -279,7 +290,8 @@
       "STABILISING": ["腳有啲腫"],
       "DETERIORATING": ["喘", "要坐起身"],
       "SEPTIC_SHOCK": ["好喘", "冒冷汗"]
-    }
+    },
+    "wards": ["MED"]
   },
   {
     "id": "ugib-01",
@@ -308,7 +320,8 @@
       "STABILISING": ["有啲頭暈"],
       "DETERIORATING": ["頭暈", "心跳好快"],
       "SEPTIC_SHOCK": ["眼前發黑", "好冇力"]
-    }
+    },
+    "wards": ["MED"]
   },
   {
     "id": "ugib-02",
@@ -337,7 +350,8 @@
       "STABILISING": ["上腹仲有啲痛"],
       "DETERIORATING": ["頭暈", "嘔過一次"],
       "SEPTIC_SHOCK": ["暈到企唔穩", "冒冷汗"]
-    }
+    },
+    "wards": ["MED"]
   },
   {
     "id": "pe-01",
@@ -358,7 +372,8 @@
       "STABILISING": ["有少少胸痛"],
       "DETERIORATING": ["吸氣胸口痛", "氣促"],
       "SEPTIC_SHOCK": ["喘到企唔穩", "眼前發黑"]
-    }
+    },
+    "wards": ["MED", "SRG"]
   },
   {
     "id": "pe-02",
@@ -379,7 +394,8 @@
       "STABILISING": ["腳有啲痛"],
       "DETERIORATING": ["氣促", "心跳快"],
       "SEPTIC_SHOCK": ["好喘", "頭暈"]
-    }
+    },
+    "wards": ["MED", "SRG"]
   },
   {
     "id": "acs-vf-01",
@@ -413,7 +429,8 @@
     },
     "reversibleCauseIds": ["cause.thrombosis"],
     "deathCause": "急性冠狀動脈綜合症引致心室顫動，心臟停頓",
-    "complexity": "SCENARIO"
+    "complexity": "SCENARIO",
+    "wards": ["MED"]
   },
   {
     "id": "terminal-01",
@@ -445,6 +462,7 @@
     },
     "reversibleCauseIds": [],
     "deathCause": "末期疾病惡化引致心臟停頓",
-    "complexity": "SCENARIO"
+    "complexity": "SCENARIO",
+    "wards": ["MED"]
   }
 ]

@@ -894,3 +894,32 @@ describe('wardCaseId：指定一個病人用某個 case 模板', () => {
     expect(Object.keys(unknown.patients)).toEqual(Object.keys(forced.patients));
   });
 });
+
+describe('病房代碼（wards）', () => {
+  const templates = fullTables()['case-templates'];
+  const wardOf = (code: string, seed: string) =>
+    engine.init({ ...wardParams(seed), wardCode: code });
+
+  it('開局預設內科病房 MED', () => {
+    expect(wardOf('MED', 'ward-default').ward.code).toBe('MED');
+    expect(engine.init(wardParams('ward-no-code')).ward.code).toBe('MED');
+  });
+
+  it('外科病房只會出標明 SRG 嘅病例，而且床位照樣填得滿', () => {
+    const state = wardOf('SRG', 'ward-srg');
+    expect(state.ward.code).toBe('SRG');
+    const byId = new Map(templates.map((row) => [row.id, row]));
+    const ids = patientsOf(state).map((patient) => patient.hidden.caseTemplateId);
+    expect(ids.length).toBeGreaterThan(0);
+    for (const id of ids) expect(byId.get(id)?.wards).toContain('SRG');
+  });
+
+  it('內科病房唔會出只限外科嘅病例', () => {
+    const state = wardOf('MED', 'ward-med-only');
+    const byId = new Map(templates.map((row) => [row.id, row]));
+    for (const patient of patientsOf(state)) {
+      const row = byId.get(patient.hidden.caseTemplateId);
+      expect(row?.wards).toContain('MED');
+    }
+  });
+});

@@ -14,11 +14,17 @@ function subscribe(callback: () => void): () => void {
   return () => window.removeEventListener('hashchange', callback);
 }
 
-export function navigateToGame(choice: { mode: string; difficulty: string; rank: string }): void {
+export function navigateToGame(choice: {
+  mode: string;
+  difficulty: string;
+  rank: string;
+  ward: string;
+}): void {
   const query = new URLSearchParams({
     mode: choice.mode,
     difficulty: choice.difficulty,
     rank: choice.rank,
+    ward: choice.ward,
   });
   window.location.hash = `#/game?${query.toString()}`;
 }

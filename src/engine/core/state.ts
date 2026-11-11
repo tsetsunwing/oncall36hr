@@ -110,8 +110,10 @@ export interface NewGameParams {
   nurseConfirmHighRisk?: boolean;
   /** 指定 case 模板 id；唔填就用 content 第一個 case（M2 只有一個） */
   caseId?: string;
-  /** M4：生成 20 床病房、電話同下屬；唔填＝舊式單一病人（p1，7 號床） */
+  /** M4：生成 20 床病房、電話同下屬；唔填＝舊式單一病人（p1，7 號床，只供測試同預覽） */
   ward?: boolean;
+  /** 病房代碼（src/content/wards.ts）；唔填＝內科病房 MED */
+  wardCode?: string;
   /** 病房模式下，指定其中一個病人用呢個 case 模板（測試與預覽用）；未知 id 忽略 */
   wardCaseId?: string;
 }
@@ -146,7 +148,7 @@ export function createInitialState(params: NewGameParams, config: EngineConfig):
     counters: { order: 0, req: 0, line: 0, log: 0 },
     scheduler,
     pendingAi: [],
-    ward: emptyWard(),
+    ward: emptyWard(params.wardCode ?? 'MED'),
     resus: null,
     death: null,
     scoreLedger: [],

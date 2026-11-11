@@ -65,10 +65,13 @@ function pickTemplates(
   const wantComplex = Math.min(complex.length, Math.round(count * complexRatio));
   const wantSimple = Math.min(simple.length, count - wantComplex);
   const chosen = [...complex.slice(0, wantComplex), ...simple.slice(0, wantSimple)];
+  // 先用未揀中嘅模板填滿；模板少過床位時（例如外科病房暫時只有幾個病例）就重複使用
   const fill = [...complex.slice(wantComplex), ...simple.slice(wantSimple)];
+  let index = 0;
   while (chosen.length < count && fill.length > 0) {
-    const next = fill.shift();
+    const next = fill[index % fill.length];
     if (next) chosen.push(next);
+    index += 1;
   }
   return cursor.shuffle('events', chosen);
 }
@@ -98,7 +101,11 @@ export function generateWard(
     .shuffle('events', beds)
     .slice(0, count)
     .sort((a, b) => a - b);
-  const templates = pickTemplates(cursor, tables['case-templates'], occupied.length, ratio);
+  // 只抽屬於呢個病房嘅病例；病房冇專屬病例就退回全表，唔會出現空病房
+  const wardCode = state.ward.code;
+  const inWard = tables['case-templates'].filter((t) => t.wards.includes(wardCode));
+  const pool = inWard.length > 0 ? inWard : tables['case-templates'];
+  const templates = pickTemplates(cursor, pool, occupied.length, ratio);
   const forced = tables['case-templates'].find((t) => t.id === forcedCaseId);
   if (forced && templates.length > 0) templates[0] = forced;
 

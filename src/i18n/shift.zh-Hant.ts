@@ -417,6 +417,8 @@ export const shiftUi = {
     rankHint: 'AC、COS 不可選；職級影響個案複雜度和巡房問題難度',
     difficultyHeading: '難度',
     difficultyHint: '影響使用中床位數、個案複雜度、電話量及護士資歷',
+    wardHeading: '病房',
+    wardHint: '現階段只有內科病房及外科病房；其餘病房日後開放',
     modeHeading: '班次模式',
     modeHint: '超時最多 2 小時，之後強制交更',
     rank: {
@@ -434,9 +436,9 @@ export const shiftUi = {
       NIGHT: { name: '夜班', time: '18:00–翌日 08:00', desc: '必須完成 14 小時' },
       ONCALL: { name: 'On call', time: '日班 + 夜班 + 日班', desc: '必須完成 34 小時' },
     } as Record<string, { name: string; time: string; desc: string }>,
-    summary: (rank: string, difficulty: string, mode: string) =>
-      `你的選擇：${rank} · ${difficulty} · ${mode}`,
-    group: { rank: '職級', difficulty: '難度', mode: '班次模式' },
+    summary: (rank: string, difficulty: string, mode: string, ward: string) =>
+      `你的選擇：${ward} · ${rank} · ${difficulty} · ${mode}`,
+    group: { rank: '職級', difficulty: '難度', mode: '班次模式', ward: '病房' },
     apiHeading: 'AI 設定',
     apiEdit: '前往設定頁修改',
     apiReady: 'AI 設定已就緒（API key 只存放在這個瀏覽器）。',

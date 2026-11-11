@@ -173,6 +173,8 @@ const draftSchema = z
 
 export const wardStateSchema = z
   .object({
+    /** 病房代碼（src/content/wards.ts）；舊存檔冇呢個欄，一律當內科病房 */
+    code: z.string().min(1).default('MED'),
     enabled: z.boolean(),
     generated: z.boolean(),
     location: z
@@ -206,7 +208,8 @@ export const wardStateSchema = z
 
 export type WardState = z.infer<typeof wardStateSchema>;
 
-export const emptyWard = (): WardState => ({
+export const emptyWard = (code = 'MED'): WardState => ({
+  code,
   enabled: false,
   generated: false,
   location: { bed: null, movingTo: null, arriveAt: null },
