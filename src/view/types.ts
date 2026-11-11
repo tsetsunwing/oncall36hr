@@ -178,7 +178,7 @@ export interface ReportView {
   /** 數值係佔位，未經臨床審閱（PENDING_CLINICAL_REVIEW） */
   reviewPending: boolean;
   /** 報告分類：化驗、影像或即場，再用 section 分部門 */
-  bucket: 'laboratory' | 'radiology' | 'poct';
+  bucket: 'laboratory' | 'radiology' | 'poct' | 'nm';
   section: string;
 }
 
@@ -274,7 +274,7 @@ export interface QuickChipView {
   category: QuickChipCategory;
   catalogId?: string;
   /** 檢查對應報告面板的組別與部門。 */
-  report?: { bucket: 'laboratory' | 'radiology' | 'poct'; section: string };
+  report?: { bucket: 'laboratory' | 'radiology' | 'poct' | 'nm'; section: string };
   /** 藥物：按鈕只開醫囑表，藥名預填，其餘留空。 */
   medicationId?: string;
   /** 有值時先彈小窗，唔直接落單。氧氣、點滴、能量沿用。 */
@@ -786,6 +786,8 @@ export interface GameActions {
     text: string,
     params: PlacedOrderParams,
   ) => void;
+  /** 抽血籃：一次落多張檢查單，共用同一個抽血時間。 */
+  placeTests: (patientId: string, catalogIds: string[], text: string) => void;
   togglePause: () => void;
   setSpeed: (speed: number) => void;
   cancelOrder: (orderId: string) => void;
