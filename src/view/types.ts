@@ -59,6 +59,18 @@ export interface MonitorView {
   asOfLabel: string;
 }
 
+/** 瞳孔：直徑（mm）同對光反應。唔上心臟監察儀。 */
+export interface PupilView {
+  sizeMm: number;
+  reaction: 'BRISK' | 'SLUGGISH' | 'FIXED';
+}
+
+/** GCS 同瞳孔。同 ACVPU 並存，唔上心臟監察儀。 */
+export interface NeuroView {
+  gcs: { e: number; v: number; m: number; total: number };
+  pupils: { left: PupilView; right: PupilView };
+}
+
 export interface PatientView {
   id: string;
   bed: number;
@@ -68,6 +80,9 @@ export interface PatientView {
   code: 'FULL' | 'DNR';
   complaint: string;
   allergies: string[];
+  /** 疼痛分數 0–10；未問過病人＝null。 */
+  pain: number | null;
+  neuro: NeuroView;
 }
 
 export type ChatLineKind = 'PLAYER' | 'NURSE' | 'PATIENT' | 'SYSTEM' | 'PHARMACY';

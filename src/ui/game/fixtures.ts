@@ -33,6 +33,14 @@ export const patient: PatientView = {
   code: 'FULL',
   complaint: '氣促',
   allergies: [],
+  pain: 6,
+  neuro: {
+    gcs: { e: 4, v: 5, m: 6, total: 15 },
+    pupils: {
+      left: { sizeMm: 3, reaction: 'BRISK' },
+      right: { sizeMm: 3, reaction: 'BRISK' },
+    },
+  },
 };
 
 export function monitor(over: Partial<MonitorView> = {}): MonitorView {

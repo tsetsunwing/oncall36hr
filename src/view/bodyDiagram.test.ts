@@ -1,3 +1,4 @@
+import { NORMAL_PUPILS } from '@/engine/case/patient';
 import { describe, expect, it } from 'vitest';
 import { getConfig, getContent } from '@/content';
 import type { GameState, Patient } from '@/engine';
@@ -32,6 +33,8 @@ function patientWith(flags: string[], drains: Patient['visible']['drains'] = [])
       reports: [],
       rhythm: 'SINUS',
       consciousness: 'A',
+      pain: null,
+      neuro: { gcs: { e: 4, v: 5, m: 6 }, pupils: NORMAL_PUPILS },
       mews: { score: 0, band: 'LOW', components: {} },
       drains,
     },

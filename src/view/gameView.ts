@@ -174,6 +174,18 @@ function selectPatient(patient: Patient): PatientView {
     code: patient.demographics.code,
     complaint: patient.presentingComplaint,
     allergies: [...patient.allergies],
+    pain: patient.visible.pain,
+    neuro: {
+      gcs: {
+        ...patient.visible.neuro.gcs,
+        total:
+          patient.visible.neuro.gcs.e + patient.visible.neuro.gcs.v + patient.visible.neuro.gcs.m,
+      },
+      pupils: {
+        left: { ...patient.visible.neuro.pupils.left },
+        right: { ...patient.visible.neuro.pupils.right },
+      },
+    },
   };
 }
 
