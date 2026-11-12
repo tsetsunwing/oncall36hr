@@ -52,7 +52,9 @@ async function order(page: Page, chipId: string) {
 
 /** 避開 ward-toolbar 覆疊：直接觸發目標元素 click，唔做 hit-test。 */
 async function tap(page: Page, testId: string) {
-  await page.getByTestId(testId).evaluate((el) => (el as HTMLElement).click());
+  await page.getByTestId(testId).evaluate((el) => {
+    (el as HTMLElement).click();
+  });
 }
 
 test.describe('M4b AI 雙向通話', () => {
