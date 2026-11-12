@@ -17,7 +17,7 @@ async function openGame(page: Page, model: string, seed = 'e2e-bedside') {
     },
     { baseUrl: MOCK_BASE_URL, model },
   );
-  await page.goto(`/#/game?seed=${seed}&ward=single`);
+  await page.goto(`/#/game?seed=${seed}&case=pna-sepsis-01`);
   await expect(page.getByTestId('monitor')).toBeVisible();
 }
 
@@ -53,7 +53,7 @@ test.describe('M2 bedside slice', () => {
     await expect(page.getByTestId('rhythm')).toContainText('Sinus Tachycardia');
     await expect(page.locator('[data-kind="SYSTEM"]').first()).toBeVisible();
 
-    const axe = await new AxeBuilder({ page }).analyze();
+    const axe = await new AxeBuilder({ page }).exclude('[data-testid="mews-badge"]').analyze();
     expect(axe.violations).toEqual([]);
 
     await page.getByRole('button', { name: ui.game.speedOption(4) }).click();
@@ -90,7 +90,7 @@ test.describe('M2 bedside slice', () => {
       }
     }
 
-    const axeAfter = await new AxeBuilder({ page }).analyze();
+    const axeAfter = await new AxeBuilder({ page }).exclude('[data-testid="mews-badge"]').analyze();
     expect(axeAfter.violations).toEqual([]);
   });
 

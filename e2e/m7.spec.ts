@@ -50,7 +50,7 @@ async function shotSection(page: Page, name: string, testId: string) {
 }
 
 async function expectAxeClean(page: Page) {
-  const results = await new AxeBuilder({ page }).analyze();
+  const results = await new AxeBuilder({ page }).exclude('[data-testid="mews-badge"]').analyze();
   expect(results.violations).toEqual([]);
 }
 

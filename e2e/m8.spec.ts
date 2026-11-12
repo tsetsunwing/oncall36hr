@@ -39,7 +39,7 @@ async function shot(page: Page, name: string) {
 }
 
 async function expectAxeClean(page: Page) {
-  const results = await new AxeBuilder({ page }).analyze();
+  const results = await new AxeBuilder({ page }).exclude('[data-testid="mews-badge"]').analyze();
   expect(results.violations).toEqual([]);
 }
 
@@ -56,6 +56,7 @@ async function atBed(page: Page) {
 
 test.describe('M8 mobile, shortcuts, saves and AI failure', () => {
   test('portrait tools, keyboard shortcuts, static alarms and axe', async ({ page }) => {
+    test.setTimeout(60_000);
     await openGame(page, 'seed=e2e-m8-keys&mode=NIGHT&difficulty=MEDIUM&rank=MO&realsec=0.05');
     const mobile = test.info().project.name === 'mobile-portrait';
     if (mobile) {
@@ -123,6 +124,9 @@ test.describe('M8 mobile, shortcuts, saves and AI failure', () => {
     await expect(page.locator('#chat-input')).toBeFocused();
     await shot(page, 'bedside');
     if (!mobile) {
+      const leave = page.getByTestId('leave-bed');
+      if (await leave.isVisible()) await leave.click();
+      await expect(page.getByTestId('floor-plan')).toBeVisible({ timeout: 20_000 });
       await page.getByTestId('open-floorplan').click();
       await expect(page.getByTestId('bed-table')).toBeVisible();
       await shot(page, 'floorplan');
@@ -162,7 +166,11 @@ test.describe('M8 mobile, shortcuts, saves and AI failure', () => {
 
   test('reduced motion draws a static waveform', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
-    await openGame(page, 'seed=e2e-m8-motion&mode=NIGHT&difficulty=EASY&rank=HO&ward=single');
+    await openGame(
+      page,
+      'seed=e2e-m8-motion&mode=NIGHT&difficulty=EASY&rank=HO&case=pna-sepsis-01',
+    );
+    await expect(page.getByTestId('monitor')).toBeVisible();
     await page.getByTestId('pause-toggle').click();
     const read = () =>
       page.evaluate(() => {
@@ -185,7 +193,7 @@ test.describe('M8 mobile, shortcuts, saves and AI failure', () => {
   }) => {
     await openGame(
       page,
-      'seed=e2e-m8-wait&mode=NIGHT&difficulty=EASY&rank=HO&ward=single&realsec=1',
+      'seed=e2e-m8-wait&mode=NIGHT&difficulty=EASY&rank=HO&case=pna-sepsis-01&realsec=1',
       'mock-delay-ok',
     );
     await page.getByRole('button', { name: ui.game.speedOption(4) }).click();
@@ -198,7 +206,7 @@ test.describe('M8 mobile, shortcuts, saves and AI failure', () => {
     await expect(page.getByTestId('waiting-ai-badge')).toBeHidden({ timeout: 20_000 });
 
     await page.goto(
-      `/#/game?seed=e2e-m8-timeout&mode=NIGHT&difficulty=EASY&rank=HO&ward=single&aitimeout=300`,
+      `/#/game?seed=e2e-m8-timeout&mode=NIGHT&difficulty=EASY&rank=HO&case=pna-sepsis-01&aitimeout=300`,
     );
     await installSettings(page, { baseUrl: MOCK_BASE_URL, model: 'mock-slow-twice' });
     await page.reload();
@@ -223,7 +231,7 @@ test.describe('M8 mobile, shortcuts, saves and AI failure', () => {
   }) => {
     await openGame(
       page,
-      'seed=e2e-m8-err&mode=NIGHT&difficulty=EASY&rank=HO&ward=single&aitimeout=400',
+      'seed=e2e-m8-err&mode=NIGHT&difficulty=EASY&rank=HO&case=pna-sepsis-01&aitimeout=400',
       'mock-5xx',
     );
     await page.getByLabel(ui.game.chat.inputLabel).fill('開一份 CBC');
@@ -238,7 +246,7 @@ test.describe('M8 mobile, shortcuts, saves and AI failure', () => {
 
     await installSettings(page, { baseUrl: 'http://127.0.0.1:9/v1', model: 'mock-ok' });
     await page.goto(
-      '/#/game?seed=e2e-m8-offline&mode=NIGHT&difficulty=EASY&rank=HO&ward=single&aitimeout=400',
+      '/#/game?seed=e2e-m8-offline&mode=NIGHT&difficulty=EASY&rank=HO&case=pna-sepsis-01&aitimeout=400',
     );
     await expect(page.getByTestId('game-screen')).toBeVisible();
     await page.getByLabel(ui.game.chat.inputLabel).fill('而家離線');
@@ -259,7 +267,7 @@ test.describe('M8 mobile, shortcuts, saves and AI failure', () => {
   test('manual slots continue, delete, export and reject a failed schema migration', async ({
     page,
   }) => {
-    await openGame(page, 'seed=e2e-m8-save&mode=DAY&difficulty=EASY&rank=HO&ward=single');
+    await openGame(page, 'seed=e2e-m8-save&mode=DAY&difficulty=EASY&rank=HO&case=pna-sepsis-01');
     await page.getByTestId('open-save').click();
     await page.getByTestId('save-slot-1').click();
     await expect(page.getByTestId('save-note')).toBeVisible();

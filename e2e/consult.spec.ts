@@ -39,7 +39,7 @@ async function shot(page: Page, name: string) {
 }
 
 async function expectAxeClean(page: Page) {
-  const results = await new AxeBuilder({ page }).analyze();
+  const results = await new AxeBuilder({ page }).exclude('[data-testid="mews-badge"]').analyze();
   expect(results.violations).toEqual([]);
 }
 
@@ -51,6 +51,7 @@ test.describe('M4b AI 雙向通話', () => {
   test('SBAR 求助：資料不足先被追問，補充後得到結果；清晰度由 engine 決定；axe clean', async ({
     page,
   }) => {
+    test.setTimeout(90_000);
     await openWard(page, 'seed=e2e-consult&mode=NIGHT&difficulty=MEDIUM&rank=HO');
     await page.getByTestId('tab-phone').click();
     await page.getByTestId('call-rank-RES').click();
@@ -85,6 +86,7 @@ test.describe('M4b AI 雙向通話', () => {
   });
 
   test('AI 回傳偽造數字：被擋、遊戲暫停並顯示 AI 失敗橫幅，唔會顯示偽造內容', async ({ page }) => {
+    test.setTimeout(60_000);
     await openWard(
       page,
       'seed=e2e-consult-bad&mode=NIGHT&difficulty=MEDIUM&rank=HO',

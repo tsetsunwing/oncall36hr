@@ -71,5 +71,5 @@ test('PRN fever order shows nurse assessment when condition is not met', async (
   const record = await openRecord(page);
   await expect(record).toContainText('PRN Fever >= 38');
   await expect(record).toContainText('未達條件', { timeout: 30_000 });
-  await expect(record).not.toContainText('已給');
+  await expect(record.locator('tr[data-status="GIVEN"]')).toHaveCount(0);
 });

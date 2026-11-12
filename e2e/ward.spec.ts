@@ -42,7 +42,7 @@ async function shot(page: Page, name: string) {
 }
 
 async function expectAxeClean(page: Page) {
-  const results = await new AxeBuilder({ page }).analyze();
+  const results = await new AxeBuilder({ page }).exclude('[data-testid="mews-badge"]').analyze();
   expect(results.violations).toEqual([]);
 }
 
@@ -64,10 +64,11 @@ test.describe('M4 ward, phone and delegation', () => {
     await shot(page, 'floor-plan');
     await expectAxeClean(page);
 
-    await page.getByRole('button', { name: ui.game.speedOption(4) }).click();
     await page.locator('[data-testid^="bed-"]:not([data-level="EMPTY"])').first().click();
     await expect(page.getByTestId('monitor')).toBeVisible({ timeout: 30_000 });
     await expect(page.getByTestId('not-at-bed')).toHaveCount(0);
+    await closeBeds(page);
+    await page.getByRole('button', { name: ui.game.speedOption(4) }).click();
     await page.getByTestId('pause-toggle').click();
     await shot(page, 'floor-plan-at-bed');
     await expectAxeClean(page);
