@@ -24,6 +24,7 @@ const SPOT = {
   cvc: { x: 47, y: 18 },
   chestTube: { x: 31, y: 30 },
   iv: { x: 17, y: 41 },
+  io: { x: 38, y: 72 },
   arterial: { x: 77, y: 44 },
   foley: { x: 47, y: 52 },
 } as const;
@@ -77,9 +78,14 @@ function oxygenLabel(patient: Patient, orders: GameState['orders']): string | nu
   return latest ? (OXYGEN_MARK[latest.catalogId] ?? 'O2') : 'O2';
 }
 
+function hasIo(patient: Patient): boolean {
+  return hasFlag(patient, 'ivio.in');
+}
+
 function hasIv(patient: Patient, orders: GameState['orders'], tables: EngineTables): boolean {
-  if (hasFlag(patient, 'piv.in') || hasFlag(patient, 'ivio.in') || hasFlag(patient, 'fluid.bolus'))
-    return true;
+  if (hasFlag(patient, 'piv.in')) return true;
+  if (hasIo(patient)) return false;
+  if (hasFlag(patient, 'fluid.bolus')) return true;
   return Object.values(orders).some((order) => {
     if (order.patientId !== patient.id) return false;
     if (order.status !== 'RUNNING' && order.status !== 'DONE') return false;
@@ -118,7 +124,8 @@ export function selectBodyDiagram(
   if (hasFlag(patient, 'chesttube.in')) {
     markers.push(marker('chest-tube', 'chestTube', 'Chest tube', SPOT.chestTube));
   }
-  if (hasIv(patient, orders, tables)) markers.push(marker('iv', 'iv', 'IV / IO', SPOT.iv));
+  if (hasIv(patient, orders, tables)) markers.push(marker('iv', 'iv', 'IV', SPOT.iv));
+  if (hasIo(patient)) markers.push(marker('io', 'io', 'IO', SPOT.io));
   const runningInfusions = Object.values(orders).filter((order) => {
     if (order.patientId !== patient.id || order.status !== 'RUNNING') return false;
     const row = tables['order-catalog'].find((item) => item.id === order.catalogId);

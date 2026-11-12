@@ -48,7 +48,7 @@ export function gateRolesFor(
   ctx: EngineContext,
 ): GateRole[] {
   const roles: GateRole[] = [];
-  if (row.pharmacyGate) roles.push('PHARMACY');
+  if (row.pharmacyGate && row.type === 'DRUG') roles.push('PHARMACY');
   const nurseGates =
     row.nurseGate === 'ALWAYS' ||
     (row.nurseGate === 'HIGH_RISK' && state.options.nurseConfirmHighRisk);
@@ -114,7 +114,12 @@ export function placeCatalogOrder(state: GameState, input: PlaceInput, ctx: Engi
     kind: 'ORDER',
     orderId: id,
     executor,
-    reasonCode: roles.length === 0 ? null : ORDER_AWAITING_GATE_CODE,
+    reasonCode:
+      roles.length === 0
+        ? null
+        : roles.includes('PHARMACY')
+          ? ORDER_AWAITING_GATE_CODE
+          : 'AWAITING_NURSE',
     resultText: null,
     nurseNote: null,
   });

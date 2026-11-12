@@ -310,10 +310,11 @@ export const ui = {
         DEATH_STEP_RECORD: '已完成簡短記錄',
         DEATH_PROCESS_COMPLETE: '死亡流程完成，床位已釋放',
       } as Record<string, string>,
-      reasons: { CANCELLED_BY_PLAYER: '玩家取消', AWAITING_GATE: '等待藥房／護士確認' } as Record<
-        string,
-        string
-      >,
+      reasons: {
+        CANCELLED_BY_PLAYER: '玩家取消',
+        AWAITING_GATE: '等待藥房／護士確認',
+        AWAITING_NURSE: '等待護士確認',
+      } as Record<string, string>,
       open: '開啟行動記錄與 order',
       close: '關閉',
     },
@@ -343,6 +344,13 @@ export const ui = {
         `需完成至少 ${String(min)} 輪 rhythm check 才能停止搶救（目前 ${String(cycles)} 輪）。`,
       ordersLabel: '搶救指示',
       ordersHint: '你只負責下指示，CPR 由護士進行。',
+      aclsGroup: {
+        airway: '氣道 Airway',
+        breathing: '呼吸 Breathing',
+        circulation: '循環 Circulation',
+        drugs: '藥物 Drugs',
+        defibrillation: '除顫 Defibrillation',
+      } as Record<string, string>,
       drugs: '已給藥物',
       noDrugs: '尚未給藥',
       causes: '可逆病因 Reversible Causes（H 與 T）',
@@ -395,6 +403,8 @@ export const ui = {
       heading: '待確認的 order',
       phase: {
         REVIEW: '藥房／護士審視中……',
+        REVIEW_PHARMACY: '藥房審視中……',
+        REVIEW_NURSE: '護士審視中……',
         DECISION: '有人提出關注，請決定取消或堅持。',
         RECONFIRM: '已堅持一次，對方要求再次確認。',
         RATING: '正在評估風險……',

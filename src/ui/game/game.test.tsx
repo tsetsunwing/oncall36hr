@@ -270,6 +270,26 @@ describe('閃爍數值：只由 CSS 驅動，並尊重 reduced-motion', () => {
 });
 
 describe('ChatPanel', () => {
+  it('護士 SBAR 對白用較細字', () => {
+    const view = chat();
+    view.lines.push({
+      id: 'l-sbar',
+      kind: 'NURSE',
+      speakerId: 'n1',
+      speakerName: '何姑娘',
+      text: 'S：3號床情況轉差。B：剛量生命體徵。A：MEWS 6。R：請過嚟評估。',
+      systemCode: null,
+      timeLabel: '21:06',
+      orderId: null,
+      source: 'BEDSIDE',
+    });
+    render(<ChatPanel chat={view} chips={[]} notice={null} actions={makeActions()} />);
+    const sbar = screen.getByText(/請過嚟評估/);
+    expect(sbar).toHaveClass('chat-text', 'chat-text--sbar');
+    expect(screen.getByText('血壓 96/58，我即刻幫你量。')).toHaveClass('chat-text');
+    expect(screen.getByText('血壓 96/58，我即刻幫你量。')).not.toHaveClass('chat-text--sbar');
+  });
+
   it('SYSTEM 行由 code 顯示；NURSE 行顯示已解析文字；輸入中指示', () => {
     const view = chat();
     view.present[0] = { ...view.present[0]!, typing: true };

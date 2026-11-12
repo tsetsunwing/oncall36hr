@@ -526,6 +526,11 @@ main.wide {
   overflow-wrap: anywhere;
 }
 
+.chat-text--sbar {
+  font-size: var(--fs-sm);
+  line-height: 1.35;
+}
+
 .chat-system {
   text-align: center;
   font-size: var(--fs-sm);
@@ -1369,6 +1374,20 @@ button.landmark {
   gap: 0.5rem;
 }
 
+.toolbar-discharge {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.toolbar-discharge [role='group'] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+}
+
 .tabs {
   display: flex;
   gap: 0.25rem;
@@ -1819,6 +1838,12 @@ textarea {
   border-radius: 10px;
 }
 
+.resus {
+  min-height: 0;
+  overflow: auto;
+  font-size: var(--fs-sm);
+}
+
 .resus[data-status='ARREST'],
 .death-flow[data-status='PENDING_PROCESS'] {
   border-color: var(--danger-text);
@@ -1863,13 +1888,37 @@ textarea {
 .resus-facts dd,
 .death-prefill dd {
   margin: 0;
-  font-weight: 700;
+  font-size: var(--fs-sm);
+  font-weight: 600;
 }
 
 .resus-hint {
   margin: 0.35rem 0;
-  font-size: var(--fs-body);
+  font-size: var(--fs-sm);
   color: var(--muted);
+}
+
+.resus-acls-group + .resus-acls-group {
+  margin-top: 0.25rem;
+}
+
+.resus-acls-label {
+  margin: 0 0 0.15rem;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.resus .panel-title {
+  font-size: var(--fs-md);
+}
+
+.resus .chip {
+  font-size: var(--fs-xs);
+}
+
+.game-main > .resus {
+  max-height: 50vh;
 }
 
 ul.chips {

@@ -3,6 +3,7 @@ import { ui } from '@/i18n';
 import {
   EMPTY_PLACED_PARAMS,
   formatDuration,
+  RESUS_ACLS_GROUPS,
   type GameActions,
   type MedicationOption,
   type QuickChipView,
@@ -10,16 +11,6 @@ import {
 } from '@/view';
 import { ChipPrompt } from './ChipPrompt';
 import { DrugOrderForm } from './DrugOrderForm';
-
-const ACLS_CHIP_IDS = [
-  'qw.cpr',
-  'qw.rhythm',
-  'qw.defib200',
-  'qw.adrenaline',
-  'qw.amiodarone',
-  'qw.pocus',
-  'qw.stopcpr',
-] as const;
 
 export interface ResusPanelProps {
   patientId: string;
@@ -44,7 +35,10 @@ export function ResusPanel({
   const arrest = resus.status === 'ARREST';
   const [promptChip, setPromptChip] = useState<QuickChipView | null>(null);
   const [drugChip, setDrugChip] = useState<QuickChipView | null>(null);
-  const shown = ACLS_CHIP_IDS.flatMap((id) => chips.filter((chip) => chip.id === id));
+  const aclsGroups = RESUS_ACLS_GROUPS.map((group) => ({
+    ...group,
+    items: group.chipIds.flatMap((id) => chips.filter((chip) => chip.id === id)),
+  })).filter((group) => group.items.length > 0);
   const groups = ['H', 'T'] as const;
 
   return (
@@ -53,6 +47,7 @@ export function ResusPanel({
       data-testid="resus-panel"
       data-status={resus.status}
       aria-labelledby="resus-heading"
+      tabIndex={0} // eslint-disable-line jsx-a11y/no-noninteractive-tabindex -- 可捲動區域
     >
       <h2 id="resus-heading" className="panel-title">
         {r.heading}
@@ -99,43 +94,52 @@ export function ResusPanel({
       {arrest ? (
         <div className="resus-orders" role="group" aria-label={r.ordersLabel}>
           <p className="resus-hint">{r.ordersHint}</p>
-          <ul className="chips">
-            {shown.map((chip) => (
-              <li key={chip.id}>
-                <button
-                  type="button"
-                  className="btn chip"
-                  data-testid={`resus-${chip.id}`}
-                  onClick={() => {
-                    if (chip.medicationId) setDrugChip(chip);
-                    else if (chip.prompt) setPromptChip(chip);
-                    else if (chip.catalogId) {
-                      actions.placeOrder(
-                        patientId,
-                        chip.catalogId,
-                        chip.label,
-                        EMPTY_PLACED_PARAMS,
-                      );
-                    }
-                  }}
-                >
-                  {chip.label}
-                </button>
-                {promptChip?.id === chip.id && promptChip.prompt ? (
-                  <ChipPrompt
-                    chip={promptChip}
-                    onSubmit={(text, params) => {
-                      if (!promptChip.catalogId) return;
-                      actions.placeOrder(patientId, promptChip.catalogId, text, params);
-                    }}
-                    onClose={() => {
-                      setPromptChip(null);
-                    }}
-                  />
-                ) : null}
-              </li>
-            ))}
-          </ul>
+          {aclsGroups.map((group) => (
+            <div
+              key={group.id}
+              className="resus-acls-group"
+              data-testid={`resus-group-${group.id}`}
+            >
+              <p className="resus-acls-label">{r.aclsGroup[group.id] ?? group.id}</p>
+              <ul className="chips">
+                {group.items.map((chip) => (
+                  <li key={chip.id}>
+                    <button
+                      type="button"
+                      className="btn chip"
+                      data-testid={`resus-${chip.id}`}
+                      onClick={() => {
+                        if (chip.medicationId) setDrugChip(chip);
+                        else if (chip.prompt) setPromptChip(chip);
+                        else if (chip.catalogId) {
+                          actions.placeOrder(
+                            patientId,
+                            chip.catalogId,
+                            chip.label,
+                            EMPTY_PLACED_PARAMS,
+                          );
+                        }
+                      }}
+                    >
+                      {chip.label}
+                    </button>
+                    {promptChip?.id === chip.id && promptChip.prompt ? (
+                      <ChipPrompt
+                        chip={promptChip}
+                        onSubmit={(text, params) => {
+                          if (!promptChip.catalogId) return;
+                          actions.placeOrder(patientId, promptChip.catalogId, text, params);
+                        }}
+                        onClose={() => {
+                          setPromptChip(null);
+                        }}
+                      />
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
           {resus.canStop ? null : (
             <p className="resus-hint">{r.stopHint(resus.cycles, resus.minCyclesBeforeStop)}</p>
           )}

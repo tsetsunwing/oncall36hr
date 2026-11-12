@@ -63,3 +63,17 @@ export const RESUS_MENU = [
 ] as const;
 
 export type ResusColumnId = (typeof RESUS_MENU)[number]['id'];
+
+/** 搶救面板按 ACLS 分類現有快捷，不新增途徑。 */
+export const RESUS_ACLS_GROUPS = [
+  { id: 'airway', chipIds: ['qw.intubation'] },
+  { id: 'breathing', chipIds: ['qw.resus.bvm', 'qw.resus.ventilation'] },
+  {
+    id: 'circulation',
+    chipIds: ['qw.cpr', 'qw.rhythm', 'qw.stopcpr', 'qw.resus.ivio', 'qw.pocus'],
+  },
+  { id: 'drugs', chipIds: ['qw.adrenaline', 'qw.amiodarone'] },
+  { id: 'defibrillation', chipIds: ['qw.defib200'] },
+] as const;
+
+export type ResusAclsGroupId = (typeof RESUS_ACLS_GROUPS)[number]['id'];

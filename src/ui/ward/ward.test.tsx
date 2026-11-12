@@ -382,6 +382,39 @@ describe('房間取代平面圖', () => {
     expect(actions.enterPlace).toHaveBeenCalledWith('STATION');
   });
 
+  it('病歷掣只寫中文，安排出院在對話工具列，待辦只在地標', async () => {
+    const actions = makeActions();
+    const atBed = {
+      ...gameAt(null),
+      patient,
+      monitor: monitor(),
+      chat: chat(),
+      body: { markers: [], ioOrder: null },
+    };
+    const { rerender } = render(<WardGame view={atBed} ward={ward()} actions={actions} />);
+    expect(screen.getByTestId('open-medical-record')).toHaveTextContent('病歷');
+    expect(screen.getByTestId('open-medical-record')).not.toHaveTextContent('Medical Record');
+    expect(screen.getByTestId('discharge').closest('.ward-toolbar')).not.toBeNull();
+    expect(screen.getByTestId('body-diagram')).not.toContainElement(
+      screen.getByTestId('discharge'),
+    );
+    expect(screen.queryByTestId('queue')).not.toBeInTheDocument();
+    await userEvent.click(screen.getByTestId('discharge'));
+    await userEvent.click(screen.getByTestId('confirm-departure'));
+    expect(actions.discharge).toHaveBeenCalledWith(patient.id);
+
+    rerender(<WardGame view={gameAt(null)} ward={ward()} actions={actions} />);
+    expect(screen.getByTestId('queue')).toBeInTheDocument();
+    rerender(<WardGame view={gameAt('STATION')} ward={ward()} actions={actions} />);
+    expect(screen.getByTestId('queue')).toBeInTheDocument();
+    rerender(<WardGame view={gameAt('PANTRY')} ward={ward()} actions={actions} />);
+    expect(screen.getByTestId('queue')).toBeInTheDocument();
+    rerender(<WardGame view={gameAt('REST')} ward={ward()} actions={actions} />);
+    expect(screen.getByTestId('queue')).toBeInTheDocument();
+    rerender(<WardGame view={gameAt('WC')} ward={ward()} actions={actions} />);
+    expect(screen.getByTestId('queue')).toBeInTheDocument();
+  });
+
   it('打開病歷時喺同一欄推開身體圖，唔覆蓋', async () => {
     const atBed = {
       ...gameAt(null),
@@ -389,7 +422,10 @@ describe('房間取代平面圖', () => {
       monitor: monitor(),
       chat: chat(),
       body: {
-        markers: [{ id: 'iv', kind: 'iv' as const, label: 'IV / IO', x: 17, y: 41 }],
+        markers: [
+          { id: 'iv', kind: 'iv' as const, label: 'IV', x: 17, y: 41 },
+          { id: 'io', kind: 'io' as const, label: 'IO', x: 38, y: 72 },
+        ],
         ioOrder: null,
       },
     };
@@ -405,6 +441,10 @@ describe('房間取代平面圖', () => {
     expect(getComputedStyle(record).position).not.toBe('absolute');
     expect(getComputedStyle(record).position).not.toBe('fixed');
     expect(diagram).toContainElement(screen.getByTestId('body-iv'));
+    expect(diagram).toContainElement(screen.getByTestId('body-io'));
+    expect(screen.getByTestId('body-iv')).toHaveTextContent('IV');
+    expect(screen.getByTestId('body-io')).toHaveTextContent('IO');
+    expect(screen.getByTestId('body-iv')).not.toHaveTextContent('IO');
   });
 
   it('神經與疼痛喺身體圖欄，唔喺監察儀下面', () => {

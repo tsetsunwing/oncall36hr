@@ -21,7 +21,7 @@ export function BodyDiagram({
   reports: ReportView[];
 }) {
   const [recordOpen, setRecordOpen] = useState(false);
-  const [departure, setDeparture] = useState<'transfer' | 'discharge' | null>(null);
+  const [departure, setDeparture] = useState<'transfer' | null>(null);
   const w = ui.game.ward;
   const ioOrder = body.ioOrder;
   return (
@@ -77,67 +77,47 @@ export function BodyDiagram({
           actions.assessNausea(patientId);
         }}
       />
-      <div className="departure-actions">
-        {patient.icuTransferReady ? (
-          <button
-            type="button"
-            className="btn btn-small"
-            data-testid="transfer-out"
-            onClick={() => {
-              setDeparture('transfer');
-            }}
-          >
-            {w.medicalRecord.transfer}
-          </button>
-        ) : null}
-        <button
-          type="button"
-          className="btn btn-small"
-          data-testid="discharge"
-          onClick={() => {
-            setDeparture('discharge');
-          }}
-        >
-          {w.medicalRecord.discharge}
-        </button>
-        {departure ? (
-          <div
-            role="group"
-            aria-label={
-              departure === 'transfer'
-                ? w.medicalRecord.confirmTransfer
-                : w.medicalRecord.confirmDischarge
-            }
-          >
-            <span>
-              {departure === 'transfer'
-                ? w.medicalRecord.confirmTransfer
-                : w.medicalRecord.confirmDischarge}
-            </span>
+      {patient.icuTransferReady || departure === 'transfer' ? (
+        <div className="departure-actions">
+          {patient.icuTransferReady ? (
             <button
               type="button"
               className="btn btn-small"
-              data-testid="confirm-departure"
+              data-testid="transfer-out"
               onClick={() => {
-                if (departure === 'transfer') actions.transferOut(patientId);
-                else actions.discharge(patientId);
-                setDeparture(null);
+                setDeparture('transfer');
               }}
             >
-              {w.medicalRecord.confirm}
+              {w.medicalRecord.transfer}
             </button>
-            <button
-              type="button"
-              className="btn btn-small"
-              onClick={() => {
-                setDeparture(null);
-              }}
-            >
-              {w.medicalRecord.cancel}
-            </button>
-          </div>
-        ) : null}
-      </div>
+          ) : null}
+          {departure === 'transfer' ? (
+            <div role="group" aria-label={w.medicalRecord.confirmTransfer}>
+              <span>{w.medicalRecord.confirmTransfer}</span>
+              <button
+                type="button"
+                className="btn btn-small"
+                data-testid="confirm-departure"
+                onClick={() => {
+                  actions.transferOut(patientId);
+                  setDeparture(null);
+                }}
+              >
+                {w.medicalRecord.confirm}
+              </button>
+              <button
+                type="button"
+                className="btn btn-small"
+                onClick={() => {
+                  setDeparture(null);
+                }}
+              >
+                {w.medicalRecord.cancel}
+              </button>
+            </div>
+          ) : null}
+        </div>
+      ) : null}
       <div className="body-diagram-stage">
         <svg className="body-outline" viewBox={BODY_VIEWBOX} aria-hidden="true" focusable="false">
           {BODY_SILHOUETTE_PATHS.map((d, index) => (

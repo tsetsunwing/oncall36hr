@@ -145,6 +145,38 @@ describe('新入職護士：冇提醒、冇 gate 請求', () => {
     expect(requestsOf(off, 'gate.nurse')).toHaveLength(0);
     expect(firstOrder(off.state)?.status).toBe('RUNNING');
   });
+
+  it('A-line 同其他程序不經藥房；高風險仍可由護士確認', () => {
+    const aline = feed(engine, fresh('aline-1'), [say('arterial line')]);
+    expect(firstOrder(aline.state)?.catalogId).toBe('proc.aline');
+    expect(requestsOf(aline, 'gate.pharmacy')).toHaveLength(0);
+    expect(requestsOf(aline, 'gate.nurse')).toHaveLength(1);
+    const catalog = feed(engine, fresh('aline-cat'), [
+      intentEvent({
+        type: 'PLACE_CATALOG',
+        patientId: 'p1',
+        catalogId: 'proc.aline',
+        text: 'Arterial line',
+        params: { drugFormularyId: null, dose: null, route: null },
+      }),
+    ]);
+    expect(firstOrder(catalog.state)?.catalogId).toBe('proc.aline');
+    expect(requestsOf(catalog, 'gate.pharmacy')).toHaveLength(0);
+    expect(requestsOf(catalog, 'gate.nurse')).toHaveLength(1);
+    expect(firstOrder(catalog.state)?.status).toBe('GATED');
+    expect(
+      catalog.state.actionLog.find((entry) => entry.orderId === firstOrder(catalog.state)?.id)
+        ?.reasonCode,
+    ).toBe('AWAITING_NURSE');
+    const cvc = feed(engine, fresh('cvc-1'), [say('cvc')]);
+    expect(requestsOf(cvc, 'gate.pharmacy')).toHaveLength(0);
+    const noNurse = feed(engine, fresh('aline-2', { nurseConfirmHighRisk: false }), [
+      say('arterial line'),
+    ]);
+    expect(requestsOf(noNurse, 'gate.pharmacy')).toHaveLength(0);
+    expect(requestsOf(noNurse, 'gate.nurse')).toHaveLength(0);
+    expect(firstOrder(noNurse.state)?.status).toBe('RUNNING');
+  });
 });
 
 describe('堅持流程', () => {

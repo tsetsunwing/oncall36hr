@@ -136,7 +136,8 @@ describe('身體圖只顯示在位裝置', () => {
       tables,
     );
     expect(body.markers.find((item) => item.kind === 'oxygen')?.label).toBe('HFNC');
-    expect(body.markers.find((item) => item.kind === 'iv')?.label).toBe('IV / IO');
+    expect(body.markers.find((item) => item.kind === 'iv')?.label).toBe('IV');
+    expect(body.markers.find((item) => item.kind === 'io')).toBeUndefined();
     expect(body.markers.filter((item) => item.kind === 'drain').map((item) => item.label)).toEqual([
       'left chest',
       'right abdomen',
@@ -154,5 +155,17 @@ describe('身體圖只顯示在位裝置', () => {
     );
     const drains = sameSide.markers.filter((item) => item.kind === 'drain');
     expect(drains[0]?.x).not.toBe(drains[1]?.x);
+  });
+
+  it('IV 同 IO 分開標記，骨內通道不寫成 IV / IO', () => {
+    const both = selectBodyDiagram(patientWith(['piv.in', 'ivio.in']), {}, tables);
+    expect(both.markers.find((item) => item.kind === 'iv')?.label).toBe('IV');
+    expect(both.markers.find((item) => item.kind === 'io')?.label).toBe('IO');
+    expect(both.markers.find((item) => item.kind === 'iv')?.x).not.toBe(
+      both.markers.find((item) => item.kind === 'io')?.x,
+    );
+    const ioOnly = selectBodyDiagram(patientWith(['ivio.in']), {}, tables);
+    expect(ioOnly.markers.map((item) => item.kind)).toEqual(['io']);
+    expect(ioOnly.markers[0]?.label).toBe('IO');
   });
 });

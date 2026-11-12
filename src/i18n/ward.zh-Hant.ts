@@ -9,7 +9,7 @@ export const wardUi = {
   bodyHeading: '身體圖 Body',
   bodyLabel: '病人身上的裝置',
   medicalRecord: {
-    open: '病歷 Medical Record',
+    open: '病歷',
     leave: '離開床邊',
     transfer: '完成轉出 ICU',
     discharge: '安排出院',

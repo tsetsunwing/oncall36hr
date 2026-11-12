@@ -47,6 +47,7 @@ describe('把關 ViewModel', () => {
     const view = selectGameView(placed.state, env);
     expect(view.gates).toHaveLength(1);
     expect(view.gates[0]).toMatchObject({ phase: 'REVIEW', concerns: [], canInsist: false });
+    expect(view.gates[0]?.reviewers).toContain('PHARMACY');
     expect(view.orders[0]).toMatchObject({ status: 'GATED', cancellable: true, etaSeconds: null });
   });
 

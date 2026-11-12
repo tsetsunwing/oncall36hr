@@ -37,6 +37,7 @@ export function WardGame({ view, ward, actions }: WardGameProps) {
   const frame = useFrame();
   const [delegationOpen, setDelegationOpen] = useState(false);
   const [delegationCall, setDelegationCall] = useState<string | null>(null);
+  const [dischargeOpen, setDischargeOpen] = useState(false);
 
   function openDelegation(callId: string | null) {
     setDelegationCall(callId);
@@ -70,6 +71,7 @@ export function WardGame({ view, ward, actions }: WardGameProps) {
 
   const atBed = view.patient !== null && view.monitor !== null && view.chat !== null;
   const inRoom = isCarePlace(view.shift.place);
+  const showQueue = !atBed;
   const planOpen = expandedAt === view.shift.place && !inRoom;
   const phoneRinging = ward.phone.calls.filter(
     (call) => call.tag !== 'FAMILY' && call.status === 'RINGING',
@@ -178,7 +180,7 @@ export function WardGame({ view, ward, actions }: WardGameProps) {
               }
             : {})}
         />
-        <QueuePanel ward={ward} reports={view.reports} shift={view.shift} />
+        {showQueue ? <QueuePanel ward={ward} reports={view.reports} shift={view.shift} /> : null}
       </div>
       <div className="ward-main">
         {atBed && view.patient && view.monitor ? (
@@ -289,6 +291,22 @@ export function WardGame({ view, ward, actions }: WardGameProps) {
               }}
             />
           ) : null}
+          {atBed && view.patient ? (
+            <DischargeControl
+              patientId={view.patient.id}
+              open={dischargeOpen}
+              onOpen={() => {
+                setDischargeOpen(true);
+              }}
+              onCancel={() => {
+                setDischargeOpen(false);
+              }}
+              onConfirm={() => {
+                if (view.patient) actions.discharge(view.patient.id);
+                setDischargeOpen(false);
+              }}
+            />
+          ) : null}
         </div>
         {tab === 'chat' ? (
           <div role="tabpanel" id="panel-chat" aria-labelledby="tab-chat">
@@ -350,6 +368,45 @@ export function WardGame({ view, ward, actions }: WardGameProps) {
           setDelegationOpen(false);
         }}
       />
+    </div>
+  );
+}
+
+function DischargeControl({
+  patientId,
+  open,
+  onOpen,
+  onCancel,
+  onConfirm,
+}: {
+  patientId: string;
+  open: boolean;
+  onOpen: () => void;
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
+  const t = ui.game.ward.medicalRecord;
+  return (
+    <div className="toolbar-discharge" data-patient={patientId}>
+      <button type="button" className="btn btn-small" data-testid="discharge" onClick={onOpen}>
+        {t.discharge}
+      </button>
+      {open ? (
+        <div role="group" aria-label={t.confirmDischarge}>
+          <span>{t.confirmDischarge}</span>
+          <button
+            type="button"
+            className="btn btn-small"
+            data-testid="confirm-departure"
+            onClick={onConfirm}
+          >
+            {t.confirm}
+          </button>
+          <button type="button" className="btn btn-small" onClick={onCancel}>
+            {t.cancel}
+          </button>
+        </div>
+      ) : null}
     </div>
   );
 }

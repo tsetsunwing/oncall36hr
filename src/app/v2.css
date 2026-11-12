@@ -528,6 +528,12 @@ h2,
   height: 286px;
 }
 
+.frame-desktop .ward-main > .resus {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: auto;
+}
+
 .frame-desktop .ward-toolbar {
   flex: none;
 }
@@ -1596,6 +1602,8 @@ tr[data-flag='H'] .value-flagged {
 
 .chips {
   position: relative;
+  container-type: inline-size;
+  container-name: chat-chips;
 }
 
 .chip-menu--tests,
@@ -2856,7 +2864,20 @@ button.place-room-action:disabled:not([data-active='true']) {
 }
 
 .chip-menu--panel {
-  width: min(36rem, calc(100vw - 32px));
+  width: min(36rem, 100cqw);
+  max-width: 100cqw;
+  box-sizing: border-box;
+  overflow: visible;
+}
+
+.observe-panel .drug-order-pack {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.observe-panel .drug-order-actions {
+  position: relative;
+  z-index: 1;
+  justify-content: flex-end;
 }
 
 .observe-panel {
@@ -3137,14 +3158,14 @@ button.place-room-action:disabled:not([data-active='true']) {
 
 /* 神經與疼痛：GCS、瞳孔、疼痛分數。放喺身體圖欄，用卡片淺色，唔用監察儀黑底。 */
 .neuro-strip {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   flex: none;
-  gap: 6px;
-  align-items: stretch;
-  padding: 8px 12px;
-  margin: 0 16px 8px;
-  font-size: var(--fs-body);
+  gap: 2px 8px;
+  align-items: center;
+  padding: 4px 8px;
+  margin: 0 16px 4px;
+  font-size: var(--fs-sm);
   color: var(--text);
   background: var(--bg);
   border: 1px solid var(--border);
@@ -3153,8 +3174,14 @@ button.place-room-action:disabled:not([data-active='true']) {
 
 .neuro-item {
   display: flex;
-  gap: 6px;
+  gap: 4px;
   align-items: center;
+  min-width: 0;
+}
+
+.neuro-item-pupils {
+  grid-column: 1 / -1;
+  gap: 8px;
 }
 
 .neuro-label {
@@ -3173,11 +3200,7 @@ button.place-room-action:disabled:not([data-active='true']) {
 
 .neuro-parts {
   color: var(--muted);
-  font-size: var(--fs-sm);
-}
-
-.neuro-item-pupils {
-  gap: 10px;
+  font-size: var(--fs-xs);
 }
 
 .neuro-pupil {

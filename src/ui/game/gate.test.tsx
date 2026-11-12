@@ -92,6 +92,25 @@ describe('GatePanel：取消／堅持用按鈕', () => {
     expect(screen.getByRole('button', { name: /取消/ })).toBeInTheDocument();
   });
 
+  it('只有護士審視程序時不寫藥房', () => {
+    render(
+      <GatePanel
+        gates={[
+          gate({
+            label: 'Arterial line insertion',
+            phase: 'REVIEW',
+            reviewers: ['NURSE'],
+            concerns: [],
+            canInsist: false,
+          }),
+        ]}
+        actions={makeActions()}
+      />,
+    );
+    expect(screen.getByRole('status')).toHaveTextContent(ui.game.gate.phase.REVIEW_NURSE ?? '');
+    expect(screen.getByRole('status')).not.toHaveTextContent('藥房');
+  });
+
   it('冇待確認 order 就唔渲染任何嘢', () => {
     const { container } = render(<GatePanel gates={[]} actions={makeActions()} />);
     expect(container).toBeEmptyDOMElement();
