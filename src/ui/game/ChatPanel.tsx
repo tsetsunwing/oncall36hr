@@ -742,30 +742,32 @@ export function ChatPanel({
         <h2 id="chat-heading">{c.heading}</h2>
         <ul className="present" aria-label={c.presentLabel}>
           {chat.present.map((p) => {
-            const selected = p.kind === 'PATIENT' && p.id === addresseeId;
+            const talkingToNurse = addresseeId === null;
+            const selected = p.kind === 'PATIENT' ? p.id === addresseeId : talkingToNurse;
             return (
-              <li
-                key={p.id}
-                className="present-chip"
-                data-kind={p.kind}
-                data-selected={selected ? 'true' : undefined}
-              >
-                {p.kind === 'PATIENT' ? (
-                  <button
-                    type="button"
-                    className="present-chip-hit"
-                    aria-pressed={selected}
-                    aria-label={selected ? c.stopAddressing(p.name) : c.addressPatient(p.name)}
-                    onClick={() => {
+              <li key={p.id}>
+                <button
+                  type="button"
+                  className="present-chip present-chip-hit"
+                  data-kind={p.kind}
+                  data-selected={selected ? 'true' : undefined}
+                  aria-pressed={selected}
+                  aria-label={
+                    p.kind === 'PATIENT' && selected
+                      ? c.stopAddressing(p.name)
+                      : c.addressPatient(p.name)
+                  }
+                  onClick={() => {
+                    if (p.kind === 'PATIENT') {
                       setAddresseeId(selected ? null : p.id);
-                      inputRef.current?.focus();
-                    }}
-                  >
-                    {p.name}
-                  </button>
-                ) : (
-                  p.name
-                )}
+                    } else {
+                      setAddresseeId(null);
+                    }
+                    inputRef.current?.focus();
+                  }}
+                >
+                  {p.name}
+                </button>
               </li>
             );
           })}

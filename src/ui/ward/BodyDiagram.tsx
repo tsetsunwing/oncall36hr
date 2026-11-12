@@ -288,28 +288,30 @@ function MedicalRecord({
       <p>{patient.allergies.length ? patient.allergies.join('、') : t.unknown}</p>
       <h4>{t.medications}</h4>
       <p>{t.marNote}</p>
-      {marRows.length ? (
-        <table className="mar-table">
-          <thead>
-            <tr>
-              <th scope="col">{t.marTime}</th>
-              <th scope="col">{t.marDrug}</th>
-              <th scope="col">{t.marStatus}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {marRows.map((row) => (
+      <table className="mar-table">
+        <thead>
+          <tr>
+            <th scope="col">{t.marTime}</th>
+            <th scope="col">{t.marDrug}</th>
+            <th scope="col">{t.marStatus}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {marRows.length ? (
+            marRows.map((row) => (
               <tr key={row.key} data-status={row.status}>
                 <td>{row.time}</td>
                 <td>{row.label}</td>
                 <td>{row.statusLabel}</td>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      ) : (
-        <p>{t.noOrders}</p>
-      )}
+            ))
+          ) : (
+            <tr className="mar-empty">
+              <td colSpan={3}>{t.noOrders}</td>
+            </tr>
+          )}
+        </tbody>
+      </table>
       {bagRows.length ? (
         <ul className="mar-bags">
           {bagRows.map((row) => (

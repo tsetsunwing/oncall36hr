@@ -60,7 +60,7 @@ export function NeuroStrip({
         {onAssessPain ? (
           <button
             type="button"
-            className="neuro-action"
+            className="btn btn-small neuro-action"
             data-testid="assess-pain"
             onClick={onAssessPain}
           >
@@ -81,7 +81,7 @@ export function NeuroStrip({
         {onAssessAgitation ? (
           <button
             type="button"
-            className="neuro-action"
+            className="btn btn-small neuro-action"
             data-testid="assess-agitation"
             onClick={onAssessAgitation}
           >
@@ -102,7 +102,7 @@ export function NeuroStrip({
         {onAssessNausea ? (
           <button
             type="button"
-            className="neuro-action"
+            className="btn btn-small neuro-action"
             data-testid="assess-nausea"
             onClick={onAssessNausea}
           >
@@ -119,17 +119,17 @@ export function NeuroStrip({
           {gcs.v} {n.motor}
           {gcs.m}
         </span>
+        {onAssessGcs ? (
+          <button
+            type="button"
+            className="btn btn-small neuro-action"
+            data-testid="assess-gcs"
+            onClick={onAssessGcs}
+          >
+            {n.assessGcs}
+          </button>
+        ) : null}
       </div>
-      {onAssessGcs ? (
-        <button
-          type="button"
-          className="neuro-action"
-          data-testid="assess-gcs"
-          onClick={onAssessGcs}
-        >
-          {n.assessGcs}
-        </button>
-      ) : null}
       <div className="neuro-item neuro-item-pupils" data-testid="neuro-pupils">
         <span className="neuro-label">{n.pupils}</span>
         <Pupil label={n.left} pupil={pupils.left} />
