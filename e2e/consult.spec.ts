@@ -151,7 +151,7 @@ test.describe('M4b AI 雙向通話', () => {
 
     await page.getByTestId('death-call-NOTIFY_SENIOR').click({ force: true });
     await expect(page.getByTestId('sbar-panel')).toBeVisible();
-    await page.getByTestId('sbar-send').click();
+    await page.getByTestId('sbar-send').click({ force: true });
     await page.getByTestId('tab-phone').click();
     await expect(death).toHaveAttribute('data-status', 'PENDING_PROCESS');
 

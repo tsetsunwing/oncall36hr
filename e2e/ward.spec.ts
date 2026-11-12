@@ -94,7 +94,14 @@ test.describe('M4 ward, phone and delegation', () => {
     if ((await ringing.count()) > 0) {
       await ringing.click();
       const bed = await page.getByTestId('call-detail').getAttribute('data-bed');
-      if (bed) await page.getByTestId(`bed-${bed}`).click();
+      if (bed) {
+        const bedBtn = page.getByTestId(`bed-${bed}`);
+        if (!(await bedBtn.isVisible())) {
+          const openBeds = page.getByTestId('open-beds');
+          if (await openBeds.isVisible()) await openBeds.click();
+        }
+        await bedBtn.click();
+      }
       await expect(page.getByTestId('call-status')).not.toHaveAttribute('data-status', 'RINGING');
     }
   });

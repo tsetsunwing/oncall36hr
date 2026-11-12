@@ -94,12 +94,8 @@ test.describe('M5 ACLS／CPR／死亡流程', () => {
     await expectAxeClean(page);
     await page.getByTestId('pause-toggle').click();
 
-    await order(page, 'qw.defib200');
-    const shockPrompt = page.getByTestId('chip-prompt');
-    await expect(shockPrompt).toBeVisible();
-    await shockPrompt.locator('input[type="number"]').fill('200');
-    await expect(page.getByTestId('chip-prompt-confirm')).toBeEnabled();
-    await shockPrompt.press('Enter');
+    await page.getByLabel(ui.game.chat.inputLabel).fill('defib 200 j');
+    await page.getByRole('button', { name: ui.game.chat.send, exact: true }).click();
     await expect(page.getByTestId('resus-shocks')).toHaveText('1', { timeout: 30_000 });
     await expect(panel).not.toHaveAttribute('data-status', 'STOPPED');
     if ((await panel.getAttribute('data-status')) === 'ROSC') {
