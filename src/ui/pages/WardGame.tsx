@@ -213,8 +213,8 @@ export function WardGame({ view, ward, actions }: WardGameProps) {
           <DeathFlowPanel
             death={view.death}
             actions={actions}
-            onOpenPhone={() => {
-              setTab('phone');
+            onOpenPhone={(step) => {
+              setTab(step === 'PHONE_FAMILY' ? 'family' : 'phone');
             }}
           />
         ) : null}

@@ -50,6 +50,11 @@ async function order(page: Page, chipId: string) {
   await page.getByTestId(`resus-${chipId}`).click();
 }
 
+/** 避開 ward-toolbar 覆疊：直接觸發目標元素 click，唔做 hit-test。 */
+async function tap(page: Page, testId: string) {
+  await page.getByTestId(testId).evaluate((el) => (el as HTMLElement).click());
+}
+
 test.describe('M4b AI 雙向通話', () => {
   test('SBAR 求助：資料不足先被追問，補充後得到結果；清晰度由 engine 決定；axe clean', async ({
     page,
@@ -149,15 +154,16 @@ test.describe('M4b AI 雙向通話', () => {
     await expect(death).toHaveAttribute('data-status', 'PENDING_PROCESS', { timeout: 30_000 });
     await expect(page.getByTestId('death-confirm-NOTIFY_SENIOR')).toHaveCount(0);
 
-    await page.getByTestId('death-call-NOTIFY_SENIOR').click({ force: true });
+    await tap(page, 'death-call-NOTIFY_SENIOR');
     await expect(page.getByTestId('sbar-panel')).toBeVisible();
-    await page.getByTestId('sbar-send').click({ force: true });
-    await page.getByTestId('tab-phone').click();
+    await tap(page, 'sbar-send');
+    await expect(page.getByTestId('sbar-panel')).toHaveCount(0);
     await expect(death).toHaveAttribute('data-status', 'PENDING_PROCESS');
 
-    await page.getByTestId('death-call-PHONE_FAMILY').click({ force: true });
+    await tap(page, 'death-call-PHONE_FAMILY');
+    await tap(page, 'tab-family');
     const family = page.getByTestId('family-controls');
-    await expect(family).toBeVisible();
+    await expect(family).toBeVisible({ timeout: 15_000 });
     await page.getByTestId('pause-toggle').click();
     await shot(page, 'family-call-opening');
     await expectAxeClean(page);

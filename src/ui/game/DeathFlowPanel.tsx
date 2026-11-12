@@ -4,8 +4,8 @@ import type { DeathStepView, DeathView, GameActions } from '@/view';
 export interface DeathFlowPanelProps {
   death: DeathView;
   actions: GameActions;
-  /** 病房模式：開始電話後轉到「電話」分頁 */
-  onOpenPhone?: () => void;
+  /** 病房模式：開始電話後轉到電話／家屬分頁 */
+  onOpenPhone?: (step: DeathStepView['step']) => void;
 }
 
 function fieldValue(field: string, death: DeathView, step: DeathStepView): string {
@@ -75,7 +75,7 @@ export function DeathFlowPanel({ death, actions, onOpenPhone }: DeathFlowPanelPr
                   data-testid={`death-call-${step.step}`}
                   onClick={() => {
                     actions.startDeathCall(death.patientId, step.step);
-                    onOpenPhone?.();
+                    onOpenPhone?.(step.step);
                   }}
                 >
                   {step.step === 'NOTIFY_SENIOR' ? d.callSenior : d.callFamily}
