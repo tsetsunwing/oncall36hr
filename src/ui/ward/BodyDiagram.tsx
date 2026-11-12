@@ -165,6 +165,48 @@ export function BodyDiagram({
   );
 }
 
+/** 每次預定劑次一行；未排劑次的醫囑（例如輸液、PRN）用開單時間顯示一次。 */
+interface MarRow {
+  key: string;
+  time: string;
+  label: string;
+  status: string;
+  statusLabel: string;
+}
+
+function buildMarRows(orders: OrderRowView[], t: typeof ui.game.ward.medicalRecord): MarRow[] {
+  const rows: MarRow[] = [];
+  for (const order of orders) {
+    const doses = order.administrations ?? [];
+    if (!doses.length) {
+      rows.push({
+        key: order.id,
+        time: order.timeLabel,
+        label: order.label,
+        status: order.status,
+        statusLabel: ui.game.orders.status[order.status],
+      });
+      continue;
+    }
+    doses.forEach((dose, index) => {
+      const statusLabel =
+        dose.status === 'GIVEN'
+          ? `${t.marStatuses.GIVEN} ${dose.givenTimeLabel ?? dose.scheduledTimeLabel}`
+          : dose.status === 'INFUSING'
+            ? `${t.marStatuses.INFUSING} ${dose.startedTimeLabel ?? ''}`.trim()
+            : t.marStatuses[dose.status];
+      rows.push({
+        key: `${order.id}-${String(index)}`,
+        time: dose.scheduledTimeLabel,
+        label: order.label,
+        status: dose.status,
+        statusLabel,
+      });
+    });
+  }
+  return rows;
+}
+
 /** 只顯示可見記錄，不暴露引擎的隱藏診斷。醫囑狀態不是給藥紀錄。 */
 function MedicalRecord({
   patient,
@@ -177,6 +219,27 @@ function MedicalRecord({
 }) {
   const t = ui.game.ward.medicalRecord;
   const medicines = orders.filter((order) => order.isMedication);
+  const marRows = buildMarRows(medicines, t);
+  const prnRows = medicines.flatMap((order) =>
+    (order.prnAssessments ?? []).map((assessment, index) => ({
+      key: `${order.id}-prn${String(index)}`,
+      text: `${order.label} · ${t.marAssessAt} ${assessment.timeLabel} · ${
+        assessment.observed === null ? t.marValueUnknown : String(assessment.observed)
+      } · ${t.marOutcome[assessment.outcome]}`,
+    })),
+  );
+  const bagRows = medicines.flatMap((order) =>
+    (order.fluidBags ?? []).map((bag, index) => ({
+      key: `${order.id}-bag${String(index)}`,
+      text: `${bag.solution}${bag.additive ? ` + ${bag.additive}` : ''} · ${String(
+        bag.volumeMl,
+      )} mL · ${t.marBagStart} ${bag.startTimeLabel} · ${
+        bag.status === 'INFUSING'
+          ? t.marBagInfusing
+          : `${bag.status === 'STOPPED' ? t.marBagStopped : t.marBagComplete} ${bag.endTimeLabel ?? ''}`.trim()
+      }`,
+    })),
+  );
   const results = reports
     .filter(
       (report) =>
@@ -206,67 +269,42 @@ function MedicalRecord({
       <p>{patient.allergies.length ? patient.allergies.join('、') : t.unknown}</p>
       <h4>{t.medications}</h4>
       <p>{t.marNote}</p>
-      {medicines.length ? (
-        <ul>
-          {medicines.map((order) => (
-            <li key={order.id}>
-              {order.timeLabel} · {order.label} · {ui.game.orders.status[order.status]}
-              {order.prnAssessments?.length ? (
-                <ul>
-                  {order.prnAssessments.map((a, index) => (
-                    <li key={index}>
-                      評估 {a.timeLabel} · {a.observed ?? '數值未知'} ·{' '}
-                      {
-                        {
-                          INVALID: '條件未完整',
-                          UNKNOWN: '未有數值',
-                          NOT_MET: '未達條件',
-                          INTERVAL: '未到最短間隔',
-                          INFUSING: '給藥進行中',
-                          ELIGIBLE: '符合條件',
-                        }[a.outcome]
-                      }
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
-              {order.fluidBags?.length ? (
-                <ul>
-                  {order.fluidBags.map((bag, index) => (
-                    <li key={index}>
-                      {bag.solution}
-                      {bag.additive ? ` + ${bag.additive}` : ''} · {bag.volumeMl} mL · 開始{' '}
-                      {bag.startTimeLabel} ·{' '}
-                      {bag.status === 'INFUSING'
-                        ? '輸注中'
-                        : `${bag.status === 'STOPPED' ? '已停止' : '完成'} ${bag.endTimeLabel ?? ''}`}
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
-              {order.administrations?.length ? (
-                <ul>
-                  {order.administrations.map((dose, index) => (
-                    <li key={`${dose.scheduledTimeLabel}-${String(index)}`}>
-                      {dose.status === 'GIVEN'
-                        ? `${dose.startedTimeLabel ? `開始 ${dose.startedTimeLabel} · 完成` : '已給'} ${dose.givenTimeLabel ?? ''}`
-                        : dose.status === 'INFUSING'
-                          ? `輸注中 · 開始 ${dose.startedTimeLabel ?? ''}`
-                          : dose.status === 'CANCELLED'
-                            ? dose.startedTimeLabel
-                              ? `開始 ${dose.startedTimeLabel} · 已停止 ${dose.stoppedTimeLabel ?? ''}`
-                              : `已取消 ${dose.scheduledTimeLabel}`
-                            : `預定 ${dose.scheduledTimeLabel}`}
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
-            </li>
-          ))}
-        </ul>
+      {marRows.length ? (
+        <table className="mar-table">
+          <thead>
+            <tr>
+              <th scope="col">{t.marTime}</th>
+              <th scope="col">{t.marDrug}</th>
+              <th scope="col">{t.marStatus}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {marRows.map((row) => (
+              <tr key={row.key} data-status={row.status}>
+                <td>{row.time}</td>
+                <td>{row.label}</td>
+                <td>{row.statusLabel}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       ) : (
         <p>{t.noOrders}</p>
       )}
+      {bagRows.length ? (
+        <ul className="mar-bags">
+          {bagRows.map((row) => (
+            <li key={row.key}>{row.text}</li>
+          ))}
+        </ul>
+      ) : null}
+      {prnRows.length ? (
+        <ul className="mar-prn">
+          {prnRows.map((row) => (
+            <li key={row.key}>{row.text}</li>
+          ))}
+        </ul>
+      ) : null}
       <h4>{t.results}</h4>
       {results.length ? (
         <ul>

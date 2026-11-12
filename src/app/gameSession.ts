@@ -291,6 +291,9 @@ export function createGameSession(options: GameSessionOptions): GameSession {
     assessGcs(patientId) {
       dispatch({ type: 'PLAYER_INTENT', intent: { type: 'ASSESS_GCS', patientId } });
     },
+    assessPain(patientId) {
+      dispatch({ type: 'PLAYER_INTENT', intent: { type: 'ASSESS_PAIN', patientId } });
+    },
   };
 
   function saveBecauseHidden(): void {

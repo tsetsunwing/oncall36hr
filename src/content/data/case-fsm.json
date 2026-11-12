@@ -5,22 +5,27 @@
     "salvageable": true,
     "states": {
       "DETERIORATING": {
-        "trajectory": "pna.deteriorating"
+        "trajectory": "pna.deteriorating",
+        "pain": 3
       },
       "SEPTIC_SHOCK": {
-        "trajectory": "pna.shock"
+        "trajectory": "pna.shock",
+        "pain": 4
       },
       "STABILISING": {
-        "trajectory": "pna.stabilising"
+        "trajectory": "pna.stabilising",
+        "pain": 2
       },
       "ARREST_PEA": {
         "trajectory": "acls.pulseless",
         "arrest": {
           "rhythm": "PULSELESS_ELECTRICAL_ACTIVITY"
-        }
+        },
+        "pain": 0
       },
       "POST_ROSC": {
-        "trajectory": "acls.postrosc"
+        "trajectory": "acls.postrosc",
+        "pain": 0
       }
     },
     "transitions": [
@@ -78,19 +83,23 @@
     "salvageable": true,
     "states": {
       "CHEST_PAIN": {
-        "trajectory": "acs.chestpain"
+        "trajectory": "acs.chestpain",
+        "pain": 8
       },
       "ARREST_VF": {
         "trajectory": "acls.pulseless",
         "arrest": {
           "rhythm": "VENTRICULAR_FIBRILLATION"
-        }
+        },
+        "pain": 0
       },
       "POST_ROSC": {
-        "trajectory": "acls.postrosc"
+        "trajectory": "acls.postrosc",
+        "pain": 0
       },
       "STABILISING": {
-        "trajectory": "acs.stabilising"
+        "trajectory": "acs.stabilising",
+        "pain": 3
       }
     },
     "postRoscState": "POST_ROSC",
@@ -130,16 +139,19 @@
     "salvageable": false,
     "states": {
       "END_STAGE": {
-        "trajectory": "terminal.decline"
+        "trajectory": "terminal.decline",
+        "pain": 5
       },
       "ARREST_ASYSTOLE": {
         "trajectory": "acls.pulseless",
         "arrest": {
           "rhythm": "ASYSTOLE"
-        }
+        },
+        "pain": 0
       },
       "POST_ROSC": {
-        "trajectory": "acls.postrosc"
+        "trajectory": "acls.postrosc",
+        "pain": 0
       }
     },
     "postRoscState": "POST_ROSC",
@@ -160,10 +172,12 @@
     "salvageable": true,
     "states": {
       "STABILISING": {
-        "trajectory": "cell.stable"
+        "trajectory": "cell.stable",
+        "pain": 3
       },
       "DETERIORATING": {
-        "trajectory": "cell.det"
+        "trajectory": "cell.det",
+        "pain": 5
       }
     },
     "transitions": [
@@ -193,10 +207,12 @@
     "salvageable": true,
     "states": {
       "STABILISING": {
-        "trajectory": "uti.stable"
+        "trajectory": "uti.stable",
+        "pain": 2
       },
       "DETERIORATING": {
-        "trajectory": "uti.det"
+        "trajectory": "uti.det",
+        "pain": 3
       }
     },
     "transitions": [
@@ -226,10 +242,12 @@
     "salvageable": true,
     "states": {
       "STABILISING": {
-        "trajectory": "copd.stable"
+        "trajectory": "copd.stable",
+        "pain": 2
       },
       "DETERIORATING": {
-        "trajectory": "copd.det"
+        "trajectory": "copd.det",
+        "pain": 3
       }
     },
     "transitions": [
@@ -259,10 +277,12 @@
     "salvageable": true,
     "states": {
       "STABILISING": {
-        "trajectory": "htn.stable"
+        "trajectory": "htn.stable",
+        "pain": 1
       },
       "DETERIORATING": {
-        "trajectory": "htn.det"
+        "trajectory": "htn.det",
+        "pain": 2
       }
     },
     "transitions": [
@@ -292,13 +312,16 @@
     "salvageable": true,
     "states": {
       "STABILISING": {
-        "trajectory": "hf.stable"
+        "trajectory": "hf.stable",
+        "pain": 2
       },
       "DETERIORATING": {
-        "trajectory": "hf.det"
+        "trajectory": "hf.det",
+        "pain": 3
       },
       "SEPTIC_SHOCK": {
-        "trajectory": "hf.shock"
+        "trajectory": "hf.shock",
+        "pain": 4
       }
     },
     "transitions": [
@@ -375,13 +398,16 @@
     "salvageable": true,
     "states": {
       "STABILISING": {
-        "trajectory": "ugib.stable"
+        "trajectory": "ugib.stable",
+        "pain": 3
       },
       "DETERIORATING": {
-        "trajectory": "ugib.det"
+        "trajectory": "ugib.det",
+        "pain": 4
       },
       "SEPTIC_SHOCK": {
-        "trajectory": "ugib.shock"
+        "trajectory": "ugib.shock",
+        "pain": 4
       }
     },
     "transitions": [
@@ -458,13 +484,16 @@
     "salvageable": true,
     "states": {
       "STABILISING": {
-        "trajectory": "pe.stable"
+        "trajectory": "pe.stable",
+        "pain": 3
       },
       "DETERIORATING": {
-        "trajectory": "pe.det"
+        "trajectory": "pe.det",
+        "pain": 5
       },
       "SEPTIC_SHOCK": {
-        "trajectory": "pe.shock"
+        "trajectory": "pe.shock",
+        "pain": 4
       }
     },
     "transitions": [
@@ -521,22 +550,27 @@
     "salvageable": true,
     "states": {
       "CHEST_PAIN": {
-        "trajectory": "acs.chestpain"
+        "trajectory": "acs.chestpain",
+        "pain": 7
       },
       "ARREST_VF": {
         "trajectory": "acls.pulseless",
         "arrest": {
           "rhythm": "VENTRICULAR_FIBRILLATION"
-        }
+        },
+        "pain": 0
       },
       "POST_ROSC": {
-        "trajectory": "acls.postrosc"
+        "trajectory": "acls.postrosc",
+        "pain": 0
       },
       "STABILISING": {
-        "trajectory": "acs.stabilising"
+        "trajectory": "acs.stabilising",
+        "pain": 2
       },
       "CHEST_PAIN_NO_VF": {
-        "trajectory": "acs.chestpain"
+        "trajectory": "acs.chestpain",
+        "pain": 6
       }
     },
     "postRoscState": "POST_ROSC",

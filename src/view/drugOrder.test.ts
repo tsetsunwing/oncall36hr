@@ -72,14 +72,17 @@ describe('藥物選項括號', () => {
     expect(composeDrugOrderPhrase(bolus)).toContain('PRN Fever');
   });
 
-  it('does not offer unimplemented pain PRN', () => {
+  it('accepts pain PRN with a pain-score threshold', () => {
     const pending = draft({
       frequency: 'Q4H',
       prn: 'Pain',
       prnComparison: '＞',
       prnThreshold: '4',
     });
-    expect(placedDrugParams('adrenaline', pending)).toBeNull();
+    expect(placedDrugParams('adrenaline', pending)).toMatchObject({
+      prnReason: 'Pain',
+      prnCondition: { metric: 'PAIN', comparison: '>', threshold: 4 },
+    });
   });
 
   it('聊天句子、途徑同頻次都唔帶括號', () => {

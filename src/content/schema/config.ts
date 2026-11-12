@@ -97,6 +97,15 @@ export const configSchema = z
       .object({
         maxActionsPerParse: z.number().int().positive(),
         medicationAnchorHour: z.number().int().min(0).max(23),
+        /** 病房派藥時鐘時間（Daily／BD／TDS／QID），同 anchor 一樣由設計者改。 */
+        fixedMedicationHours: z
+          .object({
+            Daily: z.array(z.number().int().min(0).max(23)).min(1),
+            BD: z.array(z.number().int().min(0).max(23)).min(1),
+            TDS: z.array(z.number().int().min(0).max(23)).min(1),
+            QID: z.array(z.number().int().min(0).max(23)).min(1),
+          })
+          .strict(),
       })
       .strict(),
     gate: z

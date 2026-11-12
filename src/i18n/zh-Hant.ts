@@ -53,6 +53,7 @@ export const ui = {
       painUnit: '/10',
       gcs: 'GCS',
       assessGcs: '評估 GCS',
+      assessPain: '評估疼痛',
       eye: 'E',
       verbal: 'V',
       motor: 'M',

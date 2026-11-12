@@ -34,7 +34,16 @@ export interface EngineConfig {
     playerTextMaxChars: number;
     alertCooldownSeconds: number;
   };
-  orders: { maxActionsPerParse: number; medicationAnchorHour: number };
+  orders: {
+    maxActionsPerParse: number;
+    medicationAnchorHour: number;
+    fixedMedicationHours: {
+      Daily: readonly number[];
+      BD: readonly number[];
+      TDS: readonly number[];
+      QID: readonly number[];
+    };
+  };
   gate: {
     pharmacyName: string;
     maxConcerns: number;

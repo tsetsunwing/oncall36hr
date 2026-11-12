@@ -86,6 +86,8 @@ export const caseFsmSchema = z
           trajectory: id,
           /** M5：進入呢個狀態即心臟停頓，初始節律由呢度指定（必須係無脈搏 rhythm） */
           arrest: z.object({ rhythm: id }).strict().optional(),
+          /** 評估疼痛時用嘅分數（0–10）。冇寫＝0。唔會由 AI 產生。 */
+          pain: z.number().int().min(0).max(10).optional(),
         })
         .strict(),
     ),

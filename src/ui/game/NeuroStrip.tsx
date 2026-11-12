@@ -10,6 +10,8 @@ export interface NeuroStripProps {
   patient: PatientView;
   /** 評估 GCS。只讀當下清醒程度；唔會自己變。 */
   onAssessGcs?: () => void;
+  /** 評估疼痛。分數由病例狀態表決定；未評估＝null。 */
+  onAssessPain?: () => void;
 }
 
 function Pupil({ label, pupil }: { label: string; pupil: PupilView }) {
@@ -28,7 +30,7 @@ function Pupil({ label, pupil }: { label: string; pupil: PupilView }) {
   );
 }
 
-export function NeuroStrip({ patient, onAssessGcs }: NeuroStripProps) {
+export function NeuroStrip({ patient, onAssessGcs, onAssessPain }: NeuroStripProps) {
   const n = ui.game.neuro;
   const { gcs, pupils } = patient.neuro;
   return (
@@ -46,6 +48,16 @@ export function NeuroStrip({ patient, onAssessGcs }: NeuroStripProps) {
             {n.painUnit}
           </span>
         )}
+        {onAssessPain ? (
+          <button
+            type="button"
+            className="neuro-action"
+            data-testid="assess-pain"
+            onClick={onAssessPain}
+          >
+            {n.assessPain}
+          </button>
+        ) : null}
       </div>
       <div className="neuro-item" data-testid="neuro-gcs">
         <span className="neuro-label">{n.gcs}</span>

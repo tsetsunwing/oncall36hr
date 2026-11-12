@@ -134,7 +134,7 @@ describe('PRN execution', () => {
     expect(after.orders[id2]?.status).toBe('RUNNING');
     expect(after.orders[id2]?.administrations).toEqual([]);
   });
-  it('holds unsupported pain PRN even when a visible pain score exists', () => {
+  it('gives pain PRN once the assessed pain score is above the threshold', () => {
     const start = initial();
     const patient = start.patients.p1;
     if (!patient) throw new Error('missing patient');
@@ -160,8 +160,35 @@ describe('PRN execution', () => {
     ]).state;
     const id = onlyId(placed);
     const after = advance(engine, placed, H).state;
+    expect(after.orders[id]?.prnAssessments?.[0]).toMatchObject({
+      outcome: 'ELIGIBLE',
+      observed: 9,
+    });
+    expect(after.orders[id]?.administrations).toHaveLength(1);
+  });
+
+  it('holds pain PRN while the pain score is still unassessed', () => {
+    const start = initial();
+    const placed = feed(engine, start, [
+      intentEvent({
+        type: 'PLACE_CATALOG',
+        patientId: 'p1',
+        catalogId: 'drug.ceftriaxone',
+        text: 'PRN pain',
+        params: {
+          drugFormularyId: 'ceftriaxone',
+          dose: { value: 1, unit: 'g' },
+          route: 'IV',
+          frequency: 'Q4H',
+          prnReason: 'Pain',
+          prnCondition: { metric: 'PAIN', comparison: '>', threshold: 4 },
+        },
+      }),
+    ]).state;
+    const id = onlyId(placed);
+    const after = advance(engine, placed, H).state;
     expect(after.orders[id]?.administrations).toEqual([]);
-    expect(after.orders[id]?.prnAssessments?.at(-1)).toMatchObject({ outcome: 'INVALID' });
+    expect(after.orders[id]?.prnAssessments?.at(-1)).toMatchObject({ outcome: 'UNKNOWN' });
   });
   it('evaluates temperature against the prescribed threshold', () => {
     const base = initial();

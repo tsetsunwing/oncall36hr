@@ -37,7 +37,7 @@ export const INFUSION_VOLUMES = ['10 mL', '50 mL', '100 mL', '250 mL', '500 mL']
 
 export const RATE_UNITS = ['mL/hr', 'unit/hr'] as const;
 
-export const PRN_REASONS = ['Fever'] as const;
+export const PRN_REASONS = ['Fever', 'Pain'] as const;
 
 export const TITRATION_TARGETS = ['MAP > 65 mmHg', 'HR 60-100 bpm', 'BP < 140 mmHg'] as const;
 
@@ -118,7 +118,7 @@ export function drugOrderReady(draft: DrugOrderDraft): boolean {
       !/^-?\d+(?:\.\d+)?$/.test(value)
     )
       return false;
-    if (draft.prn !== 'Fever') return false;
+    if (!PRN_REASONS.some((reason) => reason === draft.prn)) return false;
   }
   return draft.frequency !== null;
 }
@@ -152,7 +152,7 @@ export function placedDrugParams(
       const comparison = { '＞': '>', '≥': '>=', '＜': '<', '≤': '<=', '=': '=' } as const;
       params.prnReason = shortOptionLabel(draft.prn);
       params.prnCondition = {
-        metric: 'TEMPERATURE',
+        metric: draft.prn === 'Pain' ? 'PAIN' : 'TEMPERATURE',
         comparison: comparison[draft.prnComparison],
         threshold: Number(draft.prnThreshold),
       };

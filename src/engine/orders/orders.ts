@@ -21,7 +21,12 @@ import { composeOrderLabel } from './label';
 import { CANCELLABLE_STATUSES, type Order } from './orderTypes';
 import { startHourOf } from '../shift/timeline';
 import { startRegimenBag } from './infusionTiming';
-import { nextMedicationTime, prnEligible, type IntervalFrequency } from './medicationSchedule';
+import {
+  nextMedicationTime,
+  prnEligible,
+  type FixedFrequency,
+  type IntervalFrequency,
+} from './medicationSchedule';
 import {
   planAdministration,
   startAdministration,
@@ -35,27 +40,30 @@ export const PRN_CHECK_EVENT_KIND = 'PRN_CHECK';
 export const MEDICATION_DOSE_EVENT_KIND = 'MEDICATION_DOSE';
 export const MEDICATION_INFUSION_END_EVENT_KIND = 'MEDICATION_INFUSION_END';
 const Q_HOURS = ['Q1H', 'Q2H', 'Q4H', 'Q6H', 'Q8H', 'Q12H', 'Q24H'] as const;
-const NO_FIXED_HOURS = { Daily: [], BD: [], TDS: [], QID: [] };
+const FIXED_FREQUENCIES = ['Daily', 'BD', 'TDS', 'QID'] as const;
+type ScheduledFrequency = IntervalFrequency | FixedFrequency | 'STAT';
 
 function isScheduledMedication(
   order: Order,
   ctx: EngineContext,
-): order is Order & { params: Order['params'] & { frequency: IntervalFrequency | 'STAT' } } {
+): order is Order & { params: Order['params'] & { frequency: ScheduledFrequency } } {
   const row = ctx.tables['order-catalog'].find((r) => r.id === order.catalogId);
+  const frequency = order.params.frequency;
   return (
     row?.type === 'DRUG' &&
     !row.acls &&
     order.executorKind === 'NURSE' &&
     !order.params.prnReason &&
     !order.params.route?.toLowerCase().startsWith('iv infusion') &&
-    (order.params.frequency === 'STAT' ||
-      Q_HOURS.some((frequency) => frequency === order.params.frequency))
+    (frequency === 'STAT' ||
+      Q_HOURS.some((item) => item === frequency) ||
+      FIXED_FREQUENCIES.some((item) => item === frequency))
   );
 }
 
 function scheduleDose(
   state: GameState,
-  order: Order & { params: Order['params'] & { frequency: IntervalFrequency | 'STAT' } },
+  order: Order & { params: Order['params'] & { frequency: ScheduledFrequency } },
   from: number,
   ctx: EngineContext,
 ): GameState {
@@ -67,7 +75,7 @@ function scheduleDose(
           order.createdAt,
           from,
           startHourOf(ctx.config, state.mode),
-          NO_FIXED_HOURS,
+          ctx.config.orders.fixedMedicationHours,
           ctx.config.orders.medicationAnchorHour,
         );
   if (at === null) return state;
@@ -419,15 +427,22 @@ export const ordersModule: EngineModule = {
         return { state: cancelOrderState(state, order, 'PATIENT_DEPARTED'), effects: [] };
       const interval = /^Q(1|2|4|6|8|12|24)H$/.exec(order.params.frequency ?? '');
       const condition = order.params.prnCondition;
-      const valid =
-        condition &&
-        interval &&
-        order.executorKind === 'NURSE' &&
-        order.params.prnReason === 'Fever' &&
-        condition.metric === 'TEMPERATURE';
-      // Pain assessment is deferred until its data source is agreed; unsupported PRN stays held.
+      const supported =
+        (order.params.prnReason === 'Fever' && condition?.metric === 'TEMPERATURE') ||
+        (order.params.prnReason === 'Pain' && condition?.metric === 'PAIN');
+      const rule =
+        condition && interval && order.executorKind === 'NURSE' && supported
+          ? { condition, interval }
+          : null;
+      const valid = rule !== null;
+      // 疼痛要玩家評估過才有數值；未評估一律 fail closed，唔會亂給藥。
       let next = state;
-      const observed = condition?.metric === 'TEMPERATURE' ? patient.visible.vitals.temp : null;
+      const observed =
+        condition?.metric === 'TEMPERATURE'
+          ? patient.visible.vitals.temp
+          : condition?.metric === 'PAIN'
+            ? patient.visible.pain
+            : null;
       const records = order.administrations ?? [];
       const lastGiven = records.reduce<number | null>(
         (last, dose) => (dose.givenAt === null ? last : Math.max(last ?? 0, dose.givenAt)),
@@ -435,20 +450,27 @@ export const ordersModule: EngineModule = {
       );
       const busy = records.some((dose) => dose.status === 'INFUSING' || dose.status === 'PLANNED');
       const triggered = Boolean(
-        valid &&
-        prnEligible(observed, condition.comparison, condition.threshold, state.clock.t, null, 0),
+        rule &&
+        prnEligible(
+          observed,
+          rule.condition.comparison,
+          rule.condition.threshold,
+          state.clock.t,
+          null,
+          0,
+        ),
       );
       const eligible = Boolean(
-        valid &&
+        rule &&
         triggered &&
         !busy &&
         prnEligible(
           observed,
-          condition.comparison,
-          condition.threshold,
+          rule.condition.comparison,
+          rule.condition.threshold,
           state.clock.t,
           lastGiven,
-          Number(interval[1]) * 3600,
+          Number(rule.interval[1]) * 3600,
         ),
       );
       const outcome: NonNullable<Order['prnAssessments']>[number]['outcome'] = !valid

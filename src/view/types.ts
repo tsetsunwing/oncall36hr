@@ -880,4 +880,6 @@ export interface GameActions {
   measureNibp: (patientId: string) => void;
   /** 評估 GCS：只讀當下清醒程度，唔會自己變。 */
   assessGcs: (patientId: string) => void;
+  /** 評估疼痛：分數由病例狀態表決定，未評估＝null。 */
+  assessPain: (patientId: string) => void;
 }

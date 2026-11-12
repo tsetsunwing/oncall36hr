@@ -207,6 +207,9 @@ export function WardGame({ view, ward, actions }: WardGameProps) {
             onAssessGcs={() => {
               if (view.patient) actions.assessGcs(view.patient.id);
             }}
+            onAssessPain={() => {
+              if (view.patient) actions.assessPain(view.patient.id);
+            }}
           />
         ) : null}
         {atBed && view.patient && view.resus?.patientId === view.patient.id ? (

@@ -57,6 +57,7 @@ function makeActions() {
     saveManual: vi.fn(),
     measureNibp: vi.fn(),
     assessGcs: vi.fn(),
+    assessPain: vi.fn(),
     placeTests: vi.fn(),
   } satisfies GameActions;
 }
@@ -376,6 +377,36 @@ describe('房間取代平面圖', () => {
     expect(screen.queryByTestId('medical-record')).not.toBeInTheDocument();
     await userEvent.click(screen.getByTestId('leave-bed'));
     expect(actions.enterPlace).toHaveBeenCalledWith('STATION');
+  });
+
+  it('病歷的 MAR 逐次顯示預定與已給的劑次', async () => {
+    const atBed = {
+      ...gameAt(null),
+      patient,
+      monitor: monitor(),
+      chat: chat(),
+      body: { markers: [], ioOrder: null },
+      orders: [
+        order({
+          id: 'tds',
+          label: 'Ceftriaxone 1 g IV TDS',
+          isMedication: true,
+          administrations: [
+            { status: 'GIVEN', scheduledTimeLabel: '08:00', givenTimeLabel: '08:05' },
+            { status: 'PLANNED', scheduledTimeLabel: '16:00', givenTimeLabel: null },
+          ],
+        }),
+      ],
+    };
+    render(<WardGame view={atBed} ward={ward()} actions={makeActions()} />);
+    await userEvent.click(screen.getByTestId('open-medical-record'));
+    const record = screen.getByTestId('medical-record');
+    const rows = within(record).getAllByRole('row');
+    expect(rows).toHaveLength(3);
+    expect(rows[1]).toHaveTextContent('08:00');
+    expect(rows[1]).toHaveTextContent(`${ui.game.ward.medicalRecord.marStatuses.GIVEN} 08:05`);
+    expect(rows[2]).toHaveTextContent('16:00');
+    expect(rows[2]).toHaveTextContent(ui.game.ward.medicalRecord.marStatuses.PLANNED);
   });
 
   it('病歷顯示已知病史和診斷', async () => {

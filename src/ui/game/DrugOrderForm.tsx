@@ -383,7 +383,7 @@ export function DrugOrderForm({
                   </select>
                 </label>
                 <label className="drug-order-field">
-                  Temperature (°C)
+                  {prn === 'Pain' ? 'Pain score (0-10)' : 'Temperature (°C)'}
                   <input
                     aria-label="PRN threshold"
                     data-testid="drug-order-prn-threshold"
@@ -393,7 +393,8 @@ export function DrugOrderForm({
                   />
                 </label>
                 <p>
-                  Fever PRN requires a Q-hourly minimum interval. Pain PRN is not yet supported.
+                  Fever and pain PRN both need a Q-hourly minimum interval. Pain PRN only fires
+                  after the pain score has been assessed at the bedside.
                 </p>
               </>
             ) : null}

@@ -16,6 +16,7 @@ import { evaluateFsm } from './fsm';
 import { pickHkName } from './hkNames';
 import { seedLabs } from './labs';
 import { NORMAL_PUPILS, gcsForConsciousness } from './patient';
+import { painFor } from './pain';
 import { computeMews } from './mews';
 import type { Patient } from './patient';
 import type {
@@ -289,6 +290,32 @@ export const caseModule: EngineModule = {
                   gcs: gcsForConsciousness(patient.visible.consciousness),
                 },
               },
+            },
+          },
+        },
+        effects: [],
+      };
+    }
+    if (intent.type === 'ASSESS_PAIN') {
+      const patient = state.patients[intent.patientId];
+      if (!patient) {
+        return {
+          state,
+          effects: [{ type: 'NOTICE', kind: 'PATIENT_UNKNOWN', tone: 'warn' }],
+        };
+      }
+      if (awayOf(state, patient.id, ctx)) {
+        return { state, effects: [{ type: 'NOTICE', kind: 'PATIENT_AWAY', tone: 'warn' }] };
+      }
+      // 疼痛分數只由病例狀態表決定；評估前一律 null，唔會靠 AI 估。
+      return {
+        state: {
+          ...state,
+          patients: {
+            ...state.patients,
+            [patient.id]: {
+              ...patient,
+              visible: { ...patient.visible, pain: painFor(state, patient, ctx.tables) },
             },
           },
         },

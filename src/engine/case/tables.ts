@@ -29,7 +29,12 @@ export interface FsmTransitionWhen {
 export interface CaseFsmRow {
   id: string;
   initial: string;
-  states: Readonly<Record<string, { trajectory: string; arrest?: { rhythm: string } | undefined }>>;
+  states: Readonly<
+    Record<
+      string,
+      { trajectory: string; arrest?: { rhythm: string } | undefined; pain?: number | undefined }
+    >
+  >;
   /** M5：ROSC 後 FSM 跳去嘅狀態（有 arrest 狀態嘅 FSM 必須提供） */
   postRoscState?: string | undefined;
   transitions: readonly { from: string; to: string; when: FsmTransitionWhen; p: number }[];

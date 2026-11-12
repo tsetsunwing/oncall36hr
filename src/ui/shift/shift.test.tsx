@@ -49,6 +49,7 @@ function makeActions() {
     saveManual: vi.fn(),
     measureNibp: vi.fn(),
     assessGcs: vi.fn(),
+    assessPain: vi.fn(),
     placeTests: vi.fn(),
   } satisfies GameActions;
 }
