@@ -1,7 +1,9 @@
 import { ui } from '@/i18n';
 import { useState } from 'react';
-import { Droplets } from 'lucide-react';
+import { Droplets, PersonStanding } from 'lucide-react';
 import type { BodyDiagramView, GameActions, OrderRowView, PatientView, ReportView } from '@/view';
+import { NeuroStrip } from '../game/NeuroStrip';
+import { BODY_SILHOUETTE_PATHS, BODY_VIEWBOX } from './bodySilhouette';
 
 export function BodyDiagram({
   body,
@@ -28,32 +30,53 @@ export function BodyDiagram({
       aria-labelledby="body-diagram-heading"
       data-testid="body-diagram"
     >
-      <header className="floor-plan-head">
-        <h2 id="body-diagram-heading">{w.bodyHeading}</h2>
-        <button
-          type="button"
-          className="btn btn-small"
-          data-testid="open-medical-record"
-          aria-expanded={recordOpen}
-          aria-controls="medical-record"
-          onClick={() => {
-            setRecordOpen(!recordOpen);
-          }}
-        >
-          {w.medicalRecord.open}
-        </button>
-        <button
-          type="button"
-          className="btn btn-small"
-          data-testid="leave-bed"
-          onClick={() => {
-            actions.enterPlace('STATION');
-          }}
-        >
-          {w.medicalRecord.leave}
-        </button>
-      </header>
+      <h2 id="body-diagram-heading" aria-labelledby="body-diagram-heading-text">
+        <PersonStanding className="heading-icon" size={16} strokeWidth={2} aria-hidden="true" />
+        <span id="body-diagram-heading-text" className="heading-label">
+          {w.bodyHeading}
+        </span>
+        <span className="body-heading-actions">
+          <button
+            type="button"
+            className="btn btn-small"
+            data-testid="open-medical-record"
+            aria-expanded={recordOpen}
+            aria-pressed={recordOpen}
+            aria-controls="medical-record"
+            onClick={() => {
+              setRecordOpen(!recordOpen);
+            }}
+          >
+            {w.medicalRecord.open}
+          </button>
+          <button
+            type="button"
+            className="btn btn-small"
+            data-testid="leave-bed"
+            onClick={() => {
+              actions.enterPlace('STATION');
+            }}
+          >
+            {w.medicalRecord.leave}
+          </button>
+        </span>
+      </h2>
       {recordOpen ? <MedicalRecord patient={patient} orders={orders} reports={reports} /> : null}
+      <NeuroStrip
+        patient={patient}
+        onAssessGcs={() => {
+          actions.assessGcs(patientId);
+        }}
+        onAssessPain={() => {
+          actions.assessPain(patientId);
+        }}
+        onAssessAgitation={() => {
+          actions.assessAgitation(patientId);
+        }}
+        onAssessNausea={() => {
+          actions.assessNausea(patientId);
+        }}
+      />
       <div className="departure-actions">
         {patient.icuTransferReady ? (
           <button
@@ -116,14 +139,10 @@ export function BodyDiagram({
         ) : null}
       </div>
       <div className="body-diagram-stage">
-        <svg className="body-outline" viewBox="0 0 200 360" aria-hidden="true" focusable="false">
-          <circle cx="100" cy="40" r="26" />
-          <path d="M90 64h20l4 18H86Z" />
-          <path d="M70 88c0 0-15 22-18 62s6 64 26 72h44c20-8 29-32 26-72s-18-62-26-62c-12 16-40 16-52 0Z" />
-          <path d="M68 104c-28 16-40 56-38 86 2 16 16 18 20 4 6-24 12-54 24-76 2-4 0-12-6-14Z" />
-          <path d="M132 104c28 16 40 56 38 86-2 16-16 18-20 4-6-24-12-54-24-76-2-4 0-12 6-14Z" />
-          <path d="M78 220l-8 100c0 16 16 20 22 8l6-108Z" />
-          <path d="M122 220l8 100c0 16-16 20-22 8l-6-108Z" />
+        <svg className="body-outline" viewBox={BODY_VIEWBOX} aria-hidden="true" focusable="false">
+          {BODY_SILHOUETTE_PATHS.map((d, index) => (
+            <path key={index} className="body-fill" d={d} />
+          ))}
         </svg>
         <div className="body-markers" role="group" aria-label={w.bodyLabel}>
           {body.markers.map((marker) => {

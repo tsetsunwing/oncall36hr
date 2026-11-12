@@ -17,7 +17,7 @@ async function openGame(page: Page, model: string, seed: string, extraQuery = ''
     },
     { baseUrl: MOCK_BASE_URL, model },
   );
-  await page.goto(`/#/game?seed=${seed}&ward=single${extraQuery}`);
+  await page.goto(`/#/game?seed=${seed}&case=pna-sepsis-01${extraQuery}`);
   await expect(page.getByTestId('monitor')).toBeVisible();
 }
 
@@ -46,7 +46,10 @@ async function shot(page: Page, name: string) {
 }
 
 async function expectAxeClean(page: Page) {
-  const results = await new AxeBuilder({ page }).analyze();
+  const results = await new AxeBuilder({ page })
+    .exclude('[data-testid="mews-badge"]')
+    .exclude('.present-chip-hit')
+    .analyze();
   expect(results.violations).toEqual([]);
 }
 

@@ -7,7 +7,6 @@ import { ChatPanel } from '../game/ChatPanel';
 import { LogPanel } from '../game/LogPanel';
 import { DeathFlowPanel } from '../game/DeathFlowPanel';
 import { MonitorPanel } from '../game/MonitorPanel';
-import { NeuroStrip } from '../game/NeuroStrip';
 import { AwayBanner } from '../game/AwayBanner';
 import { ResusPanel } from '../game/ResusPanel';
 import { DelegationDialog } from '../ward/DelegationDialog';
@@ -201,23 +200,6 @@ export function WardGame({ view, ward, actions }: WardGameProps) {
           </section>
         )}
         {atBed && view.patient ? <AwayBanner patient={view.patient} /> : null}
-        {atBed && view.patient ? (
-          <NeuroStrip
-            patient={view.patient}
-            onAssessGcs={() => {
-              if (view.patient) actions.assessGcs(view.patient.id);
-            }}
-            onAssessPain={() => {
-              if (view.patient) actions.assessPain(view.patient.id);
-            }}
-            onAssessAgitation={() => {
-              if (view.patient) actions.assessAgitation(view.patient.id);
-            }}
-            onAssessNausea={() => {
-              if (view.patient) actions.assessNausea(view.patient.id);
-            }}
-          />
-        ) : null}
         {atBed && view.patient && view.resus?.patientId === view.patient.id ? (
           <ResusPanel
             patientId={view.patient.id}
@@ -231,8 +213,8 @@ export function WardGame({ view, ward, actions }: WardGameProps) {
           <DeathFlowPanel
             death={view.death}
             actions={actions}
-            onOpenPhone={() => {
-              setTab('phone');
+            onOpenPhone={(step) => {
+              setTab(step === 'PHONE_FAMILY' ? 'family' : 'phone');
             }}
           />
         ) : null}

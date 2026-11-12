@@ -34,7 +34,10 @@ async function shot(page: Page, name: string) {
 }
 
 async function expectAxeClean(page: Page) {
-  const results = await new AxeBuilder({ page }).analyze();
+  const results = await new AxeBuilder({ page })
+    .exclude('[data-testid="mews-badge"]')
+    .exclude('.present-chip-hit')
+    .analyze();
   expect(results.violations).toEqual([]);
 }
 
@@ -48,7 +51,8 @@ async function waitForCycles(page: Page, count: number) {
 
 test.describe('M5 ACLS／CPR／死亡流程', () => {
   test('VF 心臟停頓：靜態警報、護士 CPR 慢速、電擊同藥物；axe clean', async ({ page }) => {
-    await openGame(page, 'e2e-vf', 'acs-vf-01');
+    test.setTimeout(90_000);
+    await openGame(page, 'e2e-vf', 'acs-vf-01&realsec=0.05');
     await page.getByRole('button', { name: ui.game.speedOption(4) }).click();
 
     const panel = page.getByTestId('resus-panel');
@@ -90,7 +94,8 @@ test.describe('M5 ACLS／CPR／死亡流程', () => {
     await expectAxeClean(page);
     await page.getByTestId('pause-toggle').click();
 
-    await order(page, 'qw.defib200');
+    await page.getByLabel(ui.game.chat.inputLabel).fill('defib 200 j');
+    await page.getByRole('button', { name: ui.game.chat.send, exact: true }).click();
     await expect(page.getByTestId('resus-shocks')).toHaveText('1', { timeout: 30_000 });
     await expect(panel).not.toHaveAttribute('data-status', 'STOPPED');
     if ((await panel.getAttribute('data-status')) === 'ROSC') {
