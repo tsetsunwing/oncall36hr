@@ -1,0 +1,2 @@
+id,flag,analyte,delta,cap_low,cap_high,decay_per_hour,decay_unless,note,review_status
+le.example-01,transfusion.prc,hb,1.0,,9.0,0.15,bleeding.stopped,輸一包紅血球 Hb 升 1.0，未止血時每小時回跌 0.15,PENDING_CLINICAL_REVIEW

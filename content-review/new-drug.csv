@@ -1,0 +1,2 @@
+drug_id,label,aliases,units,routes,drug_class,allergy_classes,typical_dose,catalog_id,sets_flags,pharmacy_gate,note
+gentamicin,Gentamicin,gentamicin;慶大黴素,mg,IV,Aminoglycoside,aminoglycoside,,drug.gentamicin,abx.iv,true,DRUG 類必須有 formularyId 同 pharmacyGate=true

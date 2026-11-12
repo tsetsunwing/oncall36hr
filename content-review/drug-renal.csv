@@ -1,0 +1,6 @@
+drug,egfr_band,action,dose_value,dose_unit,note,source,status
+Metformin,LT15,AVOID,,,乳酸中毒風險,BNF 6.1.2.2,ACTIVE
+Metformin,30TO59,REDUCE,500,mg,最高每日 1 g,BNF 6.1.2.2,ACTIVE
+Enoxaparin,LT15,REDUCE,20,mg,改為每日一次預防劑量,SmPC 4.2,ACTIVE
+Gentamicin,LT15,EXTEND_INTERVAL,,,按谷濃度延長間隔,SmPC 4.2,PROVISIONAL
+Vancomycin,30TO59,EXTEND_INTERVAL,,,按谷濃度調整,SmPC 4.2,PROVISIONAL
