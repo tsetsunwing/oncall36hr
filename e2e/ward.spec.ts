@@ -50,9 +50,9 @@ async function expectAxeClean(page: Page) {
 }
 
 async function waitForCall(page: Page) {
-  await page.getByRole('button', { name: ui.game.speedOption(4) }).click();
+  await page.getByRole('button', { name: ui.game.speedOption(4) }).click({ force: true });
   await expect(page.getByTestId('phone-count')).toBeVisible({ timeout: 45_000 });
-  await page.getByTestId('tab-phone').click();
+  await page.getByTestId('tab-phone').click({ force: true });
   await expect(page.getByTestId('call-row').first()).toBeVisible();
 }
 

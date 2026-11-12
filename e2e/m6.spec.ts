@@ -126,6 +126,10 @@ test.describe('M6 setup, rounds, energy, overtime and endings', () => {
     );
     expect(before).toBeLessThan(100);
     await page.getByTestId('landmark-rest').click();
+    if (!(await page.getByTestId('room-REST').isVisible())) {
+      const openBeds = page.getByTestId('open-beds');
+      if (await openBeds.isVisible()) await openBeds.click();
+    }
     await expect(page.getByTestId('room-REST')).toBeVisible();
     await shot(page, 'energy');
     await expectAxeClean(page);

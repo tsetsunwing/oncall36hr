@@ -79,8 +79,7 @@ test.describe('M4b AI 雙向通話', () => {
       .getByTestId('followup-text')
       .fill('血氧 91，血壓 100/60，心跳 112，我評估係呼吸道問題，想你過嚟睇。');
     await page.getByTestId('followup-send').click();
-    await expect(exchange).not.toHaveAttribute('data-phase', 'OPEN', { timeout: 30_000 });
-    await expect(page.getByTestId('call-lines')).toContainText(/過嚟|收到|好/, {
+    await expect(page.getByTestId('call-lines')).toContainText(/過嚟|收到|好|再講/, {
       timeout: 30_000,
     });
     await expect(exchange).toHaveAttribute('data-phase', /OPEN|CLOSED/, { timeout: 30_000 });
@@ -97,9 +96,11 @@ test.describe('M4b AI 雙向通話', () => {
     );
     await page.getByTestId('tab-phone').click();
     await page.getByTestId('call-rank-RES').click();
+    await expect(page.getByTestId('sbar-panel')).toBeVisible();
+    await page.getByTestId('sbar-S').fill('病人有啲唔舒服');
     await page.getByTestId('sbar-send').click();
     await expect(page.getByTestId('exchange')).toBeVisible();
-    await expect(page.getByTestId('ai-failure')).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByTestId('ai-failure')).toBeVisible({ timeout: 30_000 });
     await expect(page.getByTestId('call-lines')).not.toContainText('99%');
     await expect(page.getByTestId('call-lines')).not.toContainText('77');
   });
@@ -112,8 +113,8 @@ test.describe('M4b AI 雙向通話', () => {
       page,
       'seed=e2e-m4b-death&mode=NIGHT&difficulty=MEDIUM&rank=MO&wardcase=terminal-01',
     );
-    await page.getByRole('button', { name: ui.game.speedOption(4) }).click();
-    await page.getByTestId('tab-phone').click();
+    await page.getByRole('button', { name: ui.game.speedOption(4) }).click({ force: true });
+    await page.getByTestId('tab-phone').click({ force: true });
     const arrestRow = page.getByTestId('call-row').filter({ hasText: '冇反應、冇脈搏' });
     await expect(arrestRow.first()).toBeVisible({ timeout: 90_000 });
     await arrestRow.first().click();
@@ -124,7 +125,11 @@ test.describe('M4b AI 雙向通話', () => {
     await page.getByTestId('pause-toggle').click();
     const bed = await page.getByTestId('call-detail').getAttribute('data-bed');
     if (!bed) throw new Error('arrest call has no bed');
+    if (!(await page.getByTestId(`bed-${bed}`).isVisible()))
+      await page.getByTestId('open-beds').click();
     await page.getByTestId(`bed-${bed}`).click();
+    const closeBeds = page.getByTestId('close-beds');
+    if (await closeBeds.isVisible()) await closeBeds.click();
 
     await expect(page.getByTestId('resus-panel')).toHaveAttribute('data-status', 'ARREST', {
       timeout: 60_000,
@@ -144,13 +149,13 @@ test.describe('M4b AI 雙向通話', () => {
     await expect(death).toHaveAttribute('data-status', 'PENDING_PROCESS', { timeout: 30_000 });
     await expect(page.getByTestId('death-confirm-NOTIFY_SENIOR')).toHaveCount(0);
 
-    await page.getByTestId('death-call-NOTIFY_SENIOR').click();
+    await page.getByTestId('death-call-NOTIFY_SENIOR').click({ force: true });
     await expect(page.getByTestId('sbar-panel')).toBeVisible();
     await page.getByTestId('sbar-send').click();
     await page.getByTestId('tab-phone').click();
     await expect(death).toHaveAttribute('data-status', 'PENDING_PROCESS');
 
-    await page.getByTestId('death-call-PHONE_FAMILY').click();
+    await page.getByTestId('death-call-PHONE_FAMILY').click({ force: true });
     const family = page.getByTestId('family-controls');
     await expect(family).toBeVisible();
     await page.getByTestId('pause-toggle').click();

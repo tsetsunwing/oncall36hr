@@ -52,7 +52,7 @@ async function waitForCycles(page: Page, count: number) {
 test.describe('M5 ACLS／CPR／死亡流程', () => {
   test('VF 心臟停頓：靜態警報、護士 CPR 慢速、電擊同藥物；axe clean', async ({ page }) => {
     test.setTimeout(90_000);
-    await openGame(page, 'e2e-vf', 'acs-vf-01');
+    await openGame(page, 'e2e-vf', 'acs-vf-01&realsec=0.05');
     await page.getByRole('button', { name: ui.game.speedOption(4) }).click();
 
     const panel = page.getByTestId('resus-panel');
@@ -98,7 +98,8 @@ test.describe('M5 ACLS／CPR／死亡流程', () => {
     const shockPrompt = page.getByTestId('chip-prompt');
     await expect(shockPrompt).toBeVisible();
     await shockPrompt.locator('input[type="number"]').fill('200');
-    await page.getByTestId('chip-prompt-confirm').click();
+    await expect(page.getByTestId('chip-prompt-confirm')).toBeEnabled();
+    await shockPrompt.press('Enter');
     await expect(page.getByTestId('resus-shocks')).toHaveText('1', { timeout: 30_000 });
     await expect(panel).not.toHaveAttribute('data-status', 'STOPPED');
     if ((await panel.getAttribute('data-status')) === 'ROSC') {
