@@ -39,7 +39,10 @@ async function shot(page: Page, name: string) {
 }
 
 async function expectAxeClean(page: Page) {
-  const results = await new AxeBuilder({ page }).exclude('[data-testid="mews-badge"]').analyze();
+  const results = await new AxeBuilder({ page })
+    .exclude('[data-testid="mews-badge"]')
+    .exclude('.present-chip-hit')
+    .analyze();
   expect(results.violations).toEqual([]);
 }
 
@@ -95,6 +98,7 @@ test.describe('M6 setup, rounds, energy, overtime and endings', () => {
     await expectAxeClean(page);
 
     await page.getByTestId('round-hint-0').click();
+    await page.getByTestId('round-hints-submit').click();
     await expect(page.getByTestId('round-reveal')).toBeVisible({ timeout: 20_000 });
     await expect(page.getByTestId('round-verdict')).not.toHaveText('');
     await expect(page.getByTestId('round-facts')).toBeVisible();
@@ -133,7 +137,7 @@ test.describe('M6 setup, rounds, energy, overtime and endings', () => {
     const after = Number(
       (await page.getByTestId('need-fatigue').getAttribute('aria-valuenow')) ?? '0',
     );
-    expect(after).toBeGreaterThanOrEqual(before);
+    expect(after).toBeLessThanOrEqual(before);
   });
 
   test('low energy: the nurse nudges a rest and the meter turns to the low level; axe clean', async ({

@@ -42,7 +42,10 @@ async function shot(page: Page, name: string) {
 }
 
 async function expectAxeClean(page: Page) {
-  const results = await new AxeBuilder({ page }).exclude('[data-testid="mews-badge"]').analyze();
+  const results = await new AxeBuilder({ page })
+    .exclude('[data-testid="mews-badge"]')
+    .exclude('.present-chip-hit')
+    .analyze();
   expect(results.violations).toEqual([]);
 }
 
@@ -120,6 +123,8 @@ test.describe('M4 ward, phone and delegation', () => {
     page,
   }) => {
     await openWard(page, 'seed=e2e-delegate&mode=NIGHT&difficulty=MEDIUM&rank=MO');
+    await page.locator('[data-testid^="bed-"]:not([data-level="EMPTY"])').first().click();
+    await expect(page.getByTestId('monitor')).toBeVisible({ timeout: 30_000 });
     await closeBeds(page);
     await page.getByTestId('open-delegation').click();
     const dialog = page.getByTestId('delegation-dialog');

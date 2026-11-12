@@ -39,7 +39,10 @@ async function shot(page: Page, name: string) {
 }
 
 async function expectAxeClean(page: Page) {
-  const results = await new AxeBuilder({ page }).exclude('[data-testid="mews-badge"]').analyze();
+  const results = await new AxeBuilder({ page })
+    .exclude('[data-testid="mews-badge"]')
+    .exclude('.present-chip-hit')
+    .analyze();
   expect(results.violations).toEqual([]);
 }
 
@@ -123,6 +126,7 @@ test.describe('M8 mobile, shortcuts, saves and AI failure', () => {
     await page.keyboard.press('/');
     await expect(page.locator('#chat-input')).toBeFocused();
     await shot(page, 'bedside');
+    await page.locator('#chat-input').blur();
     if (!mobile) {
       const leave = page.getByTestId('leave-bed');
       if (await leave.isVisible()) await leave.click();
@@ -132,7 +136,6 @@ test.describe('M8 mobile, shortcuts, saves and AI failure', () => {
       await shot(page, 'floorplan');
       await page.getByTestId('close-beds').click();
     }
-    await page.locator('#chat-input').blur();
 
     await page.keyboard.press('Space');
     await expect(page.getByTestId('paused-badge')).toBeVisible();

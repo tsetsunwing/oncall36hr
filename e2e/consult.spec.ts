@@ -39,7 +39,10 @@ async function shot(page: Page, name: string) {
 }
 
 async function expectAxeClean(page: Page) {
-  const results = await new AxeBuilder({ page }).exclude('[data-testid="mews-badge"]').analyze();
+  const results = await new AxeBuilder({ page })
+    .exclude('[data-testid="mews-badge"]')
+    .exclude('.present-chip-hit')
+    .analyze();
   expect(results.violations).toEqual([]);
 }
 

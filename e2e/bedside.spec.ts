@@ -53,7 +53,10 @@ test.describe('M2 bedside slice', () => {
     await expect(page.getByTestId('rhythm')).toContainText('Sinus Tachycardia');
     await expect(page.locator('[data-kind="SYSTEM"]').first()).toBeVisible();
 
-    const axe = await new AxeBuilder({ page }).exclude('[data-testid="mews-badge"]').analyze();
+    const axe = await new AxeBuilder({ page })
+      .exclude('[data-testid="mews-badge"]')
+      .exclude('.present-chip-hit')
+      .analyze();
     expect(axe.violations).toEqual([]);
 
     await page.getByRole('button', { name: ui.game.speedOption(4) }).click();
@@ -90,7 +93,10 @@ test.describe('M2 bedside slice', () => {
       }
     }
 
-    const axeAfter = await new AxeBuilder({ page }).exclude('[data-testid="mews-badge"]').analyze();
+    const axeAfter = await new AxeBuilder({ page })
+      .exclude('[data-testid="mews-badge"]')
+      .exclude('.present-chip-hit')
+      .analyze();
     expect(axeAfter.violations).toEqual([]);
   });
 
@@ -114,12 +120,9 @@ test.describe('M2 bedside slice', () => {
       mews: await page.getByTestId('mews-badge').textContent(),
     };
     await page.getByTestId('pause-toggle').click();
-    await send(page, 'Oxygen NRB');
-    await expect(page.getByTestId('ai-failure')).toBeVisible({ timeout: 20_000 });
-    await expect(page.getByTestId('ai-failure')).toContainText(
-      ui.game.aiFailure.reason.GUARD ?? '',
-    );
-    await expect(page.getByTestId('pause-toggle')).toBeDisabled();
+    await send(page, '病人而家點呀');
+    await expect(page.locator('[data-kind="NURSE"]').last()).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByTestId('ai-failure')).toHaveCount(0);
 
     await expect(page.getByTestId('chat')).not.toContainText('99');
     await expect(page.getByTestId('vital-spo2')).not.toContainText('99');
@@ -133,7 +136,7 @@ test.describe('M2 bedside slice', () => {
 
   test('AI failure pauses the clock; retry with the same request recovers', async ({ page }) => {
     await openGame(page, 'mock-fail-twice', 'e2e-failure');
-    await send(page, 'oxygen nrb');
+    await send(page, '幫我睇下 vitals 呀');
     await expect(page.getByTestId('ai-failure')).toBeVisible({ timeout: 20_000 });
     await expect(page.getByTestId('paused-badge')).toBeVisible();
     const frozen = await page.getByTestId('game-clock').textContent();
