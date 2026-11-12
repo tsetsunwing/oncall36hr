@@ -186,6 +186,7 @@ describe('ResusPanel', () => {
     expect(screen.getByTestId('resus-group-defibrillation')).toBeInTheDocument();
     expect(screen.queryByTestId('resus-group-airway')).not.toBeInTheDocument();
     expect(screen.getByTestId('resus-panel')).toHaveClass('resus');
+    expect(screen.getByTestId('resus-panel')).toHaveAttribute('tabindex', '0');
   });
 
   it('ROSC 之後唔再顯示指示按鈕，改為顯示 post-ROSC bundle', () => {

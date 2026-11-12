@@ -47,6 +47,7 @@ export function ResusPanel({
       data-testid="resus-panel"
       data-status={resus.status}
       aria-labelledby="resus-heading"
+      tabIndex={0} // eslint-disable-line jsx-a11y/no-noninteractive-tabindex -- 可捲動區域
     >
       <h2 id="resus-heading" className="panel-title">
         {r.heading}
