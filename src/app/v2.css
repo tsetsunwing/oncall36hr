@@ -2563,7 +2563,8 @@ button.place-room-action:disabled:not([data-active='true']) {
   cursor: default;
 }
 
-.drug-order-popup .drug-order {
+.drug-order-popup .drug-order,
+.drug-order-popup .catheter-dialog {
   position: relative;
   z-index: 1;
   inset: auto;
@@ -2577,22 +2578,29 @@ button.place-room-action:disabled:not([data-active='true']) {
   box-shadow: 0 18px 48px rgb(20 32 36 / 32%);
 }
 
-/* Continuous-fluid prescription uses the same accessible modal shell. */
-.continuous-fluid-form > label {
+.drug-order-popup .catheter-dialog {
+  width: min(28rem, 100%);
+  padding: var(--space-4);
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+}
+
+.drug-order-kinds {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.drug-order-kinds .chip[aria-pressed='true'] {
+  color: var(--ok-text);
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.iv-fluid-form {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
-}
-
-.continuous-fluid-form > label select,
-.continuous-fluid-form > label input {
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.continuous-fluid-form p {
-  margin: 0.3rem 0;
-  font-size: var(--fs-sm);
+  gap: 0.35rem;
 }
 
 .drug-order h3 {
@@ -2843,10 +2851,117 @@ button.place-room-action:disabled:not([data-active='true']) {
   font-size: var(--fs-sm);
 }
 
-.catheter-orders {
+.catheter-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  overflow: auto;
+  box-sizing: border-box;
+}
+
+.catheter-dialog h3 {
+  margin: 0;
+  font-size: var(--fs-md);
+}
+
+.catheter-dialog-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.catheter-dialog-section h4 {
+  margin: 0;
+  font-size: var(--fs-body);
+  font-weight: 600;
+}
+
+.catheter-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.catheter-action {
+  min-height: 44px;
+  padding: var(--space-2) var(--space-3);
+  font: inherit;
+  font-size: var(--fs-body);
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.catheter-action:hover,
+.catheter-action:focus-visible {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.catheter-drain {
+  padding: var(--space-3);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.catheter-drain-hint {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--fs-sm);
+}
+
+.catheter-drain-form {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.35rem;
+  gap: var(--space-2);
+  align-items: end;
+}
+
+.catheter-drain-site {
+  display: flex;
+  flex: 1 1 12rem;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.catheter-drain-site input {
+  width: 100%;
+  height: 32px;
+  min-height: 32px;
+  padding: 0 10px;
+  font: inherit;
+  font-size: var(--fs-body);
+  font-weight: 400;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--muted);
+  border-radius: var(--radius-md);
+}
+
+.catheter-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.catheter-dialog-actions .btn,
+.catheter-drain-form .btn {
+  height: 32px;
+  min-height: 32px;
+  padding: 0 12px;
+  font-size: var(--fs-body);
+  font-weight: 500;
+  line-height: 1;
+  border-radius: var(--radius-md);
 }
 
 .chip-back {
@@ -2976,6 +3091,9 @@ button.place-room-action:disabled:not([data-active='true']) {
 .frame-mobile .drug-order select,
 .frame-mobile .drug-order-pack select,
 .frame-mobile .drug-order-actions .btn,
+.frame-mobile .catheter-drain-site input,
+.frame-mobile .catheter-dialog-actions .btn,
+.frame-mobile .catheter-drain-form .btn,
 .frame-mobile .delegation-dialog .call-actions .btn,
 .frame-mobile .round-dialog .round-form-row .btn,
 .frame-mobile .save-dialog-actions .btn,

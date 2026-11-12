@@ -30,7 +30,6 @@ import {
 import { CatheterOrders } from './CatheterOrders';
 import { ChipPrompt } from './ChipPrompt';
 import { DrugOrderForm } from './DrugOrderForm';
-import { ContinuousFluidForm } from './ContinuousFluidForm';
 import { GatePanel } from './GatePanel';
 import { ObservePanel } from './ObservePanel';
 import { OxygenOrderForm } from './OxygenOrderForm';
@@ -232,7 +231,6 @@ function ChipMenus({
   onDrug,
   onOxygen,
   onCatheters,
-  onFluid,
   onObserve,
   onPickTests,
   suspended = false,
@@ -243,7 +241,6 @@ function ChipMenus({
   onDrug: (chip: QuickChipView) => void;
   onOxygen: () => void;
   onCatheters: () => void;
-  onFluid: () => void;
   onObserve: (order: { catalogId: string; text: string; params: PlacedOrderParams }) => void;
   /** 抽血籃確認：一次落多張檢查單。 */
   onPickTests: (chips: QuickChipView[]) => void;
@@ -385,20 +382,6 @@ function ChipMenus({
                     }}
                   >
                     {c.catheters.title}
-                  </button>
-                ) : null}
-                {category === 'treat' ? (
-                  <button
-                    type="button"
-                    role="menuitem"
-                    className="chip"
-                    data-testid="treat-fluid"
-                    onClick={() => {
-                      close();
-                      onFluid();
-                    }}
-                  >
-                    持續輸液
                   </button>
                 ) : null}
                 {items.map((chip) => (
@@ -674,7 +657,6 @@ export function ChatPanel({
   const [drugChip, setDrugChip] = useState<QuickChipView | null>(null);
   const [oxygenOpen, setOxygenOpen] = useState(false);
   const [catheterOpen, setCatheterOpen] = useState(false);
-  const [fluidOpen, setFluidOpen] = useState(false);
   const [active, setActive] = useState(0);
   const [dismissed, setDismissed] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -899,7 +881,7 @@ export function ChatPanel({
         ) : null}
         <ChipMenus
           chips={chips}
-          suspended={drugChip !== null || oxygenOpen || catheterOpen || fluidOpen}
+          suspended={drugChip !== null || oxygenOpen || catheterOpen}
           onPick={placeChip}
           onPickTests={(picked) => {
             const ids = picked.flatMap((chip) => (chip.catalogId ? [chip.catalogId] : []));
@@ -932,29 +914,11 @@ export function ChatPanel({
             setOxygenOpen(false);
             setCatheterOpen(true);
           }}
-          onFluid={() => {
-            setDrugChip(null);
-            setPromptChip(null);
-            setOxygenOpen(false);
-            setCatheterOpen(false);
-            setFluidOpen(true);
-          }}
           onObserve={(order) => {
             actions.placeOrder(chat.patientId, order.catalogId, order.text, order.params);
           }}
         />
       </div>
-      {fluidOpen ? (
-        <DrugOrderPopup onClose={() => setFluidOpen(false)}>
-          <ContinuousFluidForm
-            onSubmit={(order) => {
-              actions.placeOrder(chat.patientId, order.catalogId, order.text, order.params);
-              setFluidOpen(false);
-            }}
-            onClose={() => setFluidOpen(false)}
-          />
-        </DrugOrderPopup>
-      ) : null}
       {oxygenOpen ? (
         <DrugOrderPopup
           onClose={() => {

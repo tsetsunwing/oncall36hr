@@ -24,6 +24,16 @@ export {
 export { shortClassLabel } from './drugClassLabel';
 export { RESUS_MENU, type ResusColumnId } from './resusMenu';
 export { CATHETER_ORDERS, SURGICAL_DRAIN } from './catheters';
+export {
+  buildIvFluidOrder,
+  IVF_RATE_UNITS,
+  IVF_ROUTES,
+  IVF_VOLUMES,
+  IV_FLUID_OPTIONS,
+  ivFluidReady,
+  solutionsFor,
+  type IvFluidDraft,
+} from './ivFluid';
 export { drainAnchor, selectBodyDiagram } from './bodyDiagram';
 export {
   buildObserveOrder,

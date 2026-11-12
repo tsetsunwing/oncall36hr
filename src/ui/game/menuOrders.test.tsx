@@ -60,30 +60,40 @@ describe('治療同觀察選單', () => {
       within(menu)
         .getAllByRole('menuitem')
         .map((item) => item.textContent),
-    ).toEqual(['Oxygen therapy', 'Catheters and drains', '持續輸液', 'Drugs']);
+    ).toEqual(['Oxygen therapy', 'Catheters and drains', 'Drugs']);
     expect(screen.queryByRole('menuitem', { name: 'Ceftriaxone' })).not.toBeInTheDocument();
     expect(screen.queryByRole('menuitem', { name: 'Normal saline' })).not.toBeInTheDocument();
     expect(screen.queryByRole('menuitem', { name: 'Oxygen NRB' })).not.toBeInTheDocument();
     expect(screen.queryByRole('menuitem', { name: 'NG tube' })).not.toBeInTheDocument();
   });
 
-  it('持續輸液表單傳入循環、容量、時間和上限', async () => {
+  it('持續輸液收進 Drugs 彈窗，用容量與速率開 2D1S', async () => {
     const user = userEvent.setup();
     const calls = actions();
     render(<ChatPanel chat={chat()} chips={[]} notice={null} actions={calls} />);
     await user.click(screen.getByRole('button', { name: ui.game.chat.chipGroup.treat ?? '' }));
-    await user.click(screen.getByTestId('treat-fluid'));
-    await user.type(screen.getByLabelText('每瓶容量 mL'), '500');
-    await user.type(screen.getByLabelText('每瓶輸注時間（小時）'), '8');
-    await user.type(screen.getByLabelText('每瓶添加物'), '20K');
-    await user.type(screen.getByLabelText('最多瓶數'), '2');
-    await user.click(
-      within(screen.getByTestId('continuous-fluid-form')).getByRole('button', { name: '確認' }),
+    expect(screen.queryByTestId('treat-fluid')).not.toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: '持續輸液' })).not.toBeInTheDocument();
+    await user.click(screen.getByTestId('treat-drug'));
+    expect(screen.getByTestId('drug-order-kind-drug')).toHaveAttribute('aria-pressed', 'true');
+    await user.click(screen.getByTestId('drug-order-kind-ivf'));
+    expect(screen.getByTestId('iv-fluid-form')).toBeInTheDocument();
+    expect(screen.queryByTestId('drug-order-name')).not.toBeInTheDocument();
+    await user.selectOptions(screen.getByTestId('iv-fluid-name'), '2D1S (D5 → D5 → NS)');
+    await user.selectOptions(
+      screen.getByTestId('iv-fluid-route'),
+      'IV Infusion (Continuous drip / syringe pump)',
     );
+    await user.selectOptions(screen.getByTestId('iv-fluid-volume'), '500 mL');
+    await user.type(screen.getByTestId('iv-fluid-rate'), '62.5');
+    await user.selectOptions(screen.getByTestId('iv-fluid-rate-unit'), 'mL/hr');
+    await user.type(screen.getByTestId('iv-fluid-concentration'), '20K');
+    await user.type(screen.getByTestId('iv-fluid-max-bags'), '2');
+    await user.click(screen.getByTestId('drug-order-confirm'));
     expect(calls.placeOrder).toHaveBeenCalledWith(
       'p1',
       'fluid.maintenance',
-      expect.any(String),
+      expect.stringContaining('D5 → D5 → NS'),
       expect.objectContaining({
         fluidRegimen: {
           solutions: ['D5', 'D5', 'NS'],
@@ -92,6 +102,7 @@ describe('治療同觀察選單', () => {
           additive: '20K',
           maxBags: 2,
         },
+        rate: { value: 62.5, unit: 'mL/hr' },
       }),
     );
   });
@@ -136,6 +147,35 @@ describe('治療同觀察選單', () => {
     );
   });
 
+  it('Normal saline IV bolus 由 Drugs 的 IV Fluid 落 fluid.ns500', async () => {
+    const user = userEvent.setup();
+    const calls = actions();
+    render(<ChatPanel chat={chat()} chips={[]} notice={null} actions={calls} />);
+    await user.click(screen.getByRole('button', { name: ui.game.chat.chipGroup.treat ?? '' }));
+    await user.click(screen.getByTestId('treat-drug'));
+    await user.click(screen.getByTestId('drug-order-kind-ivf'));
+    await user.selectOptions(
+      screen.getByTestId('iv-fluid-name'),
+      '0.9% Sodium Chloride (Normal saline)',
+    );
+    await user.selectOptions(screen.getByTestId('iv-fluid-route'), 'IV (Intravenous bolus/push)');
+    await user.selectOptions(screen.getByTestId('iv-fluid-volume'), '500 mL');
+    await user.type(screen.getByTestId('iv-fluid-rate'), '1000');
+    await user.selectOptions(screen.getByTestId('iv-fluid-rate-unit'), 'mL/hr');
+    await user.click(screen.getByTestId('drug-order-confirm'));
+    expect(calls.placeOrder).toHaveBeenCalledWith(
+      'p1',
+      'fluid.ns500',
+      expect.stringContaining('0.9% Sodium Chloride'),
+      expect.objectContaining({
+        dose: { value: 500, unit: 'mL' },
+        route: 'IV',
+        volumeMl: 500,
+        rate: { value: 1000, unit: 'mL/hr' },
+      }),
+    );
+  });
+
   it('導管只打開四張現有醫囑', async () => {
     const user = userEvent.setup();
     const calls = actions();
@@ -143,11 +183,14 @@ describe('治療同觀察選單', () => {
     await user.click(screen.getByRole('button', { name: ui.game.chat.chipGroup.treat ?? '' }));
     await user.click(screen.getByTestId('treat-catheters'));
     const dialog = screen.getByTestId('catheter-orders');
+    expect(dialog).not.toHaveClass('drug-order');
+    expect(within(dialog).getByRole('heading', { name: 'Lines' })).toBeInTheDocument();
     expect(
-      within(dialog)
-        .getAllByRole('menuitem')
-        .map((item) => item.textContent),
+      CATHETER_ORDERS.map(
+        (item) => within(dialog).getByTestId(`catheter-${item.catalogId}`).textContent,
+      ),
     ).toEqual(CATHETER_ORDERS.map((item) => item.label));
+    expect(within(dialog).queryByRole('menuitem')).not.toBeInTheDocument();
     await user.click(screen.getByTestId('catheter-proc.ngtube'));
     expect(calls.placeOrder).toHaveBeenCalledWith('p1', 'proc.ngtube', 'NG tube', {
       drugFormularyId: null,
