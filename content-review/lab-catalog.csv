@@ -1,0 +1,3 @@
+catalog_id,type,label,aliases,sample_sec,report_delay_sec,leaves_ward_sec,requires_contrast
+lab.lipase,LAB_BLOOD,Lipase,lipase;amylase;脂肪酶,600,1800,0,false
+img.ct.abdomen,CT,CT abdomen and pelvis,ct abdomen;ct ap;腹電腦掃描,900,3600,1200,true

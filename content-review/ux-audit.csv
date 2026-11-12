@@ -1,0 +1,4 @@
+screen,element,problem,suggestion,priority
+床邊畫面,生命表徵欄,收縮壓同舒張壓字體一樣大,舒張壓縮細一號，用次要色,中
+藥物表單,途徑下拉,選 IV Infusion 之後仍然可以揀 ug/kg/min,拿掉體重速率單位，只留 mL/hr,高
+報告面板,部門標題,八個部門全開，空的也開,空部門收起，只顯示有報告的,低

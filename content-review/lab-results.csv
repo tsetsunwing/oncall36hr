@@ -1,0 +1,4 @@
+result_id,kind,label,item_id,item_label,unit,decimals,ref_low,ref_high,diagnosis,state,value,text,abnormal
+res.lipase,PANEL,Lipase,lipase,Lipase,U/L,0,0,60,*,*,32,,
+res.lipase,PANEL,Lipase,lipase,Lipase,U/L,0,0,60,sepsis,DETERIORATING,180,,
+res.ct.abdomen,REPORT,CT abdomen and pelvis,,,,,,,*,,,"右下肺大片實變，見空氣支氣管徵，符合肺炎。",true
