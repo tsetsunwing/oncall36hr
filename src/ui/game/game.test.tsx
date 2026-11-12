@@ -732,7 +732,8 @@ describe('ChatPanel', () => {
     await user.tab({ shift: true });
     expect(screen.getByRole('button', { name: ui.game.chat.drugOrder.cancel })).toHaveFocus();
     await user.tab();
-    expect(screen.getByTestId('drug-order-name')).toHaveFocus();
+    expect(screen.getByTestId('drug-order-kind-drug')).toHaveFocus();
+    expect(screen.getByTestId('drug-order-kind-ivf')).toHaveAttribute('aria-pressed', 'false');
     const name = screen.getByTestId('drug-order-name');
     expect(name).toHaveValue('');
     expect(screen.getByTestId('drug-order-route')).toHaveValue('');
@@ -910,6 +911,7 @@ describe('ChatPanel', () => {
       />,
     );
     expect(screen.queryByTestId('drug-order-class')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('drug-order-kind-ivf')).not.toBeInTheDocument();
     await user.click(screen.getByTestId('drug-order-name'));
     expect(screen.getByRole('option', { name: 'Adrenaline' })).toBeInTheDocument();
     expect(screen.queryByText('ANTIBACTERIAL DRUGS')).not.toBeInTheDocument();

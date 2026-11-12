@@ -34,11 +34,17 @@ async function openRecord(page: Page) {
 test('continuous fluid order cycles and records bags in the medical record', async ({ page }) => {
   await openBed(page);
   await page.getByRole('button', { name: '治療', exact: true }).click();
-  await page.getByTestId('treat-fluid').click();
-  await page.getByLabel('每瓶容量 mL').fill('500');
-  await page.getByLabel('每瓶輸注時間（小時）').fill('0.01');
-  await page.getByLabel('最多瓶數').fill('2');
-  await page.getByTestId('continuous-fluid-form').getByRole('button', { name: '確認' }).click();
+  await page.getByTestId('treat-drug').click();
+  await page.getByTestId('drug-order-kind-ivf').click();
+  await page.getByTestId('iv-fluid-name').selectOption('2D1S (D5 → D5 → NS)');
+  await page
+    .getByTestId('iv-fluid-route')
+    .selectOption('IV Infusion (Continuous drip / syringe pump)');
+  await page.getByTestId('iv-fluid-volume').selectOption('500 mL');
+  await page.getByTestId('iv-fluid-rate').fill('50000');
+  await page.getByTestId('iv-fluid-rate-unit').selectOption('mL/hr');
+  await page.getByTestId('iv-fluid-max-bags').fill('2');
+  await page.getByTestId('drug-order-confirm').click();
   const record = await openRecord(page);
   await expect(record).toContainText('D5 → D5 → NS');
   await expect(record.getByText(/D5 · 500 mL · 開始/)).toHaveCount(2, { timeout: 15_000 });
