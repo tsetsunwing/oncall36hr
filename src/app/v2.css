@@ -1,4 +1,4 @@
-/* 示範稿色票與兩個固定框內的版面。顏色係靜態，唔加動畫。 */
+/* 示範稿色票。電腦畫面跟視窗；直向手機用固定框。顏色係靜態，唔加動畫。 */
 
 html,
 body,
@@ -12,22 +12,39 @@ body {
 
 .play-viewport {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: stretch;
   width: 100%;
   height: 100%;
   overflow: hidden;
   background: var(--bg);
 }
 
+.play-viewport:has(.frame-mobile) {
+  align-items: center;
+  justify-content: center;
+}
+
 .play-stage {
   position: relative;
   display: flex;
-  flex: none;
   flex-direction: column;
   overflow: hidden;
   color: var(--text);
   background: var(--bg);
+}
+
+.frame-desktop.play-stage {
+  flex: 1 1 auto;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  max-width: none;
+  max-height: none;
+}
+
+.frame-mobile.play-stage {
+  flex: none;
 }
 
 .play-stage .app-shell {
@@ -40,7 +57,10 @@ body {
 
 .play-stage main {
   flex: 1;
+  width: 100%;
+  max-width: none;
   min-height: 0;
+  margin: 0;
   overflow: auto;
 }
 
@@ -55,11 +75,6 @@ body {
 
 .play-stage:has(.game) .app-header {
   display: none;
-}
-
-.frame-desktop.play-stage {
-  max-width: 1280px;
-  max-height: 800px;
 }
 
 .play-stage .game {
