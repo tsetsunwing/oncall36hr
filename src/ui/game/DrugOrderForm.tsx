@@ -12,11 +12,18 @@ import {
   FREQUENCIES,
   INFUSION_VOLUMES,
   isInfusionRoute,
+  IVF_RATE_UNITS,
+  IVF_ROUTES,
+  IVF_VOLUMES,
+  IV_FLUID_OPTIONS,
+  buildIvFluidOrder,
+  ivFluidReady,
   PRN_REASONS,
   RATE_UNITS,
   shortClassLabel,
   TITRATION_TARGETS,
   type DrugOrderDraft,
+  type IvFluidDraft,
   type MedicationOption,
   type PlacedOrderParams,
 } from '@/view';
@@ -63,8 +70,18 @@ export function DrugOrderForm({
   const [infuseOverMins, setInfuseOverMins] = useState('');
   const [afterFood, setAfterFood] = useState(false);
   const [rapidFlush, setRapidFlush] = useState(false);
+  const [kind, setKind] = useState<'drug' | 'ivf'>('drug');
+  const [fluidLabel, setFluidLabel] = useState('');
+  const [customFluid, setCustomFluid] = useState('');
+  const [ivfRoute, setIvfRoute] = useState<string | null>(null);
+  const [ivfVolume, setIvfVolume] = useState<string | null>(null);
+  const [ivfRate, setIvfRate] = useState('');
+  const [ivfRateUnit, setIvfRateUnit] = useState<string | null>(null);
+  const [ivfConcentration, setIvfConcentration] = useState('');
+  const [ivfMaxBags, setIvfMaxBags] = useState('');
 
   const selected = choices.find((item) => item.id === selectedId) ?? null;
+  const showIvf = treatmentSearch && kind === 'ivf';
   const infusion = isInfusionRoute(route);
   const treatmentClasses = useMemo(() => {
     if (!treatmentSearch) return [];
@@ -107,7 +124,17 @@ export function DrugOrderForm({
     afterFood,
     rapidFlush,
   };
-  const ready = drugOrderReady(draft);
+  const ivfDraft: IvFluidDraft = {
+    fluidLabel,
+    custom: customFluid,
+    route: ivfRoute,
+    volume: ivfVolume,
+    rateValue: ivfRate,
+    rateUnit: ivfRateUnit,
+    concentration: ivfConcentration,
+    maxBags: ivfMaxBags,
+  };
+  const ready = showIvf ? ivFluidReady(ivfDraft) : drugOrderReady(draft);
 
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
@@ -138,6 +165,12 @@ export function DrugOrderForm({
   }
 
   function submit() {
+    if (showIvf) {
+      const built = buildIvFluidOrder(ivfDraft);
+      if (!built) return;
+      onSubmit(built);
+      return;
+    }
     if (!selected) return;
     const params = placedDrugParams(selected.id, draft);
     const phrase = composeDrugOrderPhrase(draft);
@@ -168,135 +201,90 @@ export function DrugOrderForm({
       }}
     >
       <h3 id="drug-order-title">{t.title}</h3>
-      <label className="drug-order-drug">
-        {t.drug}
-        <input
-          type="text"
-          role="combobox"
-          aria-expanded={suggestionsOpen}
-          aria-controls="drug-order-matches"
-          aria-autocomplete="list"
-          value={query}
-          placeholder={t.search}
-          data-testid="drug-order-name"
-          onFocus={() => {
-            setListOpen(true);
-          }}
-          onBlur={(event) => {
-            const next = event.relatedTarget;
-            if (next instanceof Element && next.closest('.drug-order-class-filter')) return;
-            setListOpen(false);
-          }}
-          onChange={(event) => {
-            const next = event.target.value;
-            setQuery(next);
-            const exact = choices.find(
-              (item) => item.label.toLowerCase() === next.trim().toLowerCase(),
-            );
-            setSelectedId(exact?.id ?? null);
-            setListOpen(true);
-          }}
-        />
-      </label>
       {treatmentSearch ? (
-        <label className="drug-order-field drug-order-class-filter">
-          {t.drugClass}
-          <ChoiceSelect
-            testId="drug-order-class"
-            value={drugClass ?? ''}
-            blankLabel={t.everyClass}
-            options={treatmentClasses}
-            optionLabel={shortClassLabel}
-            onValue={(next) => {
-              setDrugClass(next.length > 0 ? next : null);
-              setListOpen(true);
+        <div className="drug-order-kinds" role="group" aria-label={t.kinds}>
+          <button
+            type="button"
+            className="chip"
+            data-testid="drug-order-kind-drug"
+            aria-pressed={kind === 'drug'}
+            onClick={() => {
+              setKind('drug');
             }}
-          />
-        </label>
+          >
+            {t.kindDrug}
+          </button>
+          <button
+            type="button"
+            className="chip"
+            data-testid="drug-order-kind-ivf"
+            aria-pressed={kind === 'ivf'}
+            onClick={() => {
+              setKind('ivf');
+            }}
+          >
+            {t.kindIvf}
+          </button>
+        </div>
       ) : null}
-      {suggestionsOpen ? (
-        <ul
-          id="drug-order-matches"
-          className="drug-order-matches"
-          role="listbox"
-          aria-label={t.matches}
-        >
-          {matches.map((item) => (
-            <li key={item.id}>
-              <button
-                type="button"
-                role="option"
-                aria-selected={item.id === selectedId}
-                aria-label={
-                  treatmentSearch && (item.classes ?? []).length > 0
-                    ? [item.label, ...(item.classes ?? []).map(shortClassLabel)].join(', ')
-                    : item.label
-                }
-                onMouseDown={(event) => {
-                  event.preventDefault();
-                  setSelectedId(item.id);
-                  setQuery(item.label);
-                  setListOpen(false);
+      {showIvf ? (
+        <div className="iv-fluid-form" data-testid="iv-fluid-form">
+          <label className="drug-order-field">
+            {t.fluid}
+            <ChoiceSelect
+              testId="iv-fluid-name"
+              value={fluidLabel}
+              blankLabel={t.emptyFluid}
+              options={IV_FLUID_OPTIONS.map((item) => item.label)}
+              onValue={setFluidLabel}
+            />
+          </label>
+          {fluidLabel === 'Other (comma-separated cycle)' ? (
+            <label className="drug-order-field">
+              {t.customFluid}
+              <input
+                type="text"
+                value={customFluid}
+                data-testid="iv-fluid-custom"
+                onChange={(event) => {
+                  setCustomFluid(event.target.value);
                 }}
-              >
-                <span className="drug-order-match-name">{item.label}</span>
-                {treatmentSearch
-                  ? (item.classes ?? []).map((name) => (
-                      <span key={name} className="drug-order-class">
-                        {shortClassLabel(name)}
-                      </span>
-                    ))
-                  : null}
-              </button>
-            </li>
-          ))}
-        </ul>
-      ) : null}
-
-      <div className={infusion ? 'drug-order-pack drug-order-pack-infusion' : 'drug-order-pack'}>
-        <label className="drug-order-field">
-          {t.route}
-          <ChoiceSelect
-            testId="drug-order-route"
-            value={route ?? ''}
-            options={DRUG_ROUTES.map((item) => item.phrase)}
-            onValue={chooseRoute}
-          />
-        </label>
-        {infusion ? (
-          <>
+              />
+            </label>
+          ) : null}
+          <div className="drug-order-pack drug-order-pack-infusion">
+            <label className="drug-order-field">
+              {t.route}
+              <ChoiceSelect
+                testId="iv-fluid-route"
+                value={ivfRoute ?? ''}
+                options={[...IVF_ROUTES]}
+                onValue={(next) => {
+                  setIvfRoute(next.length > 0 ? next : null);
+                }}
+              />
+            </label>
             <label className="drug-order-field">
               {t.concentration}
               <input
                 type="text"
                 maxLength={120}
-                value={concentration}
-                placeholder={t.concentrationHint}
-                data-testid="drug-order-concentration"
+                value={ivfConcentration}
+                placeholder={t.ivfConcentrationHint}
+                data-testid="iv-fluid-concentration"
                 onChange={(event) => {
-                  setConcentration(event.target.value);
-                }}
-              />
-            </label>
-            <label className="drug-order-field">
-              {t.diluent}
-              <ChoiceSelect
-                testId="drug-order-diluent"
-                value={diluent ?? ''}
-                options={DILUENTS}
-                onValue={(next) => {
-                  setDiluent(next.length > 0 ? next : null);
+                  setIvfConcentration(event.target.value);
                 }}
               />
             </label>
             <label className="drug-order-field">
               {t.volume}
               <ChoiceSelect
-                testId="drug-order-volume"
-                value={volume ?? ''}
-                options={INFUSION_VOLUMES}
+                testId="iv-fluid-volume"
+                value={ivfVolume ?? ''}
+                options={[...IVF_VOLUMES]}
                 onValue={(next) => {
-                  setVolume(next.length > 0 ? next : null);
+                  setIvfVolume(next.length > 0 ? next : null);
                 }}
               />
             </label>
@@ -305,173 +293,351 @@ export function DrugOrderForm({
               <input
                 type="text"
                 inputMode="decimal"
-                value={rateValue}
-                data-testid="drug-order-rate"
+                value={ivfRate}
+                data-testid="iv-fluid-rate"
                 onChange={(event) => {
-                  setRateValue(event.target.value);
+                  setIvfRate(event.target.value);
                 }}
               />
             </label>
             <label className="drug-order-field">
               {t.rateUnit}
               <ChoiceSelect
-                testId="drug-order-rate-unit"
-                value={rateUnit ?? ''}
+                testId="iv-fluid-rate-unit"
+                value={ivfRateUnit ?? ''}
                 blankLabel={t.emptyUnit}
-                options={RATE_UNITS}
+                options={[...IVF_RATE_UNITS]}
                 onValue={(next) => {
-                  setRateUnit(next.length > 0 ? next : null);
+                  setIvfRateUnit(next.length > 0 ? next : null);
                 }}
               />
             </label>
             <label className="drug-order-field">
-              {t.titration}
-              <ChoiceSelect
-                testId="drug-order-titration"
-                value={titration ?? ''}
-                options={TITRATION_TARGETS}
-                onValue={(next) => {
-                  setTitration(next.length > 0 ? next : null);
+              {t.maxBags}
+              <input
+                type="text"
+                inputMode="numeric"
+                value={ivfMaxBags}
+                data-testid="iv-fluid-max-bags"
+                onChange={(event) => {
+                  setIvfMaxBags(event.target.value);
                 }}
               />
             </label>
-          </>
-        ) : (
-          <>
-            <label className="drug-order-field">
-              {t.frequency}
-              <ChoiceSelect
-                testId="drug-order-frequency"
-                value={frequency ?? ''}
-                options={FREQUENCIES}
-                onValue={(next) => {
-                  setFrequency(next.length > 0 ? next : null);
-                }}
-              />
-            </label>
-            <label className="drug-order-field">
-              {t.prn}
-              <ChoiceSelect
-                testId="drug-order-prn"
-                value={prn ?? ''}
-                options={PRN_REASONS}
-                onValue={(next) => {
-                  setPrn(next.length > 0 ? next : null);
-                }}
-              />
-            </label>
-            {prn ? (
-              <>
-                <label className="drug-order-field">
-                  PRN condition
-                  <select
-                    aria-label="PRN comparison"
-                    data-testid="drug-order-prn-comparison"
-                    value={prnComparison ?? ''}
-                    onChange={(event) =>
-                      setPrnComparison(
-                        event.target.value as NonNullable<DrugOrderDraft['prnComparison']> | null,
-                      )
-                    }
-                  >
-                    <option value="">Select</option>
-                    <option>＞</option>
-                    <option>≥</option>
-                    <option>＜</option>
-                    <option>≤</option>
-                    <option>=</option>
-                  </select>
-                </label>
-                <label className="drug-order-field">
-                  {prn === 'Pain'
-                    ? 'Pain score (0-10)'
-                    : prn === 'Agitation' || prn === 'Nausea'
-                      ? `${prn} score (0-3)`
-                      : 'Temperature (°C)'}
-                  <input
-                    aria-label="PRN threshold"
-                    data-testid="drug-order-prn-threshold"
-                    inputMode="decimal"
-                    value={prnThreshold}
-                    onChange={(event) => setPrnThreshold(event.target.value)}
-                  />
-                </label>
-                <p>
-                  Every PRN needs a Q-hourly minimum interval. Fever, pain, agitation and nausea PRN
-                  only fire after that value has been assessed at the bedside.
-                </p>
-              </>
-            ) : null}
-          </>
-        )}
-      </div>
-
-      <div className="drug-order-dose">
-        <label>
-          {t.dose}
-          <input
-            type="text"
-            inputMode="decimal"
-            value={doseValue}
-            data-testid="drug-order-dose"
-            onChange={(event) => {
-              setDoseValue(event.target.value);
-            }}
-          />
-        </label>
-        <label>
-          {t.unit}
-          <ChoiceSelect
-            testId="drug-order-unit"
-            value={doseUnit ?? ''}
-            blankLabel={t.emptyUnit}
-            options={DOSE_UNITS}
-            onValue={(next) => {
-              setDoseUnit(next.length > 0 ? next : null);
-            }}
-          />
-        </label>
-      </div>
-
-      <fieldset>
-        <legend>{t.notes}</legend>
-        <div className="drug-order-options drug-order-notes">
-          <label>
-            Infuse over
+          </div>
+        </div>
+      ) : (
+        <>
+          <label className="drug-order-drug">
+            {t.drug}
             <input
               type="text"
-              inputMode="decimal"
-              value={infuseOverMins}
-              aria-label="Infuse over mins"
-              data-testid="drug-order-over"
+              role="combobox"
+              aria-expanded={suggestionsOpen}
+              aria-controls="drug-order-matches"
+              aria-autocomplete="list"
+              value={query}
+              placeholder={t.search}
+              data-testid="drug-order-name"
+              onFocus={() => {
+                setListOpen(true);
+              }}
+              onBlur={(event) => {
+                const next = event.relatedTarget;
+                if (next instanceof Element && next.closest('.drug-order-class-filter')) return;
+                setListOpen(false);
+              }}
               onChange={(event) => {
-                setInfuseOverMins(event.target.value);
+                const next = event.target.value;
+                setQuery(next);
+                const exact = choices.find(
+                  (item) => item.label.toLowerCase() === next.trim().toLowerCase(),
+                );
+                setSelectedId(exact?.id ?? null);
+                setListOpen(true);
               }}
             />
-            mins
           </label>
-          <label>
-            <input
-              type="checkbox"
-              checked={afterFood}
-              onChange={(event) => {
-                setAfterFood(event.target.checked);
-              }}
-            />
-            Take after food
-          </label>
-          <label>
-            <input
-              type="checkbox"
-              checked={rapidFlush}
-              onChange={(event) => {
-                setRapidFlush(event.target.checked);
-              }}
-            />
-            Rapid IV push + 20 mL flush
-          </label>
-        </div>
-      </fieldset>
+          {treatmentSearch ? (
+            <label className="drug-order-field drug-order-class-filter">
+              {t.drugClass}
+              <ChoiceSelect
+                testId="drug-order-class"
+                value={drugClass ?? ''}
+                blankLabel={t.everyClass}
+                options={treatmentClasses}
+                optionLabel={shortClassLabel}
+                onValue={(next) => {
+                  setDrugClass(next.length > 0 ? next : null);
+                  setListOpen(true);
+                }}
+              />
+            </label>
+          ) : null}
+          {suggestionsOpen ? (
+            <ul
+              id="drug-order-matches"
+              className="drug-order-matches"
+              role="listbox"
+              aria-label={t.matches}
+            >
+              {matches.map((item) => (
+                <li key={item.id}>
+                  <button
+                    type="button"
+                    role="option"
+                    aria-selected={item.id === selectedId}
+                    aria-label={
+                      treatmentSearch && (item.classes ?? []).length > 0
+                        ? [item.label, ...(item.classes ?? []).map(shortClassLabel)].join(', ')
+                        : item.label
+                    }
+                    onMouseDown={(event) => {
+                      event.preventDefault();
+                      setSelectedId(item.id);
+                      setQuery(item.label);
+                      setListOpen(false);
+                    }}
+                  >
+                    <span className="drug-order-match-name">{item.label}</span>
+                    {treatmentSearch
+                      ? (item.classes ?? []).map((name) => (
+                          <span key={name} className="drug-order-class">
+                            {shortClassLabel(name)}
+                          </span>
+                        ))
+                      : null}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+
+          <div
+            className={infusion ? 'drug-order-pack drug-order-pack-infusion' : 'drug-order-pack'}
+          >
+            <label className="drug-order-field">
+              {t.route}
+              <ChoiceSelect
+                testId="drug-order-route"
+                value={route ?? ''}
+                options={DRUG_ROUTES.map((item) => item.phrase)}
+                onValue={chooseRoute}
+              />
+            </label>
+            {infusion ? (
+              <>
+                <label className="drug-order-field">
+                  {t.concentration}
+                  <input
+                    type="text"
+                    maxLength={120}
+                    value={concentration}
+                    placeholder={t.concentrationHint}
+                    data-testid="drug-order-concentration"
+                    onChange={(event) => {
+                      setConcentration(event.target.value);
+                    }}
+                  />
+                </label>
+                <label className="drug-order-field">
+                  {t.diluent}
+                  <ChoiceSelect
+                    testId="drug-order-diluent"
+                    value={diluent ?? ''}
+                    options={DILUENTS}
+                    onValue={(next) => {
+                      setDiluent(next.length > 0 ? next : null);
+                    }}
+                  />
+                </label>
+                <label className="drug-order-field">
+                  {t.volume}
+                  <ChoiceSelect
+                    testId="drug-order-volume"
+                    value={volume ?? ''}
+                    options={INFUSION_VOLUMES}
+                    onValue={(next) => {
+                      setVolume(next.length > 0 ? next : null);
+                    }}
+                  />
+                </label>
+                <label className="drug-order-field">
+                  {t.rate}
+                  <input
+                    type="text"
+                    inputMode="decimal"
+                    value={rateValue}
+                    data-testid="drug-order-rate"
+                    onChange={(event) => {
+                      setRateValue(event.target.value);
+                    }}
+                  />
+                </label>
+                <label className="drug-order-field">
+                  {t.rateUnit}
+                  <ChoiceSelect
+                    testId="drug-order-rate-unit"
+                    value={rateUnit ?? ''}
+                    blankLabel={t.emptyUnit}
+                    options={RATE_UNITS}
+                    onValue={(next) => {
+                      setRateUnit(next.length > 0 ? next : null);
+                    }}
+                  />
+                </label>
+                <label className="drug-order-field">
+                  {t.titration}
+                  <ChoiceSelect
+                    testId="drug-order-titration"
+                    value={titration ?? ''}
+                    options={TITRATION_TARGETS}
+                    onValue={(next) => {
+                      setTitration(next.length > 0 ? next : null);
+                    }}
+                  />
+                </label>
+              </>
+            ) : (
+              <>
+                <label className="drug-order-field">
+                  {t.frequency}
+                  <ChoiceSelect
+                    testId="drug-order-frequency"
+                    value={frequency ?? ''}
+                    options={FREQUENCIES}
+                    onValue={(next) => {
+                      setFrequency(next.length > 0 ? next : null);
+                    }}
+                  />
+                </label>
+                <label className="drug-order-field">
+                  {t.prn}
+                  <ChoiceSelect
+                    testId="drug-order-prn"
+                    value={prn ?? ''}
+                    options={PRN_REASONS}
+                    onValue={(next) => {
+                      setPrn(next.length > 0 ? next : null);
+                    }}
+                  />
+                </label>
+                {prn ? (
+                  <>
+                    <label className="drug-order-field">
+                      PRN condition
+                      <select
+                        aria-label="PRN comparison"
+                        data-testid="drug-order-prn-comparison"
+                        value={prnComparison ?? ''}
+                        onChange={(event) =>
+                          setPrnComparison(
+                            event.target.value as NonNullable<
+                              DrugOrderDraft['prnComparison']
+                            > | null,
+                          )
+                        }
+                      >
+                        <option value="">Select</option>
+                        <option>＞</option>
+                        <option>≥</option>
+                        <option>＜</option>
+                        <option>≤</option>
+                        <option>=</option>
+                      </select>
+                    </label>
+                    <label className="drug-order-field">
+                      {prn === 'Pain'
+                        ? 'Pain score (0-10)'
+                        : prn === 'Agitation' || prn === 'Nausea'
+                          ? `${prn} score (0-3)`
+                          : 'Temperature (°C)'}
+                      <input
+                        aria-label="PRN threshold"
+                        data-testid="drug-order-prn-threshold"
+                        inputMode="decimal"
+                        value={prnThreshold}
+                        onChange={(event) => setPrnThreshold(event.target.value)}
+                      />
+                    </label>
+                    <p>
+                      Every PRN needs a Q-hourly minimum interval. Fever, pain, agitation and nausea
+                      PRN only fire after that value has been assessed at the bedside.
+                    </p>
+                  </>
+                ) : null}
+              </>
+            )}
+          </div>
+
+          <div className="drug-order-dose">
+            <label>
+              {t.dose}
+              <input
+                type="text"
+                inputMode="decimal"
+                value={doseValue}
+                data-testid="drug-order-dose"
+                onChange={(event) => {
+                  setDoseValue(event.target.value);
+                }}
+              />
+            </label>
+            <label>
+              {t.unit}
+              <ChoiceSelect
+                testId="drug-order-unit"
+                value={doseUnit ?? ''}
+                blankLabel={t.emptyUnit}
+                options={DOSE_UNITS}
+                onValue={(next) => {
+                  setDoseUnit(next.length > 0 ? next : null);
+                }}
+              />
+            </label>
+          </div>
+
+          <fieldset>
+            <legend>{t.notes}</legend>
+            <div className="drug-order-options drug-order-notes">
+              <label>
+                Infuse over
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  value={infuseOverMins}
+                  aria-label="Infuse over mins"
+                  data-testid="drug-order-over"
+                  onChange={(event) => {
+                    setInfuseOverMins(event.target.value);
+                  }}
+                />
+                mins
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={afterFood}
+                  onChange={(event) => {
+                    setAfterFood(event.target.checked);
+                  }}
+                />
+                Take after food
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={rapidFlush}
+                  onChange={(event) => {
+                    setRapidFlush(event.target.checked);
+                  }}
+                />
+                Rapid IV push + 20 mL flush
+              </label>
+            </div>
+          </fieldset>
+        </>
+      )}
 
       <div className="drug-order-actions">
         <button type="button" className="btn" onClick={onClose}>
