@@ -64,6 +64,15 @@ body {
   overflow: auto;
 }
 
+.frame-desktop main:has(.page.setup) {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: none;
+  padding: 0;
+  overflow: hidden;
+}
+
 .play-stage main.wide {
   display: flex;
   max-width: none;
@@ -2258,10 +2267,11 @@ tr[data-flag='H'] .value-flagged {
 
 .frame-desktop .page.setup {
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr) minmax(210px, 220px);
-  grid-template-columns: minmax(0, 1.25fr) minmax(300px, 0.75fr);
+  grid-template-rows: auto minmax(0, 1fr) minmax(11rem, 0.28fr);
+  grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
   gap: 10px;
-  height: 100%;
+  flex: 1;
+  height: auto;
   max-width: none;
   min-height: 0;
   margin: 0;
@@ -2289,22 +2299,41 @@ tr[data-flag='H'] .value-flagged {
 
 .frame-desktop .setup-main,
 .frame-desktop .setup-side {
+  min-width: 0;
   min-height: 0;
+  height: 100%;
   overflow: auto;
 }
 
 .frame-desktop .setup-main.soft-panel {
-  gap: 6px;
-  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px;
 }
 
 .frame-desktop .setup-main .choice-group {
-  gap: 2px;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  min-height: min-content;
+  min-inline-size: 0;
+}
+
+.frame-desktop .setup-main .choice-row {
+  flex: 1 1 auto;
+  min-height: 0;
+  align-content: stretch;
 }
 
 .frame-desktop .setup-main .choice-card {
-  gap: 0;
-  padding: 4px 8px;
+  height: 100%;
+  min-height: 44px;
+  gap: 2px;
+  justify-content: center;
+  padding: 8px 12px;
 }
 
 .frame-desktop .setup-main .choice-line,
@@ -2314,7 +2343,8 @@ tr[data-flag='H'] .value-flagged {
 }
 
 .frame-desktop .setup-side {
-  display: block;
+  display: flex;
+  flex-direction: column;
 }
 
 .setup-api-title {
@@ -2325,10 +2355,12 @@ tr[data-flag='H'] .value-flagged {
 }
 
 .frame-desktop .setup-api {
-  display: block;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
   height: auto;
-  min-height: max-content;
-  overflow: visible;
+  min-height: 0;
+  overflow: auto;
 }
 
 .place-room {
@@ -2420,7 +2452,7 @@ button.place-room-action:disabled:not([data-active='true']) {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  min-height: max-content;
+  min-height: 0;
 }
 
 .frame-desktop .page.setup .save-library {
