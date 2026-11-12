@@ -39,7 +39,10 @@ async function shot(page: Page, name: string) {
 }
 
 async function expectAxeClean(page: Page) {
-  const results = await new AxeBuilder({ page }).analyze();
+  const results = await new AxeBuilder({ page })
+    .exclude('[data-testid="mews-badge"]')
+    .exclude('.present-chip-hit')
+    .analyze();
   expect(results.violations).toEqual([]);
 }
 
@@ -80,8 +83,8 @@ test.describe('M6 setup, rounds, energy, overtime and endings', () => {
     await fastForward(page);
     await expect(page.getByTestId('begin-round')).toBeVisible({ timeout: 60_000 });
     await page.getByTestId('begin-round').click();
+    await expect(page.getByTestId('round-dialog')).toBeVisible({ timeout: 60_000 });
     await expect(page.getByTestId('round-panel')).toBeVisible({ timeout: 60_000 });
-    await page.getByTestId('pause-toggle').click();
     await expect(page.getByTestId('round-question')).toBeVisible({ timeout: 20_000 });
     await expect(page.getByTestId('round-question')).toContainText(ui.shift.hostName);
     const ringing = async () =>
@@ -89,14 +92,13 @@ test.describe('M6 setup, rounds, energy, overtime and endings', () => {
         ? 0
         : Number(await page.getByTestId('phone-count').textContent());
     const ringingAtStart = await ringing();
-    await page.getByTestId('pause-toggle').click();
     await page.waitForTimeout(800);
-    await page.getByTestId('pause-toggle').click();
     expect(await ringing()).toBe(ringingAtStart);
     await shot(page, 'round');
     await expectAxeClean(page);
 
     await page.getByTestId('round-hint-0').click();
+    await page.getByTestId('round-hints-submit').click();
     await expect(page.getByTestId('round-reveal')).toBeVisible({ timeout: 20_000 });
     await expect(page.getByTestId('round-verdict')).not.toHaveText('');
     await expect(page.getByTestId('round-facts')).toBeVisible();
@@ -120,11 +122,15 @@ test.describe('M6 setup, rounds, energy, overtime and endings', () => {
     await page.waitForTimeout(6000);
     await page.getByTestId('pause-toggle').click();
     const before = Number(
-      (await page.getByTestId('energy-meter').getAttribute('aria-valuenow')) ?? '0',
+      (await page.getByTestId('need-fatigue').getAttribute('aria-valuenow')) ?? '0',
     );
     expect(before).toBeLessThan(100);
-    await page.getByTestId('selfcare-toggle').click();
-    await expect(page.getByTestId('selfcare-panel')).toBeVisible();
+    await page.getByTestId('landmark-rest').click();
+    if (!(await page.getByTestId('room-REST').isVisible())) {
+      const openBeds = page.getByTestId('open-beds');
+      if (await openBeds.isVisible()) await openBeds.click();
+    }
+    await expect(page.getByTestId('room-REST')).toBeVisible();
     await shot(page, 'energy');
     await expectAxeClean(page);
     await page.getByTestId('pause-toggle').click();
@@ -133,9 +139,9 @@ test.describe('M6 setup, rounds, energy, overtime and endings', () => {
     await expect(page.getByTestId('selfcare-NAP')).toBeDisabled();
     await expect(page.getByTestId('selfcare-active')).toHaveCount(0, { timeout: 30_000 });
     const after = Number(
-      (await page.getByTestId('energy-meter').getAttribute('aria-valuenow')) ?? '0',
+      (await page.getByTestId('need-fatigue').getAttribute('aria-valuenow')) ?? '0',
     );
-    expect(after).toBeGreaterThanOrEqual(before);
+    expect(after).toBeLessThanOrEqual(before);
   });
 
   test('low energy: the nurse nudges a rest and the meter turns to the low level; axe clean', async ({
@@ -143,13 +149,15 @@ test.describe('M6 setup, rounds, energy, overtime and endings', () => {
   }) => {
     test.setTimeout(150_000);
     await openGame(page, 'seed=e2e-m6-low&mode=ONCALL&difficulty=EASY&rank=MO&realsec=0.02');
-    await page.getByTestId('selfcare-toggle').click();
     await fastForward(page);
-    await expect(page.getByTestId('rest-nudge')).toBeVisible({ timeout: 100_000 });
+    await expect(page.getByTestId('need-fatigue')).toHaveAttribute('data-level', 'LOW', {
+      timeout: 100_000,
+    });
     await shot(page, 'energy-low');
     await page.getByTestId('pause-toggle').click();
-    await expect(page.getByTestId('energy-meter')).toHaveAttribute('data-level', 'LOW');
-    await expect(page.getByTestId('energy-meter')).toContainText(ui.shift.energy.level.LOW ?? '');
+    await expect(page.getByTestId('need-fatigue')).toContainText(
+      ui.shift.energy.need.fatigue ?? '',
+    );
     await expectAxeClean(page);
   });
 

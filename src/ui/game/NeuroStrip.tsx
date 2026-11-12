@@ -3,8 +3,7 @@ import type { PatientView, PupilView } from '@/view';
 
 /**
  * 神經與疼痛：GCS（E/V/M）、瞳孔、疼痛分數。
- * 刻意唔放喺心臟監察儀（MonitorPanel）裡面 —— 監察儀只顯示連續波形同生命表徵。
- * 數字全部來自 engine 狀態；AI 唔會寫入。
+ * 放喺身體圖欄，唔放心臟監察儀。數字全部來自 engine 狀態；AI 唔會寫入。
  */
 export interface NeuroStripProps {
   patient: PatientView;

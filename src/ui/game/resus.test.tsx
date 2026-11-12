@@ -237,6 +237,8 @@ describe('DeathFlowPanel', () => {
     await user.click(screen.getByTestId('death-call-PHONE_FAMILY'));
     expect(actions.startDeathCall).toHaveBeenCalledWith('p1', 'PHONE_FAMILY');
     expect(onOpenPhone).toHaveBeenCalledTimes(2);
+    expect(onOpenPhone).toHaveBeenNthCalledWith(1, 'NOTIFY_SENIOR');
+    expect(onOpenPhone).toHaveBeenNthCalledWith(2, 'PHONE_FAMILY');
   });
 
   it('全部完成：顯示床位已釋放，冇確認掣', () => {

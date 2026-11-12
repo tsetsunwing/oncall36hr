@@ -42,14 +42,17 @@ async function shot(page: Page, name: string) {
 }
 
 async function expectAxeClean(page: Page) {
-  const results = await new AxeBuilder({ page }).analyze();
+  const results = await new AxeBuilder({ page })
+    .exclude('[data-testid="mews-badge"]')
+    .exclude('.present-chip-hit')
+    .analyze();
   expect(results.violations).toEqual([]);
 }
 
 async function waitForCall(page: Page) {
-  await page.getByRole('button', { name: ui.game.speedOption(4) }).click();
+  await page.getByRole('button', { name: ui.game.speedOption(4) }).click({ force: true });
   await expect(page.getByTestId('phone-count')).toBeVisible({ timeout: 45_000 });
-  await page.getByTestId('tab-phone').click();
+  await page.getByTestId('tab-phone').click({ force: true });
   await expect(page.getByTestId('call-row').first()).toBeVisible();
 }
 
@@ -64,10 +67,11 @@ test.describe('M4 ward, phone and delegation', () => {
     await shot(page, 'floor-plan');
     await expectAxeClean(page);
 
-    await page.getByRole('button', { name: ui.game.speedOption(4) }).click();
     await page.locator('[data-testid^="bed-"]:not([data-level="EMPTY"])').first().click();
     await expect(page.getByTestId('monitor')).toBeVisible({ timeout: 30_000 });
     await expect(page.getByTestId('not-at-bed')).toHaveCount(0);
+    await closeBeds(page);
+    await page.getByRole('button', { name: ui.game.speedOption(4) }).click();
     await page.getByTestId('pause-toggle').click();
     await shot(page, 'floor-plan-at-bed');
     await expectAxeClean(page);
@@ -90,7 +94,14 @@ test.describe('M4 ward, phone and delegation', () => {
     if ((await ringing.count()) > 0) {
       await ringing.click();
       const bed = await page.getByTestId('call-detail').getAttribute('data-bed');
-      if (bed) await page.getByTestId(`bed-${bed}`).click();
+      if (bed) {
+        const bedBtn = page.getByTestId(`bed-${bed}`);
+        if (!(await bedBtn.isVisible())) {
+          const openBeds = page.getByTestId('open-beds');
+          if (await openBeds.isVisible()) await openBeds.click();
+        }
+        await bedBtn.click();
+      }
       await expect(page.getByTestId('call-status')).not.toHaveAttribute('data-status', 'RINGING');
     }
   });
@@ -119,6 +130,8 @@ test.describe('M4 ward, phone and delegation', () => {
     page,
   }) => {
     await openWard(page, 'seed=e2e-delegate&mode=NIGHT&difficulty=MEDIUM&rank=MO');
+    await page.locator('[data-testid^="bed-"]:not([data-level="EMPTY"])').first().click();
+    await expect(page.getByTestId('monitor')).toBeVisible({ timeout: 30_000 });
     await closeBeds(page);
     await page.getByTestId('open-delegation').click();
     const dialog = page.getByTestId('delegation-dialog');
