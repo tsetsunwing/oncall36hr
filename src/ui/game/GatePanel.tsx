@@ -6,6 +6,16 @@ export interface GatePanelProps {
   actions: GameActions;
 }
 
+function reviewWaitText(gate: GateCardView): string {
+  const g = ui.game.gate;
+  if (gate.phase === 'RATING') return g.phase.RATING ?? '';
+  const pharmacy = gate.reviewers.includes('PHARMACY');
+  const nurse = gate.reviewers.includes('NURSE');
+  if (pharmacy && !nurse) return g.phase.REVIEW_PHARMACY ?? g.phase.REVIEW ?? '';
+  if (nurse && !pharmacy) return g.phase.REVIEW_NURSE ?? g.phase.REVIEW ?? '';
+  return g.phase.REVIEW ?? '';
+}
+
 function GateCard({ gate, actions }: { gate: GateCardView; actions: GameActions }) {
   const g = ui.game.gate;
   const insistText = `${gate.phase === 'RECONFIRM' ? g.insistAgain : g.insist}${
@@ -24,7 +34,7 @@ function GateCard({ gate, actions }: { gate: GateCardView; actions: GameActions 
       </h3>
       {waiting ? (
         <p className="gate-wait" role="status">
-          {g.phase[gate.phase]}
+          {reviewWaitText(gate)}
         </p>
       ) : (
         <>

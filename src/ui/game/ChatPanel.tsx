@@ -76,6 +76,11 @@ export interface ChatPanelProps {
   actions: GameActions;
 }
 
+function isSbarText(text: string | null): boolean {
+  if (!text) return false;
+  return /^S[：:]/.test(text) && /B[：:]/.test(text) && /A[：:]/.test(text) && /R[：:]/.test(text);
+}
+
 function Line({ line }: { line: ChatLineView }) {
   const c = ui.game.chat;
   if (line.kind === 'SYSTEM') {
@@ -110,7 +115,10 @@ function Line({ line }: { line: ChatLineView }) {
         {line.source === 'PHONE' ? <span className="chat-source">{c.phone}</span> : null}
         <time>{line.timeLabel}</time>
       </div>
-      <p className="chat-text" lang={mine ? undefined : 'yue-Hant-HK'}>
+      <p
+        className={isSbarText(line.text) ? 'chat-text chat-text--sbar' : 'chat-text'}
+        lang={mine ? undefined : 'yue-Hant-HK'}
+      >
         {line.text}
       </p>
     </div>

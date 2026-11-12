@@ -178,6 +178,7 @@ export function gate(over: Partial<GateCardView> = {}): GateCardView {
     orderId: 'o2',
     label: 'Augmentin 1.2 g IV',
     phase: 'DECISION',
+    reviewers: ['PHARMACY', 'NURSE'],
     concerns: [
       {
         by: 'PHARMACY',

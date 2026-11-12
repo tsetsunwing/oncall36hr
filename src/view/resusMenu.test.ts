@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { getContent } from '@/content';
-import { RESUS_MENU } from './resusMenu';
+import { RESUS_ACLS_GROUPS, RESUS_MENU } from './resusMenu';
 
 const tables = getContent().tables;
 
@@ -137,5 +137,21 @@ describe('搶救選單', () => {
     expect(tables.formulary.find((row) => row.id === 'calcium-gluconate')?.catalogId).toBe(
       'drug.calcium',
     );
+  });
+
+  it('ACLS 分類只用現有搶救快捷，不新增途徑', () => {
+    const known = new Set(tables['quick-words'].map((row) => row.id));
+    expect(RESUS_ACLS_GROUPS.map((group) => group.id)).toEqual([
+      'airway',
+      'breathing',
+      'circulation',
+      'drugs',
+      'defibrillation',
+    ]);
+    for (const group of RESUS_ACLS_GROUPS) {
+      for (const id of group.chipIds) {
+        expect(known.has(id), id).toBe(true);
+      }
+    }
   });
 });

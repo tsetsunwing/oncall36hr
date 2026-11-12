@@ -186,6 +186,8 @@ export interface GateCardView {
   orderId: string;
   label: string;
   phase: GatePhaseView;
+  /** 真正在審這張單的角色。程序只有護士時，畫面不可寫藥房。 */
+  reviewers: GateRoleView[];
   concerns: GateConcernView[];
   insistCount: number;
   required: number;
@@ -774,7 +776,7 @@ export interface ShiftView {
 }
 
 export type BodyDeviceKind =
-  'oxygen' | 'iv' | 'infusion' | 'ng' | 'foley' | 'cvc' | 'arterial' | 'chestTube' | 'drain';
+  'oxygen' | 'iv' | 'io' | 'infusion' | 'ng' | 'foley' | 'cvc' | 'arterial' | 'chestTube' | 'drain';
 
 /** 身體圖上的一個裝置。座標是示意圖百分比，正面朝向玩家。 */
 export interface BodyMarkerView {

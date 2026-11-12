@@ -22,7 +22,12 @@ export {
   type DrugOrderDraft,
 } from './drugOrder';
 export { shortClassLabel } from './drugClassLabel';
-export { RESUS_MENU, type ResusColumnId } from './resusMenu';
+export {
+  RESUS_ACLS_GROUPS,
+  RESUS_MENU,
+  type ResusAclsGroupId,
+  type ResusColumnId,
+} from './resusMenu';
 export { CATHETER_ORDERS, SURGICAL_DRAIN } from './catheters';
 export {
   buildIvFluidOrder,

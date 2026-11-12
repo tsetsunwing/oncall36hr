@@ -181,6 +181,11 @@ describe('ResusPanel', () => {
       route: null,
     });
     expect(screen.getByText(ui.game.resus.stopHint(1, 3))).toBeInTheDocument();
+    expect(screen.getByTestId('resus-group-circulation')).toBeInTheDocument();
+    expect(screen.getByTestId('resus-group-drugs')).toBeInTheDocument();
+    expect(screen.getByTestId('resus-group-defibrillation')).toBeInTheDocument();
+    expect(screen.queryByTestId('resus-group-airway')).not.toBeInTheDocument();
+    expect(screen.getByTestId('resus-panel')).toHaveClass('resus');
   });
 
   it('ROSC 之後唔再顯示指示按鈕，改為顯示 post-ROSC bundle', () => {

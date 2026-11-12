@@ -8,6 +8,7 @@ import {
   type EcgLead,
   type WaveSpec,
 } from '@/view';
+import { sweepColumn } from './sweepClock';
 
 export type WaveKind = 'ecg' | 'pleth' | 'abp' | 'cvp' | 'etco2';
 
@@ -141,8 +142,18 @@ export function WaveformCanvas(props: WaveformCanvasProps) {
       }
     };
 
-    const stepSec = live.current.sweepSeconds / WIDTH;
-    advance(WIDTH, stepSec);
+    const syncX = (ts: number) => {
+      const target = sweepColumn(ts, live.current.sweepSeconds, WIDTH);
+      const stepSec = live.current.sweepSeconds / WIDTH;
+      const steps = (target - state.x + WIDTH) % WIDTH;
+      if (steps > 0) advance(Math.min(steps, WIDTH), stepSec);
+      canvas.dataset.sweepX = String(state.x);
+    };
+
+    const now = typeof performance !== 'undefined' ? performance.now() : 0;
+    state.x = sweepColumn(now, live.current.sweepSeconds, WIDTH);
+    advance(WIDTH, live.current.sweepSeconds / WIDTH);
+    canvas.dataset.sweepX = String(state.x);
     if (reduced) {
       render();
       return;
@@ -151,16 +162,12 @@ export function WaveformCanvas(props: WaveformCanvasProps) {
     let raf = 0;
     const loop = (ts: number) => {
       raf = window.requestAnimationFrame(loop);
-      const { sweepSeconds, targetFps } = live.current;
+      const { targetFps } = live.current;
       if (state.last === 0) state.last = ts;
       const elapsed = ts - state.last;
       if (elapsed < 1000 / targetFps) return;
       state.last = ts;
-      const stepSec = sweepSeconds / WIDTH;
-      state.accumulator += Math.min(elapsed, 250) / 1000;
-      const steps = Math.floor(state.accumulator / stepSec);
-      state.accumulator -= steps * stepSec;
-      advance(Math.min(steps, WIDTH), stepSec);
+      syncX(ts);
       render();
     };
     raf = window.requestAnimationFrame(loop);

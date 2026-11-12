@@ -372,6 +372,7 @@ function selectGates(state: GameState, patientId: string, env: ViewEnv): GateCar
           orderId: order.id,
           label: composeOrderLabel(row, order),
           phase: gate.phase,
+          reviewers: [...new Set(gate.reviews.map((review) => review.by))],
           concerns: gate.reviews.flatMap((review) =>
             review.concerns.map((concern) => ({
               by: review.by,
