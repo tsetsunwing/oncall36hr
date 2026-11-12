@@ -1,8 +1,14 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from 'react';
 
-const DESKTOP = { w: 1280, h: 800 };
 const PHONE = { w: 390, h: 844 };
-/** 只有直向手機用手機框；其餘（包括窄橫向）縮放電腦框，唔會按寬度重排區域。 */
+/** 只有直向手機用手機框；其餘跟視窗大小，唔再鎖 1280×800。 */
 const PHONE_QUERY = '(orientation: portrait) and (max-width: 500px)';
 
 export type FrameKind = 'desktop' | 'mobile';
@@ -18,10 +24,12 @@ function readFrame(): { kind: FrameKind; scale: number } {
     return { kind: 'desktop', scale: 1 };
   }
   const mobile = window.matchMedia(PHONE_QUERY).matches;
-  const size = mobile ? PHONE : DESKTOP;
-  const scale = Math.min(window.innerWidth / size.w, window.innerHeight / size.h);
+  if (!mobile) {
+    return { kind: 'desktop', scale: 1 };
+  }
+  const scale = Math.min(window.innerWidth / PHONE.w, window.innerHeight / PHONE.h);
   return {
-    kind: mobile ? 'mobile' : 'desktop',
+    kind: 'mobile',
     scale: Number.isFinite(scale) && scale > 0 ? scale : 1,
   };
 }
@@ -43,21 +51,19 @@ export function PlayFrame({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const size = frame.kind === 'mobile' ? PHONE : DESKTOP;
+  const mobile = frame.kind === 'mobile';
+  const stageStyle: CSSProperties | undefined = mobile
+    ? { width: PHONE.w, height: PHONE.h, zoom: frame.scale }
+    : undefined;
+
   return (
     <FrameContext.Provider value={frame.kind}>
       <div className="play-viewport">
         <div
-          className={
-            frame.kind === 'mobile' ? 'play-stage frame-mobile' : 'play-stage frame-desktop'
-          }
+          className={mobile ? 'play-stage frame-mobile' : 'play-stage frame-desktop'}
           data-testid="play-frame"
           data-frame={frame.kind}
-          style={{
-            width: size.w,
-            height: size.h,
-            zoom: frame.scale,
-          }}
+          style={stageStyle}
         >
           {children}
         </div>
