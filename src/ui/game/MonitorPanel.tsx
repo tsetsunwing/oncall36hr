@@ -28,9 +28,14 @@ function AlertTriangle({ testId, level, text }: AlertTriangleProps) {
   return (
     <span className="alert-tri" data-level={level} data-testid={testId}>
       <svg viewBox="0 0 24 22" aria-hidden="true" focusable="false">
-        <path d="M12 1.6 22.6 20.4H1.4Z" fill="#ffd400" stroke="#ffd400" strokeLinejoin="round" />
-        <path d="M12 7.6v6.2" stroke="#111" strokeWidth="2.4" strokeLinecap="round" />
-        <circle cx="12" cy="17" r="1.4" fill="#111" />
+        <path
+          d="M12 1.6 22.6 20.4H1.4Z"
+          fill="currentColor"
+          stroke="currentColor"
+          strokeLinejoin="round"
+        />
+        <path d="M12 7.6v6.2" stroke="var(--mon-bg)" strokeWidth="2.4" strokeLinecap="round" />
+        <circle cx="12" cy="17" r="1.4" fill="var(--mon-bg)" />
       </svg>
       <span className="visually-hidden">{text}</span>
     </span>

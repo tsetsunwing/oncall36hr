@@ -7,7 +7,8 @@
 
 :root {
   /* ── 字級 6 級 ───────────────────────────── */
-  --fs-xl: 22px; /* 特大：床位號碼、監察儀大數字 */
+  --fs-xl: 22px; /* 特大：標題、監察儀數字 */
+  --fs-2xl: 28px; /* 最大：監察儀主數字 */
   --fs-lg: 18px; /* 標題：面板標題 */
   --fs-md: 15px; /* 小標題：區塊標題 */
   --fs-body: 13px; /* 正文 */
@@ -31,6 +32,42 @@
   --info-text: #0f6e5c;
   --blocked-bg: #fff6e0;
   --blocked-text: #7a4e00;
+
+  /* 次層表面與邊框 */
+  --surface-2: #f1f4f7;
+  --border-strong: #8794a0;
+  --border-ok: #b7e0cc;
+  --border-warn: #e2c48c;
+  --border-danger: #e7c5c5;
+
+  /* 警告／危險／提示（文字與底色成對） */
+  --warn-text: #7a4e00;
+  --warn-bg: #fff6e0;
+  --warn-strong: #b7791f;
+  --danger-text: #7f1d1d;
+  --danger-bg: #fde0e0;
+  --purple-text: #4a1d96;
+  --purple-bg: #efe7fb;
+
+  /* 監察儀（深色底，唔跟隨淺色主題） */
+  --mon-bg: #0d0d0d;
+  --mon-panel: #1b1b1b;
+  --mon-line: #2c2c2c;
+  --mon-ink: #e6e6e6;
+  --mon-dim: #9aa0a6;
+  --mon-green: #2ee86b;
+  --mon-green-ink: #052e16;
+  --mon-yellow: #ffd400;
+  --mon-yellow-ink: #1b1400;
+  --mon-red: #ff5a6a;
+  --mon-cyan: #37d4ff;
+  --mon-blue: #7eb6ff;
+  --mon-warn: #ffa94d;
+
+  /* 半透明遮蓋 */
+  --overlay: rgb(16 28 32 / 48%);
+  --overlay-strong: rgb(29 41 51 / 35%);
+  --warn-tint: rgb(183 121 31 / 12%);
 
   /* 生命表徵警示帶 */
   --band-low: #2e9e6b;
