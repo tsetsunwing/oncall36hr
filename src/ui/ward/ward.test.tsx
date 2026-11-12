@@ -421,6 +421,24 @@ describe('房間取代平面圖', () => {
     expect(screen.getByTestId('monitor').contains(neuro)).toBe(false);
   });
 
+  it('未有藥物醫囑時仍然顯示 MAR 表頭', async () => {
+    const atBed = {
+      ...gameAt(null),
+      patient,
+      monitor: monitor(),
+      chat: chat(),
+      body: { markers: [], ioOrder: null },
+    };
+    render(<WardGame view={atBed} ward={ward()} actions={makeActions()} />);
+    await userEvent.click(screen.getByTestId('open-medical-record'));
+    const record = screen.getByTestId('medical-record');
+    const table = within(record).getByRole('table');
+    expect(table).toHaveTextContent(ui.game.ward.medicalRecord.marTime);
+    expect(table).toHaveTextContent(ui.game.ward.medicalRecord.marDrug);
+    expect(table).toHaveTextContent(ui.game.ward.medicalRecord.marStatus);
+    expect(table).toHaveTextContent(ui.game.ward.medicalRecord.noOrders);
+  });
+
   it('病歷的 MAR 逐次顯示預定與已給的劑次', async () => {
     const atBed = {
       ...gameAt(null),

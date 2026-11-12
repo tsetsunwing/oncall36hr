@@ -357,8 +357,8 @@ describe('ChatPanel', () => {
     const actions = makeActions();
     render(<ChatPanel chat={chat()} chips={[]} notice={null} actions={actions} />);
     const chip = screen.getByRole('button', { name: ui.game.chat.addressPatient('陳大文') });
-    expect(chip.closest('li')).toHaveClass('present-chip');
-    expect(chip.closest('li')).toHaveAttribute('data-kind', 'PATIENT');
+    expect(chip).toHaveClass('present-chip');
+    expect(chip).toHaveAttribute('data-kind', 'PATIENT');
     expect(screen.queryByTestId('chat-addressee')).toBeNull();
 
     await user.click(chip);
@@ -379,6 +379,32 @@ describe('ChatPanel', () => {
     const cancel = screen.getByRole('button', { name: ui.game.chat.stopAddressing('陳大文') });
     await user.click(cancel);
     expect(cancel).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.queryByTestId('chat-addressee')).toBeNull();
+    await user.type(screen.getByRole('combobox'), '量血壓{Enter}');
+    expect(actions.submitChat).toHaveBeenLastCalledWith('p1', '量血壓');
+  });
+
+  it('在場護士同病人都係徽章，撳病人之後可以撳返護士', async () => {
+    const user = userEvent.setup();
+    const actions = makeActions();
+    render(<ChatPanel chat={chat()} chips={[]} notice={null} actions={actions} />);
+    const nurse = screen.getByRole('button', { name: ui.game.chat.addressPatient('何姑娘') });
+    const patient = screen.getByRole('button', { name: ui.game.chat.addressPatient('陳大文') });
+    expect(nurse).toHaveClass('present-chip');
+    expect(nurse).toHaveAttribute('data-kind', 'NURSE');
+    expect(nurse).toHaveAttribute('aria-pressed', 'true');
+    expect(patient).toHaveAttribute('aria-pressed', 'false');
+
+    await user.click(patient);
+    expect(patient).toHaveAttribute('aria-pressed', 'true');
+    expect(nurse).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.getByTestId('chat-addressee')).toHaveTextContent(
+      ui.game.chat.addressing('陳大文'),
+    );
+
+    await user.click(nurse);
+    expect(nurse).toHaveAttribute('aria-pressed', 'true');
+    expect(patient).toHaveAttribute('aria-pressed', 'false');
     expect(screen.queryByTestId('chat-addressee')).toBeNull();
     await user.type(screen.getByRole('combobox'), '量血壓{Enter}');
     expect(actions.submitChat).toHaveBeenLastCalledWith('p1', '量血壓');

@@ -79,6 +79,22 @@ describe('神經與疼痛', () => {
     expect(onAssessGcs).toHaveBeenCalledTimes(1);
   });
 
+  it('評估掣用細按鈕，同「安排出院」同一套 btn-small', () => {
+    render(
+      <NeuroStrip
+        patient={patient}
+        onAssessGcs={vi.fn()}
+        onAssessPain={vi.fn()}
+        onAssessAgitation={vi.fn()}
+        onAssessNausea={vi.fn()}
+      />,
+    );
+    for (const id of ['assess-pain', 'assess-agitation', 'assess-nausea', 'assess-gcs']) {
+      expect(screen.getByTestId(id)).toHaveClass('btn', 'btn-small');
+    }
+    expect(screen.getByTestId('neuro-gcs')).toContainElement(screen.getByTestId('assess-gcs'));
+  });
+
   it('冇提供 handler 時唔顯示「評估 GCS」按鈕', () => {
     render(<NeuroStrip patient={patient} />);
     expect(screen.queryByTestId('assess-gcs')).toBeNull();

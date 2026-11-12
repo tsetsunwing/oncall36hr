@@ -412,40 +412,42 @@ main.wide {
 .present {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 0.35rem;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.present-chip {
-  padding: 0 0.6rem;
+.present > li {
+  display: flex;
+  align-items: center;
+}
+
+.present-chip,
+.present-chip-hit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  height: 22px;
+  min-height: 22px;
+  margin: 0;
+  padding: 0 8px;
+  font: inherit;
   font-size: var(--fs-sm);
+  font-weight: 600;
+  line-height: 1;
+  color: var(--text);
+  cursor: pointer;
+  background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 999px;
-  background: var(--bg);
 }
 
-.present-chip[data-kind='NURSE'] {
+.present-chip[data-kind='NURSE']:not([data-selected='true']) {
   background: var(--ok-bg);
   color: var(--ok-text);
-}
-
-.present-chip[data-kind='PATIENT'] {
-  padding: 0;
-}
-
-.present-chip-hit {
-  display: inline-block;
-  margin: 0;
-  padding: 0 0.6rem;
-  border: 0;
-  border-radius: 999px;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  line-height: 1.6;
-  cursor: pointer;
 }
 
 .present-chip-hit:focus-visible {
@@ -2653,6 +2655,11 @@ main:has(.page.setup) {
 .mar-table tr[data-status='CANCELLED'] {
   opacity: 0.55;
   text-decoration: line-through;
+}
+
+.mar-table .mar-empty td {
+  color: var(--muted);
+  font-style: italic;
 }
 
 .mar-bags,
