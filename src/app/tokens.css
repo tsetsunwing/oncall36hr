@@ -1,0 +1,62 @@
+/**
+ * 數值層（唯一可以改數字嘅地方）。
+ * 全遊戲嘅字級、顏色、圓角、間距、按鈕尺寸都在此定義；
+ * 其餘 CSS 只准用 var(--…)，不准再寫死 12px 或 #7f1d1d。
+ * 想調大細或顏色：只改呢個檔，全遊戲一齊跟。
+ */
+
+:root {
+  /* ── 字級 6 級 ───────────────────────────── */
+  --fs-xl: 22px; /* 特大：床位號碼、監察儀大數字 */
+  --fs-lg: 18px; /* 標題：面板標題 */
+  --fs-md: 15px; /* 小標題：區塊標題 */
+  --fs-body: 13px; /* 正文 */
+  --fs-sm: 12px; /* 細字：標籤、時間 */
+  --fs-xs: 11px; /* 註腳：提示、備註 */
+
+  /* ── 顏色 ───────────────────────────────── */
+  --bg: #eef3f4;
+  --surface: #ffffff;
+  --text: #1d2933;
+  --muted: #596273;
+  --border: #dce4e6;
+  --accent: #107c67;
+  --accent-text: #ffffff;
+  --accent-soft: #e5f5f1;
+  --ok-bg: #e5f5f1;
+  --ok-text: #0f6e5c;
+  --error-bg: #fdecec;
+  --error-text: #9b2c2c;
+  --info-bg: #e8f4f2;
+  --info-text: #0f6e5c;
+  --blocked-bg: #fff6e0;
+  --blocked-text: #7a4e00;
+
+  /* 生命表徵警示帶 */
+  --band-low: #2e9e6b;
+  --band-mid: #e5b400;
+  --band-high: #e07a1f;
+  --band-critical: #d63b3b;
+
+  /* ── 陰影 ───────────────────────────────── */
+  --card-shadow: 0 4px 18px rgb(40 65 69 / 3.5%);
+  --header-shadow: 0 4px 16px rgb(30 57 62 / 4%);
+
+  /* ── 圓角 ───────────────────────────────── */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  /* ── 間距（4 的倍數） ─────────────────────── */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+
+  /* ── 按鈕 ───────────────────────────────── */
+  --btn-height: 34px;
+  --btn-height-sm: 28px;
+  --btn-radius: 8px;
+  --btn-font: 13px;
+}

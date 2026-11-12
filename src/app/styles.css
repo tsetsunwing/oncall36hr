@@ -1,22 +1,4 @@
 :root {
-  --bg: #eef3f4;
-  --surface: #ffffff;
-  --text: #1d2933;
-  --muted: #5c6d78;
-  --border: #dce4e6;
-  --accent: #107c67;
-  --accent-text: #ffffff;
-  --accent-soft: #e5f5f1;
-  --ok-bg: #e5f5f1;
-  --ok-text: #0f6e5c;
-  --error-bg: #fdecec;
-  --error-text: #9b2c2c;
-  --info-bg: #e8f4f2;
-  --info-text: #0f6e5c;
-  --blocked-bg: #fff6e0;
-  --blocked-text: #7a4e00;
-  --card-shadow: 0 4px 18px rgb(40 65 69 / 3.5%);
-  --header-shadow: 0 4px 16px rgb(30 57 62 / 4%);
   font-family:
     'DM Sans',
     Manrope,
