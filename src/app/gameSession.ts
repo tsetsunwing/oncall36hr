@@ -197,14 +197,14 @@ export function createGameSession(options: GameSessionOptions): GameSession {
     insistOrder(orderId) {
       dispatch({ type: 'PLAYER_INTENT', intent: { type: 'INSIST_ORDER', orderId } });
     },
-    completeDeathStep(step) {
+    completeDeathStep(patientId, step) {
       dispatch({
         type: 'PLAYER_INTENT',
         intent: {
           type: 'EXTENSION',
           module: DEATH_MODULE,
           name: COMPLETE_STEP_INTENT,
-          payload: { step },
+          payload: { patientId, step },
         },
       });
     },
@@ -249,8 +249,8 @@ export function createGameSession(options: GameSessionOptions): GameSession {
     familySay(callId, text) {
       wardIntent('FAMILY_SAY', { callId, text });
     },
-    startDeathCall(step) {
-      wardIntent('START_DEATH_CALL', { step });
+    startDeathCall(patientId, step) {
+      wardIntent('START_DEATH_CALL', { patientId, step });
     },
     delegate(request) {
       wardIntent('DELEGATE', request);

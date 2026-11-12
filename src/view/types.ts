@@ -861,14 +861,14 @@ export interface GameActions {
   endCall: (callId: string) => void;
   familyOption: (callId: string, optionId: string) => void;
   familySay: (callId: string, text: string) => void;
-  startDeathCall: (step: DeathStepCode) => void;
+  startDeathCall: (patientId: string, step: DeathStepCode) => void;
   delegate: (request: {
     task: DelegationTaskCode;
     itemId: string;
     patientId: string | null;
     callId: string | null;
   }) => void;
-  completeDeathStep: (step: DeathStepCode) => void;
+  completeDeathStep: (patientId: string, step: DeathStepCode) => void;
   answerRound: (text: string, viaHint: boolean) => void;
   beginRound: () => void;
   passRound: () => void;

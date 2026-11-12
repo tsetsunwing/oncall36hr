@@ -4,12 +4,16 @@
  */
 import {
   aclsModelOf,
+  arrestingPatients,
   causeRowsOf,
   DEATH_STEP_IDS,
+  pendingDeaths,
   postRoscBundleDone,
   rhythmOf,
+  type Death,
   type EngineTables,
   type GameState,
+  type Resus,
 } from '@/engine';
 import type { DeathView, ResusView } from './types';
 
@@ -18,12 +22,48 @@ interface ResusEnv {
   config: { acls: { cycleSeconds: number; minCyclesBeforeStop: number } };
 }
 
+/**
+ * 揀邊一個搶救流程俾玩家睇。次序：
+ * 1. 玩家而家企喺嘅床正在停頓 → 嗰個
+ * 2. 其他病人正在停頓（最早開始嗰個）
+ * 3. 玩家企喺嘅床剛剛 ROSC、仍然喺觀察窗內
+ * 4. 其他仍然喺 ROSC 觀察窗內嘅病人
+ * 5. 玩家企喺嘅床嘅舊紀錄
+ * 6. 最近一次紀錄
+ * 兩個病人同時停頓都唔會撞。
+ */
+function pickResus(state: GameState, focusId: string | null, now: number): Resus | undefined {
+  const focus = focusId === null ? undefined : state.resus[focusId];
+  if (focus?.status === 'ARREST') return focus;
+  const arresting = arrestingPatients(state);
+  if (arresting.length > 0) return arresting[0];
+  const watching = (r: Resus | undefined): boolean =>
+    r?.status === 'ROSC' && r.postRosc !== null && r.postRosc.windowEndsAt > now;
+  if (watching(focus)) return focus;
+  const others = Object.values(state.resus)
+    .filter((r) => watching(r))
+    .sort((a, b) => a.onsetAt - b.onsetAt);
+  if (others.length > 0) return others[0];
+  if (focus) return focus;
+  return Object.values(state.resus).sort((a, b) => b.onsetAt - a.onsetAt)[0];
+}
+
+function pickDeath(state: GameState, focusId: string | null): Death | undefined {
+  const focus = focusId === null ? undefined : state.death[focusId];
+  if (focus?.status === 'PENDING_PROCESS') return focus;
+  const pending = pendingDeaths(state);
+  if (pending.length > 0) return pending[0];
+  if (focus) return focus;
+  return Object.values(state.death).sort((a, b) => b.diedAt - a.diedAt)[0];
+}
+
 export function selectResus(
   state: GameState,
   env: ResusEnv,
   clockLabel: (t: number) => string,
+  focusId: string | null = null,
 ): ResusView | null {
-  const resus = state.resus;
+  const resus = pickResus(state, focusId, state.clock.t);
   const model = aclsModelOf(env.tables);
   if (!resus || !model) return null;
   const now = state.clock.t;
@@ -85,8 +125,9 @@ export function selectDeath(
   state: GameState,
   env: ResusEnv,
   clockLabel: (t: number) => string,
+  focusId: string | null = null,
 ): DeathView | null {
-  const death = state.death;
+  const death = pickDeath(state, focusId);
   if (!death) return null;
   const patient = state.patients[death.patientId];
   if (!patient) return null;

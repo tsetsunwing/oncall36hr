@@ -74,7 +74,7 @@ export function DeathFlowPanel({ death, actions, onOpenPhone }: DeathFlowPanelPr
                   className="btn btn-primary"
                   data-testid={`death-call-${step.step}`}
                   onClick={() => {
-                    actions.startDeathCall(step.step);
+                    actions.startDeathCall(death.patientId, step.step);
                     onOpenPhone?.();
                   }}
                 >
@@ -87,7 +87,7 @@ export function DeathFlowPanel({ death, actions, onOpenPhone }: DeathFlowPanelPr
                   aria-label={d.stepAria(d.step[step.step])}
                   data-testid={`death-confirm-${step.step}`}
                   onClick={() => {
-                    actions.completeDeathStep(step.step);
+                    actions.completeDeathStep(death.patientId, step.step);
                   }}
                 >
                   {d.confirm}

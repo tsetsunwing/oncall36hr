@@ -119,14 +119,16 @@ describe('scheduled medication safety', () => {
     const deceased = {
       ...original,
       death: {
-        patientId: 'p1',
-        diedAt: 7 * H,
-        status: 'PENDING_PROCESS' as const,
-        steps: { CERTIFICATE: null, NOTIFY_SENIOR: null, PHONE_FAMILY: null, RECORD: null },
-        seniorRank: 'RES',
-        delayCharges: 0,
-        completedAt: null,
-        summary: { cycles: 0, shocks: 0, drugs: 0 },
+        p1: {
+          patientId: 'p1',
+          diedAt: 7 * H,
+          status: 'PENDING_PROCESS' as const,
+          steps: { CERTIFICATE: null, NOTIFY_SENIOR: null, PHONE_FAMILY: null, RECORD: null },
+          seniorRank: 'RES',
+          delayCharges: 0,
+          completedAt: null,
+          summary: { cycles: 0, shocks: 0, drugs: 0 },
+        },
       },
     };
     const after = advance(engine, deceased, H).state.orders[id];

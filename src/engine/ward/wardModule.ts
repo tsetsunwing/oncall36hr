@@ -78,7 +78,9 @@ const payloads = {
     .strict(),
   SEND_CALL: z.object({ sbar: sbarSchema }).strict(),
   DISCARD_CALL: z.object({}).strict(),
-  START_DEATH_CALL: z.object({ step: z.enum(DEATH_STEP_IDS) }).strict(),
+  START_DEATH_CALL: z
+    .object({ patientId: z.string().min(1), step: z.enum(DEATH_STEP_IDS) })
+    .strict(),
   SEND_FOLLOWUP: z.object({ callId: z.string().min(1), text: z.string() }).strict(),
   FAMILY_OPTION: z.object({ callId: z.string().min(1), optionId: z.string().min(1) }).strict(),
   FAMILY_SAY: z.object({ callId: z.string().min(1), text: z.string() }).strict(),
@@ -110,9 +112,8 @@ function handleExtension(
       if (!patient || !isWardPatientActive(patient) || state.ward.location.bed !== patient.bed)
         return reject(state, 'PATIENT_UNKNOWN');
       if (awayOf(state, patient.id, ctx)) return reject(state, 'ORDER_INVALID');
-      if (state.resus?.patientId === patient.id && state.resus.status === 'ARREST')
-        return reject(state, 'ORDER_INVALID');
-      if (state.death?.patientId === patient.id && state.death.status === 'PENDING_PROCESS')
+      if (state.resus[patient.id]?.status === 'ARREST') return reject(state, 'ORDER_INVALID');
+      if (state.death[patient.id]?.status === 'PENDING_PROCESS')
         return reject(state, 'ORDER_INVALID');
       if (name === 'TRANSFER_OUT' && !patient.hidden.fsm.flags.includes('icu.accepted'))
         return reject(state, 'ORDER_INVALID');
@@ -174,7 +175,7 @@ function handleExtension(
       const parsed = payloads.START_DEATH_CALL.safeParse(payload);
       if (!parsed.success) return reject(state, 'CALL_TARGET_INVALID');
       if (state.paused) return blocked(state);
-      return startDeathCall(state, parsed.data.step, ctx);
+      return startDeathCall(state, parsed.data.patientId, parsed.data.step, ctx);
     }
     case 'SEND_FOLLOWUP': {
       const parsed = payloads.SEND_FOLLOWUP.safeParse(payload);

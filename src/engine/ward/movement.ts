@@ -134,11 +134,10 @@ export function moveTo(state: GameState, bed: number | null, ctx: EngineContext)
   if (location.bed !== null) {
     const here = patientAtBed(next, location.bed);
     if (here) {
-      const resus = next.resus;
+      const resus = next.resus[here];
       // 離床時只恢復已開始、但目前暫停的 CPR；不替玩家開始新的搶救。
       if (
-        resus?.patientId === here &&
-        resus.status === 'ARREST' &&
+        resus?.status === 'ARREST' &&
         resus.cpr.state === 'PAUSED' &&
         resus.cpr.firstAt !== null &&
         next.patients[here]?.demographics.code !== 'DNR'

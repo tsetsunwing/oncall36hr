@@ -59,8 +59,9 @@ function consider(best: Urgency | null, level: number, since: number): Urgency |
 
 export function urgencyOf(state: GameState, patient: Patient, ctx: EngineContext): Urgency {
   let best: Urgency | null = null;
-  if (state.resus?.status === 'ARREST' && state.resus.patientId === patient.id) {
-    best = consider(best, 3, state.resus.onsetAt);
+  const own = state.resus[patient.id];
+  if (own?.status === 'ARREST') {
+    best = consider(best, 3, own.onsetAt);
   }
   const tracked = state.priority.urgency[patient.id];
   if (tracked?.level === bandLevel(patient, ctx)) {

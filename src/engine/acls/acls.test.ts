@@ -7,7 +7,17 @@ import { renderTemplate } from '../chat/tokens';
 import { CURRENT_SCHEMA } from '../core/state';
 import type { GameState } from '../core/state';
 import { feed, intentEvent } from '../test/realEngine';
-import { config, give, ratePerRealMs, standardCycle, start, untilArrest, wait } from './kit';
+import {
+  config,
+  give,
+  onlyDeath,
+  onlyResus,
+  ratePerRealMs,
+  standardCycle,
+  start,
+  untilArrest,
+  wait,
+} from './kit';
 import type { Session } from './kit';
 
 const SHOCK_REFUSAL =
@@ -26,7 +36,7 @@ function showAsystole(session: Session): Session {
     ...session,
     state: {
       ...session.state,
-      resus: null,
+      resus: {},
       patients: {
         ...session.state.patients,
         p1: { ...patient, visible: { ...patient.visible, rhythm: 'ASYSTOLE' } },
@@ -42,18 +52,18 @@ describe('DNR', () => {
     let session = untilArrest(start('dnr-arrest', 'terminal-dnr-01'));
     expect(session.state.patients.p1?.demographics.code).toBe('DNR');
     session = give(session, 'cpr', 10);
-    expect(session.state.resus?.cpr.firstAt).toBeNull();
+    expect(onlyResus(session.state)?.cpr.firstAt).toBeNull();
     expect(session.effects.some((e) => e.type === 'NOTICE' && e.kind === 'DNR_NO_RESUS')).toBe(
       true,
     );
     session = give(session, 'defib 200 j', 15);
-    expect(session.state.resus?.shocks).toBe(0);
+    expect(onlyResus(session.state)?.shocks).toBe(0);
     const before = Object.keys(session.state.orders).length;
     session = give(session, 'oxygen nasal', 20);
     expect(Object.keys(session.state.orders).length).toBeGreaterThan(before);
     session = give(session, 'stop cpr', 10);
-    expect(session.state.resus?.status).toBe('STOPPED');
-    expect(session.state.death?.status).toBe('PENDING_PROCESS');
+    expect(onlyResus(session.state)?.status).toBe('STOPPED');
+    expect(onlyDeath(session.state)?.status).toBe('PENDING_PROCESS');
   });
 });
 
@@ -150,11 +160,11 @@ describe('ROSC 只由 engine 按 order 時機同正確程度決定', () => {
       'rhythm check',
       15,
     );
-    const pQuick = quick.state.resus?.lastRoll?.p ?? -1;
-    const pLate = late.state.resus?.lastRoll?.p ?? -1;
+    const pQuick = onlyResus(quick.state)?.lastRoll?.p ?? -1;
+    const pLate = onlyResus(late.state)?.lastRoll?.p ?? -1;
     expect(pQuick).toBeGreaterThanOrEqual(0);
     expect(pLate).toBeLessThan(pQuick);
-    expect(late.state.resus?.lastRoll?.terms.noFlow).toBeLessThan(0);
+    expect(onlyResus(late.state)?.lastRoll?.terms.noFlow).toBeLessThan(0);
   });
 
   it('可電擊節律：電擊令機率高過漏電擊；錯能量低過正確能量', () => {
@@ -163,15 +173,15 @@ describe('ROSC 只由 engine 按 order 時機同正確程度決定', () => {
       'rhythm check',
       15,
     );
-    const pCheck = base.state.resus?.lastRoll?.p ?? -1;
+    const pCheck = onlyResus(base.state)?.lastRoll?.p ?? -1;
     const good = give(base, 'defib 200 j', 15);
     const wrong = give(base, 'defib 1000 j', 15);
-    const pGood = good.state.resus?.lastRoll?.p ?? -1;
-    const pWrong = wrong.state.resus?.lastRoll?.p ?? -1;
-    expect(good.state.resus?.lastRoll?.trigger).toBe('SHOCK');
+    const pGood = onlyResus(good.state)?.lastRoll?.p ?? -1;
+    const pWrong = onlyResus(wrong.state)?.lastRoll?.p ?? -1;
+    expect(onlyResus(good.state)?.lastRoll?.trigger).toBe('SHOCK');
     expect(pGood).toBeGreaterThan(pCheck);
     expect(pWrong).toBeLessThan(pGood);
-    expect(wrong.state.resus?.lastRoll?.terms.shock).toBeLessThan(0);
+    expect(onlyResus(wrong.state)?.lastRoll?.terms.shock).toBeLessThan(0);
   });
 
   it('不可電擊節律（asystole）護士拒絕電擊，CPR 照做，200 J 常數不變', () => {
@@ -181,10 +191,10 @@ describe('ROSC 只由 engine 按 order 時機同正確程度決定', () => {
     let s = untilArrest(start('rosc-asy', 'terminal-01'));
     s = give(s, 'cpr', 10);
     s = give(s, 'defibrillation 600 j', 15);
-    expect(s.state.resus?.status).toBe('ARREST');
-    expect(s.state.resus?.cpr.state).toBe('ACTIVE');
-    expect(s.state.resus?.shocks).toBe(0);
-    expect(s.state.resus?.cycle.shocksOnNonShockable).toBe(0);
+    expect(onlyResus(s.state)?.status).toBe('ARREST');
+    expect(onlyResus(s.state)?.cpr.state).toBe('ACTIVE');
+    expect(onlyResus(s.state)?.shocks).toBe(0);
+    expect(onlyResus(s.state)?.cycle.shocksOnNonShockable).toBe(0);
     const said = nurseSaid(s.state);
     expect(said.some((line) => line.includes('收到，我即刻做') && line.includes('CPR'))).toBe(true);
     expect(said.some((line) => line.includes('我唔會做') && line.includes('CPR'))).toBe(false);
@@ -197,20 +207,20 @@ describe('ROSC 只由 engine 按 order 時機同正確程度決定', () => {
 
   it('監察儀 Asystole、無脈搏但未入搶救：CPR 要做，電擊用同一句拒絕', () => {
     const shown = showAsystole(start('monitor-asy', 'pna-sepsis-02'));
-    expect(shown.state.resus).toBeNull();
+    expect(onlyResus(shown.state)).toBeUndefined();
     expect(shown.state.patients.p1?.visible.rhythm).toBe('ASYSTOLE');
     const cpr = give(shown, 'cpr', 10);
-    expect(cpr.state.resus?.status).toBe('ARREST');
-    expect(cpr.state.resus?.rhythm).toBe('ASYSTOLE');
-    expect(cpr.state.resus?.cpr.state).toBe('ACTIVE');
+    expect(onlyResus(cpr.state)?.status).toBe('ARREST');
+    expect(onlyResus(cpr.state)?.rhythm).toBe('ASYSTOLE');
+    expect(onlyResus(cpr.state)?.cpr.state).toBe('ACTIVE');
     const afterCpr = nurseSaid(cpr.state);
     expect(afterCpr.some((line) => line === '收到，我即刻做 CPR。')).toBe(true);
     expect(afterCpr.some((line) => line.includes('我唔會做'))).toBe(false);
     expect(afterCpr.some((line) => line.includes('心跳停搏'))).toBe(false);
 
     const shocked = give(shown, 'defibrillation 600 j', 15);
-    expect(shocked.state.resus?.shocks ?? 0).toBe(0);
-    expect(shocked.state.resus?.status ?? null).toBeNull();
+    expect(onlyResus(shocked.state)?.shocks ?? 0).toBe(0);
+    expect(onlyResus(shocked.state)).toBeUndefined();
     const afterShock = nurseSaid(shocked.state);
     expect(afterShock).toContain(SHOCK_REFUSAL);
     expect(afterShock.some((line) => line.includes('心跳停搏'))).toBe(false);
@@ -226,8 +236,8 @@ describe('ROSC 只由 engine 按 order 時機同正確程度決定', () => {
     for (const seed of ['u1', 'u2', 'u3', 'u4', 'u5', 'u6']) {
       let s = untilArrest(start(seed, 'terminal-01'));
       for (let i = 0; i < 4; i += 1) s = standardCycle(s);
-      expect(s.state.resus?.status).toBe('ARREST');
-      expect(s.state.resus?.lastRoll?.p).toBe(0);
+      expect(onlyResus(s.state)?.status).toBe('ARREST');
+      expect(onlyResus(s.state)?.lastRoll?.p).toBe(0);
     }
   });
 
@@ -235,12 +245,13 @@ describe('ROSC 只由 engine 按 order 時機同正確程度決定', () => {
     let found = false;
     for (let i = 0; i < 40 && !found; i += 1) {
       let s = untilArrest(start(`rosc-find-${String(i)}`, 'acs-vf-01'));
-      for (let c = 0; c < 3 && s.state.resus?.status === 'ARREST'; c += 1) s = standardCycle(s);
-      if (s.state.resus?.status !== 'ROSC') continue;
+      for (let c = 0; c < 3 && onlyResus(s.state)?.status === 'ARREST'; c += 1)
+        s = standardCycle(s);
+      if (onlyResus(s.state)?.status !== 'ROSC') continue;
       found = true;
       expect(s.state.clock.cprSlow).toBe(false);
-      expect(s.state.resus.lastRoll?.success).toBe(true);
-      expect(s.state.resus.roscAt).not.toBeNull();
+      expect(onlyResus(s.state)?.lastRoll?.success).toBe(true);
+      expect(onlyResus(s.state)?.roscAt).not.toBeNull();
       expect(s.state.patients.p1?.hidden.fsm.state).toBe('POST_ROSC');
     }
     expect(found).toBe(true);
@@ -252,8 +263,8 @@ describe('終止搶救同 cycle', () => {
     let s = untilArrest(start('stop-1', 'terminal-01'));
     s = give(give(s, 'cpr', 10), 'rhythm check', 15);
     s = give(s, 'stop cpr', 10);
-    expect(s.state.death).toBeNull();
-    expect(s.state.resus?.status).toBe('ARREST');
+    expect(onlyDeath(s.state)).toBeUndefined();
+    expect(onlyResus(s.state)?.status).toBe('ARREST');
     expect(s.state.actionLog.some((l) => l.reasonCode === 'STOP_REFUSED')).toBe(true);
   });
 
@@ -261,10 +272,10 @@ describe('終止搶救同 cycle', () => {
     let s = untilArrest(start('stop-2', 'terminal-01'));
     s = give(s, 'cpr', 10);
     for (let i = 0; i < config.acls.minCyclesBeforeStop; i += 1) s = give(s, 'rhythm check', 15);
-    expect(s.state.resus?.cycles).toBeGreaterThanOrEqual(config.acls.minCyclesBeforeStop);
+    expect(onlyResus(s.state)?.cycles).toBeGreaterThanOrEqual(config.acls.minCyclesBeforeStop);
     s = give(s, 'stop cpr', 10);
-    expect(s.state.resus?.status).toBe('STOPPED');
-    expect(s.state.death?.status).toBe('PENDING_PROCESS');
+    expect(onlyResus(s.state)?.status).toBe('STOPPED');
+    expect(onlyDeath(s.state)?.status).toBe('PENDING_PROCESS');
     expect(s.state.clock.cprSlow).toBe(false);
   });
 });
@@ -274,10 +285,10 @@ describe('H 同 T：檢查同處理', () => {
     let s = untilArrest(start('ht-1', 'acs-vf-01'));
     s = give(s, 'cpr', 10);
     s = give(s, 'ecg', 400);
-    expect(s.state.resus?.checkedCauses).toContain('cause.thrombosis');
-    expect(s.state.resus?.treatedCauses).not.toContain('cause.thrombosis');
+    expect(onlyResus(s.state)?.checkedCauses).toContain('cause.thrombosis');
+    expect(onlyResus(s.state)?.treatedCauses).not.toContain('cause.thrombosis');
     s = give(s, 'alteplase', 200);
-    expect(s.state.resus?.treatedCauses).toContain('cause.thrombosis');
+    expect(onlyResus(s.state)?.treatedCauses).toContain('cause.thrombosis');
   });
 });
 
@@ -285,8 +296,8 @@ describe('存檔', () => {
   it('schema 4，resus／death／scoreLedger 預設為 null／null／[]', () => {
     const s = start('save-1', 'acs-vf-01');
     expect(s.state.schema).toBe(CURRENT_SCHEMA);
-    expect(s.state.resus).toBeNull();
-    expect(s.state.death).toBeNull();
+    expect(onlyResus(s.state)).toBeUndefined();
+    expect(onlyDeath(s.state)).toBeUndefined();
     expect(s.state.scoreLedger).toEqual([]);
   });
 

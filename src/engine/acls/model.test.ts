@@ -11,12 +11,12 @@ import {
   type RoscInputs,
 } from './model';
 import type { Resus } from './resusState';
-import { start, untilArrest } from './kit';
+import { onlyResus, start, untilArrest } from './kit';
 
 const tables = realTables();
 const model = aclsModelOf(tables);
 if (!model) throw new Error('缺 acls MODEL');
-const arrest = untilArrest(start('model-base', 'acs-vf-01')).state.resus;
+const arrest = onlyResus(untilArrest(start('model-base', 'acs-vf-01')).state);
 if (!arrest) throw new Error('缺 resus');
 
 const SHOCKABLE = ['VENTRICULAR_FIBRILLATION', 'PULSELESS_VT', 'TORSADES_DE_POINTES'];

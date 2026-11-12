@@ -4,6 +4,7 @@
  * 所有玩家動作經 `EXTENSION` intent（module: 'shift'）進入。
  */
 import { z } from 'zod';
+import { anyArrest } from '../acls/arrest';
 import { VITALS_SAMPLE_EVENT } from '../case/caseModule';
 import { SELF_CARE_IDS } from '../case/tables';
 import { enqueue, type ScheduledEvent } from '../core/eventQueue';
@@ -170,11 +171,11 @@ function gateIntent(state: GameState, intent: PlayerIntent): Reduction | undefin
     (wardAction && intent.name === 'GO_TO_BED');
 
   if (phase === 'OVERTIME' && newWork) {
-    if (!(state.resus?.status === 'ARREST' && bedsideOrder)) {
+    if (!(anyArrest(state) !== undefined && bedsideOrder)) {
       return reject(state, 'OVERTIME_FROZEN');
     }
   }
-  const resuscitating = state.resus?.status === 'ARREST' && bedsideOrder;
+  const resuscitating = anyArrest(state) !== undefined && bedsideOrder;
   if (state.shift.rounds.active && (newWork || movement || wardAction) && !resuscitating) {
     return reject(state, 'ROUND_ACTIVE');
   }

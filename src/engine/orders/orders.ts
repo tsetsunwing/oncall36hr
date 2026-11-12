@@ -385,7 +385,7 @@ export const ordersModule: EngineModule = {
       if (order?.status !== 'RUNNING' || !order.params.fluidRegimen || !order.fluidBags)
         return { state, effects: [] };
       if (
-        state.death?.patientId === order.patientId ||
+        state.death[order.patientId] !== undefined ||
         !state.patients[order.patientId] ||
         state.patients[order.patientId]?.hidden.fsm.flags.includes('ward.departed')
       )
@@ -420,7 +420,7 @@ export const ordersModule: EngineModule = {
       if (!isOrderCompletePayload(event.payload)) return { state, effects: [] };
       const order = state.orders[event.payload.orderId];
       if (order?.status !== 'RUNNING' || !order.params.prnReason) return { state, effects: [] };
-      if (state.death?.patientId === order.patientId)
+      if (state.death[order.patientId] !== undefined)
         return { state: cancelOrderState(state, order, 'PATIENT_DECEASED'), effects: [] };
       const patient = state.patients[order.patientId];
       if (!patient || patient.hidden.fsm.flags.includes('ward.departed'))
@@ -552,7 +552,7 @@ export const ordersModule: EngineModule = {
         )
       )
         return { state, effects: [] };
-      if (state.death?.patientId === order.patientId)
+      if (state.death[order.patientId] !== undefined)
         return { state: cancelOrderState(state, order, 'PATIENT_DECEASED'), effects: [] };
       const duration = order.params.infuseOverMinutes;
       if (!finishing && duration !== undefined) {

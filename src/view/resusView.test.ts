@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { getConfig, getContent } from '@/content';
 import { createEngine, type EngineEvent, type GameState } from '@/engine';
+import { onlyResus } from '@/engine/acls/kit';
 import { selectGameView, type ViewEnv } from './gameView';
 import { formatDuration } from './clock';
 
@@ -67,7 +68,7 @@ describe('搶救 ViewModel', () => {
       ['rhythm check', 15],
       ['defib 200 j', 15],
     ]);
-    expect(state.resus?.lastRoll).not.toBeNull();
+    expect(onlyResus(state)?.lastRoll).not.toBeNull();
     const json = JSON.stringify(selectGameView(state, env));
     for (const secret of ['lastRoll', 'causeIds', 'rocBaseP', 'terms', '"success"', 'noFlowSec']) {
       expect(json, secret).not.toContain(secret);
@@ -108,7 +109,12 @@ describe('搶救 ViewModel', () => {
     for (const step of ['CERTIFICATE', 'NOTIFY_SENIOR', 'PHONE_FAMILY', 'RECORD']) {
       state = engine.reduce(state, {
         type: 'PLAYER_INTENT',
-        intent: { type: 'EXTENSION', module: 'death', name: 'COMPLETE_STEP', payload: { step } },
+        intent: {
+          type: 'EXTENSION',
+          module: 'death',
+          name: 'COMPLETE_STEP',
+          payload: { patientId: view?.patientId ?? '', step },
+        },
       }).state;
     }
     expect(selectGameView(state, env).death?.bedReleased).toBe(true);

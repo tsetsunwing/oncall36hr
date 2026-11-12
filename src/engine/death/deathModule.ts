@@ -11,20 +11,28 @@ export const deathModule: EngineModule = {
     if (intent.type !== 'EXTENSION' || intent.module !== DEATH_MODULE) return undefined;
     if (intent.name !== COMPLETE_STEP_INTENT) return undefined;
     const payload = intent.payload;
-    const step =
+    const fields =
       typeof payload === 'object' && payload !== null && !Array.isArray(payload)
-        ? payload.step
-        : undefined;
-    if (!isDeathStep(step)) return { state, effects: [] };
+        ? (payload as { patientId?: unknown; step?: unknown })
+        : {};
+    const patientId = typeof fields.patientId === 'string' ? fields.patientId : undefined;
+    const step = fields.step;
+    if (patientId === undefined || !isDeathStep(step)) return { state, effects: [] };
     const viaPhone = step === 'NOTIFY_SENIOR' || step === 'PHONE_FAMILY';
     if (viaPhone && state.ward.enabled) {
       return { state, effects: [{ type: 'NOTICE', kind: 'DEATH_STEP_VIA_PHONE', tone: 'warn' }] };
     }
-    return completeDeathStep(state, step);
+    return completeDeathStep(state, patientId, step);
   },
 
   handleScheduled(state, event, ctx) {
     if (event.kind !== DEATH_DELAY_EVENT) return undefined;
-    return handleDeathDelay(state, ctx, event.time);
+    const payload = event.payload;
+    const patientId =
+      typeof payload === 'object' && payload !== null && !Array.isArray(payload)
+        ? (payload as { patientId?: unknown }).patientId
+        : undefined;
+    if (typeof patientId !== 'string') return { state, effects: [] };
+    return handleDeathDelay(state, patientId, ctx, event.time);
   },
 };

@@ -1,3 +1,5 @@
+import { anyArrest } from '../acls/arrest';
+import { pendingDeaths } from '../death/death';
 import { isWardPatientActive } from '../ward/departure';
 /** 超時、交更同強制結局（spec §2.1、§19；implementation-plan §8.2）。 */
 import type { Effect, Reduction } from '../core/events';
@@ -22,8 +24,8 @@ export function workInFlight(state: GameState): boolean {
   if (Object.values(state.orders).some(orderOpen)) return true;
   if (state.ward.calls.some((c) => c.status === 'RINGING' || c.status === 'DEFERRED')) return true;
   if (state.ward.tasks.some((t) => t.status === 'RUNNING')) return true;
-  if (state.resus?.status === 'ARREST') return true;
-  return state.death?.status === 'PENDING_PROCESS';
+  if (anyArrest(state)) return true;
+  return pendingDeaths(state).length > 0;
 }
 
 /** 呢個病人交班時係咪「需要提及」：MEWS 唔係無警示、有未完成 order／報告、搶救或死亡流程未完 */
@@ -43,8 +45,8 @@ export function patientNeedsHandover(
   if (Object.values(state.orders).some((o) => o.patientId === patientId && orderOpen(o))) {
     return true;
   }
-  if (state.resus?.patientId === patientId && state.resus.status === 'ARREST') return true;
-  return state.death?.patientId === patientId && state.death.status === 'PENDING_PROCESS';
+  if (state.resus[patientId]?.status === 'ARREST') return true;
+  return state.death[patientId]?.status === 'PENDING_PROCESS';
 }
 
 function finish(

@@ -59,13 +59,26 @@ export function joinSteps(first: Step, next: (state: GameState) => Step): Step {
   return { state: second.state, effects: [...first.effects, ...second.effects] };
 }
 
-export function isArrestOf(
-  state: GameState,
-  patientId: string,
-): state is GameState & {
-  resus: Resus;
-} {
-  return state.resus?.status === 'ARREST' && state.resus.patientId === patientId;
+/** 呢位病人現時係咪處於心臟停頓。 */
+export function isArrestOf(state: GameState, patientId: string): boolean {
+  return state.resus[patientId]?.status === 'ARREST';
+}
+
+/** 呢位病人嘅搶救狀態（冇發生過＝undefined）。 */
+export function resusOf(state: GameState, patientId: string): Resus | undefined {
+  return state.resus[patientId];
+}
+
+/** 而家正在停頓嘅病人（多過一個時，最早停頓嗰個行先）。 */
+export function arrestingPatients(state: GameState): Resus[] {
+  return Object.values(state.resus)
+    .filter((r) => r.status === 'ARREST')
+    .sort((a, b) => a.onsetAt - b.onsetAt);
+}
+
+/** 任何一位病人正在停頓就回傳嗰個搶救狀態。 */
+export function anyArrest(state: GameState): Resus | undefined {
+  return arrestingPatients(state)[0];
 }
 
 /** 護士講嘢：beat 同 token 一齊入對白管線（AI 只負責措辭） */
@@ -87,7 +100,7 @@ export function rhythmTokens(rhythm: RhythmRow | undefined, id: string): Record<
 }
 
 function setResus(state: GameState, resus: Resus): GameState {
-  return { ...state, resus };
+  return { ...state, resus: { ...state.resus, [resus.patientId]: resus } };
 }
 
 /** 將 hands-off 時間計到 `now`：未開始 CPR 計入 noFlow；暫停中計入 handsOff */
@@ -111,7 +124,7 @@ function scheduleCycleDue(state: GameState, resus: Resus, ctx: EngineContext): G
       time: startedAt + ctx.config.acls.cycleSeconds,
       priority: ACLS_EVENT_PRIORITY,
       kind: ACLS_CYCLE_EVENT,
-      payload: { episode: resus.episode, startedAt },
+      payload: { patientId: resus.patientId, episode: resus.episode, startedAt },
     }),
   };
 }
@@ -176,7 +189,7 @@ export function beginArrest(
   const t = state.clock.t;
   const resus: Resus = {
     patientId,
-    episode: (state.resus?.episode ?? 0) + 1,
+    episode: (state.resus[patientId]?.episode ?? 0) + 1,
     status: 'ARREST',
     onsetAt: t,
     initialRhythm: rhythmId,
@@ -398,7 +411,7 @@ function achieveRosc(state: GameState, resus: Resus, ctx: EngineContext): Step {
       time: t + model.postRosc.windowSec,
       priority: ACLS_EVENT_PRIORITY,
       kind: ACLS_POSTROSC_EVENT,
-      payload: { episode: roscResus.episode },
+      payload: { patientId: roscResus.patientId, episode: roscResus.episode },
     }),
   };
   next = logEvent(next, { patientId: patient.id, reasonCode: 'ROSC' });
@@ -453,7 +466,7 @@ export function performRhythmCheck(
   const evaluated = evaluateRosc(next, working, 'RHYTHM_CHECK', ctx);
   if (evaluated.success) return evaluated.step;
 
-  const after = evaluated.step.state.resus;
+  const after = evaluated.step.state.resus[working.patientId];
   const rhythm = rhythmOf(ctx.tables, after?.rhythm ?? working.rhythm);
   const spoke = narrate(
     evaluated.step.state,
@@ -536,7 +549,7 @@ export function deliverShock(
     next = evaluated.step.state;
     effects = evaluated.step.effects;
     if (evaluated.success) return { state: next, effects };
-    working = next.resus ?? working;
+    working = next.resus[working.patientId] ?? working;
   }
 
   if (working.cpr.state === 'PAUSED') {
@@ -621,10 +634,10 @@ export function stopResus(state: GameState, resus: Resus, ctx: EngineContext): S
 /** CPR 滿一個 cycle：護士提示玩家做 rhythm check（旁白，唔自動做） */
 export function handleCycleDue(
   state: GameState,
-  payload: { episode: number; startedAt: number },
+  payload: { patientId: string; episode: number; startedAt: number },
   ctx: EngineContext,
 ): Reduction {
-  const resus = state.resus;
+  const resus = state.resus[payload.patientId];
   if (
     resus?.status !== 'ARREST' ||
     resus.episode !== payload.episode ||
@@ -664,10 +677,10 @@ export function postRoscBundleDone(
 /** Post-ROSC 觀察窗結束：按 bundle 漏做項目擲 re-arrest（rng.cpr） */
 export function handlePostRoscEnd(
   state: GameState,
-  payload: { episode: number },
+  payload: { patientId: string; episode: number },
   ctx: EngineContext,
 ): Reduction {
-  const resus = state.resus;
+  const resus = state.resus[payload.patientId];
   const model = aclsModelOf(ctx.tables);
   if (resus?.status !== 'ROSC' || resus.episode !== payload.episode || !model) {
     return { state, effects: [] };

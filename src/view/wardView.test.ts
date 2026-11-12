@@ -327,17 +327,21 @@ describe('ward ViewModel：雙向通話（M4b）', () => {
     const withDeath: GameState = {
       ...base,
       death: {
-        patientId,
-        diedAt: 0,
-        status: 'PENDING_PROCESS',
-        steps: { CERTIFICATE: null, NOTIFY_SENIOR: null, PHONE_FAMILY: null, RECORD: null },
-        seniorRank: 'RES',
-        delayCharges: 0,
-        completedAt: null,
-        summary: { cycles: 1, shocks: 0, drugs: 0 },
+        [patientId]: {
+          patientId,
+          diedAt: 0,
+          status: 'PENDING_PROCESS',
+          steps: { CERTIFICATE: null, NOTIFY_SENIOR: null, PHONE_FAMILY: null, RECORD: null },
+          seniorRank: 'RES',
+          delayCharges: 0,
+          completedAt: null,
+          summary: { cycles: 1, shocks: 0, drugs: 0 },
+        },
       },
     };
-    const started = run(withDeath, [ward('START_DEATH_CALL', { step: 'PHONE_FAMILY' })]).state;
+    const started = run(withDeath, [
+      ward('START_DEATH_CALL', { patientId, step: 'PHONE_FAMILY' }),
+    ]).state;
     const view = selectGameView(started, env);
     const call = view.ward?.phone.calls[0];
     expect(call?.tag).toBe('FAMILY');

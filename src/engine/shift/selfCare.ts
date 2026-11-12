@@ -6,6 +6,7 @@ import type { SelfCareId, SelfCareRow } from '../case/tables';
 import { enqueue } from '../core/eventQueue';
 import type { Reduction } from '../core/events';
 import type { EngineContext } from '../core/module';
+import { anyArrest } from '../acls/arrest';
 import type { GameState } from '../core/state';
 import { leaveVisit } from '../ward/movement';
 import { patientAtBed } from '../ward/movement';
@@ -39,7 +40,7 @@ export function selfCareAvailable(
 ): boolean {
   if (state.clock.phase !== 'REGULAR') return false;
   if (state.shift.selfCare.active || state.shift.rounds.active) return false;
-  if (state.resus?.status === 'ARREST') return false;
+  if (anyArrest(state)) return false;
   if (selfCareCooldownLeft(state, row) > 0) return false;
   if (row.requires === 'MEAL_WINDOW' && !mealWindowFor(state, ctx)) return false;
   return true;

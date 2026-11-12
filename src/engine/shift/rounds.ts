@@ -1,3 +1,4 @@
+import { anyArrest } from '../acls/arrest';
 import { isWardPatientActive } from '../ward/departure';
 /**
  * 巡房（spec §8、T25）：AC 主持，每個活躍病人問一次、約一條題（病史／病理／藥理）。
@@ -55,9 +56,11 @@ export function roundTextOk(text: string, maxChars: number): boolean {
 }
 
 function roundQueue(state: GameState, ctx: EngineContext): string[] {
-  const deadId = state.death?.patientId ?? null;
   return Object.values(state.patients)
-    .filter((p) => isWardPatientActive(p) && p.id !== deadId && topicsFor(ctx, p).length > 0)
+    .filter(
+      (p) =>
+        isWardPatientActive(p) && state.death[p.id] === undefined && topicsFor(ctx, p).length > 0,
+    )
     .sort((a, b) => a.bed - b.bed)
     .map((p) => p.id);
 }
@@ -192,7 +195,7 @@ export function handleRoundStart(
       : undefined;
   const deferredSince = typeof from === 'number' ? from : state.clock.t;
   if (
-    state.resus?.status === 'ARREST' &&
+    anyArrest(state) !== undefined &&
     state.clock.t - deferredSince < ctx.config.rounds.arrestDeferMaxSeconds
   ) {
     return none({

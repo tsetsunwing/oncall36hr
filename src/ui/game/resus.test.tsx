@@ -214,7 +214,7 @@ describe('DeathFlowPanel', () => {
     expect(screen.getByTestId('death-step-CERTIFICATE')).toHaveTextContent('23:45');
     expect(screen.getByText(ui.game.death.delay(2), { exact: false })).toBeInTheDocument();
     await user.click(screen.getByTestId('death-confirm-NOTIFY_SENIOR'));
-    expect(actions.completeDeathStep).toHaveBeenCalledWith('NOTIFY_SENIOR');
+    expect(actions.completeDeathStep).toHaveBeenCalledWith('p1', 'NOTIFY_SENIOR');
     expect(screen.getByText(ui.game.death.rank.RES!)).toBeInTheDocument();
   });
 
@@ -233,9 +233,9 @@ describe('DeathFlowPanel', () => {
     );
     expect(screen.queryByTestId('death-confirm-NOTIFY_SENIOR')).not.toBeInTheDocument();
     await user.click(screen.getByTestId('death-call-NOTIFY_SENIOR'));
-    expect(actions.startDeathCall).toHaveBeenCalledWith('NOTIFY_SENIOR');
+    expect(actions.startDeathCall).toHaveBeenCalledWith('p1', 'NOTIFY_SENIOR');
     await user.click(screen.getByTestId('death-call-PHONE_FAMILY'));
-    expect(actions.startDeathCall).toHaveBeenCalledWith('PHONE_FAMILY');
+    expect(actions.startDeathCall).toHaveBeenCalledWith('p1', 'PHONE_FAMILY');
     expect(onOpenPhone).toHaveBeenCalledTimes(2);
   });
 

@@ -316,7 +316,7 @@ export function sendEscalation(state: GameState, sbar: Sbar, ctx: EngineContext)
 
   let effects: Effect[] = [];
   if (purpose === 'DEATH_SENIOR') {
-    const done = completeDeathStep(next, 'NOTIFY_SENIOR');
+    const done = completeDeathStep(next, patientId, 'NOTIFY_SENIOR');
     next = done.state;
     effects = [...effects, ...done.effects];
   }

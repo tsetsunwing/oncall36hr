@@ -1,6 +1,12 @@
 import type { EngineModule } from '../core/module';
 import { ACLS_CYCLE_EVENT, ACLS_POSTROSC_EVENT, handleCycleDue, handlePostRoscEnd } from './arrest';
 
+function stringField(payload: unknown, key: string): string | undefined {
+  if (typeof payload !== 'object' || payload === null) return undefined;
+  const value = (payload as Record<string, unknown>)[key];
+  return typeof value === 'string' && value.length > 0 ? value : undefined;
+}
+
 function numberField(payload: unknown, key: string): number | undefined {
   if (typeof payload !== 'object' || payload === null) return undefined;
   const value = (payload as Record<string, unknown>)[key];
@@ -13,15 +19,18 @@ export const aclsModule: EngineModule = {
 
   handleScheduled(state, event, ctx) {
     if (event.kind === ACLS_CYCLE_EVENT) {
+      const patientId = stringField(event.payload, 'patientId');
       const episode = numberField(event.payload, 'episode');
       const startedAt = numberField(event.payload, 'startedAt');
-      if (episode === undefined || startedAt === undefined) return { state, effects: [] };
-      return handleCycleDue(state, { episode, startedAt }, ctx);
+      if (patientId === undefined || episode === undefined || startedAt === undefined)
+        return { state, effects: [] };
+      return handleCycleDue(state, { patientId, episode, startedAt }, ctx);
     }
     if (event.kind === ACLS_POSTROSC_EVENT) {
+      const patientId = stringField(event.payload, 'patientId');
       const episode = numberField(event.payload, 'episode');
-      if (episode === undefined) return { state, effects: [] };
-      return handlePostRoscEnd(state, { episode }, ctx);
+      if (patientId === undefined || episode === undefined) return { state, effects: [] };
+      return handlePostRoscEnd(state, { patientId, episode }, ctx);
     }
     return undefined;
   },

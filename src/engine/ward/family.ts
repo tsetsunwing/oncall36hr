@@ -65,8 +65,12 @@ export function empathyOfSignals(signals: readonly FamilySignal[]): 0 | 1 | 2 {
 const isActive = (call: Call) =>
   call.purpose === 'DEATH_FAMILY' && call.exchange !== null && call.exchange.phase !== 'CLOSED';
 
-export function startFamilyCall(state: GameState, ctx: EngineContext): Reduction {
-  const death = state.death;
+export function startFamilyCall(
+  state: GameState,
+  patientId: string,
+  ctx: EngineContext,
+): Reduction {
+  const death = state.death[patientId];
   const scenario = familyScenarioOf(ctx);
   if (death?.status !== 'PENDING_PROCESS' || death.steps.PHONE_FAMILY !== null || !scenario) {
     return { state, effects: [notice('CALL_TARGET_INVALID')] };
@@ -248,7 +252,7 @@ function resolveTurn(
 
   let effects: Effect[] = [];
   if (informedNow && !family.informed) {
-    const done = completeDeathStep(next, 'PHONE_FAMILY');
+    const done = completeDeathStep(next, patient.id, 'PHONE_FAMILY');
     next = done.state;
     effects = done.effects;
   }

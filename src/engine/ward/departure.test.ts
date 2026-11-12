@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { gameStateSchema } from '../core/state';
+import { onlyDeath } from '../acls/kit';
 import { completeDeathStep } from '../death/death';
 import { feed, intentEvent, realEngine } from '../test/realEngine';
 import { patientAtBed } from './movement';
@@ -69,19 +70,21 @@ describe('病人離開病房', () => {
     const withDeath = {
       ...state,
       death: {
-        patientId: patient.id,
-        diedAt: 0,
-        status: 'PENDING_PROCESS' as const,
-        steps: { CERTIFICATE: 0, NOTIFY_SENIOR: 0, PHONE_FAMILY: 0, RECORD: null },
-        seniorRank: 'RES',
-        delayCharges: 0,
-        completedAt: null,
-        summary: { cycles: 0, shocks: 0, drugs: 0 },
+        [patient.id]: {
+          patientId: patient.id,
+          diedAt: 0,
+          status: 'PENDING_PROCESS' as const,
+          steps: { CERTIFICATE: 0, NOTIFY_SENIOR: 0, PHONE_FAMILY: 0, RECORD: null },
+          seniorRank: 'RES',
+          delayCharges: 0,
+          completedAt: null,
+          summary: { cycles: 0, shocks: 0, drugs: 0 },
+        },
       },
     };
     expect(patientAtBed(withDeath, patient.bed)).toBe(patient.id);
-    const done = completeDeathStep(withDeath, 'RECORD').state;
-    expect(done.death?.status).toBe('COMPLETE');
+    const done = completeDeathStep(withDeath, patient.id, 'RECORD').state;
+    expect(onlyDeath(done)?.status).toBe('COMPLETE');
     expect(patientAtBed(done, patient.bed)).toBeNull();
     expect(done.patients[patient.id]).toBeDefined();
   });

@@ -279,17 +279,19 @@ describe('M4b：consult／family 契約同 engine 一致', () => {
     run.setState({
       ...state,
       death: {
-        patientId,
-        diedAt: state.clock.t,
-        status: 'PENDING_PROCESS',
-        steps: { CERTIFICATE: null, NOTIFY_SENIOR: null, PHONE_FAMILY: null, RECORD: null },
-        seniorRank: 'RES',
-        delayCharges: 0,
-        completedAt: null,
-        summary: { cycles: 2, shocks: 1, drugs: 1 },
+        [patientId]: {
+          patientId,
+          diedAt: state.clock.t,
+          status: 'PENDING_PROCESS',
+          steps: { CERTIFICATE: null, NOTIFY_SENIOR: null, PHONE_FAMILY: null, RECORD: null },
+          seniorRank: 'RES',
+          delayCharges: 0,
+          completedAt: null,
+          summary: { cycles: 2, shocks: 1, drugs: 1 },
+        },
       },
     });
-    run.ward('START_DEATH_CALL', { step: 'PHONE_FAMILY' });
+    run.ward('START_DEATH_CALL', { patientId, step: 'PHONE_FAMILY' });
     const family = run.state().ward.calls.find((c) => c.purpose === 'DEATH_FAMILY')?.id ?? '';
     run.ward('FAMILY_SAY', { callId: family, text: '我好遺憾，病人離世。' });
     run.answer(FAMILY_ASSESS_KIND, { signals: ['STATES_DEATH', 'CONDOLENCE'] });
@@ -388,17 +390,19 @@ describe('M4b：consult／family 契約同 engine 一致', () => {
       run.setState({
         ...state,
         death: {
-          patientId,
-          diedAt: 0,
-          status: 'PENDING_PROCESS',
-          steps: { CERTIFICATE: null, NOTIFY_SENIOR: null, PHONE_FAMILY: null, RECORD: null },
-          seniorRank: 'RES',
-          delayCharges: 0,
-          completedAt: null,
-          summary: { cycles: 1, shocks: 0, drugs: 0 },
+          [patientId]: {
+            patientId,
+            diedAt: 0,
+            status: 'PENDING_PROCESS',
+            steps: { CERTIFICATE: null, NOTIFY_SENIOR: null, PHONE_FAMILY: null, RECORD: null },
+            seniorRank: 'RES',
+            delayCharges: 0,
+            completedAt: null,
+            summary: { cycles: 1, shocks: 0, drugs: 0 },
+          },
         },
       });
-      run.ward('START_DEATH_CALL', { step: 'PHONE_FAMILY' });
+      run.ward('START_DEATH_CALL', { patientId, step: 'PHONE_FAMILY' });
       const callId = run.state().ward.calls.find((c) => c.purpose === 'DEATH_FAMILY')?.id ?? '';
       run.ward('FAMILY_SAY', { callId, text: '我係醫生' });
       const request = run.requests.find((r) => r.kind === FAMILY_ASSESS_KIND);
@@ -431,17 +435,19 @@ describe('M4b：consult／family 契約同 engine 一致', () => {
       run.setState({
         ...state,
         death: {
-          patientId,
-          diedAt: 0,
-          status: 'PENDING_PROCESS',
-          steps: { CERTIFICATE: null, NOTIFY_SENIOR: null, PHONE_FAMILY: null, RECORD: null },
-          seniorRank: 'RES',
-          delayCharges: 0,
-          completedAt: null,
-          summary: { cycles: 1, shocks: 0, drugs: 0 },
+          [patientId]: {
+            patientId,
+            diedAt: 0,
+            status: 'PENDING_PROCESS',
+            steps: { CERTIFICATE: null, NOTIFY_SENIOR: null, PHONE_FAMILY: null, RECORD: null },
+            seniorRank: 'RES',
+            delayCharges: 0,
+            completedAt: null,
+            summary: { cycles: 1, shocks: 0, drugs: 0 },
+          },
         },
       });
-      run.ward('START_DEATH_CALL', { step: 'PHONE_FAMILY' });
+      run.ward('START_DEATH_CALL', { patientId, step: 'PHONE_FAMILY' });
       const callId = run.state().ward.calls.find((c) => c.purpose === 'DEATH_FAMILY')?.id ?? '';
       run.ward('FAMILY_SAY', { callId, text: '病人離世，我好遺憾。' });
       run.answer(FAMILY_ASSESS_KIND, { signals: ['STATES_DEATH', 'CONDOLENCE'] });

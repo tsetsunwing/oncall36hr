@@ -18,7 +18,7 @@ import { emptyShift, shiftSchema } from '../shift/shiftState';
 import { emptyWard, wardStateSchema } from '../ward/wardTypes';
 import type { EngineConfig } from './config';
 
-export const CURRENT_SCHEMA = 16;
+export const CURRENT_SCHEMA = 17;
 
 export const MODES = ['DAY', 'NIGHT', 'ONCALL'] as const;
 export const DIFFICULTIES = ['EASY', 'MEDIUM', 'HARD'] as const;
@@ -84,10 +84,10 @@ export const gameStateSchema = z
     scheduler: eventQueueSchema,
     pendingAi: z.array(pendingAiSchema),
     ward: wardStateSchema,
-    /** M5：最近一次心臟停頓（搶救）嘅進行／結果；未發生過為 null */
-    resus: resusSchema.nullable(),
-    /** M5：死亡流程；病人未死為 null。流程完成前床位不釋放 */
-    death: deathSchema.nullable(),
+    /** M5：每位病人各自嘅搶救狀態；同一時間可以多過一個病人心臟停頓 */
+    resus: z.record(z.string().min(1), resusSchema),
+    /** M5：每位病人各自嘅死亡流程。流程完成前床位不釋放 */
+    death: z.record(z.string().min(1), deathSchema),
     /** M7：唯一計分 ledger（六分項共用、只增不減；回顧由此加 action log 重建） */
     scoreLedger: z.array(ledgerEntrySchema),
     /** M6：巡房、精力、自我照顧、超時同交更結局 */
@@ -149,8 +149,8 @@ export function createInitialState(params: NewGameParams, config: EngineConfig):
     scheduler,
     pendingAi: [],
     ward: emptyWard(params.wardCode ?? 'MED'),
-    resus: null,
-    death: null,
+    resus: {},
+    death: {},
     scoreLedger: [],
     shift: emptyShift(),
     priority: emptyPriority(),

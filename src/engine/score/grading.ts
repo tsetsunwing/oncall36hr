@@ -73,7 +73,7 @@ export function summariseRun(state: GameState, tables: GradingTables): RunSummar
       t: entry.t,
       salvageable: salvageableOf(state, patientId, tables),
       processComplete:
-        state.death?.patientId === patientId ? state.death.status === 'COMPLETE' : true,
+        state.death[patientId]?.status === 'COMPLETE' ? true : state.death[patientId] === undefined,
     });
   }
   const census = Math.max(1, Object.keys(state.patients).length);

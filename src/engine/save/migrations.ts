@@ -343,6 +343,22 @@ function migrateV15toV16(raw: RawState): RawState {
   };
 }
 
+/** schema 16 → 17：搶救與死亡由「全場一個」改成「每位病人一個」，舊紀錄搬入佢自己嘅病人 id */
+function migrateV16toV17(raw: RawState): RawState {
+  const wrap = (value: unknown): Record<string, unknown> => {
+    if (value === null || value === undefined) return {};
+    const row = value as Record<string, unknown>;
+    const patientId = row.patientId;
+    if (typeof patientId !== 'string' || patientId.length === 0) return {};
+    return { [patientId]: row };
+  };
+  return {
+    ...raw,
+    resus: wrap(raw.resus),
+    death: wrap(raw.death),
+  };
+}
+
 export const migrations: MigrationRegistry = {
   1: migrateV1toV2,
   2: migrateV2toV3,
@@ -359,6 +375,7 @@ export const migrations: MigrationRegistry = {
   13: migrateV13toV14,
   14: migrateV14toV15,
   15: migrateV15toV16,
+  16: migrateV16toV17,
 };
 
 export type MigrateResult =

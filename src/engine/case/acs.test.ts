@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { give, start, wait } from '../acls/kit';
+import { give, onlyResus, start, wait } from '../acls/kit';
 import { params, realEngine, realTables } from '../test/realEngine';
 import { evaluateFsm } from './fsm';
 import { pickByDiagnosisAndState } from './labs';
@@ -7,13 +7,13 @@ import { pickByDiagnosisAndState } from './labs';
 describe('ACS 劇本（遊戲倒數佔位，非臨床風險）', () => {
   it('未介入於 120 秒後 VF；完成 aspirin 後延遲但不保證避免', () => {
     const plain = wait(start('acs-plain', 'acs-vf-01'), 180);
-    expect(plain.state.resus?.rhythm).toBe('VENTRICULAR_FIBRILLATION');
+    expect(onlyResus(plain.state)?.rhythm).toBe('VENTRICULAR_FIBRILLATION');
     let treated = give(start('acs-treatment', 'acs-vf-01'), 'aspirin 300 mg po', 60);
     expect(treated.state.patients.p1?.hidden.fsm.flags).toContain('acs.antiplatelet');
     treated = wait(treated, 180);
-    expect(treated.state.resus).toBeNull();
+    expect(onlyResus(treated.state)).toBeUndefined();
     treated = wait(treated, 600);
-    expect(treated.state.resus?.rhythm).toBe('VENTRICULAR_FIBRILLATION');
+    expect(onlyResus(treated.state)?.rhythm).toBe('VENTRICULAR_FIBRILLATION');
   });
 
   it('一般內科病房可抽到 VF 劇本及 DNR 病例', () => {

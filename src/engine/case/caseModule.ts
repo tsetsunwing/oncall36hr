@@ -3,7 +3,7 @@ import { isWardPatientActive } from '../ward/departure';
  * Case 模組：病人建立、vitals 取樣排程、FSM 轉移、MEWS、rhythm。
  * 全部由 content 表驅動；呢度冇任何臨床數字。
  */
-import { beginArrest } from '../acls/arrest';
+import { beginArrest, resusOf } from '../acls/arrest';
 import { abnormalOf, patientTokens, queueDialogue, vitalTokens, type Beat } from '../chat/dialogue';
 import { enqueue } from '../core/eventQueue';
 import type { EngineContext, EngineModule } from '../core/module';
@@ -103,7 +103,7 @@ function applySample(
   if (
     arrestDef &&
     ctx.tables['acls-transitions'].length > 0 &&
-    (enteredArrest || working.resus === null)
+    (enteredArrest || working.resus[patient.id] === undefined)
   ) {
     const begun = beginArrest(working, patient.id, arrestDef.rhythm, ctx, { rearrest: false });
     working = begun.state;
@@ -111,7 +111,7 @@ function applySample(
   }
 
   const trajectory = trajectoryFor(ctx.tables, fsm, fsmState);
-  const resus = working.resus?.patientId === patient.id ? working.resus : null;
+  const resus = resusOf(working, patient.id) ?? null;
   const arresting = resus?.status === 'ARREST';
 
   let vitals: VitalNumbers;

@@ -11,10 +11,15 @@ import { RANKS, type Rank } from './wardTypes';
 
 const isRank = (value: string): value is Rank => (RANKS as readonly string[]).includes(value);
 
-export function startDeathCall(state: GameState, step: DeathStepId, ctx: EngineContext): Reduction {
-  if (step === 'PHONE_FAMILY') return startFamilyCall(state, ctx);
+export function startDeathCall(
+  state: GameState,
+  patientId: string,
+  step: DeathStepId,
+  ctx: EngineContext,
+): Reduction {
+  if (step === 'PHONE_FAMILY') return startFamilyCall(state, patientId, ctx);
   if (step !== 'NOTIFY_SENIOR') return { state, effects: [notice('CALL_TARGET_INVALID')] };
-  const death = state.death;
+  const death = state.death[patientId];
   if (death?.status !== 'PENDING_PROCESS' || death.steps.NOTIFY_SENIOR !== null) {
     return { state, effects: [notice('CALL_TARGET_INVALID')] };
   }

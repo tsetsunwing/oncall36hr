@@ -622,8 +622,8 @@ export function selectGameView(state: GameState, env: ViewEnv): GameView {
     quickChips: selectQuickChips(env.tables),
     medications: selectMedications(env.tables),
     treatmentMedications: selectTreatmentMedications(env.tables),
-    resus: selectResus(state, env, clockLabel),
-    death: selectDeath(state, env, clockLabel),
+    resus: selectResus(state, env, clockLabel, current?.id ?? null),
+    death: selectDeath(state, env, clockLabel, current?.id ?? null),
     pendingAiCount: state.pendingAi.length,
     aiFailure: failedReq
       ? {

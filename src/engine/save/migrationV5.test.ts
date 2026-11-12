@@ -1,6 +1,6 @@
 /** schema 4 → 5（M5）：舊存檔載入後補 resus／death／scoreLedger 預設值；搶救中途存檔可以還原。 */
 import { describe, expect, it } from 'vitest';
-import { give, start, untilArrest } from '../acls/kit';
+import { give, onlyDeath, onlyResus, start, untilArrest } from '../acls/kit';
 import { CURRENT_SCHEMA } from '../core/state';
 import { advance, params, realEngine } from '../test/realEngine';
 import {
@@ -33,8 +33,8 @@ describe('save migration v4 → v5', () => {
     if (!loaded.ok) throw new Error(loaded.message);
     expect(loaded.migratedFrom).toBe(4);
     expect(loaded.state.schema).toBe(CURRENT_SCHEMA);
-    expect(loaded.state.resus).toBeNull();
-    expect(loaded.state.death).toBeNull();
+    expect(onlyResus(loaded.state)).toBeUndefined();
+    expect(onlyDeath(loaded.state)).toBeUndefined();
     expect(loaded.state.scoreLedger).toEqual([]);
     const a = advance(engine, loaded.state, 600).state;
     const b = advance(engine, loaded.state, 600).state;

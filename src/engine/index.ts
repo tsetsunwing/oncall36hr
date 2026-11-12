@@ -73,7 +73,7 @@ export {
 export { ordersModule, isCancellable } from './orders/orders';
 export { aclsModule } from './acls/aclsModule';
 export { deathModule, COMPLETE_STEP_INTENT, DEATH_MODULE } from './death/deathModule';
-export { deathModelOf } from './death/death';
+export { deathModelOf, pendingDeaths, deathOf } from './death/death';
 export {
   aclsModelOf,
   causeRowsOf,
@@ -83,7 +83,13 @@ export {
   type RoscBreakdown,
   type RoscInputs,
 } from './acls/model';
-export { postRoscBundleDone } from './acls/arrest';
+export {
+  postRoscBundleDone,
+  arrestingPatients,
+  anyArrest,
+  resusOf,
+  isArrestOf,
+} from './acls/arrest';
 export type { Death, Resus } from './acls/resusState';
 export { SUBSCORE_IDS, type LedgerEntry, type SubscoreCode } from './score/ledgerTypes';
 export { applyRule, ledgerRules, subscoreSum } from './score/scoring';

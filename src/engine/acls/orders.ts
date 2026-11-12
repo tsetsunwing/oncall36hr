@@ -17,6 +17,7 @@ import {
   isArrestOf,
   narrate,
   performRhythmCheck,
+  resusOf,
   startOrResumeCpr,
   stopResus,
   type OrderLabel,
@@ -38,7 +39,8 @@ function shownRhythm(
 ): RhythmRow | undefined {
   const visible = state.patients[patientId]?.visible.rhythm;
   if (visible) return rhythmOf(tables, visible);
-  if (isArrestOf(state, patientId)) return rhythmOf(tables, state.resus.rhythm);
+  const own = resusOf(state, patientId);
+  if (own?.status === 'ARREST') return rhythmOf(tables, own.rhythm);
   return undefined;
 }
 
@@ -77,7 +79,7 @@ function ensureShownArrest(state: GameState, patientId: string, ctx: EngineConte
   const rhythm = shownRhythm(state, patientId, ctx.tables);
   if (!monitorShowsArrest(rhythm)) return none(state);
   return beginArrest(state, patientId, rhythm.id, ctx, {
-    rearrest: state.resus?.patientId === patientId,
+    rearrest: resusOf(state, patientId) !== undefined,
   });
 }
 
@@ -111,7 +113,10 @@ function recordCauseOrders(
       }
     }
   }
-  return { state: { ...next, resus: working }, resus: working };
+  return {
+    state: { ...next, resus: { ...next.resus, [working.patientId]: working } },
+    resus: working,
+  };
 }
 
 export function applyAclsOrder(
@@ -126,7 +131,8 @@ export function applyAclsOrder(
   const action = row.acls?.action;
   if (!action) {
     if (!isArrestOf(state, order.patientId)) return none(state);
-    return none(recordCauseOrders(state, state.resus, order, ctx).state);
+    const own = resusOf(state, order.patientId);
+    return own ? none(recordCauseOrders(state, own, order, ctx).state) : none(state);
   }
   const decision = aclsNurseDecision(state, order.patientId, action, ctx.tables);
 
@@ -177,7 +183,9 @@ export function applyAclsOrder(
     return { state: refused.state, effects: [...ensured.effects, ...refused.effects] };
   }
 
-  const recorded = recordCauseOrders(ensured.state, ensured.state.resus, order, ctx);
+  const own = resusOf(ensured.state, order.patientId);
+  if (!own) return none(ensured.state);
+  const recorded = recordCauseOrders(ensured.state, own, order, ctx);
   const resus = recorded.resus;
   const next = recorded.state;
 

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { getConfig } from '@/content';
 import { beginArrest } from '../acls/arrest';
 import { beginDeath } from '../death/death';
+import { onlyDeath } from '../acls/kit';
 import type { EngineEvent } from '../core/events';
 import type { EngineContext } from '../core/module';
 import type { GameState, NewGameParams } from '../core/state';
@@ -22,8 +23,13 @@ const params = (seed: string, rank: NewGameParams['playerRank'] = 'MO'): NewGame
 
 const ward = (name: string, payload: Record<string, unknown>): EngineEvent =>
   intentEvent({ type: 'EXTENSION', module: 'ward', name, payload: payload as never });
-const death = (step: string): EngineEvent =>
-  intentEvent({ type: 'EXTENSION', module: 'death', name: 'COMPLETE_STEP', payload: { step } });
+const death = (step: string, patientId = 'p1'): EngineEvent =>
+  intentEvent({
+    type: 'EXTENSION',
+    module: 'death',
+    name: 'COMPLETE_STEP',
+    payload: { patientId, step },
+  });
 
 function dead(seed: string, rank: NewGameParams['playerRank'] = 'MO') {
   const state = engine.init(params(seed, rank));
@@ -63,9 +69,9 @@ describe('死亡流程：通知上一級係真電話', () => {
       death('PHONE_FAMILY'),
       death('CERTIFICATE'),
     ]);
-    expect(run.state.death?.steps.NOTIFY_SENIOR).toBeNull();
-    expect(run.state.death?.steps.PHONE_FAMILY).toBeNull();
-    expect(run.state.death?.steps.CERTIFICATE).not.toBeNull();
+    expect(onlyDeath(run.state)?.steps.NOTIFY_SENIOR).toBeNull();
+    expect(onlyDeath(run.state)?.steps.PHONE_FAMILY).toBeNull();
+    expect(onlyDeath(run.state)?.steps.CERTIFICATE).not.toBeNull();
     expect(run.effects.some((e) => e.type === 'NOTICE' && e.kind === 'DEATH_STEP_VIA_PHONE')).toBe(
       true,
     );
@@ -76,19 +82,19 @@ describe('死亡流程：通知上一級係真電話', () => {
     const patient = Object.values(state.patients)[0];
     if (!patient) throw new Error('no patient');
     const run = feed(engine, beginDeath(state, patient.id, ctx).state, [death('NOTIFY_SENIOR')]);
-    expect(run.state.death?.steps.NOTIFY_SENIOR).not.toBeNull();
+    expect(onlyDeath(run.state)?.steps.NOTIFY_SENIOR).not.toBeNull();
   });
 
   it('SBAR 草稿預填死因同搶救摘要，目標係上一級；送出即完成該步並由 AI 措辭回覆', () => {
     const { state, patientId } = dead('dc-senior');
-    let run = feed(engine, state, [ward('START_DEATH_CALL', { step: 'NOTIFY_SENIOR' })]);
+    let run = feed(engine, state, [ward('START_DEATH_CALL', { patientId, step: 'NOTIFY_SENIOR' })]);
     const draft = run.state.ward.draft;
     expect(draft?.purpose).toBe('DEATH_SENIOR');
     expect(draft?.target).toEqual({ kind: 'RANK', rank: 'RES' });
     expect(draft?.patientId).toBe(patientId);
     expect(draft?.sbar.B).toContain('死因');
     run = feed(engine, run.state, [ward('SEND_CALL', { sbar: draft?.sbar })]);
-    expect(run.state.death?.steps.NOTIFY_SENIOR).not.toBeNull();
+    expect(onlyDeath(run.state)?.steps.NOTIFY_SENIOR).not.toBeNull();
     const call = outgoing(run.state, 'DEATH_SENIOR');
     expect(call.outcome).toBe('DEATH_ACK');
     expect(aiRequests(run.effects)).toHaveLength(0);
@@ -99,10 +105,12 @@ describe('死亡流程：通知上一級係真電話', () => {
 
   it('重複開始、冇死亡、已完成：拒絕', () => {
     const state = engine.init(params('dc-none'));
-    const none = feed(engine, state, [ward('START_DEATH_CALL', { step: 'NOTIFY_SENIOR' })]);
+    const none = feed(engine, state, [
+      ward('START_DEATH_CALL', { patientId: 'p1', step: 'NOTIFY_SENIOR' }),
+    ]);
     expect(none.state.ward.draft).toBeNull();
     const bad = feed(engine, dead('dc-bad').state, [
-      ward('START_DEATH_CALL', { step: 'CERTIFICATE' }),
+      ward('START_DEATH_CALL', { patientId: 'p1', step: 'CERTIFICATE' }),
     ]);
     expect(bad.state.ward.draft).toBeNull();
   });
@@ -111,7 +119,9 @@ describe('死亡流程：通知上一級係真電話', () => {
 describe('死亡流程：致電家屬', () => {
   const started = (seed: string) => {
     const { state, patientId } = dead(seed);
-    const run = feed(engine, state, [ward('START_DEATH_CALL', { step: 'PHONE_FAMILY' })]);
+    const run = feed(engine, state, [
+      ward('START_DEATH_CALL', { patientId, step: 'PHONE_FAMILY' }),
+    ]);
     return { run, patientId, call: outgoing(run.state, 'DEATH_FAMILY') };
   };
 
@@ -120,7 +130,7 @@ describe('死亡流程：致電家屬', () => {
     expect(call.tag).toBe('FAMILY');
     expect(call.lines[0]?.speaker).toBe('CALLEE');
     expect(call.exchange?.family).toMatchObject({ stage: 'OPENING', turns: 0, informed: false });
-    expect(run.state.death?.steps.PHONE_FAMILY).toBeNull();
+    expect(onlyDeath(run.state)?.steps.PHONE_FAMILY).toBeNull();
   });
 
   it('預設講法「直接告知」：訊號由 T27 決定，唔使 AI 評估；PHONE_FAMILY 完成；家屬反應為 SHOCK／GRIEF 組合', () => {
@@ -129,7 +139,7 @@ describe('死亡流程：致電家屬', () => {
       ward('FAMILY_OPTION', { callId: call.id, optionId: 'direct' }),
     ]);
     expect(aiRequests(out.effects)).toHaveLength(0);
-    expect(out.state.death?.steps.PHONE_FAMILY).not.toBeNull();
+    expect(onlyDeath(out.state)?.steps.PHONE_FAMILY).not.toBeNull();
     const line = outgoing(out.state, 'DEATH_FAMILY').lines.at(-1);
     expect(line?.speaker).toBe('CALLEE');
     expect(line?.template).toContain('走咗');
@@ -159,7 +169,7 @@ describe('死亡流程：致電家屬', () => {
     const out = feed(engine, run.state, [
       ward('FAMILY_OPTION', { callId: call.id, optionId: 'vague' }),
     ]);
-    expect(out.state.death?.steps.PHONE_FAMILY).toBeNull();
+    expect(onlyDeath(out.state)?.steps.PHONE_FAMILY).toBeNull();
     expect(rules(out.state)).toContain('FAMILY_VAGUE');
     expect(rules(out.state)).not.toContain('FAMILY_COLD');
     expect(outgoing(out.state, 'DEATH_FAMILY').exchange?.family?.stage).toBe('OPENING');
@@ -176,7 +186,7 @@ describe('死亡流程：致電家屬', () => {
       signals: ['STATES_DEATH', 'CONDOLENCE', 'EXPLAINS_EVENTS'],
       score: 10,
     });
-    expect(ok.state.death?.steps.PHONE_FAMILY).not.toBeNull();
+    expect(onlyDeath(ok.state)?.steps.PHONE_FAMILY).not.toBeNull();
     expect(rules(ok.state)).toContain('FAMILY_EMPATHIC');
     for (const signals of [
       ['STATES_DEATH', 'CONDOLENCE', 'OFFERS_SUPPORT', 'EXPLAINS_EVENTS', 'BLUNT_OR_COLD'],
@@ -186,7 +196,7 @@ describe('死亡流程：致電家屬', () => {
     ]) {
       const bad = answer(typed, 'family.assess', { signals });
       expect(failed(bad.state), signals.join()).toBe(true);
-      expect(bad.state.death?.steps.PHONE_FAMILY).toBeNull();
+      expect(onlyDeath(bad.state)?.steps.PHONE_FAMILY).toBeNull();
     }
     expect(failed(answer(typed, 'family.assess', { nothing: true }).state)).toBe(true);
   });
@@ -258,11 +268,11 @@ describe('死亡流程：致電家屬', () => {
       ward('FAMILY_OPTION', { callId: call.id, optionId: 'direct' }),
       death('CERTIFICATE'),
       death('RECORD'),
-      ward('START_DEATH_CALL', { step: 'NOTIFY_SENIOR' }),
+      ward('START_DEATH_CALL', { patientId: 'p1', step: 'NOTIFY_SENIOR' }),
     ]).state;
     s = feed(engine, s, [ward('SEND_CALL', { sbar: s.ward.draft?.sbar })]).state;
-    expect(s.death?.status).toBe('COMPLETE');
-    expect(s.death?.patientId).toBe(patientId);
+    expect(onlyDeath(s)?.status).toBe('COMPLETE');
+    expect(onlyDeath(s)?.patientId).toBe(patientId);
   });
 });
 

@@ -77,9 +77,9 @@ export function buildDeathSbarDraft(
 ): Sbar | undefined {
   const row = ctx.tables['call-templates'].find((r): r is DeathSbarRow => r.kind === 'DEATH_SBAR');
   const base = sbarValues(state, patientId, target, ctx);
-  const death = state.death;
+  const death = state.death[patientId];
   const patient = state.patients[patientId];
-  if (!row || !base || death?.patientId !== patientId || !patient) return undefined;
+  if (!row || !base || !death || !patient) return undefined;
   const template = ctx.tables['case-templates'].find((c) => c.id === patient.hidden.caseTemplateId);
   const values: Record<string, string> = {
     ...base,
