@@ -10,8 +10,14 @@
     "speedAfterInterrupt": 1
   },
   "shifts": {
-    "day": { "startHour": 8, "regularSeconds": 36000 },
-    "night": { "startHour": 18, "regularSeconds": 50400 },
+    "day": {
+      "startHour": 8,
+      "regularSeconds": 36000
+    },
+    "night": {
+      "startHour": 18,
+      "regularSeconds": 50400
+    },
     "onCall": {
       "startHour": 8,
       "segmentHours": [10, 14, 10],
@@ -32,7 +38,11 @@
     "questionMaxChars": 120,
     "hintMaxChars": 16
   },
-  "meals": { "lunchHour": 12, "dinnerHour": 20, "windowSeconds": 5400 },
+  "meals": {
+    "lunchHour": 12,
+    "dinnerHour": 20,
+    "windowSeconds": 5400
+  },
   "vitals": {
     "sampleIntervalSeconds": 60,
     "criticalSampleIntervalSeconds": 10,
@@ -44,6 +54,62 @@
       "spo2": [50, 100],
       "rr": [4, 50],
       "temp": [34, 42]
+    }
+  },
+  "drugEffect": {
+    "jitterFraction": 0.15,
+    "residualFraction": 0.2,
+    "routeOnsetSec": {
+      "iv": 30,
+      "iv-infusion": 0,
+      "im": 300,
+      "sc": 300,
+      "sl": 60,
+      "neb": 60,
+      "po": 900
+    },
+    "routeRampSec": {
+      "iv": 120,
+      "iv-infusion": 180,
+      "im": 600,
+      "sc": 600,
+      "sl": 120,
+      "neb": 300,
+      "po": 1200
+    },
+    "normalTarget": {
+      "hr": 80,
+      "sbp": 120,
+      "dbp": 75,
+      "spo2": 98,
+      "rr": 14,
+      "temp": 36.8
+    },
+    "extremeAt": {
+      "hr": {
+        "low": 45,
+        "high": 140
+      },
+      "sbp": {
+        "low": 80,
+        "high": 190
+      },
+      "dbp": {
+        "low": 45,
+        "high": 115
+      },
+      "spo2": {
+        "low": 85,
+        "high": 100
+      },
+      "rr": {
+        "low": 8,
+        "high": 30
+      },
+      "temp": {
+        "low": 36.0,
+        "high": 39.5
+      }
     }
   },
   "chat": {
@@ -66,7 +132,10 @@
   "gate": {
     "pharmacyName": "藥房",
     "maxConcerns": 3,
-    "insistRequired": { "CONFIRM": 1, "OBJECT": 2 }
+    "insistRequired": {
+      "CONFIRM": 1,
+      "OBJECT": 2
+    }
   },
   "acls": {
     "cycleSeconds": 120,
@@ -89,21 +158,49 @@
     "autoSaveEveryGameMinutes": 30
   },
   "difficulty": {
-    "phoneVolumeUplift": { "EASY": 0, "MEDIUM": 0.1, "HARD": 0.2 }
+    "phoneVolumeUplift": {
+      "EASY": 0,
+      "MEDIUM": 0.1,
+      "HARD": 0.2
+    }
   },
   "staff": {
-    "nurseSeniorityByDifficulty": { "EASY": "SENIOR", "MEDIUM": "NORMAL", "HARD": "NEW" },
-    "reliability": { "NOVICE": 0.7, "NORMAL": 0.85, "SENIOR": 0.95 },
-    "speedMultiplier": { "NOVICE": 1.5, "NORMAL": 1.0, "SENIOR": 0.8 },
-    "rankImpression": { "start": 50, "min": 0, "max": 100, "warmMin": 65, "coldMax": 35 }
+    "nurseSeniorityByDifficulty": {
+      "EASY": "SENIOR",
+      "MEDIUM": "NORMAL",
+      "HARD": "NEW"
+    },
+    "reliability": {
+      "NOVICE": 0.7,
+      "NORMAL": 0.85,
+      "SENIOR": 0.95
+    },
+    "speedMultiplier": {
+      "NOVICE": 1.5,
+      "NORMAL": 1.0,
+      "SENIOR": 0.8
+    },
+    "rankImpression": {
+      "start": 50,
+      "min": 0,
+      "max": 100,
+      "warmMin": 65,
+      "coldMax": 35
+    }
   },
-  "ward": { "bedCount": 20 },
+  "ward": {
+    "bedCount": 20
+  },
   "phone": {
     "baseCallsPerHour": 2,
     "firstCallAfterSec": 600,
     "laterDelaySec": 600,
     "maxDefers": 2,
-    "expireSec": { "ROUTINE": 3600, "URGENT": 1500, "EMERGENCY": 600 },
+    "expireSec": {
+      "ROUTINE": 3600,
+      "URGENT": 1500,
+      "EMERGENCY": 600
+    },
     "interruptPriorities": ["URGENT", "EMERGENCY"],
     "sbarMaxChars": 200,
     "transcriptLimit": 40
@@ -113,7 +210,14 @@
     "followupMaxChars": 200,
     "maxQuotes": 8,
     "deptQuestionDepth": 1,
-    "vitalTolerance": { "hr": 10, "sbp": 15, "dbp": 10, "spo2": 3, "rr": 3, "temp": 0.6 },
+    "vitalTolerance": {
+      "hr": 10,
+      "sbp": 15,
+      "dbp": 10,
+      "spo2": 3,
+      "rr": 3,
+      "temp": 0.6
+    },
     "items": [
       {
         "id": "S.PATIENT",
@@ -140,7 +244,11 @@
         "part": "B",
         "description": "Says what has already been done or ordered."
       },
-      { "id": "A.VITALS", "part": "A", "description": "Quotes current vital signs or the MEWS." },
+      {
+        "id": "A.VITALS",
+        "part": "A",
+        "description": "Quotes current vital signs or the MEWS."
+      },
       {
         "id": "A.IMPRESSION",
         "part": "A",
@@ -169,11 +277,16 @@
       "S.PATIENT"
     ]
   },
-  "family": { "maxTurns": 3 },
+  "family": {
+    "maxTurns": 3
+  },
   "ui": {
     "touchTargetMinPx": 44,
     "maxFlashesPerSecond": 0,
     "tickIntervalMs": 250,
-    "monitor": { "sweepSeconds": 6, "targetFps": 30 }
+    "monitor": {
+      "sweepSeconds": 6,
+      "targetFps": 30
+    }
   }
 }

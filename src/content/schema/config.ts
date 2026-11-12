@@ -4,6 +4,27 @@ const positive = z.number().positive();
 const probability = z.number().min(0).max(1);
 const levelRecord = <T extends z.ZodType>(value: T) =>
   z.object({ NOVICE: value, NORMAL: value, SENIOR: value }).strict();
+const vitalNumberRecord = z
+  .object({
+    hr: z.number(),
+    sbp: z.number(),
+    dbp: z.number(),
+    spo2: z.number(),
+    rr: z.number(),
+    temp: z.number(),
+  })
+  .strict();
+const vitalExtreme = z.object({ low: z.number(), high: z.number() }).strict();
+const vitalExtremeRecord = z
+  .object({
+    hr: vitalExtreme,
+    sbp: vitalExtreme,
+    dbp: vitalExtreme,
+    spo2: vitalExtreme,
+    rr: vitalExtreme,
+    temp: vitalExtreme,
+  })
+  .strict();
 
 export const configSchema = z
   .object({
@@ -82,6 +103,22 @@ export const configSchema = z
             temp: z.tuple([z.number(), z.number()]),
           })
           .strict(),
+      })
+      .strict(),
+    drugEffect: z
+      .object({
+        /** 實際藥效 ＝ 計算值 ×（1 ± jitter）；每張醫囑用 id 抽一次，同一存檔內唔變 */
+        jitterFraction: z.number().min(0).max(1),
+        /** 剩餘效應下限：貼近正常時藥效都起碼有呢個比例，唔會完全歸零 */
+        residualFraction: z.number().min(0).max(1),
+        /** 途徑 → 起效延遲（遊戲秒）。key 用藥單途徑 id（po／iv／im…）；冇途徑的醫囑用 0 */
+        routeOnsetSec: z.record(z.string().min(1), z.number().nonnegative()),
+        /** 途徑 → 漸進時間（遊戲秒）；與 order-effects 本身的 ramp 取大者 */
+        routeRampSec: z.record(z.string().min(1), z.number().nonnegative()),
+        /** 遞減效應：正常目標值；藥效按「現值距離這個值多遠」縮放 */
+        normalTarget: vitalNumberRecord,
+        /** 遞減效應：極端值；到達 low／high 就 100% 藥效 */
+        extremeAt: vitalExtremeRecord,
       })
       .strict(),
     chat: z

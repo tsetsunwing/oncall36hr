@@ -76,6 +76,29 @@ function vitals(state: GameState) {
   return patient.visible.vitals;
 }
 
+/** 新機制：藥效有 onset＋漸進＋遞減（下限 residual）＋±15% jitter，所以只驗方向同上下限。 */
+function assertDrugDiff(
+  diff: { hr: number; sbp: number; rr: number; temp: number },
+  full: { hr: number; sbp: number; rr: number; temp: number },
+) {
+  for (const key of ['hr', 'sbp', 'rr'] as const) {
+    const f = full[key];
+    if (f === 0) {
+      expect(Math.abs(diff[key])).toBeLessThanOrEqual(1);
+      continue;
+    }
+    if (Math.abs(f) < 5) {
+      // 細數值經 onset／遞減／jitter／四捨五入後可能跌到 0，只驗上限
+      expect(Math.abs(diff[key])).toBeLessThanOrEqual(Math.abs(f) * 1.15 + 1);
+      continue;
+    }
+    expect(Math.sign(diff[key])).toBe(Math.sign(f));
+    expect(Math.abs(diff[key])).toBeLessThanOrEqual(Math.abs(f) * 1.15 + 1);
+    expect(Math.abs(diff[key])).toBeGreaterThanOrEqual(Math.abs(f) * 0.15 - 1);
+  }
+  expect(Math.abs(diff.temp)).toBeLessThanOrEqual(Math.abs(full.temp) * 1.15 + 0.2);
+}
+
 describe('治療藥物彈窗', () => {
   it('輸注濃度經落單保存，標籤顯示，並可經存檔 schema 讀回', () => {
     const run = feed(engine, fresh('concentration'), [
@@ -197,12 +220,21 @@ describe('治療藥物彈窗', () => {
     expect(nurse?.template).toContain('收到');
     expect(nurse?.tokenValues['order.1.label']).toContain('Dobutamine');
 
-    const plain = advance(engine, fresh('dob-in'), 60);
-    const after = advance(engine, run.state, 60);
-    expect(vitals(after.state).sbp - vitals(plain.state).sbp).toBe(row.deltaSbp);
-    expect(vitals(after.state).hr - vitals(plain.state).hr).toBe(row.deltaHr);
-    expect(vitals(after.state).rr - vitals(plain.state).rr).toBe(row.deltaRr);
-    expect(vitals(after.state).temp - vitals(plain.state).temp).toBeCloseTo(row.deltaTempC);
+    // 推進到 IV onset＋漸進完成之後，藥效應該已經全數出現（再乘遞減同 jitter）
+    const plain = advance(engine, fresh('dob-in'), 600);
+    const after = advance(engine, run.state, 600);
+    const diff = {
+      hr: vitals(after.state).hr - vitals(plain.state).hr,
+      sbp: vitals(after.state).sbp - vitals(plain.state).sbp,
+      rr: vitals(after.state).rr - vitals(plain.state).rr,
+      temp: vitals(after.state).temp - vitals(plain.state).temp,
+    };
+    assertDrugDiff(diff, {
+      hr: row.deltaHr,
+      sbp: row.deltaSbp,
+      rr: row.deltaRr,
+      temp: row.deltaTempC,
+    });
     expect(vitals(after.state).spo2 - vitals(plain.state).spo2).toBe(0);
     expect(after.state.patients.p1?.visible.cuff).toEqual(plain.state.patients.p1?.visible.cuff);
   });
@@ -338,10 +370,22 @@ describe('治療藥物彈窗', () => {
         temp: preset.deltaTempC,
       },
     );
-    const after = advance(engine, applied.state, 60);
-    const plain = advance(engine, fresh('ai-brady'), 60);
-    expect(vitals(after.state).hr - vitals(plain.state).hr).toBe(preset?.deltaHr);
-    expect(vitals(after.state).sbp - vitals(plain.state).sbp).toBe(preset?.deltaSbp);
+    const after = advance(engine, applied.state, 600);
+    const plain = advance(engine, fresh('ai-brady'), 600);
+    assertDrugDiff(
+      {
+        hr: vitals(after.state).hr - vitals(plain.state).hr,
+        sbp: vitals(after.state).sbp - vitals(plain.state).sbp,
+        rr: vitals(after.state).rr - vitals(plain.state).rr,
+        temp: vitals(after.state).temp - vitals(plain.state).temp,
+      },
+      {
+        hr: preset?.deltaHr ?? 0,
+        sbp: preset?.deltaSbp ?? 0,
+        rr: preset?.deltaRr ?? 0,
+        temp: preset?.deltaTempC ?? 0,
+      },
+    );
 
     const extra = feed(engine, run.state, [
       {

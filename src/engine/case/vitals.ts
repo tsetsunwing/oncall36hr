@@ -4,7 +4,7 @@
  * 全部係純函數：同 state、同 rng ＝ 同結果。Order 效果由 state.orders 即時推算，所以取消 order 即去除效果。
  */
 import type { EngineConfig } from '../core/config';
-import { rngFloat, type RngState } from '../core/rng';
+import { hashString, rngFloat, type RngState } from '../core/rng';
 import { fluidVolumeFactor } from '../orders/infusionVolume';
 import type { Order } from '../orders/orderTypes';
 import type { Patient } from './patient';
@@ -46,6 +46,30 @@ export function effectFactor(
   return rampIn * (1 - Math.min(1, (t - end) / row.rampSec));
 }
 
+/**
+ * 遞減效應：藥效按「現值距離正常目標幾遠」縮放。
+ * 降嘅藥（delta<0）睇現值高過正常幾多；升嘅藥（delta>0）睇現值低過正常幾多。
+ * 貼近正常 → 剩低 residual 比例；到達極端值 → 全數藥效。delta 為 0 時無需縮放。
+ */
+export function drugScale(
+  current: number,
+  delta: number,
+  target: number,
+  extreme: { low: number; high: number },
+  residual: number,
+): number {
+  if (delta === 0) return 1;
+  let headroom: number;
+  if (delta < 0) {
+    const span = extreme.high - target;
+    headroom = span <= 0 ? 1 : clamp((current - target) / span, [0, 1]);
+  } else {
+    const span = target - extreme.low;
+    headroom = span <= 0 ? 1 : clamp((target - current) / span, [0, 1]);
+  }
+  return residual + (1 - residual) * headroom;
+}
+
 export function pickEffectRow(
   rows: readonly OrderEffectRow[],
   catalogId: string,
@@ -80,7 +104,10 @@ export function effectDeltaAt(
   orders: Readonly<Record<string, Order>>,
   tables: EngineTables,
   t: number,
+  /** 傳入先啟用藥物嘅遞減效應、隨機幅度同途徑 onset；唔傳就維持舊行為 */
+  config?: EngineConfig,
 ): Record<VitalKey, number> {
+  const drugEffect = config?.drugEffect;
   const total: Record<VitalKey, number> = { hr: 0, sbp: 0, dbp: 0, spo2: 0, rr: 0, temp: 0 };
   for (const order of Object.values(orders)) {
     if (order.patientId !== patient.id) continue;
@@ -102,20 +129,78 @@ export function effectDeltaAt(
       latestAdministration?.givenAt ?? order.fluidBags?.[0]?.startAt ?? order.startsAt;
     const volumeFactor = order.fluidBags ? fluidVolumeFactor(order, t) : 1;
     if (volumeFactor === 0) continue;
+    const catalogRow = tables['order-catalog'].find((r) => r.id === order.catalogId);
+    const isDrug = order.effectPreset !== undefined || catalogRow?.type === 'DRUG';
+    const route = order.params.route;
+    const routeOnset = isDrug && drugEffect && route ? (drugEffect.routeOnsetSec[route] ?? 0) : 0;
+    const routeRamp = isDrug && drugEffect && route ? (drugEffect.routeRampSec[route] ?? 0) : 0;
+    // 每張醫囑用 id 抽一次固定幅度（xmur3 雜湊，唔用 rng stream，存檔後唔會變）。
+    const jitterMul =
+      drugEffect !== undefined
+        ? 1 + (((hashString(order.id) % 2001) - 1000) / 1000) * drugEffect.jitterFraction
+        : 1;
     const row = pickEffectRow(tables['order-effects'], order.catalogId, patient.hidden.fsm.state);
     if (row) {
-      const factor = effectFactor(row, effectStart, t) * scale * volumeFactor;
+      const factor =
+        effectFactor(
+          {
+            delaySec: row.delaySec + routeOnset,
+            rampSec: Math.max(row.rampSec, routeRamp),
+            durationSec: row.durationSec,
+          },
+          effectStart,
+          t,
+        ) *
+        scale *
+        volumeFactor;
       if (factor !== 0) {
         const delta: VitalDelta = row.delta;
-        for (const key of VITAL_KEYS) total[key] += (delta[key] ?? 0) * factor;
+        for (const key of VITAL_KEYS) {
+          let value = delta[key] ?? 0;
+          if (isDrug && drugEffect && value !== 0) {
+            value *=
+              drugScale(
+                patient.hidden.base[key],
+                value,
+                drugEffect.normalTarget[key],
+                drugEffect.extremeAt[key],
+                drugEffect.residualFraction,
+              ) * jitterMul;
+          }
+          total[key] += value * factor;
+        }
       }
     }
     const preset = order.effectPreset;
     if (preset) {
-      total.sbp += preset.sbp * scale;
-      total.hr += preset.hr * scale;
-      total.rr += preset.rr * scale;
-      total.temp += preset.temp * scale;
+      let presetFactor = scale;
+      if (isDrug && drugEffect) {
+        presetFactor *= effectFactor(
+          { delaySec: routeOnset, rampSec: routeRamp, durationSec: null },
+          effectStart,
+          t,
+        );
+      }
+      if (presetFactor !== 0) {
+        const scalePreset = (value: number, key: 'hr' | 'sbp' | 'rr' | 'temp'): number => {
+          if (!isDrug || !drugEffect || value === 0) return value;
+          return (
+            value *
+            drugScale(
+              patient.hidden.base[key],
+              value,
+              drugEffect.normalTarget[key],
+              drugEffect.extremeAt[key],
+              drugEffect.residualFraction,
+            ) *
+            jitterMul
+          );
+        };
+        total.sbp += scalePreset(preset.sbp, 'sbp') * presetFactor;
+        total.hr += scalePreset(preset.hr, 'hr') * presetFactor;
+        total.rr += scalePreset(preset.rr, 'rr') * presetFactor;
+        total.temp += scalePreset(preset.temp, 'temp') * presetFactor;
+      }
     }
   }
   for (const effect of patient.hidden.activeEffects) {
@@ -143,7 +228,7 @@ export function nextSample(input: {
 }): SampleResult {
   const { patient, trajectory, config, t } = input;
   const dtMin = Math.max(0, t - patient.hidden.lastSampleAt) / 60;
-  const delta = effectDeltaAt(patient, input.orders, input.tables, t);
+  const delta = effectDeltaAt(patient, input.orders, input.tables, t, input.config);
 
   let rng = input.rng;
   const base = {} as VitalNumbers;

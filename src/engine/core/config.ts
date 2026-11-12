@@ -27,6 +27,22 @@ export interface EngineConfig {
       Record<'hr' | 'sbp' | 'dbp' | 'spo2' | 'rr' | 'temp', readonly [number, number]>
     >;
   };
+  drugEffect: {
+    /** 實際藥效 ＝ 計算值 ×（1 ± jitter）；每張醫囑用 id 抽一次，同一存檔內唔變 */
+    jitterFraction: number;
+    /** 剩餘效應下限：貼近正常時藥效都起碼有呢個比例，唔會完全歸零 */
+    residualFraction: number;
+    /** 途徑 → 起效延遲（遊戲秒）。key 用藥單途徑 id（po／iv／im…）；冇途徑的醫囑用 0 */
+    routeOnsetSec: Readonly<Record<string, number>>;
+    /** 途徑 → 漸進時間（遊戲秒）；與 order-effects 本身的 ramp 取大者 */
+    routeRampSec: Readonly<Record<string, number>>;
+    /** 遞減效應：正常目標值；藥效按「現值距離這個值多遠」縮放 */
+    normalTarget: Readonly<Record<'hr' | 'sbp' | 'dbp' | 'spo2' | 'rr' | 'temp', number>>;
+    /** 遞減效應：極端值；到達 low／high 就 100% 藥效 */
+    extremeAt: Readonly<
+      Record<'hr' | 'sbp' | 'dbp' | 'spo2' | 'rr' | 'temp', Readonly<{ low: number; high: number }>>
+    >;
+  };
   chat: {
     maxLinesPerTurn: number;
     maxLineChars: number;

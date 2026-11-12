@@ -29,6 +29,21 @@ export const testConfig: EngineConfig = {
       temp: [34, 42],
     },
   },
+  drugEffect: {
+    jitterFraction: 0.15,
+    residualFraction: 0.2,
+    routeOnsetSec: { iv: 30, 'iv-infusion': 0, im: 300, sc: 300, sl: 60, neb: 60, po: 900 },
+    routeRampSec: { iv: 120, 'iv-infusion': 180, im: 600, sc: 600, sl: 120, neb: 300, po: 1200 },
+    normalTarget: { hr: 80, sbp: 120, dbp: 75, spo2: 98, rr: 14, temp: 36.8 },
+    extremeAt: {
+      hr: { low: 45, high: 140 },
+      sbp: { low: 80, high: 190 },
+      dbp: { low: 45, high: 115 },
+      spo2: { low: 85, high: 100 },
+      rr: { low: 8, high: 30 },
+      temp: { low: 36, high: 39.5 },
+    },
+  },
   chat: {
     maxLinesPerTurn: 4,
     maxLineChars: 140,
