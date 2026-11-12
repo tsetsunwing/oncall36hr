@@ -6,7 +6,7 @@ export const wardUi = {
   heading: '病房與電話',
   planHeading: '病房平面圖（固定 20 床）',
   miniHeading: '小地圖',
-  bodyHeading: '身體圖',
+  bodyHeading: '身體圖 Body',
   bodyLabel: '病人身上的裝置',
   medicalRecord: {
     open: '病歷 Medical Record',

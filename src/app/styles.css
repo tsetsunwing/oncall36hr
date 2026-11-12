@@ -2147,7 +2147,8 @@ main:has(.page.setup) {
   border-color: var(--accent);
 }
 
-.side-panel h2 .heading-label {
+.side-panel h2 .heading-label,
+.body-diagram > h2 .heading-label {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2583,7 +2584,11 @@ main:has(.page.setup) {
 }
 
 .body-diagram {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
   padding: 0 0 8px;
+  overflow: auto;
   color: var(--text);
   background: var(--surface);
   border: 1px solid var(--border);
@@ -2591,19 +2596,25 @@ main:has(.page.setup) {
   box-shadow: var(--card-shadow);
 }
 
-.body-diagram > .floor-plan-head {
-  padding: 0.65rem 0.75rem;
-  align-items: center;
+.body-diagram > h2 {
+  flex-wrap: wrap;
 }
 
-.body-diagram h2 {
-  margin: 0;
-  font-size: var(--fs-lg);
+.body-heading-actions {
+  display: inline-flex;
+  flex: none;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+  margin: 0 0 0 auto;
 }
 
 .medical-record {
+  position: static;
+  flex: none;
   margin: 0 0.75rem 0.75rem;
   padding: 0.75rem;
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 10px;
   overflow-wrap: anywhere;
@@ -2667,9 +2678,10 @@ main:has(.page.setup) {
 
 .body-diagram-stage {
   position: relative;
-  width: min(100%, 220px);
+  flex: none;
+  width: min(100%, 200px);
   margin: 8px auto 12px;
-  aspect-ratio: 200 / 360;
+  aspect-ratio: 150.024 / 320.455;
   background: var(--bg);
   border-radius: 12px;
 }
@@ -2680,11 +2692,10 @@ main:has(.page.setup) {
   height: 100%;
 }
 
-.body-outline path,
-.body-outline circle {
-  fill: var(--bg);
+.body-outline .body-fill {
+  fill: var(--surface);
   stroke: var(--text);
-  stroke-width: 2.4;
+  stroke-width: 0.85;
   stroke-linejoin: round;
   stroke-linecap: round;
 }

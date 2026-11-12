@@ -16,6 +16,7 @@ import type {
 import { chat, monitor, order, patient } from '../game/fixtures';
 import { WardGame } from '../pages/WardGame';
 import { DelegationDialog } from './DelegationDialog';
+import { BODY_VIEWBOX } from './bodySilhouette';
 import { FloorPlan } from './FloorPlan';
 import { PhonePanel } from './PhonePanel';
 import { QueuePanel } from './QueuePanel';
@@ -381,6 +382,45 @@ describe('房間取代平面圖', () => {
     expect(actions.enterPlace).toHaveBeenCalledWith('STATION');
   });
 
+  it('打開病歷時喺同一欄推開身體圖，唔覆蓋', async () => {
+    const atBed = {
+      ...gameAt(null),
+      patient,
+      monitor: monitor(),
+      chat: chat(),
+      body: {
+        markers: [{ id: 'iv', kind: 'iv' as const, label: 'IV / IO', x: 17, y: 41 }],
+        ioOrder: null,
+      },
+    };
+    render(<WardGame view={atBed} ward={ward()} actions={makeActions()} />);
+    const diagram = screen.getByTestId('body-diagram');
+    await userEvent.click(screen.getByTestId('open-medical-record'));
+    const record = screen.getByTestId('medical-record');
+    const stage = diagram.querySelector('.body-diagram-stage');
+    expect(stage).not.toBeNull();
+    expect(record.compareDocumentPosition(stage as Node) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+    expect(getComputedStyle(record).position).not.toBe('absolute');
+    expect(getComputedStyle(record).position).not.toBe('fixed');
+    expect(diagram).toContainElement(screen.getByTestId('body-iv'));
+  });
+
+  it('神經與疼痛喺身體圖欄，唔喺監察儀下面', () => {
+    const atBed = {
+      ...gameAt(null),
+      patient,
+      monitor: monitor(),
+      chat: chat(),
+      body: { markers: [], ioOrder: null },
+    };
+    render(<WardGame view={atBed} ward={ward()} actions={makeActions()} />);
+    const neuro = screen.getByTestId('neuro-strip');
+    expect(screen.getByTestId('body-diagram')).toContainElement(neuro);
+    expect(screen.getByTestId('monitor').contains(neuro)).toBe(false);
+  });
+
   it('病歷的 MAR 逐次顯示預定與已給的劑次', async () => {
     const atBed = {
       ...gameAt(null),
@@ -471,6 +511,13 @@ describe('房間取代平面圖', () => {
     const { rerender } = render(<WardGame view={atBed} ward={ward()} actions={actions} />);
     expect(screen.getByTestId('body-diagram')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: ui.game.ward.bodyHeading })).toBeInTheDocument();
+    expect(screen.getByTestId('body-diagram').querySelector('svg.body-outline')).toHaveAttribute(
+      'viewBox',
+      BODY_VIEWBOX,
+    );
+    expect(screen.getByTestId('open-medical-record').closest('h2')).toBe(
+      screen.getByRole('heading', { name: ui.game.ward.bodyHeading }),
+    );
     expect(screen.queryByTestId('floor-plan')).not.toBeInTheDocument();
     expect(screen.queryByText(ui.game.ward.miniHeading)).not.toBeInTheDocument();
     expect(screen.getByTestId('body-foley')).toHaveTextContent('Foley');

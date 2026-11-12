@@ -73,9 +73,9 @@ describe('身體圖只顯示在位裝置', () => {
     expect(drainAnchor('left chest').x).toBeGreaterThan(50);
     expect(drainAnchor('left chest').y).toBe(drainAnchor('chest').y);
     expect(drainAnchor('right abdomen').x).toBeLessThan(50);
-    expect(drainAnchor('chest')).toEqual({ x: 50, y: 36 });
-    expect(drainAnchor('abdomen').x).toBe(50);
-    expect(drainAnchor('somewhere')).toEqual({ x: 50, y: 46 });
+    expect(drainAnchor('chest')).toEqual({ x: 47, y: 30 });
+    expect(drainAnchor('abdomen').x).toBe(47);
+    expect(drainAnchor('somewhere')).toEqual({ x: 47, y: 40 });
   });
 
   it('沒有裝置就沒有標記；插管、動脈導管、CVC 沿用監察儀規則', () => {
