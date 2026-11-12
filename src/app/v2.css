@@ -1336,10 +1336,6 @@ tr[data-flag='H'] .value-flagged {
   font-variant-numeric: tabular-nums;
 }
 
-.tile[data-param='bp'] .num {
-  font-size: var(--fs-2xl);
-}
-
 .frame-desktop .tile {
   container-type: size;
   overflow: hidden;
@@ -1347,15 +1343,6 @@ tr[data-flag='H'] .value-flagged {
 
 .frame-desktop .tile-value {
   font-size: clamp(18px, 62cqh, 30px);
-}
-
-.frame-desktop .tile[data-param='bp'] .num {
-  font-size: var(--fs-sm);
-}
-
-.num-sub {
-  font-size: var(--fs-md);
-  font-weight: 600;
 }
 
 .tile-pending {
@@ -1918,10 +1905,6 @@ tr[data-flag='H'] .value-flagged {
 }
 
 .frame-mobile .tile-value {
-  font-size: var(--fs-xl);
-}
-
-.frame-mobile .tile[data-param='bp'] .num {
   font-size: var(--fs-xl);
 }
 

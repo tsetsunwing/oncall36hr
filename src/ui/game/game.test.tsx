@@ -263,6 +263,10 @@ describe('閃爍數值：只由 CSS 驅動，並尊重 reduced-motion', () => {
     const src = readFileSync('src/ui/game/MonitorPanel.tsx', 'utf8');
     expect(src).not.toMatch(/setInterval|setTimeout/);
   });
+  it('NIBP 讀數字級跟 HR／SpO2 共用 tile-value，唔另外縮細', () => {
+    expect(css).not.toMatch(/\[data-param=['"]bp['"]\][^{]*\.num[^{]*\{[^}]*font-size\s*:/);
+    expect(css).not.toMatch(/\.num-sub\s*\{[^}]*font-size\s*:/);
+  });
 });
 
 describe('ChatPanel', () => {
