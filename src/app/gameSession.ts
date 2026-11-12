@@ -294,6 +294,12 @@ export function createGameSession(options: GameSessionOptions): GameSession {
     assessPain(patientId) {
       dispatch({ type: 'PLAYER_INTENT', intent: { type: 'ASSESS_PAIN', patientId } });
     },
+    assessAgitation(patientId) {
+      dispatch({ type: 'PLAYER_INTENT', intent: { type: 'ASSESS_AGITATION', patientId } });
+    },
+    assessNausea(patientId) {
+      dispatch({ type: 'PLAYER_INTENT', intent: { type: 'ASSESS_NAUSEA', patientId } });
+    },
   };
 
   function saveBecauseHidden(): void {

@@ -49,6 +49,8 @@ function makeActions() {
     measureNibp: vi.fn(),
     assessGcs: vi.fn(),
     assessPain: vi.fn(),
+    assessAgitation: vi.fn(),
+    assessNausea: vi.fn(),
     placeTests: vi.fn(),
   } satisfies GameActions;
 }

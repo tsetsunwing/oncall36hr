@@ -383,7 +383,11 @@ export function DrugOrderForm({
                   </select>
                 </label>
                 <label className="drug-order-field">
-                  {prn === 'Pain' ? 'Pain score (0-10)' : 'Temperature (°C)'}
+                  {prn === 'Pain'
+                    ? 'Pain score (0-10)'
+                    : prn === 'Agitation' || prn === 'Nausea'
+                      ? `${prn} score (0-3)`
+                      : 'Temperature (°C)'}
                   <input
                     aria-label="PRN threshold"
                     data-testid="drug-order-prn-threshold"
@@ -393,8 +397,8 @@ export function DrugOrderForm({
                   />
                 </label>
                 <p>
-                  Fever and pain PRN both need a Q-hourly minimum interval. Pain PRN only fires
-                  after the pain score has been assessed at the bedside.
+                  Every PRN needs a Q-hourly minimum interval. Fever, pain, agitation and nausea PRN
+                  only fire after that value has been assessed at the bedside.
                 </p>
               </>
             ) : null}

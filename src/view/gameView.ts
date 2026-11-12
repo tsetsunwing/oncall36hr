@@ -183,6 +183,8 @@ function selectPatient(
     knownDiagnoses: [...(patient.knownDiagnoses ?? [])],
     allergies: [...patient.allergies],
     pain: patient.visible.pain,
+    agitation: patient.visible.agitation,
+    nausea: patient.visible.nausea,
     neuro: {
       gcs: {
         ...patient.visible.neuro.gcs,

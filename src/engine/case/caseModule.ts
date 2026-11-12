@@ -16,7 +16,7 @@ import { evaluateFsm } from './fsm';
 import { pickHkName } from './hkNames';
 import { seedLabs } from './labs';
 import { NORMAL_PUPILS, gcsForConsciousness } from './patient';
-import { painFor } from './pain';
+import { symptomFor } from './pain';
 import { computeMews } from './mews';
 import type { Patient } from './patient';
 import type {
@@ -223,6 +223,8 @@ export function createPatientState(
       rhythm: trajectory.rhythm,
       consciousness: trajectory.consciousness,
       pain: null,
+      agitation: null,
+      nausea: null,
       neuro: {
         gcs: gcsForConsciousness(trajectory.consciousness),
         pupils: NORMAL_PUPILS,
@@ -296,7 +298,11 @@ export const caseModule: EngineModule = {
         effects: [],
       };
     }
-    if (intent.type === 'ASSESS_PAIN') {
+    if (
+      intent.type === 'ASSESS_PAIN' ||
+      intent.type === 'ASSESS_AGITATION' ||
+      intent.type === 'ASSESS_NAUSEA'
+    ) {
       const patient = state.patients[intent.patientId];
       if (!patient) {
         return {
@@ -307,17 +313,24 @@ export const caseModule: EngineModule = {
       if (awayOf(state, patient.id, ctx)) {
         return { state, effects: [{ type: 'NOTICE', kind: 'PATIENT_AWAY', tone: 'warn' }] };
       }
-      // 疼痛分數只由病例狀態表決定；評估前一律 null，唔會靠 AI 估。
+      // 分數只由病例狀態表決定；評估前一律 null，唔會靠 AI 估。
+      const kind =
+        intent.type === 'ASSESS_PAIN'
+          ? 'pain'
+          : intent.type === 'ASSESS_AGITATION'
+            ? 'agitation'
+            : 'nausea';
+      const value = symptomFor(state, patient, ctx.tables, kind);
+      const visible =
+        kind === 'pain'
+          ? { ...patient.visible, pain: value }
+          : kind === 'agitation'
+            ? { ...patient.visible, agitation: value }
+            : { ...patient.visible, nausea: value };
       return {
         state: {
           ...state,
-          patients: {
-            ...state.patients,
-            [patient.id]: {
-              ...patient,
-              visible: { ...patient.visible, pain: painFor(state, patient, ctx.tables) },
-            },
-          },
+          patients: { ...state.patients, [patient.id]: { ...patient, visible } },
         },
         effects: [],
       };

@@ -34,6 +34,8 @@ export const patient: PatientView = {
   complaint: '氣促',
   allergies: [],
   pain: 6,
+  agitation: 1,
+  nausea: 0,
   neuro: {
     gcs: { e: 4, v: 5, m: 6, total: 15 },
     pupils: {

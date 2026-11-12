@@ -329,6 +329,20 @@ function migrateV12toV13(raw: RawState): RawState {
   };
 }
 
+/** schema 15 → 16：病人加煩躁與噁心，未評估＝null */
+function migrateV15toV16(raw: RawState): RawState {
+  const patients = (raw.patients ?? {}) as Record<string, Record<string, unknown>>;
+  return {
+    ...raw,
+    patients: Object.fromEntries(
+      Object.entries(patients).map(([id, patient]) => {
+        const visible = (patient.visible ?? {}) as Record<string, unknown>;
+        return [id, { ...patient, visible: { ...visible, agitation: null, nausea: null } }];
+      }),
+    ),
+  };
+}
+
 export const migrations: MigrationRegistry = {
   1: migrateV1toV2,
   2: migrateV2toV3,
@@ -344,6 +358,7 @@ export const migrations: MigrationRegistry = {
   12: migrateV12toV13,
   13: migrateV13toV14,
   14: migrateV14toV15,
+  15: migrateV15toV16,
 };
 
 export type MigrateResult =

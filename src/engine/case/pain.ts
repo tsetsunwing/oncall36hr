@@ -30,11 +30,26 @@ export function analgesiaActive(
   });
 }
 
-/** 病人現時狀態對應的疼痛分數；表格冇寫就當 0。 */
-export function painFor(state: GameState, patient: Patient, tables: EngineTables): number {
+export type SymptomKind = 'pain' | 'agitation' | 'nausea';
+
+/** 病人現時狀態對應的分數；表格冇寫就當 0。只有疼痛會因止痛藥扣分。 */
+export function symptomFor(
+  state: GameState,
+  patient: Patient,
+  tables: EngineTables,
+  kind: SymptomKind,
+): number {
   const template = tables['case-templates'].find((row) => row.id === patient.hidden.caseTemplateId);
   const fsm = tables['case-fsm'].find((row) => row.id === template?.fsmId);
-  const base = fsm?.states[patient.hidden.fsm.state]?.pain ?? 0;
+  const row = fsm?.states[patient.hidden.fsm.state];
+  const base =
+    (kind === 'pain' ? row?.pain : kind === 'agitation' ? row?.agitation : row?.nausea) ?? 0;
+  if (kind !== 'pain') return base;
   const relief = analgesiaActive(state, patient.id, tables, state.clock.t) ? ANALGESIA_RELIEF : 0;
   return Math.max(0, base - relief);
+}
+
+/** 疼痛分數 0–10；未評估時病人身上仍然是 null。 */
+export function painFor(state: GameState, patient: Patient, tables: EngineTables): number {
+  return symptomFor(state, patient, tables, 'pain');
 }

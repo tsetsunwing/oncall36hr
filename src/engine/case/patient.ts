@@ -197,6 +197,10 @@ export const patientSchema = z
         consciousness: z.enum(['A', 'V', 'P', 'U']),
         /** 疼痛分數 0–10；未問過病人＝null。唔上心臟監察儀。 */
         pain: z.number().int().min(0).max(10).nullable(),
+        /** 煩躁 0–3；未評估＝null。 */
+        agitation: z.number().int().min(0).max(3).nullable(),
+        /** 噁心 0–3；未評估＝null。 */
+        nausea: z.number().int().min(0).max(3).nullable(),
         /** GCS（E/V/M）同瞳孔。唔上心臟監察儀。 */
         neuro: neuroSchema,
         mews: z

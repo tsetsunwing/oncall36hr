@@ -190,6 +190,66 @@ describe('PRN execution', () => {
     expect(after.orders[id]?.administrations).toEqual([]);
     expect(after.orders[id]?.prnAssessments?.at(-1)).toMatchObject({ outcome: 'UNKNOWN' });
   });
+  it('gives nausea PRN once the nausea score is above the threshold', () => {
+    const start = initial();
+    const patient = start.patients.p1;
+    if (!patient) throw new Error('missing patient');
+    const state = {
+      ...start,
+      patients: {
+        ...start.patients,
+        p1: { ...patient, visible: { ...patient.visible, nausea: 3 } },
+      },
+    };
+    const placed = feed(engine, state, [
+      intentEvent({
+        type: 'PLACE_CATALOG',
+        patientId: 'p1',
+        catalogId: 'drug.ceftriaxone',
+        text: 'PRN nausea',
+        params: {
+          drugFormularyId: 'ceftriaxone',
+          dose: { value: 1, unit: 'g' },
+          route: 'IV',
+          frequency: 'Q6H',
+          prnReason: 'Nausea',
+          prnCondition: { metric: 'NAUSEA', comparison: '>', threshold: 2 },
+        },
+      }),
+    ]).state;
+    const id = onlyId(placed);
+    const after = advance(engine, placed, H).state;
+    expect(after.orders[id]?.prnAssessments?.[0]).toMatchObject({
+      outcome: 'ELIGIBLE',
+      observed: 3,
+    });
+    expect(after.orders[id]?.administrations).toHaveLength(1);
+  });
+
+  it('holds nausea PRN while nausea is unassessed', () => {
+    const start = initial();
+    const placed = feed(engine, start, [
+      intentEvent({
+        type: 'PLACE_CATALOG',
+        patientId: 'p1',
+        catalogId: 'drug.ceftriaxone',
+        text: 'PRN nausea',
+        params: {
+          drugFormularyId: 'ceftriaxone',
+          dose: { value: 1, unit: 'g' },
+          route: 'IV',
+          frequency: 'Q6H',
+          prnReason: 'Nausea',
+          prnCondition: { metric: 'NAUSEA', comparison: '>', threshold: 2 },
+        },
+      }),
+    ]).state;
+    const id = onlyId(placed);
+    const after = advance(engine, placed, H).state;
+    expect(after.orders[id]?.administrations).toEqual([]);
+    expect(after.orders[id]?.prnAssessments?.at(-1)).toMatchObject({ outcome: 'UNKNOWN' });
+  });
+
   it('evaluates temperature against the prescribed threshold', () => {
     const base = initial();
     const patient = base.patients.p1;

@@ -429,7 +429,9 @@ export const ordersModule: EngineModule = {
       const condition = order.params.prnCondition;
       const supported =
         (order.params.prnReason === 'Fever' && condition?.metric === 'TEMPERATURE') ||
-        (order.params.prnReason === 'Pain' && condition?.metric === 'PAIN');
+        (order.params.prnReason === 'Pain' && condition?.metric === 'PAIN') ||
+        (order.params.prnReason === 'Agitation' && condition?.metric === 'AGITATION') ||
+        (order.params.prnReason === 'Nausea' && condition?.metric === 'NAUSEA');
       const rule =
         condition && interval && order.executorKind === 'NURSE' && supported
           ? { condition, interval }
@@ -442,7 +444,11 @@ export const ordersModule: EngineModule = {
           ? patient.visible.vitals.temp
           : condition?.metric === 'PAIN'
             ? patient.visible.pain
-            : null;
+            : condition?.metric === 'AGITATION'
+              ? patient.visible.agitation
+              : condition?.metric === 'NAUSEA'
+                ? patient.visible.nausea
+                : null;
       const records = order.administrations ?? [];
       const lastGiven = records.reduce<number | null>(
         (last, dose) => (dose.givenAt === null ? last : Math.max(last ?? 0, dose.givenAt)),

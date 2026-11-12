@@ -32,7 +32,13 @@ export interface CaseFsmRow {
   states: Readonly<
     Record<
       string,
-      { trajectory: string; arrest?: { rhythm: string } | undefined; pain?: number | undefined }
+      {
+        trajectory: string;
+        arrest?: { rhythm: string } | undefined;
+        pain?: number | undefined;
+        agitation?: number | undefined;
+        nausea?: number | undefined;
+      }
     >
   >;
   /** M5：ROSC 後 FSM 跳去嘅狀態（有 arrest 狀態嘅 FSM 必須提供） */

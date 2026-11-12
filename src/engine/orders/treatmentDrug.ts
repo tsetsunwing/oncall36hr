@@ -47,7 +47,7 @@ export interface TreatmentParams {
   frequency?: string;
   prnReason?: string;
   prnCondition?: {
-    metric: 'PAIN' | 'TEMPERATURE';
+    metric: 'PAIN' | 'TEMPERATURE' | 'AGITATION' | 'NAUSEA';
     comparison: '>' | '>=' | '<' | '<=' | '=';
     threshold: number;
   };

@@ -6,26 +6,36 @@
     "states": {
       "DETERIORATING": {
         "trajectory": "pna.deteriorating",
-        "pain": 3
+        "pain": 3,
+        "agitation": 1,
+        "nausea": 1
       },
       "SEPTIC_SHOCK": {
         "trajectory": "pna.shock",
-        "pain": 4
+        "pain": 4,
+        "agitation": 2,
+        "nausea": 1
       },
       "STABILISING": {
         "trajectory": "pna.stabilising",
-        "pain": 2
+        "pain": 2,
+        "agitation": 0,
+        "nausea": 0
       },
       "ARREST_PEA": {
         "trajectory": "acls.pulseless",
         "arrest": {
           "rhythm": "PULSELESS_ELECTRICAL_ACTIVITY"
         },
-        "pain": 0
+        "pain": 0,
+        "agitation": 0,
+        "nausea": 0
       },
       "POST_ROSC": {
         "trajectory": "acls.postrosc",
-        "pain": 0
+        "pain": 0,
+        "agitation": 0,
+        "nausea": 0
       }
     },
     "transitions": [
@@ -84,22 +94,30 @@
     "states": {
       "CHEST_PAIN": {
         "trajectory": "acs.chestpain",
-        "pain": 8
+        "pain": 8,
+        "agitation": 1,
+        "nausea": 2
       },
       "ARREST_VF": {
         "trajectory": "acls.pulseless",
         "arrest": {
           "rhythm": "VENTRICULAR_FIBRILLATION"
         },
-        "pain": 0
+        "pain": 0,
+        "agitation": 0,
+        "nausea": 0
       },
       "POST_ROSC": {
         "trajectory": "acls.postrosc",
-        "pain": 0
+        "pain": 0,
+        "agitation": 1,
+        "nausea": 1
       },
       "STABILISING": {
         "trajectory": "acs.stabilising",
-        "pain": 3
+        "pain": 3,
+        "agitation": 0,
+        "nausea": 1
       }
     },
     "postRoscState": "POST_ROSC",
@@ -140,18 +158,24 @@
     "states": {
       "END_STAGE": {
         "trajectory": "terminal.decline",
-        "pain": 5
+        "pain": 5,
+        "agitation": 1,
+        "nausea": 1
       },
       "ARREST_ASYSTOLE": {
         "trajectory": "acls.pulseless",
         "arrest": {
           "rhythm": "ASYSTOLE"
         },
-        "pain": 0
+        "pain": 0,
+        "agitation": 0,
+        "nausea": 0
       },
       "POST_ROSC": {
         "trajectory": "acls.postrosc",
-        "pain": 0
+        "pain": 0,
+        "agitation": 0,
+        "nausea": 0
       }
     },
     "postRoscState": "POST_ROSC",
@@ -173,11 +197,15 @@
     "states": {
       "STABILISING": {
         "trajectory": "cell.stable",
-        "pain": 3
+        "pain": 3,
+        "agitation": 0,
+        "nausea": 0
       },
       "DETERIORATING": {
         "trajectory": "cell.det",
-        "pain": 5
+        "pain": 5,
+        "agitation": 1,
+        "nausea": 1
       }
     },
     "transitions": [
@@ -208,11 +236,15 @@
     "states": {
       "STABILISING": {
         "trajectory": "uti.stable",
-        "pain": 2
+        "pain": 2,
+        "agitation": 0,
+        "nausea": 0
       },
       "DETERIORATING": {
         "trajectory": "uti.det",
-        "pain": 3
+        "pain": 3,
+        "agitation": 1,
+        "nausea": 1
       }
     },
     "transitions": [
@@ -243,11 +275,15 @@
     "states": {
       "STABILISING": {
         "trajectory": "copd.stable",
-        "pain": 2
+        "pain": 2,
+        "agitation": 0,
+        "nausea": 0
       },
       "DETERIORATING": {
         "trajectory": "copd.det",
-        "pain": 3
+        "pain": 3,
+        "agitation": 2,
+        "nausea": 0
       }
     },
     "transitions": [
@@ -278,11 +314,15 @@
     "states": {
       "STABILISING": {
         "trajectory": "htn.stable",
-        "pain": 1
+        "pain": 1,
+        "agitation": 0,
+        "nausea": 0
       },
       "DETERIORATING": {
         "trajectory": "htn.det",
-        "pain": 2
+        "pain": 2,
+        "agitation": 1,
+        "nausea": 1
       }
     },
     "transitions": [
@@ -313,15 +353,21 @@
     "states": {
       "STABILISING": {
         "trajectory": "hf.stable",
-        "pain": 2
+        "pain": 2,
+        "agitation": 0,
+        "nausea": 0
       },
       "DETERIORATING": {
         "trajectory": "hf.det",
-        "pain": 3
+        "pain": 3,
+        "agitation": 1,
+        "nausea": 1
       },
       "SEPTIC_SHOCK": {
         "trajectory": "hf.shock",
-        "pain": 4
+        "pain": 4,
+        "agitation": 2,
+        "nausea": 1
       }
     },
     "transitions": [
@@ -399,15 +445,21 @@
     "states": {
       "STABILISING": {
         "trajectory": "ugib.stable",
-        "pain": 3
+        "pain": 3,
+        "agitation": 0,
+        "nausea": 1
       },
       "DETERIORATING": {
         "trajectory": "ugib.det",
-        "pain": 4
+        "pain": 4,
+        "agitation": 1,
+        "nausea": 2
       },
       "SEPTIC_SHOCK": {
         "trajectory": "ugib.shock",
-        "pain": 4
+        "pain": 4,
+        "agitation": 2,
+        "nausea": 1
       }
     },
     "transitions": [
@@ -485,15 +537,21 @@
     "states": {
       "STABILISING": {
         "trajectory": "pe.stable",
-        "pain": 3
+        "pain": 3,
+        "agitation": 0,
+        "nausea": 1
       },
       "DETERIORATING": {
         "trajectory": "pe.det",
-        "pain": 5
+        "pain": 5,
+        "agitation": 2,
+        "nausea": 2
       },
       "SEPTIC_SHOCK": {
         "trajectory": "pe.shock",
-        "pain": 4
+        "pain": 4,
+        "agitation": 2,
+        "nausea": 1
       }
     },
     "transitions": [
@@ -551,26 +609,36 @@
     "states": {
       "CHEST_PAIN": {
         "trajectory": "acs.chestpain",
-        "pain": 7
+        "pain": 7,
+        "agitation": 1,
+        "nausea": 2
       },
       "ARREST_VF": {
         "trajectory": "acls.pulseless",
         "arrest": {
           "rhythm": "VENTRICULAR_FIBRILLATION"
         },
-        "pain": 0
+        "pain": 0,
+        "agitation": 0,
+        "nausea": 0
       },
       "POST_ROSC": {
         "trajectory": "acls.postrosc",
-        "pain": 0
+        "pain": 0,
+        "agitation": 1,
+        "nausea": 1
       },
       "STABILISING": {
         "trajectory": "acs.stabilising",
-        "pain": 2
+        "pain": 2,
+        "agitation": 0,
+        "nausea": 1
       },
       "CHEST_PAIN_NO_VF": {
         "trajectory": "acs.chestpain",
-        "pain": 6
+        "pain": 6,
+        "agitation": 1,
+        "nausea": 2
       }
     },
     "postRoscState": "POST_ROSC",

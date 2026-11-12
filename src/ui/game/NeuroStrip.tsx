@@ -12,6 +12,10 @@ export interface NeuroStripProps {
   onAssessGcs?: () => void;
   /** 評估疼痛。分數由病例狀態表決定；未評估＝null。 */
   onAssessPain?: () => void;
+  /** 評估煩躁 0–3。 */
+  onAssessAgitation?: () => void;
+  /** 評估噁心 0–3。 */
+  onAssessNausea?: () => void;
 }
 
 function Pupil({ label, pupil }: { label: string; pupil: PupilView }) {
@@ -30,7 +34,13 @@ function Pupil({ label, pupil }: { label: string; pupil: PupilView }) {
   );
 }
 
-export function NeuroStrip({ patient, onAssessGcs, onAssessPain }: NeuroStripProps) {
+export function NeuroStrip({
+  patient,
+  onAssessGcs,
+  onAssessPain,
+  onAssessAgitation,
+  onAssessNausea,
+}: NeuroStripProps) {
   const n = ui.game.neuro;
   const { gcs, pupils } = patient.neuro;
   return (
@@ -56,6 +66,48 @@ export function NeuroStrip({ patient, onAssessGcs, onAssessPain }: NeuroStripPro
             onClick={onAssessPain}
           >
             {n.assessPain}
+          </button>
+        ) : null}
+      </div>
+      <div className="neuro-item" data-testid="neuro-agitation">
+        <span className="neuro-label">{n.agitation}</span>
+        {patient.agitation === null ? (
+          <span className="neuro-value neuro-unasked">{n.painUnasked}</span>
+        ) : (
+          <span className="neuro-value num">
+            {patient.agitation}
+            {n.painUnit}
+          </span>
+        )}
+        {onAssessAgitation ? (
+          <button
+            type="button"
+            className="neuro-action"
+            data-testid="assess-agitation"
+            onClick={onAssessAgitation}
+          >
+            {n.assessAgitation}
+          </button>
+        ) : null}
+      </div>
+      <div className="neuro-item" data-testid="neuro-nausea">
+        <span className="neuro-label">{n.nausea}</span>
+        {patient.nausea === null ? (
+          <span className="neuro-value neuro-unasked">{n.painUnasked}</span>
+        ) : (
+          <span className="neuro-value num">
+            {patient.nausea}
+            {n.painUnit}
+          </span>
+        )}
+        {onAssessNausea ? (
+          <button
+            type="button"
+            className="neuro-action"
+            data-testid="assess-nausea"
+            onClick={onAssessNausea}
+          >
+            {n.assessNausea}
           </button>
         ) : null}
       </div>

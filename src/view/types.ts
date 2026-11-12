@@ -86,6 +86,10 @@ export interface PatientView {
   allergies: string[];
   /** 疼痛分數 0–10；未問過病人＝null。 */
   pain: number | null;
+  /** 煩躁 0–3；未評估＝null。 */
+  agitation: number | null;
+  /** 噁心 0–3；未評估＝null。 */
+  nausea: number | null;
   neuro: NeuroView;
   /** 病人離開病房做檢查時非 null：畫面要顯示他不在，亦唔可以量血壓／評估 GCS。 */
   away: { place: string; untilLabel: string } | null;
@@ -296,7 +300,7 @@ export interface PlacedOrderParams {
     additive?: string;
   };
   prnCondition?: {
-    metric: 'PAIN' | 'TEMPERATURE';
+    metric: 'PAIN' | 'TEMPERATURE' | 'AGITATION' | 'NAUSEA';
     comparison: '>' | '>=' | '<' | '<=' | '=';
     threshold: number;
   };
@@ -882,4 +886,8 @@ export interface GameActions {
   assessGcs: (patientId: string) => void;
   /** 評估疼痛：分數由病例狀態表決定，未評估＝null。 */
   assessPain: (patientId: string) => void;
+  /** 評估煩躁 0–3。 */
+  assessAgitation: (patientId: string) => void;
+  /** 評估噁心 0–3。 */
+  assessNausea: (patientId: string) => void;
 }

@@ -210,6 +210,12 @@ export function WardGame({ view, ward, actions }: WardGameProps) {
             onAssessPain={() => {
               if (view.patient) actions.assessPain(view.patient.id);
             }}
+            onAssessAgitation={() => {
+              if (view.patient) actions.assessAgitation(view.patient.id);
+            }}
+            onAssessNausea={() => {
+              if (view.patient) actions.assessNausea(view.patient.id);
+            }}
           />
         ) : null}
         {atBed && view.patient && view.resus?.patientId === view.patient.id ? (

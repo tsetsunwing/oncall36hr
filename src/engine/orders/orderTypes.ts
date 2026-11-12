@@ -43,7 +43,7 @@ export const orderSchema = z
           .optional(),
         prnCondition: z
           .object({
-            metric: z.enum(['PAIN', 'TEMPERATURE']),
+            metric: z.enum(['PAIN', 'TEMPERATURE', 'AGITATION', 'NAUSEA']),
             comparison: z.enum(['>', '>=', '<', '<=', '=']),
             threshold: z.number(),
           })

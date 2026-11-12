@@ -21,6 +21,30 @@ describe('神經與疼痛', () => {
     expect(screen.getByTestId('neuro-pain').textContent).toContain('未評估');
   });
 
+  it('煩躁同噁心未評估時顯示未評估，按鈕各自呼叫', async () => {
+    const onAssessAgitation = vi.fn();
+    const onAssessNausea = vi.fn();
+    render(
+      <NeuroStrip
+        patient={{ ...patient, agitation: null, nausea: null }}
+        onAssessAgitation={onAssessAgitation}
+        onAssessNausea={onAssessNausea}
+      />,
+    );
+    expect(screen.getByTestId('neuro-agitation').textContent).toContain('未評估');
+    expect(screen.getByTestId('neuro-nausea').textContent).toContain('未評估');
+    await userEvent.click(screen.getByTestId('assess-agitation'));
+    await userEvent.click(screen.getByTestId('assess-nausea'));
+    expect(onAssessAgitation).toHaveBeenCalledTimes(1);
+    expect(onAssessNausea).toHaveBeenCalledTimes(1);
+  });
+
+  it('評估後顯示煩躁同噁心分數', () => {
+    render(<NeuroStrip patient={{ ...patient, agitation: 2, nausea: 1 }} />);
+    expect(screen.getByTestId('neuro-agitation').textContent).toContain('2');
+    expect(screen.getByTestId('neuro-nausea').textContent).toContain('1');
+  });
+
   it('瞳孔反應固定時標紅（定性警示），數字仍然照顯示', () => {
     render(
       <NeuroStrip

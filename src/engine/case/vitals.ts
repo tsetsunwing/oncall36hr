@@ -5,6 +5,7 @@
  */
 import type { EngineConfig } from '../core/config';
 import { rngFloat, type RngState } from '../core/rng';
+import { fluidVolumeFactor } from '../orders/infusionVolume';
 import type { Order } from '../orders/orderTypes';
 import type { Patient } from './patient';
 import type {
@@ -96,10 +97,14 @@ export function effectDeltaAt(
           ? 1
           : sunkFraction(order, tables);
     if (scale === 0) continue;
-    const effectStart = latestAdministration?.givenAt ?? order.startsAt;
+    // 輸液以第一袋開始時間起效；效果再按實際滴入容量縮放（提早停袋只計部分）。
+    const effectStart =
+      latestAdministration?.givenAt ?? order.fluidBags?.[0]?.startAt ?? order.startsAt;
+    const volumeFactor = order.fluidBags ? fluidVolumeFactor(order, t) : 1;
+    if (volumeFactor === 0) continue;
     const row = pickEffectRow(tables['order-effects'], order.catalogId, patient.hidden.fsm.state);
     if (row) {
-      const factor = effectFactor(row, effectStart, t) * scale;
+      const factor = effectFactor(row, effectStart, t) * scale * volumeFactor;
       if (factor !== 0) {
         const delta: VitalDelta = row.delta;
         for (const key of VITAL_KEYS) total[key] += (delta[key] ?? 0) * factor;

@@ -36,6 +36,8 @@ function patientWith(flags: string[], drains: Patient['visible']['drains'] = [])
       rhythm: 'SINUS',
       consciousness: 'A',
       pain: null,
+      agitation: null,
+      nausea: null,
       neuro: { gcs: { e: 4, v: 5, m: 6 }, pupils: NORMAL_PUPILS },
       mews: { score: 0, band: 'LOW', components: {} },
       drains,

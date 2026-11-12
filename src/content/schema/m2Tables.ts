@@ -88,6 +88,10 @@ export const caseFsmSchema = z
           arrest: z.object({ rhythm: id }).strict().optional(),
           /** 評估疼痛時用嘅分數（0–10）。冇寫＝0。唔會由 AI 產生。 */
           pain: z.number().int().min(0).max(10).optional(),
+          /** 煩躁 0–3（0＝平靜）。冇寫＝0。 */
+          agitation: z.number().int().min(0).max(3).optional(),
+          /** 噁心 0–3（0＝無）。冇寫＝0。 */
+          nausea: z.number().int().min(0).max(3).optional(),
         })
         .strict(),
     ),

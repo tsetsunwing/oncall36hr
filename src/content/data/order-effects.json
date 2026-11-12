@@ -167,5 +167,44 @@
     "rampSec": 1,
     "durationSec": null,
     "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "fx.fluid.maintenance",
+    "catalogId": "fluid.maintenance",
+    "states": ["*"],
+    "delta": {
+      "sbp": 6,
+      "hr": -4
+    },
+    "delaySec": 0,
+    "rampSec": 1800,
+    "durationSec": 14400,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "fx.fluid.ns500",
+    "catalogId": "fluid.ns500",
+    "states": ["*"],
+    "delta": {
+      "sbp": 10,
+      "hr": -8
+    },
+    "delaySec": 120,
+    "rampSec": 600,
+    "durationSec": 14400,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
+  },
+  {
+    "id": "fx.blood.prc",
+    "catalogId": "blood.prc",
+    "states": ["*"],
+    "delta": {
+      "sbp": 4,
+      "hr": -3
+    },
+    "delaySec": 600,
+    "rampSec": 1800,
+    "durationSec": 21600,
+    "reviewStatus": "PENDING_CLINICAL_REVIEW"
   }
 ]

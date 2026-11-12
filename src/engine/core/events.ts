@@ -28,7 +28,7 @@ export type CoreIntent =
           additive?: string;
         };
         prnCondition?: {
-          metric: 'PAIN' | 'TEMPERATURE';
+          metric: 'PAIN' | 'TEMPERATURE' | 'AGITATION' | 'NAUSEA';
           comparison: '>' | '>=' | '<' | '<=' | '=';
           threshold: number;
         };
@@ -61,7 +61,9 @@ export type CoreIntent =
   | { type: 'LEAVE_BED'; patientId: string }
   | { type: 'MEASURE_NIBP'; patientId: string }
   | { type: 'ASSESS_GCS'; patientId: string }
-  | { type: 'ASSESS_PAIN'; patientId: string };
+  | { type: 'ASSESS_PAIN'; patientId: string }
+  | { type: 'ASSESS_AGITATION'; patientId: string }
+  | { type: 'ASSESS_NAUSEA'; patientId: string };
 
 /** 後續 milestone 嘅 module 於自己嘅 typed intent 加入 core union 之前，可經呢條通道收 intent */
 export interface ExtensionIntent {

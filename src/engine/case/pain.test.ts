@@ -35,6 +35,27 @@ describe('pain assessment', () => {
     expect(after.patients[patient.id]?.visible.pain).toBe(tableScore(patient));
   });
 
+  it('reads agitation and nausea from the same case state table', () => {
+    const { state, patient } = start();
+    const assessed = feed(engine, state, [
+      intentEvent({ type: 'ASSESS_AGITATION', patientId: patient.id }),
+      intentEvent({ type: 'ASSESS_NAUSEA', patientId: patient.id }),
+    ]).state;
+    const template = tables['case-templates'].find(
+      (row) => row.id === patient.hidden.caseTemplateId,
+    );
+    const fsm = tables['case-fsm'].find((row) => row.id === template?.fsmId);
+    const row = fsm?.states[patient.hidden.fsm.state];
+    expect(assessed.patients[patient.id]?.visible.agitation).toBe(row?.agitation ?? 0);
+    expect(assessed.patients[patient.id]?.visible.nausea).toBe(row?.nausea ?? 0);
+  });
+
+  it('starts agitation and nausea unassessed', () => {
+    const { patient } = start();
+    expect(patient.visible.agitation).toBeNull();
+    expect(patient.visible.nausea).toBeNull();
+  });
+
   it('lowers the score when an analgesic has been given', () => {
     const { state, patient } = start();
     const order: Order = {
