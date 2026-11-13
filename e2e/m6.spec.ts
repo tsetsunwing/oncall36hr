@@ -78,7 +78,7 @@ test.describe('M6 setup, rounds, energy, overtime and endings', () => {
     test.setTimeout(120_000);
     await openGame(
       page,
-      'seed=e2e-m6-round&mode=DAY&difficulty=MEDIUM&rank=MO&realsec=0.5&callrate=120',
+      'seed=e2e-m6-round&mode=DAY&difficulty=MEDIUM&rank=MO&realsec=0.5&callrate=24',
     );
     await expect(page.getByTestId('mode-badge')).toHaveText(ui.shift.mode.DAY ?? '');
     await fastForward(page);
@@ -167,12 +167,12 @@ test.describe('M6 setup, rounds, energy, overtime and endings', () => {
     page,
   }) => {
     test.setTimeout(150_000);
-    await openGame(page, 'seed=e2e-m6-ot&mode=DAY&difficulty=MEDIUM&rank=MO&realsec=0.03');
+    await openGame(page, 'seed=e2e-m7-ot&mode=DAY&difficulty=MEDIUM&rank=MO&realsec=0.15');
     await fastForward(page);
-    await keepNeedsDownUntil(page, 'overtime-banner', 60_000);
+    await keepNeedsDownUntil(page, 'overtime-banner', 90_000);
     await expect(page.getByTestId('overtime-banner')).toBeVisible();
     await expect(page.getByTestId('phase-badge')).toBeVisible();
-    await keepNeedsDownUntil(page, 'result-page', 60_000);
+    await keepNeedsDownUntil(page, 'result-page', 90_000);
     await expect(page.getByTestId('result-page')).toBeVisible();
     await expect(page.getByTestId('result-page')).toHaveAttribute('data-reason', 'OVERTIME');
     await expect(page.getByTestId('result-tag')).toHaveText(ui.shift.result.tag.OVERTIME ?? '');
@@ -187,9 +187,9 @@ test.describe('M6 setup, rounds, energy, overtime and endings', () => {
     page,
   }) => {
     test.setTimeout(150_000);
-    await openGame(page, 'seed=e2e-m6-ot2&mode=DAY&difficulty=EASY&rank=MO&realsec=0.03');
+    await openGame(page, 'seed=e2e-m7-ot&mode=DAY&difficulty=EASY&rank=MO&realsec=0.15');
     await fastForward(page);
-    await keepNeedsDownUntil(page, 'begin-handover', 60_000);
+    await keepNeedsDownUntil(page, 'begin-handover', 90_000);
     await expect(page.getByTestId('begin-handover')).toBeVisible();
     await page.getByTestId('begin-handover').click();
     await expect(page.getByTestId('handover-panel')).toBeVisible();

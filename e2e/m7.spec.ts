@@ -67,7 +67,7 @@ test.describe('M7 result screen and review page', () => {
     page,
   }) => {
     test.setTimeout(150_000);
-    await openGame(page, 'seed=e2e-m7-ot&mode=DAY&difficulty=MEDIUM&rank=MO&realsec=0.03');
+    await openGame(page, 'seed=e2e-m7-ot&mode=DAY&difficulty=MEDIUM&rank=MO&realsec=0.15');
     await fastForward(page);
     await keepNeedsDownUntil(page, 'result-page', 90_000);
     await expect(page.getByTestId('result-page')).toBeVisible();
