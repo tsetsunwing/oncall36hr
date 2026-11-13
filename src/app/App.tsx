@@ -2,7 +2,9 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { testConnection, type DevProxy } from '@/ai';
 import { ui } from '@/i18n';
 import { loadSettings, saveSettings, type SaveSlotView, type Settings } from '@/storage';
+import { LayoutCDemo } from '@/demo/layout-c';
 import { Layout, SettingsPage, StartPage } from '@/ui';
+import { PlayFrame } from '@/ui/frame/PlayFrame';
 import { selectStartGate } from '@/view';
 import { GameScreen } from './GameScreen';
 import { createLazySaveService } from './lazySaves';
@@ -66,6 +68,16 @@ export function App() {
     (candidate: Settings) => testConnection(candidate, devProxy ? { proxy: devProxy } : {}),
     [],
   );
+
+  if (route === 'demo-layout-c') {
+    return (
+      <PlayFrame>
+        <div className="layout-c-demo-host">
+          <LayoutCDemo />
+        </div>
+      </PlayFrame>
+    );
+  }
 
   if (route === 'settings') {
     return (
