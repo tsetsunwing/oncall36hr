@@ -1,4 +1,4 @@
-case_id,wards,name,age,sex,code,complaint,diagnosis_id,past_history,known_diagnoses,allergies,reversible_cause_ids,complexity,initial_state,deteriorate_after_min,arrest_rhythm,death_cause,symptoms_initial,symptoms_deteriorating
+﻿case_id,wards,name,age,sex,code,complaint,diagnosis_id,past_history,known_diagnoses,allergies,reversible_cause_ids,complexity,initial_state,deteriorate_after_min,arrest_rhythm,death_cause,symptoms_initial,symptoms_deteriorating
 pna-sepsis-01,MED,黃國強,72,M,FULL,發燒、咳嗽、氣促,pneumonia|sepsis,,,penicillin,cause.hypoxia|cause.hypovolaemia,COMPLEX,DETERIORATING,15,PULSELESS_ELECTRICAL_ACTIVITY,敗血性休克並發心臟停頓（肺部感染）,氣促|發冷|咳嗽有痰,感覺好轉|仍然有少許咳嗽
 cell-01,MED|SRG,張婆婆,79,F,FULL,右小腿紅腫疼痛,cellulitis,,,,,SIMPLE,STABILISING,300,,,小腿仍然紅同痛,小腿更痛|發冷
 cell-02,MED|SRG,何伯,81,M,FULL,左前臂紅腫發熱,cellulitis,,,penicillin,,SIMPLE,STABILISING,300,,,手臂有啲腫,手臂越嚟越痛|覺得熱

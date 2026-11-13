@@ -1,4 +1,4 @@
-drug_id,name,listed_name,chapter,class,dose_min,dose_max,dose_unit,routes,delta_sbp,delta_hr,delta_rr,delta_temp_c,sets_flags,status,note
+﻿drug_id,name,listed_name,chapter,class,dose_min,dose_max,dose_unit,routes,delta_sbp,delta_hr,delta_rr,delta_temp_c,sets_flags,status,note
 aluminium-magnesium-hydroxide-and-simethicone--dyspepsia-and-gastro-oesophageal-reflux-disease--general-drugs,Aluminium / magnesium hydroxide and simethicone,ALUMINIUM / MAGNESIUM HYDROXIDE AND SIMETHICONE,Gastro-intestinal,DYSPEPSIA AND GASTRO-OESOPHAGEAL REFLUX DISEASE,,,,,,,,,,,PENDING_CLINICAL_REVIEW
 aluminium-hydroxide--dyspepsia-and-gastro-oesophageal-reflux-disease--general-drugs,Aluminium hydroxide,ALUMINIUM HYDROXIDE,Gastro-intestinal,DYSPEPSIA AND GASTRO-OESOPHAGEAL REFLUX DISEASE,,,,,,,,,,,PENDING_CLINICAL_REVIEW
 charcoal-activated--dyspepsia-and-gastro-oesophageal-reflux-disease--general-drugs,Charcoal activated,CHARCOAL ACTIVATED,Gastro-intestinal,DYSPEPSIA AND GASTRO-OESOPHAGEAL REFLUX DISEASE,,,,,,,,,,,PENDING_CLINICAL_REVIEW

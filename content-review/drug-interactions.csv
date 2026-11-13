@@ -1,4 +1,4 @@
-drug_a,drug_b,severity,effect,action,source,status
+﻿drug_a,drug_b,severity,effect,action,source,status
 Warfarin,Aspirin,MAJOR,出血風險明顯上升,避免併用；必要時加胃保護,BNF Appendix 1,ACTIVE
 Simvastatin,Clarithromycin,CONTRAINDICATED,橫紋肌溶解風險,停 Simvastatin 或換抗生素,BNF Appendix 1,ACTIVE
 Morphine,Midazolam,MAJOR,呼吸抑制疊加,減量並密切監測呼吸,BNF Appendix 1,ACTIVE
