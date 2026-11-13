@@ -79,7 +79,7 @@ describe('神經與疼痛', () => {
     expect(onAssessGcs).toHaveBeenCalledTimes(1);
   });
 
-  it('評估掣用細按鈕，同「安排出院」同一套 btn-small', () => {
+  it('評估掣係重新整理圖示，名稱仍係評估疼痛等', () => {
     render(
       <NeuroStrip
         patient={patient}
@@ -89,8 +89,18 @@ describe('神經與疼痛', () => {
         onAssessNausea={vi.fn()}
       />,
     );
-    for (const id of ['assess-pain', 'assess-agitation', 'assess-nausea', 'assess-gcs']) {
-      expect(screen.getByTestId(id)).toHaveClass('btn', 'btn-small');
+    const labels: Record<string, string> = {
+      'assess-pain': '評估疼痛',
+      'assess-agitation': '評估煩躁',
+      'assess-nausea': '評估噁心',
+      'assess-gcs': '評估 GCS',
+    };
+    for (const [id, label] of Object.entries(labels)) {
+      const button = screen.getByTestId(id);
+      expect(button).toHaveClass('icon-btn', 'neuro-action');
+      expect(button).toHaveAttribute('aria-label', label);
+      expect(button.querySelector('svg')).not.toBeNull();
+      expect(button).not.toHaveTextContent(label);
     }
     expect(screen.getByTestId('neuro-gcs')).toContainElement(screen.getByTestId('assess-gcs'));
   });

@@ -431,20 +431,30 @@ describe('房間取代平面圖', () => {
     };
     render(<WardGame view={atBed} ward={ward()} actions={makeActions()} />);
     const diagram = screen.getByTestId('body-diagram');
+    expect(diagram).toHaveAttribute('data-record-open', 'false');
     await userEvent.click(screen.getByTestId('open-medical-record'));
     const record = screen.getByTestId('medical-record');
     const stage = diagram.querySelector('.body-diagram-stage');
     expect(stage).not.toBeNull();
+    expect(diagram).toHaveAttribute('data-record-open', 'true');
     expect(record.compareDocumentPosition(stage as Node) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
     );
     expect(getComputedStyle(record).position).not.toBe('absolute');
     expect(getComputedStyle(record).position).not.toBe('fixed');
+    expect(diagram).toContainElement(screen.getByTestId('neuro-strip'));
     expect(diagram).toContainElement(screen.getByTestId('body-iv'));
     expect(diagram).toContainElement(screen.getByTestId('body-io'));
+    expect(screen.getByTestId('neuro-strip')).toBeVisible();
+    expect(screen.getByTestId('body-iv')).toBeVisible();
+    expect(screen.getByTestId('body-io')).toBeVisible();
     expect(screen.getByTestId('body-iv')).toHaveTextContent('IV');
     expect(screen.getByTestId('body-io')).toHaveTextContent('IO');
     expect(screen.getByTestId('body-iv')).not.toHaveTextContent('IO');
+    await userEvent.click(screen.getByTestId('open-medical-record'));
+    expect(diagram).toHaveAttribute('data-record-open', 'false');
+    expect(screen.getByTestId('neuro-strip')).toBeVisible();
+    expect(screen.getByTestId('body-iv')).toBeVisible();
   });
 
   it('神經與疼痛喺身體圖欄，唔喺監察儀下面', () => {
