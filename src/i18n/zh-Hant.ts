@@ -215,6 +215,7 @@ export const ui = {
         search: '搜尋藥物',
         matches: '符合的藥物',
         drugClass: '類別 Class',
+        classFilter: '篩選 Class',
         everyClass: '全部類別',
         route: '途徑 Route',
         dose: '劑量 Dose',

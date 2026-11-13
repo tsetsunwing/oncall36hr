@@ -328,6 +328,22 @@ export function DrugOrderForm({
         </div>
       ) : (
         <>
+          {treatmentSearch ? (
+            <label className="drug-order-class-filter">
+              {t.classFilter}
+              <ChoiceSelect
+                testId="drug-order-class"
+                value={drugClass ?? ''}
+                blankLabel={t.everyClass}
+                options={treatmentClasses}
+                optionLabel={shortClassLabel}
+                onValue={(next) => {
+                  setDrugClass(next.length > 0 ? next : null);
+                  setListOpen(true);
+                }}
+              />
+            </label>
+          ) : null}
           <label className="drug-order-drug">
             {t.drug}
             <input
@@ -358,22 +374,6 @@ export function DrugOrderForm({
               }}
             />
           </label>
-          {treatmentSearch ? (
-            <label className="drug-order-field drug-order-class-filter">
-              {t.drugClass}
-              <ChoiceSelect
-                testId="drug-order-class"
-                value={drugClass ?? ''}
-                blankLabel={t.everyClass}
-                options={treatmentClasses}
-                optionLabel={shortClassLabel}
-                onValue={(next) => {
-                  setDrugClass(next.length > 0 ? next : null);
-                  setListOpen(true);
-                }}
-              />
-            </label>
-          ) : null}
           {suggestionsOpen ? (
             <ul
               id="drug-order-matches"
@@ -416,6 +416,30 @@ export function DrugOrderForm({
           <div
             className={infusion ? 'drug-order-pack drug-order-pack-infusion' : 'drug-order-pack'}
           >
+            <label className="drug-order-field">
+              {t.dose}
+              <input
+                type="text"
+                inputMode="decimal"
+                value={doseValue}
+                data-testid="drug-order-dose"
+                onChange={(event) => {
+                  setDoseValue(event.target.value);
+                }}
+              />
+            </label>
+            <label className="drug-order-field">
+              {t.unit}
+              <ChoiceSelect
+                testId="drug-order-unit"
+                value={doseUnit ?? ''}
+                blankLabel={t.emptyUnit}
+                options={DOSE_UNITS}
+                onValue={(next) => {
+                  setDoseUnit(next.length > 0 ? next : null);
+                }}
+              />
+            </label>
             <label className="drug-order-field">
               {t.route}
               <ChoiceSelect
@@ -568,33 +592,6 @@ export function DrugOrderForm({
                 ) : null}
               </>
             )}
-          </div>
-
-          <div className="drug-order-dose">
-            <label>
-              {t.dose}
-              <input
-                type="text"
-                inputMode="decimal"
-                value={doseValue}
-                data-testid="drug-order-dose"
-                onChange={(event) => {
-                  setDoseValue(event.target.value);
-                }}
-              />
-            </label>
-            <label>
-              {t.unit}
-              <ChoiceSelect
-                testId="drug-order-unit"
-                value={doseUnit ?? ''}
-                blankLabel={t.emptyUnit}
-                options={DOSE_UNITS}
-                onValue={(next) => {
-                  setDoseUnit(next.length > 0 ? next : null);
-                }}
-              />
-            </label>
           </div>
 
           <fieldset>

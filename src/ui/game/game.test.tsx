@@ -781,7 +781,12 @@ describe('ChatPanel', () => {
     expect(screen.getByTestId('drug-order-kind-drug')).toHaveFocus();
     expect(screen.getByTestId('drug-order-kind-ivf')).toHaveAttribute('aria-pressed', 'false');
     const name = screen.getByTestId('drug-order-name');
+    const classFilter = screen.getByTestId('drug-order-class');
     expect(name).toHaveValue('');
+    expect(screen.getByText(ui.game.chat.drugOrder.classFilter)).toBeInTheDocument();
+    expect(classFilter.compareDocumentPosition(name) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
     expect(screen.getByTestId('drug-order-route')).toHaveValue('');
     expect(screen.getByTestId('drug-order-dose')).toHaveValue('');
     expect(
@@ -807,7 +812,6 @@ describe('ChatPanel', () => {
     expect(within(list).queryByRole('option', { name: 'Ceftriaxone' })).not.toBeInTheDocument();
     expect(within(list).getByText('antibacterials')).toBeInTheDocument();
     expect(within(list).queryByText('ANTIBACTERIAL DRUGS')).not.toBeInTheDocument();
-    const classFilter = screen.getByTestId('drug-order-class');
     expect(classFilter).toHaveValue('');
     expect(screen.getByTestId('drug-order-class-face')).toHaveTextContent('全部類別');
     expect(within(classFilter).getByRole('option', { name: 'antibacterials' })).toHaveValue(
@@ -936,6 +940,43 @@ describe('ChatPanel', () => {
       prnReason: 'Fever',
       prnCondition: { metric: 'TEMPERATURE', comparison: '>=', threshold: 38 },
     });
+  });
+
+  it('治療藥表類別篩選在藥名之前，揀了類別就列出該類', async () => {
+    const user = userEvent.setup();
+    render(
+      <DrugOrderForm
+        drugId=""
+        treatmentSearch
+        medications={[
+          {
+            id: 'amoxicillin',
+            label: 'Amoxicillin',
+            stem: 'amoxicillin',
+            catalogId: '',
+            classes: ['ANTIBACTERIAL DRUGS'],
+          },
+          {
+            id: 'hyoscine',
+            label: 'Hyoscine',
+            stem: 'hyoscine',
+            catalogId: '',
+            classes: ['GENERAL ANAESTHESIA'],
+          },
+        ]}
+        onSubmit={() => undefined}
+        onClose={() => undefined}
+      />,
+    );
+    const name = screen.getByTestId('drug-order-name');
+    const classFilter = screen.getByTestId('drug-order-class');
+    expect(screen.getByText(ui.game.chat.drugOrder.classFilter)).toBeInTheDocument();
+    expect(classFilter.compareDocumentPosition(name) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+    await user.selectOptions(classFilter, 'ANTIBACTERIAL DRUGS');
+    expect(screen.getByRole('option', { name: /^Amoxicillin/ })).toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: /Hyoscine/ })).not.toBeInTheDocument();
   });
 
   it('搶救藥物表不顯示類別徽章或篩選', async () => {
