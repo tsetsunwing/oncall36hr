@@ -20,7 +20,22 @@ export const roundTopicSchema = z
     diagnosisId: id,
     category: z.enum(ROUND_CATEGORIES),
     focus: z.string().min(1),
-    keyFacts: z.array(z.object({ id, text: z.string().min(1) }).strict()).min(2),
+    keyFacts: z
+      .array(
+        z
+          .object({
+            id,
+            text: z.string().min(1),
+            /** 可選：評分關鍵字。全部 keyFacts 都有 keywords 時，評分唔使 AI（關鍵字比對） */
+            keywords: z.array(z.string().min(1)).optional(),
+          })
+          .strict(),
+      )
+      .min(2),
+    /** 可選：預寫題目。有 question 就出題唔使 AI */
+    question: z.string().min(1).optional(),
+    /** 可選：預寫提示（配合 question 用） */
+    hints: z.array(z.string().min(1)).optional(),
     reviewStatus,
     note: z.string(),
   })

@@ -139,6 +139,31 @@ function beginQuestion(state: GameState, ctx: EngineContext, cursor: number): Re
       const topic = pool[draw.value] ?? pool[0];
       if (!topic) break;
       const withRng: GameState = { ...state, rng: draw.rng };
+      // 內容已預寫題目：唔使 AI 出題，直接入 ASKING
+      if (topic.question !== undefined) {
+        const current: RoundCurrent = {
+          patientId,
+          topicId: topic.id,
+          phase: 'ASKING',
+          requestId: null,
+          question: topic.question,
+          hints: topic.hints === undefined ? [] : [...topic.hints],
+          askedAt: state.clock.t,
+          answer: null,
+          viaHint: false,
+          verdict: null,
+          matchedKeyFacts: [],
+          seniorLine: null,
+        };
+        return {
+          state: schedule(
+            setActive(withRng, { ...active, cursor: index, current }),
+            state.clock.t + ctx.config.rounds.questionSeconds,
+            { number: active.number, cursor: index, phase: 'ASKING' },
+          ),
+          effects: [],
+        };
+      }
       const request = requestAi(withRng, ROUNDS_QUESTION_KIND, {
         prompt: {
           hostRank: ctx.config.rounds.hostRank,
@@ -350,6 +375,21 @@ export function answerRound(
   const topic = topicById(ctx, current.topicId);
   if (!topic) return reject(state, 'ROUND_ANSWER_INVALID');
   const viaHint = raw.viaHint === true && selectedHints(text, current.hints);
+  // 內容已提供全部關鍵字：本地評分，唔使 AI。比對大小寫不敏感。
+  if (topic.keyFacts.every((f) => (f.keywords?.length ?? 0) > 0)) {
+    const matched = topic.keyFacts
+      .filter((f) =>
+        (f.keywords ?? []).some((keyword) => text.toLowerCase().includes(keyword.toLowerCase())),
+      )
+      .map((f) => f.id);
+    const verdict: RoundVerdict =
+      matched.length === topic.keyFacts.length
+        ? 'CORRECT'
+        : matched.length > 0
+          ? 'PARTIAL'
+          : 'WRONG';
+    return reveal(state, ctx, verdict, { matchedKeyFacts: matched, seniorLine: null });
+  }
   const request = requestAi(state, ROUNDS_GRADE_KIND, {
     prompt: {
       hostRank: ctx.config.rounds.hostRank,

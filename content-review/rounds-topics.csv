@@ -1,0 +1,34 @@
+id,diagnosis_id,category,focus,question,hints,fact1_text,fact1_keywords,fact2_text,fact2_keywords,fact3_text,fact3_keywords,review_status,note
+pneumonia-history,pneumonia,HISTORY,肺炎病人的病史重點：症狀、風險因素和過往病史,呢位肺炎病人，你會問啲咩病史？點解？,發燒咳嗽有痰|長者可能只見神志混亂|吸煙同慢性肺病史,典型症狀包括發燒、咳嗽、有痰和氣促，部分病人有胸膜炎性胸痛,發燒|咳嗽|有痰|氣促|胸痛,長者可能只表現為神志混亂或食慾下降，不一定發燒,神志混亂|混亂|食慾|長者,要問吸煙史、慢性肺病、免疫力低下，以及近期入院或使用抗生素,吸煙|慢性肺病|免疫力|抗生素|入院,PENDING_CLINICAL_REVIEW,示意內容，教學用途；待臨床審核
+pneumonia-pathology,pneumonia,PATHOLOGY,肺炎的病理機制,,,病原體進入肺泡後引起炎症反應，肺泡內充滿滲出液,,肺泡積液令氣體交換受損，導致缺氧,,細菌性社區肺炎最常見的致病菌是肺炎鏈球菌,,PENDING_CLINICAL_REVIEW,示意內容，教學用途；待臨床審核
+pneumonia-pharmacology,pneumonia,PHARMACOLOGY,肺炎抗生素的選擇原則,,,經驗性抗生素按社區或醫院獲得性、嚴重程度和當地耐藥情況選擇,,用藥前要先確認病人有沒有青黴素過敏,,盡早給予首劑抗生素，並按培養結果和臨床反應調整,,PENDING_CLINICAL_REVIEW,示意內容，教學用途；待臨床審核
+sepsis-history,sepsis,HISTORY,敗血症病人的病史重點,,,要追查感染源，例如呼吸道、泌尿道、皮膚軟組織和腹腔,,了解免疫力低下因素，例如糖尿病、化療或長期使用類固醇,,詢問近期手術、導管或入院史,,PENDING_CLINICAL_REVIEW,示意內容，教學用途；待臨床審核
+sepsis-pathology,sepsis,PATHOLOGY,敗血症的病理機制,敗血症點解會令血壓跌？講下個機制。,宿主對感染嘅失調反應|血管擴張同滲漏|組織灌注不足,敗血症是宿主對感染的失調反應，引致器官功能障礙,失調反應|器官功能障礙|宿主,血管擴張和毛細血管滲漏導致低血壓和組織灌注不足,血管擴張|滲漏|低血壓|灌注,乳酸升高反映組織缺氧和灌注不足,乳酸|缺氧|灌注,PENDING_CLINICAL_REVIEW,示意內容，教學用途；待臨床審核
+sepsis-pharmacology,sepsis,PHARMACOLOGY,敗血症的藥物處理,,,確診或高度懷疑後應盡早給予廣譜靜脈抗生素,,應先抽血培養再用抗生素，但不應因此嚴重延誤給藥,,低血壓先用晶體液補充容量，仍然低血壓才加血管收縮藥，例如 noradrenaline,,PENDING_CLINICAL_REVIEW,示意內容，教學用途；待臨床審核
+cellulitis-history,cellulitis,HISTORY,蜂窩組織炎的病史重點,,,了解受感染部位出現了多久，紅腫熱痛有沒有擴散,,追問皮膚破損、昆蟲咬傷、足癬或水腫等誘因,,糖尿病、周邊血管病和免疫力低下是風險因素,,PENDING_CLINICAL_REVIEW,示意內容，教學用途；待臨床審核
+cellulitis-pathology,cellulitis,PATHOLOGY,蜂窩組織炎的病理機制,,,蜂窩組織炎是真皮深層和皮下組織的細菌感染,,最常見致病菌是鏈球菌和金黃色葡萄球菌,,炎症令局部血管擴張和通透性增加，出現紅腫熱痛,,PENDING_CLINICAL_REVIEW,示意內容，教學用途；待臨床審核
+cellulitis-pharmacology,cellulitis,PHARMACOLOGY,蜂窩組織炎的抗生素選擇,,,非化膿性蜂窩組織炎首選針對鏈球菌的抗生素，例如 penicillin 類或 cloxacillin,,對青黴素過敏要改用其他類別，按醫院指引選擇,,嚴重或有全身症狀的感染需要靜脈給藥，並抬高患肢輔助消腫,,PENDING_CLINICAL_REVIEW,示意內容，教學用途；待臨床審核
+uti-history,uti,HISTORY,尿路感染的病史重點,,,典型症狀是小便痛、頻尿、急尿和下腹痛,,要問有沒有發燒、腰痛或嘔吐，以分辨有沒有上尿路感染,,了解糖尿病、導尿管、尿路結石和過往尿路感染,,PENDING_CLINICAL_REVIEW,示意內容，教學用途；待臨床審核
+uti-pathology,uti,PATHOLOGY,尿路感染的病理機制,,,尿路感染多數由腸道細菌經尿道上行引起，最常見是大腸桿菌,,女性尿道較短，所以較易感染,,感染上行至腎盂會引致腎盂腎炎，有機會導致敗血症,,PENDING_CLINICAL_REVIEW,示意內容，教學用途；待臨床審核
+uti-pharmacology,uti,PHARMACOLOGY,尿路感染的抗生素選擇,開抗生素之前，你要考慮啲咩同埋做啲咩？,嚴重程度同過敏史|先留尿液培養|留意腎功能,抗生素按嚴重程度、過敏史和當地耐藥情況選擇,嚴重程度|過敏|耐藥,使用抗生素前先留尿液培養,尿液培養|留種|培養,要留意腎功能，必要時調整藥物劑量,腎功能|劑量|調整,PENDING_CLINICAL_REVIEW,示意內容，教學用途；待臨床審核
+copd-history,copd,HISTORY,慢性阻塞性肺病的病史重點,,,最重要的風險因素是長期吸煙,,慢性咳嗽、有痰和活動時氣促是典型症狀,,了解急性加重次數、吸入劑使用和家中氧氣使用,,PENDING_CLINICAL_REVIEW,示意內容，教學用途；待臨床審核
+copd-pathology,copd,PATHOLOGY,慢性阻塞性肺病的病理機制,,,慢性阻塞性肺病是氣道氣流受阻而且不完全可逆的疾病,,包括慢性支氣管炎和肺氣腫,,急性加重多數由感染誘發，令氣道炎症和痰液增加,,PENDING_CLINICAL_REVIEW,示意內容，教學用途；待臨床審核
+copd-pharmacology,copd,PHARMACOLOGY,慢性阻塞性肺病急性加重的藥物處理,,,急性發作用短效支氣管擴張劑，例如 salbutamol,,全身性類固醇可縮短急性加重的復原時間,,給氧要控制目標血氧飽和度，避免過量氧氣引致二氧化碳瀦留,,PENDING_CLINICAL_REVIEW,示意內容，教學用途；待臨床審核
+hypertension-history,hypertension,HISTORY,高血壓的病史重點,,,了解高血壓病程、家族史、現有降壓藥物和服藥依從性,,詢問頭痛、視力模糊、胸痛等靶器官受損症狀,,了解鹽份攝入、飲酒、吸煙和其他心血管風險因素,,PENDING_CLINICAL_REVIEW,示意內容，教學用途；待臨床審核
+hypertension-pathology,hypertension,PATHOLOGY,高血壓的病理影響,,,長期高血壓令血管壁受壓，加速動脈硬化,,靶器官包括心、腦、腎和眼底,,血壓長期偏高會增加中風、心臟衰竭和腎衰竭的風險,,PENDING_CLINICAL_REVIEW,示意內容，教學用途；待臨床審核
+hypertension-pharmacology,hypertension,PHARMACOLOGY,降壓藥物,,,常用降壓藥包括 ACE inhibitor、ARB、calcium channel blocker、thiazide 和 beta blocker,,ACE inhibitor 常見副作用是乾咳，需要監察血鉀和腎功能,,選藥要按合併症和禁忌症，例如懷孕不可以用 ACE inhibitor,,PENDING_CLINICAL_REVIEW,示意內容，教學用途；待臨床審核
+heart-failure-history,heart-failure,HISTORY,心臟衰竭的病史重點,,,典型症狀是氣促、夜間陣發性呼吸困難、要墊高枕頭睡覺和雙腳水腫,,了解誘因，例如心肌缺血、心律不正、停藥或感染,,了解水分和鹽份攝入，以及體重變化,,PENDING_CLINICAL_REVIEW,示意內容，教學用途；待臨床審核
+heart-failure-pathology,heart-failure,PATHOLOGY,心臟衰竭的病理機制,,,心臟泵血功能下降，令心輸出量不足和血液回流積聚,,左心衰竭引致肺水腫，右心衰竭引致周邊水腫,,身體代償機制，例如腎素血管緊張素系統活化，長遠會加重心臟衰竭,,PENDING_CLINICAL_REVIEW,示意內容，教學用途；待臨床審核
+heart-failure-pharmacology,heart-failure,PHARMACOLOGY,心臟衰竭的藥物處理,,,急性肺水腫用 furosemide 等利尿劑減輕容量負荷,,長期藥物包括 ACE inhibitor 或 ARB、beta blocker 和 MRA,,使用利尿劑要監察電解質和腎功能,,PENDING_CLINICAL_REVIEW,示意內容，教學用途；待臨床審核
+gi-bleed-history,gi-bleed,HISTORY,上消化道出血的病史重點,,,了解黑便、嘔血或咖啡渣樣嘔吐物的出現時間和份量,,詢問 NSAID、aspirin、抗凝血藥、飲酒，以及消化性潰瘍或肝病病史,,留意頭暈、暈厥等低血容症狀,,PENDING_CLINICAL_REVIEW,示意內容，教學用途；待臨床審核
+gi-bleed-pathology,gi-bleed,PATHOLOGY,上消化道出血的病理,,,上消化道出血常見原因包括消化性潰瘍、靜脈曲張和糜爛性胃炎,,失血令血容量下降，可導致低血壓和休克,,幽門螺旋桿菌和 NSAID 是潰瘍的主要成因,,PENDING_CLINICAL_REVIEW,示意內容，教學用途；待臨床審核
+gi-bleed-pharmacology,gi-bleed,PHARMACOLOGY,上消化道出血的藥物處理,,,靜脈注射 proton pump inhibitor 用於抑制胃酸、穩定血塊,,要停用或調整 NSAID、抗血小板藥和抗凝血藥,,懷疑靜脈曲張出血會使用 terlipressin 或 octreotide，並預防性使用抗生素,,PENDING_CLINICAL_REVIEW,示意內容，教學用途；待臨床審核
+pe-history,pe,HISTORY,肺栓塞的病史重點,,,典型症狀是突發氣促和胸膜炎性胸痛，部分病人有咳血,,了解深靜脈血栓風險：近期手術、長期臥床、癌症、長途飛行和避孕藥,,詢問單邊腳腫痛和過往血栓病史,,PENDING_CLINICAL_REVIEW,示意內容，教學用途；待臨床審核
+pe-pathology,pe,PATHOLOGY,肺栓塞的病理機制,,,血栓（多數來自下肢深靜脈）隨血流堵塞肺動脈,,通氣灌注不匹配導致缺氧,,大面積栓塞令右心壓力增加，可以引致右心衰竭和休克,,PENDING_CLINICAL_REVIEW,示意內容，教學用途；待臨床審核
+pe-pharmacology,pe,PHARMACOLOGY,肺栓塞的藥物處理,,,確診或高度懷疑後盡早給予抗凝血藥，例如 LMWH 或 DOAC,,血流動力學不穩定的大面積栓塞可以考慮溶栓治療,,使用抗凝血藥前要評估出血風險和腎功能,,PENDING_CLINICAL_REVIEW,示意內容，教學用途；待臨床審核
+acs-history,acs,HISTORY,急性冠狀動脈綜合症的病史重點,,,典型症狀是壓迫性胸痛，可放射至左臂或下頷，伴隨冷汗和噁心,,了解風險因素：高血壓、糖尿病、高血脂、吸煙和家族史,,追問症狀開始時間，以及有沒有過往心臟病或介入治療,,PENDING_CLINICAL_REVIEW,示意內容，教學用途；待臨床審核
+acs-pathology,acs,PATHOLOGY,急性冠狀動脈綜合症的病理機制,,,動脈粥樣硬化斑塊破裂，引發血小板聚集和血栓形成,,冠狀動脈阻塞令心肌缺血，嚴重或持續會導致心肌壞死,,STEMI 代表冠狀動脈完全阻塞，心電圖出現 ST 段上升,,PENDING_CLINICAL_REVIEW,示意內容，教學用途；待臨床審核
+acs-pharmacology,acs,PHARMACOLOGY,急性冠狀動脈綜合症的抗血小板藥物,,,雙重抗血小板治療包括 aspirin 加 ADP 受體抑制劑，例如 clopidogrel 或 ticagrelor,,ADP 受體抑制劑阻止血小板聚集,,使用前要評估出血風險和過敏史,,PENDING_CLINICAL_REVIEW,示意內容，教學用途；待臨床審核
+end-stage-malignancy-history,end-stage-malignancy,HISTORY,末期惡性腫瘤的病史重點,,,了解原發腫瘤、擴散部位和已接受的治療,,了解病人和家屬對病情的認知和治療目標，包括 DNR 意願,,評估症狀負擔，例如痛楚、氣促、噁心和食慾,,PENDING_CLINICAL_REVIEW,示意內容，教學用途；待臨床審核
+end-stage-malignancy-pathology,end-stage-malignancy,PATHOLOGY,末期惡性腫瘤的病理特徵,,,惡性腫瘤細胞不受控制地增生，並可以經血液或淋巴擴散,,晚期病人常有惡病質，包括體重下降和肌肉流失,,腫瘤可引致高鈣血症、骨轉移痛楚或器官功能衰竭,,PENDING_CLINICAL_REVIEW,示意內容，教學用途；待臨床審核
+end-stage-malignancy-pharmacology,end-stage-malignancy,PHARMACOLOGY,末期惡性腫瘤的症狀控制,,,痛楚按階梯式止痛原則處理，嚴重痛楚可以用嗎啡等 opioid,,使用 opioid 要同時預防便秘，並監察呼吸和鎮靜程度,,安寧緩和照顧以舒適為先，按症狀調整藥物和劑量,,PENDING_CLINICAL_REVIEW,示意內容，教學用途；待臨床審核

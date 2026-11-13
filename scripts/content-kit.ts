@@ -150,12 +150,6 @@ function writeJson(path: string, value: unknown): void {
   writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`, 'utf8');
 }
 
-/** UTF-8 連 BOM，Excel 直接開中文唔會變亂碼。parseTable 會去掉 BOM。 */
-function writeCsvFile(path: string, text: string): void {
-  const body = text.startsWith('\uFEFF') ? text : `\uFEFF${text}`;
-  writeFileSync(path, body, 'utf8');
-}
-
 function quote(value: string): string {
   return /[",\n]/u.test(value) ? `"${value.replace(/"/gu, '""')}"` : value;
 }
@@ -219,7 +213,7 @@ function drugsExport(): void {
     };
   });
   ensureDir();
-  writeCsvFile(DRUG_CSV, toCsv(DRUG_COLUMNS, rows));
+  writeFileSync(DRUG_CSV, toCsv(DRUG_COLUMNS, rows), 'utf8');
   const unmatched = rows.filter((row) => row.class === '').length;
   console.log(`✅ ${DRUG_CSV}：${String(rows.length)} 隻藥（${String(unmatched)} 隻對不到分類）`);
 }
@@ -329,7 +323,7 @@ function casesExport(): void {
     };
   });
   ensureDir();
-  writeCsvFile(CASE_CSV, toCsv(CASE_COLUMNS, rows));
+  writeFileSync(CASE_CSV, toCsv(CASE_COLUMNS, rows), 'utf8');
   console.log(`✅ ${CASE_CSV}：${String(rows.length)} 個現有病例（可照格式加行）`);
 }
 
@@ -446,12 +440,103 @@ function casesImport(): void {
   console.log('👉 記得跑 npx prettier --write src/content/data 同 npm run content:validate');
 }
 
+/** 巡房題：question／hints／keywords 齊晒就唔使 AI；空白欄＝返返 AI 後備。 */
+const ROUNDS_CSV = join(DIR, 'rounds-topics.csv');
+const ROUNDS_COLUMNS = [
+  'id',
+  'diagnosis_id',
+  'category',
+  'focus',
+  'question',
+  'hints',
+  'fact1_text',
+  'fact1_keywords',
+  'fact2_text',
+  'fact2_keywords',
+  'fact3_text',
+  'fact3_keywords',
+  'review_status',
+  'note',
+] as const;
+
+function roundsExport(): void {
+  const topics = JSON.parse(readFileSync(join(DATA, 'rounds-topics.json'), 'utf8')) as Record<
+    string,
+    unknown
+  >[];
+  const rows: Row[] = topics.map((topic) => {
+    // keyFacts 係物件陣列，唔可以用 list()（佢會將物件過濾走）
+    const facts = (Array.isArray(topic.keyFacts) ? topic.keyFacts : []) as Record<
+      string,
+      unknown
+    >[];
+    return {
+      id: text(topic.id),
+      diagnosis_id: text(topic.diagnosisId),
+      category: text(topic.category),
+      focus: text(topic.focus),
+      question: text(topic.question),
+      hints: (list(topic.hints) as unknown[]).map((h) => text(h)).join('|'),
+      fact1_text: text(facts[0]?.text),
+      fact1_keywords: (list(facts[0]?.keywords) as unknown[]).map((k) => text(k)).join('|'),
+      fact2_text: text(facts[1]?.text),
+      fact2_keywords: (list(facts[1]?.keywords) as unknown[]).map((k) => text(k)).join('|'),
+      fact3_text: text(facts[2]?.text),
+      fact3_keywords: (list(facts[2]?.keywords) as unknown[]).map((k) => text(k)).join('|'),
+      review_status: text(topic.reviewStatus),
+      note: text(topic.note),
+    };
+  });
+  ensureDir();
+  writeFileSync(ROUNDS_CSV, toCsv(ROUNDS_COLUMNS, rows), 'utf8');
+  console.log(
+    `✅ ${ROUNDS_CSV}：${String(rows.length)} 題（填 question／hints／keywords 就唔使 AI）`,
+  );
+}
+
+function roundsImport(): void {
+  const path = join(DATA, 'rounds-topics.json');
+  if (!existsSync(ROUNDS_CSV)) throw new Error(`找唔到 ${ROUNDS_CSV}，先跑 rounds:export`);
+  const topics = JSON.parse(readFileSync(path, 'utf8')) as Record<string, unknown>[];
+  const rows = parseTable(readFileSync(ROUNDS_CSV, 'utf8'));
+  const byId = new Map(rows.map((row) => [text(row.id), row]));
+  let updated = 0;
+  const next = topics.map((topic) => {
+    const row = byId.get(text(topic.id));
+    if (!row) return topic;
+    updated += 1;
+    const facts = (Array.isArray(topic.keyFacts) ? topic.keyFacts : []) as Record<
+      string,
+      unknown
+    >[];
+    const keyFacts = facts.map((fact, index) => {
+      // 現有 33 題全部 3 個要點；多過 3 個嘅題目用返原本 keywords
+      const keywords = splitList(row[`fact${String(index + 1)}_keywords`]);
+      const base = { id: text(fact.id), text: text(fact.text) };
+      return keywords.length > 0 ? { ...base, keywords } : base;
+    });
+    const question = text(row.question).trim();
+    const hints = splitList(row.hints);
+    return {
+      ...topic,
+      keyFacts,
+      ...(question !== '' ? { question } : {}),
+      ...(hints.length > 0 ? { hints } : {}),
+    };
+  });
+  writeFileSync(path, `${JSON.stringify(next, null, 2)}\n`, 'utf8');
+  console.log(`✅ ${path}：更新 ${String(updated)} 題`);
+  console.log('👉 記得跑 npx prettier --write src/content/data 同 npm run content:validate');
+}
+
 const command = process.argv[2] ?? '';
 const commands: Record<string, () => void> = {
   'drugs:export': drugsExport,
   'drugs:import': drugsImport,
   'cases:export': casesExport,
   'cases:import': casesImport,
+  'rounds:export': roundsExport,
+  'rounds:import': roundsImport,
 };
 
 const run = commands[command];

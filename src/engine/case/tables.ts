@@ -605,7 +605,16 @@ export interface RoundTopicRow {
   diagnosisId: string;
   category: RoundCategory;
   focus: string;
-  keyFacts: readonly { id: string; text: string }[];
+  keyFacts: readonly {
+    id: string;
+    text: string;
+    /** 可選：評分關鍵字；全部要點都有 keywords 時，巡房評分唔使 AI */
+    keywords?: readonly string[] | undefined;
+  }[];
+  /** 可選：預寫題目；有 question 就出題唔使 AI */
+  question?: string | undefined;
+  /** 可選：預寫提示（配合 question 用） */
+  hints?: readonly string[] | undefined;
 }
 
 export interface EnergyModelRow {

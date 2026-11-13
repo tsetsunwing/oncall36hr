@@ -145,7 +145,11 @@ describe('巡房（§8）', () => {
   });
 
   it('AI 評分只可以引用 T25 key facts：虛構 id 被拒（AI 失敗暫停），空命中降為答錯', () => {
-    const engine = kitEngine(noEnergy);
+    // 呢個測試專門測 AI 把關，所以用返冇預寫題目／關鍵字嘅題目池（有 keywords 嘅會本地評分）
+    const engine = kitEngine({
+      ...noEnergy,
+      'rounds-topics': fullTables()['rounds-topics'].filter((t) => t.question === undefined),
+    });
     let state = engine.init(kitParams('round-guard', 'DAY', { ward: false }));
     state = drive(engine, state, 1 * H + 5).state;
     state = answerRoundAi(engine, feed(engine, state, [shiftAct('ROUND_BEGIN')])).state;
