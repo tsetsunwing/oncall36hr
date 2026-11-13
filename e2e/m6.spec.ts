@@ -82,7 +82,8 @@ test.describe('M6 setup, rounds, energy, overtime and endings', () => {
     );
     await expect(page.getByTestId('mode-badge')).toHaveText(ui.shift.mode.DAY ?? '');
     await fastForward(page);
-    await expect(page.getByTestId('begin-round')).toBeVisible({ timeout: 60_000 });
+    await keepNeedsDownUntil(page, 'begin-round', 60_000);
+    await expect(page.getByTestId('begin-round')).toBeVisible();
     await page.getByTestId('begin-round').click();
     await expect(page.getByTestId('round-dialog')).toBeVisible({ timeout: 60_000 });
     await expect(page.getByTestId('round-panel')).toBeVisible({ timeout: 60_000 });

@@ -21,19 +21,25 @@ export async function keepNeedsDownUntil(page: Page, testId: string, timeout: nu
   const deadline = Date.now() + timeout;
   while (Date.now() < deadline) {
     if ((await page.getByTestId(testId).count()) > 0) return;
+    if ((await page.getByTestId('result-page').count()) > 0) return;
     if ((await page.getByTestId('selfcare-active').count()) > 0) {
       await page.waitForTimeout(200);
       continue;
     }
-    const fatigue = Number(
-      (await page.getByTestId('need-fatigue').getAttribute('aria-valuenow')) ?? '0',
-    );
-    const hunger = Number(
-      (await page.getByTestId('need-hunger').getAttribute('aria-valuenow')) ?? '0',
-    );
-    const bladder = Number(
-      (await page.getByTestId('need-bladder').getAttribute('aria-valuenow')) ?? '0',
-    );
+    const fatigueMeter = page.getByTestId('need-fatigue');
+    const hungerMeter = page.getByTestId('need-hunger');
+    const bladderMeter = page.getByTestId('need-bladder');
+    if (
+      (await fatigueMeter.count()) === 0 ||
+      (await hungerMeter.count()) === 0 ||
+      (await bladderMeter.count()) === 0
+    ) {
+      await page.waitForTimeout(200);
+      continue;
+    }
+    const fatigue = Number((await fatigueMeter.getAttribute('aria-valuenow')) ?? '0');
+    const hunger = Number((await hungerMeter.getAttribute('aria-valuenow')) ?? '0');
+    const bladder = Number((await bladderMeter.getAttribute('aria-valuenow')) ?? '0');
     const target = targetFor(fatigue, hunger, bladder);
     const action = page.getByTestId(target.action);
     if ((await action.isVisible()) && (await action.isEnabled())) {
