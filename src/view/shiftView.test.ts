@@ -198,7 +198,10 @@ describe('更次 ViewModel', () => {
     expect(handover?.candidates.length).toBeGreaterThan(0);
     expect(JSON.stringify(handover).toLowerCase()).not.toContain('needed');
     const first = handover?.candidates[0];
-    state = otEngine.reduce(state, intent('HANDOVER_TOGGLE', { patientId: first?.patientId })).state;
+    state = otEngine.reduce(
+      state,
+      intent('HANDOVER_TOGGLE', { patientId: first?.patientId }),
+    ).state;
     expect(selectGameView(state, env).shift.handover?.candidates[0]?.selected).toBe(true);
 
     state = otEngine.reduce(state, intent('HANDOVER_CONFIRM')).state;
