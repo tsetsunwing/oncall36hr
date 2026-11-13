@@ -432,13 +432,7 @@
   justify-content: center;
   min-height: 28px;
   color: var(--lc-muted);
-  background: repeating-linear-gradient(
-    90deg,
-    #e8eef0,
-    #e8eef0 12px,
-    #f4f7f8 12px,
-    #f4f7f8 24px
-  );
+  background: repeating-linear-gradient(90deg, #e8eef0, #e8eef0 12px, #f4f7f8 12px, #f4f7f8 24px);
   border-radius: 6px;
   font-size: 0.7rem;
   letter-spacing: 0.3em;

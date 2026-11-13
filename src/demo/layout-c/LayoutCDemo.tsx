@@ -418,13 +418,7 @@ function FloorScreen({ onBed, onAnswer }: { onBed: () => void; onAnswer: () => v
   );
 }
 
-function BedTile({
-  bed,
-  onBed,
-}: {
-  bed: (typeof DEMO_BEDS)[number];
-  onBed: () => void;
-}) {
+function BedTile({ bed, onBed }: { bed: (typeof DEMO_BEDS)[number]; onBed: () => void }) {
   return (
     <button
       type="button"
@@ -500,7 +494,12 @@ function BedsideScreen({
             <div className="lc-monitor-brand">
               <Activity size={12} aria-hidden="true" /> MONITOR
             </div>
-            <svg className="lc-wave-svg" viewBox="0 0 320 56" preserveAspectRatio="none" aria-hidden="true">
+            <svg
+              className="lc-wave-svg"
+              viewBox="0 0 320 56"
+              preserveAspectRatio="none"
+              aria-hidden="true"
+            >
               <polyline
                 fill="none"
                 stroke="#2ee6a0"
@@ -608,7 +607,9 @@ function BedsideScreen({
             ))}
           </div>
         </div>
-        {chip ? <p className="lc-chip-note">（DEMO）已預留「{chip}」選單位置，尚未接真 order。</p> : null}
+        {chip ? (
+          <p className="lc-chip-note">（DEMO）已預留「{chip}」選單位置，尚未接真 order。</p>
+        ) : null}
       </div>
     </section>
   );
@@ -662,7 +663,12 @@ function LandmarkScreen({
             {toast}
           </p>
         ) : null}
-        <button type="button" className="lc-btn lc-btn-primary" data-testid="lc-back-ward" onClick={onBack}>
+        <button
+          type="button"
+          className="lc-btn lc-btn-primary"
+          data-testid="lc-back-ward"
+          onClick={onBack}
+        >
           病房
         </button>
       </div>
@@ -688,7 +694,12 @@ function PhoneDrawer({
             <Phone size={16} strokeWidth={2} aria-hidden="true" />
             電話
           </h2>
-          <button type="button" className="lc-icon-close" data-testid="lc-close-phone" onClick={onClose}>
+          <button
+            type="button"
+            className="lc-icon-close"
+            data-testid="lc-close-phone"
+            onClick={onClose}
+          >
             <X size={16} strokeWidth={2} aria-hidden="true" />
             <span className="visually-hidden">關閉</span>
           </button>
