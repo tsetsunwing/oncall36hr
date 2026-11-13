@@ -1,10 +1,33 @@
+import { RefreshCw } from 'lucide-react';
 import { ui } from '@/i18n';
 import type { PatientView, PupilView } from '@/view';
+import { IconButton } from '../IconButton';
 
 /**
  * 神經與疼痛：GCS（E/V/M）、瞳孔、疼痛分數。
  * 放喺身體圖欄，唔放心臟監察儀。數字全部來自 engine 狀態；AI 唔會寫入。
  */
+
+function AssessButton({
+  testId,
+  label,
+  onClick,
+}: {
+  testId: string;
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <IconButton
+      icon={RefreshCw}
+      label={label}
+      className="neuro-action"
+      data-testid={testId}
+      onClick={onClick}
+    />
+  );
+}
+
 export interface NeuroStripProps {
   patient: PatientView;
   /** 評估 GCS。只讀當下清醒程度；唔會自己變。 */
@@ -58,14 +81,7 @@ export function NeuroStrip({
           </span>
         )}
         {onAssessPain ? (
-          <button
-            type="button"
-            className="btn btn-small neuro-action"
-            data-testid="assess-pain"
-            onClick={onAssessPain}
-          >
-            {n.assessPain}
-          </button>
+          <AssessButton testId="assess-pain" label={n.assessPain} onClick={onAssessPain} />
         ) : null}
       </div>
       <div className="neuro-item" data-testid="neuro-agitation">
@@ -79,14 +95,11 @@ export function NeuroStrip({
           </span>
         )}
         {onAssessAgitation ? (
-          <button
-            type="button"
-            className="btn btn-small neuro-action"
-            data-testid="assess-agitation"
+          <AssessButton
+            testId="assess-agitation"
+            label={n.assessAgitation}
             onClick={onAssessAgitation}
-          >
-            {n.assessAgitation}
-          </button>
+          />
         ) : null}
       </div>
       <div className="neuro-item" data-testid="neuro-nausea">
@@ -100,14 +113,7 @@ export function NeuroStrip({
           </span>
         )}
         {onAssessNausea ? (
-          <button
-            type="button"
-            className="btn btn-small neuro-action"
-            data-testid="assess-nausea"
-            onClick={onAssessNausea}
-          >
-            {n.assessNausea}
-          </button>
+          <AssessButton testId="assess-nausea" label={n.assessNausea} onClick={onAssessNausea} />
         ) : null}
       </div>
       <div className="neuro-item" data-testid="neuro-gcs">
@@ -120,14 +126,7 @@ export function NeuroStrip({
           {gcs.m}
         </span>
         {onAssessGcs ? (
-          <button
-            type="button"
-            className="btn btn-small neuro-action"
-            data-testid="assess-gcs"
-            onClick={onAssessGcs}
-          >
-            {n.assessGcs}
-          </button>
+          <AssessButton testId="assess-gcs" label={n.assessGcs} onClick={onAssessGcs} />
         ) : null}
       </div>
       <div className="neuro-item neuro-item-pupils" data-testid="neuro-pupils">

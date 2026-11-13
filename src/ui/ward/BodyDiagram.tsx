@@ -29,6 +29,7 @@ export function BodyDiagram({
       className="body-diagram"
       aria-labelledby="body-diagram-heading"
       data-testid="body-diagram"
+      data-record-open={recordOpen ? 'true' : 'false'}
     >
       <h2 id="body-diagram-heading" aria-labelledby="body-diagram-heading-text">
         <PersonStanding className="heading-icon" size={16} strokeWidth={2} aria-hidden="true" />
@@ -251,6 +252,7 @@ function MedicalRecord({
       id="medical-record"
       aria-label={t.open}
       data-testid="medical-record"
+      tabIndex={0} // eslint-disable-line jsx-a11y/no-noninteractive-tabindex -- 可捲動區域
     >
       <h3>{t.open}</h3>
       <h4>{t.background}</h4>

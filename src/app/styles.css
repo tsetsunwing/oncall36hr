@@ -2647,6 +2647,10 @@ main:has(.page.setup) {
   box-shadow: var(--card-shadow);
 }
 
+.body-diagram[data-record-open='true'] {
+  overflow: hidden;
+}
+
 .body-diagram > h2 {
   flex-wrap: wrap;
 }
@@ -2661,10 +2665,13 @@ main:has(.page.setup) {
 }
 
 .medical-record {
-  position: static;
-  flex: none;
+  position: relative;
+  z-index: 0;
+  flex: 1 1 auto;
+  min-height: 0;
   margin: 0 0.75rem 0.75rem;
   padding: 0.75rem;
+  overflow: auto;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 10px;
@@ -2734,6 +2741,7 @@ main:has(.page.setup) {
 
 .body-diagram-stage {
   position: relative;
+  z-index: 2;
   flex: none;
   width: min(100%, 200px);
   margin: 8px auto 12px;

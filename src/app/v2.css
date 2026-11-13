@@ -516,6 +516,20 @@ h2,
   flex: none;
 }
 
+.frame-desktop .body-diagram[data-record-open='true'] {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.frame-desktop .ward-map-col:has(.body-diagram[data-record-open='true']) {
+  overflow: hidden;
+}
+
+.frame-desktop .body-diagram[data-record-open='true'] .body-diagram-stage {
+  width: min(100%, 160px);
+}
+
 .frame-desktop .queue {
   flex: 1;
   min-height: 0;
@@ -3158,6 +3172,8 @@ button.place-room-action:disabled:not([data-active='true']) {
 
 /* 神經與疼痛：GCS、瞳孔、疼痛分數。放喺身體圖欄，用卡片淺色，唔用監察儀黑底。 */
 .neuro-strip {
+  position: relative;
+  z-index: 2;
   display: grid;
   grid-template-columns: 1fr 1fr;
   flex: none;
@@ -3225,9 +3241,16 @@ button.place-room-action:disabled:not([data-active='true']) {
 .neuro-action {
   margin-left: auto;
   flex: none;
+  width: var(--btn-height-sm);
   height: var(--btn-height-sm);
   min-height: var(--btn-height-sm);
-  white-space: nowrap;
+  padding: 0;
+}
+
+.play-stage .page button.icon-btn.neuro-action {
+  width: var(--btn-height-sm);
+  height: var(--btn-height-sm);
+  min-height: var(--btn-height-sm);
 }
 
 .neuro-action:hover:not(:disabled) {
