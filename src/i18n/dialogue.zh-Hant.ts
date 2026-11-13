@@ -7,6 +7,7 @@ import { wardDialogue } from './ward.zh-Hant';
 export const dialogue = {
   ...wardDialogue,
   'shift.restNudge': '陳生，你連續做咗好耐，不如去休息室坐一陣？',
+  'shift.bladderAccident': '喂陳生，你整濕咗條褲，停低一個鐘換衫先。',
   'nurse.greeting': '陳生，今晚我哋病房有{{ward.activePatients}}位病人，有事隨時搵我。',
   'nurse.reportSpo2': '陳生，{{vital.spo2}}% 呀，要唔要開個 stat ECG？',
 } as const;

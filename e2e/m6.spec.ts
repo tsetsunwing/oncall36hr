@@ -50,6 +50,34 @@ async function fastForward(page: Page) {
   await page.getByRole('button', { name: ui.game.speedOption(4) }).click();
 }
 
+/** 新速率下日班會因飢餓暈倒；超時測試要喺房內重複飲水／如廁先撐到交更。 */
+async function keepNeedsDownUntil(page: Page, testId: string, timeout: number) {
+  const deadline = Date.now() + timeout;
+  while (Date.now() < deadline) {
+    if ((await page.getByTestId(testId).count()) > 0) return;
+    if ((await page.getByTestId('selfcare-active').count()) === 0) {
+      const water = page.getByTestId('selfcare-WATER');
+      const toilet = page.getByTestId('selfcare-TOILET');
+      if ((await water.count()) > 0 && (await water.isEnabled())) {
+        await water.click();
+      } else if ((await toilet.count()) > 0 && (await toilet.isEnabled())) {
+        await toilet.click();
+      } else {
+        const hunger = Number(
+          (await page.getByTestId('need-hunger').getAttribute('aria-valuenow')) ?? '0',
+        );
+        const bladder = Number(
+          (await page.getByTestId('need-bladder').getAttribute('aria-valuenow')) ?? '0',
+        );
+        const chip = page.getByTestId(hunger >= bladder ? 'landmark-pantry' : 'landmark-wc');
+        if ((await chip.count()) > 0) await chip.click();
+      }
+    }
+    await page.waitForTimeout(200);
+  }
+  await expect(page.getByTestId(testId)).toBeVisible({ timeout: 1_000 });
+}
+
 test.describe('M6 setup, rounds, energy, overtime and endings', () => {
   test('setup screen picks rank, difficulty and mode and starts that shift; axe clean', async ({
     page,
@@ -167,9 +195,11 @@ test.describe('M6 setup, rounds, energy, overtime and endings', () => {
     test.setTimeout(150_000);
     await openGame(page, 'seed=e2e-m6-ot&mode=DAY&difficulty=MEDIUM&rank=MO&realsec=0.03');
     await fastForward(page);
-    await expect(page.getByTestId('overtime-banner')).toBeVisible({ timeout: 60_000 });
+    await keepNeedsDownUntil(page, 'overtime-banner', 60_000);
+    await expect(page.getByTestId('overtime-banner')).toBeVisible();
     await expect(page.getByTestId('phase-badge')).toBeVisible();
-    await expect(page.getByTestId('result-page')).toBeVisible({ timeout: 60_000 });
+    await keepNeedsDownUntil(page, 'result-page', 60_000);
+    await expect(page.getByTestId('result-page')).toBeVisible();
     await expect(page.getByTestId('result-page')).toHaveAttribute('data-reason', 'OVERTIME');
     await expect(page.getByTestId('result-tag')).toHaveText(ui.shift.result.tag.OVERTIME ?? '');
     await expect(page.getByTestId('subscore-CLINICAL_OUTCOME')).toBeVisible();
@@ -185,7 +215,8 @@ test.describe('M6 setup, rounds, energy, overtime and endings', () => {
     test.setTimeout(150_000);
     await openGame(page, 'seed=e2e-m6-ot2&mode=DAY&difficulty=EASY&rank=MO&realsec=0.03');
     await fastForward(page);
-    await expect(page.getByTestId('begin-handover')).toBeVisible({ timeout: 60_000 });
+    await keepNeedsDownUntil(page, 'begin-handover', 60_000);
+    await expect(page.getByTestId('begin-handover')).toBeVisible();
     await page.getByTestId('begin-handover').click();
     await expect(page.getByTestId('handover-panel')).toBeVisible();
     await page.locator('[data-testid^="handover-"][type="checkbox"]').first().check();

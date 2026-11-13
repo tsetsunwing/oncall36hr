@@ -32,6 +32,11 @@ export function SelfCarePanel({ shift, notice, actions }: SelfCarePanelProps) {
           {dialogue['shift.restNudge']}
         </p>
       ) : null}
+      {notice?.kind === 'BLADDER_ACCIDENT' ? (
+        <p className="rest-nudge" role="status" data-testid="bladder-accident">
+          {dialogue['shift.bladderAccident']}
+        </p>
+      ) : null}
       <p className="hint">{s.hint}</p>
       {active ? (
         <div className="selfcare-active" role="status" data-testid="selfcare-active">

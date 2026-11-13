@@ -21,10 +21,22 @@ const noEnergy = { 'energy-config': [] } as const;
 function careAct(engine: Engine, state: GameState) {
   if (state.shift.selfCare.active || state.shift.rounds.active) return [];
   if (state.clock.phase !== 'REGULAR') return [];
+  const acts = [];
   const ctx = { config: engine.config, tables: engine.tables };
   const meal = selfCareRow(ctx, 'MEAL');
   if (meal && selfCareAvailable(state, meal, ctx)) {
-    return [shiftAct('SELF_CARE_START', { actionId: 'MEAL' })];
+    acts.push(shiftAct('SELF_CARE_START', { actionId: 'MEAL' }));
+    return acts;
+  }
+  const water = selfCareRow(ctx, 'WATER');
+  if (water && state.shift.energy.hunger > 20 && selfCareAvailable(state, water, ctx)) {
+    acts.push(shiftAct('SELF_CARE_START', { actionId: 'WATER' }));
+    return acts;
+  }
+  const toilet = selfCareRow(ctx, 'TOILET');
+  if (toilet && state.shift.energy.bladder > 20 && selfCareAvailable(state, toilet, ctx)) {
+    acts.push(shiftAct('SELF_CARE_START', { actionId: 'TOILET' }));
+    return acts;
   }
   const model = engine.tables['energy-config'][0];
   const nap = selfCareRow(ctx, 'NAP');
@@ -34,9 +46,9 @@ function careAct(engine: Engine, state: GameState) {
     state.shift.energy.percent <= model.nudgeBelowPercent &&
     selfCareAvailable(state, nap, ctx)
   ) {
-    return [shiftAct('SELF_CARE_START', { actionId: 'NAP' })];
+    acts.push(shiftAct('SELF_CARE_START', { actionId: 'NAP' }));
   }
-  return [];
+  return acts;
 }
 
 function arrestsOf(engine: Engine, state: GameState): number {
@@ -56,30 +68,30 @@ function deathsOf(state: GameState): number {
 }
 
 describe('M9 平衡模擬（T-E）', () => {
-  it('完全唔自我照顧：日班同夜班唔會暈，On call 34 小時前暈倒，只得「暈倒」', () => {
+  it('完全唔自我照顧：飢餓約 7 小時到 100%，日班夜班同 On call 都會暈倒，只得「暈倒」', () => {
     const engine = kitEngine();
     const day = drive(engine, engine.init(kitParams('m9-day-neglect', 'DAY')), 10 * H + 30, {
       step: 300,
     }).state;
-    expect(day.clock.phase).toBe('OVERTIME');
-    expect(day.shift.ending?.reason).not.toBe('FAINT');
+    expect(day.clock.phase).toBe('ENDED');
+    expect(day.shift.ending?.reason).toBe('FAINT');
     expect(day.shift.rounds.completed).toBe(0);
-    expect(day.shift.energy.percent).toBeGreaterThan(0);
+    expect(day.shift.energy.percent).toBe(0);
 
     const night = drive(engine, engine.init(kitParams('m9-night-neglect', 'NIGHT')), 14 * H + 30, {
       step: 300,
     }).state;
-    expect(night.clock.phase).toBe('OVERTIME');
-    expect(night.shift.ending?.reason).not.toBe('FAINT');
+    expect(night.clock.phase).toBe('ENDED');
+    expect(night.shift.ending?.reason).toBe('FAINT');
     expect(night.shift.rounds.completed).toBe(0);
-    expect(night.shift.energy.percent).toBeGreaterThan(0);
+    expect(night.shift.energy.percent).toBe(0);
 
     const onCall = drive(engine, engine.init(kitParams('m9-oncall-neglect', 'ONCALL')), 36 * H, {
       step: 600,
     }).state;
     expect(onCall.clock.phase).toBe('ENDED');
-    expect(onCall.clock.t).toBeGreaterThan(24 * H);
-    expect(onCall.clock.t).toBeLessThan(34 * H);
+    expect(onCall.clock.t).toBeGreaterThan(5 * H);
+    expect(onCall.clock.t).toBeLessThan(12 * H);
     expect(onCall.shift.ending).toMatchObject({ reason: 'FAINT', tags: ['FAINT'], forced: true });
     expect(onCall.shift.energy.percent).toBe(0);
     expect(onCall.scoreLedger.filter((entry) => entry.rule === 'OVERTIME_ENTERED')).toHaveLength(0);
@@ -110,15 +122,15 @@ describe('M9 平衡模擬（T-E）', () => {
       })}`,
     );
     expect(calm.shift.ending?.reason).not.toBe('FAINT');
-    expect(calm.clock.phase).toBe('OVERTIME');
+    expect(calm.clock.t).toBeGreaterThanOrEqual(34 * H);
+    expect(calm.clock.phase === 'OVERTIME' || calm.shift.ending?.reason === 'OVERTIME').toBe(true);
     expect(calm.shift.rounds.completed).toBe(0);
     expect(calm.shift.mealsTaken).toHaveLength(3);
     expect(calm.shift.energy.percent).toBeGreaterThan(0);
     // 有心臟停頓未完結時唔可以食飯；容許較少餐數但仍需撐過更次
     expect(end.shift.ending?.reason).not.toBe('FAINT');
-    expect(end.clock.phase).toBe('OVERTIME');
     expect(end.clock.t).toBeGreaterThanOrEqual(34 * H);
-    expect(end.clock.t).toBeLessThan(34 * H + engine.config.shifts.overtimeSeconds);
+    expect(end.clock.phase === 'OVERTIME' || end.shift.ending?.reason === 'OVERTIME').toBe(true);
     expect(end.shift.energy.percent).toBeGreaterThan(0);
     expect(end.shift.rounds.completed).toBe(0);
     expect(end.shift.mealsTaken.length).toBeGreaterThanOrEqual(2);

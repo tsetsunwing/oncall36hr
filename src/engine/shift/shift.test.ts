@@ -31,7 +31,11 @@ describe('更次生成（init）', () => {
     expect(kinds.filter((k) => k === 'ROUND_START')).toHaveLength(4);
     expect(kinds.filter((k) => k === 'SHIFT_END')).toHaveLength(1);
     expect(kinds.filter((k) => k === 'ENERGY_TICK')).toHaveLength(1);
-    expect(state.shift.energy.percent).toBe(getContent().tables['energy-config'][0]?.startPercent);
+    const model = getContent().tables['energy-config'][0];
+    expect(state.shift.energy.percent).toBe(model?.startPercent);
+    expect(state.shift.energy.fatigue).toBe(model?.startFatigue);
+    expect(state.shift.energy.hunger).toBe(model?.startHunger);
+    expect(state.shift.energy.bladder).toBe(model?.startBladder);
     expect(state.clock.phase).toBe('REGULAR');
   });
 });
@@ -380,7 +384,8 @@ describe('精力同暈倒（T20）', () => {
     const init = engine.init(kitParams('faint-1', 'ONCALL'));
     const end = drive(engine, init, 36 * H, { step: 600 }).state;
     expect(end.clock.phase).toBe('ENDED');
-    expect(end.clock.t).toBeLessThan(34 * H);
+    expect(end.clock.t).toBeGreaterThan(5 * H);
+    expect(end.clock.t).toBeLessThan(12 * H);
     expect(end.shift.ending).toMatchObject({ reason: 'FAINT', tags: ['FAINT'], forced: true });
     expect(end.shift.energy.percent).toBe(0);
     expect(ledgerOf(end, 'FAINT')).toHaveLength(1);
@@ -396,6 +401,10 @@ describe('精力同暈倒（T20）', () => {
       act: (state) => {
         if (state.shift.selfCare.active) return [];
         const acts = [];
+        if (state.shift.energy.hunger > 20)
+          acts.push(shiftAct('SELF_CARE_START', { actionId: 'WATER' }));
+        if (state.shift.energy.bladder > 20)
+          acts.push(shiftAct('SELF_CARE_START', { actionId: 'TOILET' }));
         if (state.shift.energy.percent < 80)
           acts.push(shiftAct('SELF_CARE_START', { actionId: 'NAP' }));
         acts.push(shiftAct('SELF_CARE_START', { actionId: 'MEAL' }));
@@ -408,7 +417,7 @@ describe('精力同暈倒（T20）', () => {
     expect(end.shift.mealsTaken).toHaveLength(3);
   }, 60_000);
 
-  it('自我照顧：食飯只可喺用餐窗口、每個窗口一次；短睡有冷卻；進行中唔可以做其他事；提早停止按比例回復', () => {
+  it('自我照顧：食飯只可喺用餐窗口、每個窗口一次；短睡完成後可再睡；進行中唔可以做其他事；提早停止按比例回復', () => {
     const engine = kitEngine({ 'rounds-topics': [] });
     let state = engine.init(kitParams('care-1', 'DAY', { ward: false }));
     const early = feed(engine, state, [shiftAct('SELF_CARE_START', { actionId: 'MEAL' })]);
@@ -439,25 +448,25 @@ describe('精力同暈倒（T20）', () => {
     });
 
     const nap = feed(engine, stopped, [shiftAct('SELF_CARE_START', { actionId: 'NAP' })]).state;
-    const napDone = drive(engine, nap, 1300, { step: 100 }).state;
+    const napDone = drive(engine, nap, 700, { step: 100 }).state;
     expect(napDone.shift.selfCare.active).toBeNull();
     expect(ledgerOf(napDone, 'SELF_CARE_NAP')).toHaveLength(1);
     const napAgain = feed(engine, napDone, [shiftAct('SELF_CARE_START', { actionId: 'NAP' })]);
-    expect(napAgain.effects).toContainEqual({
-      type: 'NOTICE',
-      kind: 'SELF_CARE_UNAVAILABLE',
-      tone: 'warn',
-    });
+    expect(napAgain.state.shift.selfCare.active?.actionId).toBe('NAP');
+    const napAgainDone = drive(engine, napAgain.state, 700, { step: 100 }).state;
+    expect(napAgainDone.shift.energy.fatigue).toBeLessThan(napDone.shift.energy.fatigue);
+    expect(ledgerOf(napAgainDone, 'SELF_CARE_NAP')).toHaveLength(2);
   });
 
-  it('行路、致電、委派按 T20 扣精力；精力低於門檻時護士提示小休（有冷卻）', () => {
+  it('撳病床按 T20 加疲倦；精力低於門檻時護士提示小休（有冷卻）', () => {
     const engine = kitEngine({ 'rounds-topics': [] });
     const init = engine.init(kitParams('cost-1', 'DAY'));
     const bed = Object.values(init.patients)[0]?.bed ?? 1;
     const moved = feed(engine, init, [
       intentEvent({ type: 'EXTENSION', module: 'ward', name: 'GO_TO_BED', payload: { bed } }),
     ]).state;
-    expect(moved.shift.energy.percent).toBeLessThan(init.shift.energy.percent);
+    expect(moved.shift.energy.fatigue).toBe(init.shift.energy.fatigue + 2);
+    expect(moved.shift.energy.hunger).toBe(init.shift.energy.hunger);
 
     const low = {
       ...init,
@@ -482,9 +491,9 @@ describe('精力同暈倒（T20）', () => {
     expect(run.state.shift.energy.lastNudgeAt).toBe(1);
   });
 
-  it('進入茶水間、休息室、洗手間只降低對應需要，冷卻內再入唔會再降', () => {
+  it('頂欄地標只前往房間；房內飲水、小睡、如廁完成後可再撳並疊加恢復', () => {
     const engine = kitEngine({ 'rounds-topics': [] });
-    const init = engine.init(kitParams('places-1', 'DAY'));
+    const init = engine.init(kitParams('places-1', 'DAY', { ward: false }));
     const raised = {
       ...init,
       shift: {
@@ -493,17 +502,38 @@ describe('精力同暈倒（T20）', () => {
       },
     };
     const pantry = feed(engine, raised, [shiftAct('ENTER_PLACE', { place: 'PANTRY' })]).state;
-    expect(pantry.shift.energy.hunger).toBe(20);
-    expect(pantry.shift.energy.fatigue).toBe(40);
-    expect(pantry.shift.energy.bladder).toBe(40);
+    expect(pantry.shift.energy.hunger).toBe(40);
     expect(pantry.shift.energy.place).toBe('PANTRY');
-    const again = feed(engine, pantry, [shiftAct('ENTER_PLACE', { place: 'PANTRY' })]).state;
-    expect(again.shift.energy.hunger).toBe(20);
-    const rest = feed(engine, again, [shiftAct('ENTER_PLACE', { place: 'REST' })]).state;
-    expect(rest.shift.energy.fatigue).toBe(20);
-    expect(rest.shift.energy.hunger).toBe(20);
-    const wc = feed(engine, rest, [shiftAct('ENTER_PLACE', { place: 'WC' })]).state;
-    expect(wc.shift.energy.bladder).toBe(20);
-    expect(wc.shift.energy.percent).toBe(80);
+    const drink = feed(engine, pantry, [shiftAct('SELF_CARE_START', { actionId: 'WATER' })]).state;
+    const drank = drive(engine, drink, 130, { step: 30 }).state;
+    expect(drank.shift.energy.hunger).toBe(20);
+    expect(drank.shift.energy.fatigue).toBe(40);
+    const drinkAgain = feed(engine, drank, [
+      shiftAct('SELF_CARE_START', { actionId: 'WATER' }),
+    ]).state;
+    const drankAgain = drive(engine, drinkAgain, 130, { step: 30 }).state;
+    expect(drankAgain.shift.energy.hunger).toBe(0);
+
+    const rest = feed(engine, drankAgain, [shiftAct('ENTER_PLACE', { place: 'REST' })]).state;
+    expect(rest.shift.energy.fatigue).toBe(drankAgain.shift.energy.fatigue);
+    const nap = feed(engine, rest, [shiftAct('SELF_CARE_START', { actionId: 'NAP' })]).state;
+    const napped = drive(engine, nap, 650, { step: 50 }).state;
+    expect(napped.shift.energy.fatigue).toBeLessThan(rest.shift.energy.fatigue);
+    expect(napped.clock.t).toBeGreaterThanOrEqual(rest.clock.t + 600);
+    const napAgain = feed(engine, napped, [shiftAct('SELF_CARE_START', { actionId: 'NAP' })]).state;
+    const nappedAgain = drive(engine, napAgain, 650, { step: 50 }).state;
+    expect(nappedAgain.shift.energy.fatigue).toBeLessThan(napped.shift.energy.fatigue);
+    expect(nappedAgain.clock.t).toBeGreaterThanOrEqual(rest.clock.t + 1200);
+
+    const wc = feed(engine, nappedAgain, [shiftAct('ENTER_PLACE', { place: 'WC' })]).state;
+    expect(wc.shift.energy.bladder).toBe(nappedAgain.shift.energy.bladder);
+    const toilet = feed(engine, wc, [shiftAct('SELF_CARE_START', { actionId: 'TOILET' })]).state;
+    const toileted = drive(engine, toilet, 320, { step: 40 }).state;
+    expect(toileted.shift.energy.bladder).toBeLessThan(wc.shift.energy.bladder);
+    const toiletAgain = feed(engine, toileted, [
+      shiftAct('SELF_CARE_START', { actionId: 'TOILET' }),
+    ]).state;
+    const toiletedAgain = drive(engine, toiletAgain, 320, { step: 40 }).state;
+    expect(toiletedAgain.shift.energy.bladder).toBeLessThan(toileted.shift.energy.bladder);
   });
 });

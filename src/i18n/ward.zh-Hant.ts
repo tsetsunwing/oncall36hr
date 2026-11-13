@@ -92,9 +92,9 @@ export const wardUi = {
   rest: '休息室',
   wc: '洗手間',
   placeRelief: {
-    PANTRY: '降低飢餓',
-    REST: '降低疲倦',
-    WC: '降低內急',
+    PANTRY: '前往茶水間',
+    REST: '前往休息室',
+    WC: '前往洗手間',
     STATION: '返回病房',
   } as Record<string, string>,
   corridor: '走廊',

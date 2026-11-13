@@ -1,21 +1,31 @@
 [
   {
     "id": "MODEL",
-    "startPercent": 100,
-    "decayPerGameHour": 3.5,
+    "startPercent": 70,
+    "startFatigue": 0,
+    "startHunger": 30,
+    "startBladder": 20,
+    "fatiguePerGameHour": 10,
+    "hungerPerGameHour": 10,
+    "bladderPerGameHour": 15,
     "tickSeconds": 300,
     "lowPercent": 50,
     "veryLowPercent": 20,
     "nudgeBelowPercent": 50,
     "nudgeCooldownSeconds": 3600,
     "actionCosts": {
-      "MOVE": 0.2,
-      "CALL": 0.3,
-      "DELEGATE": 0.1
+      "ORDER": 2,
+      "BED": 2,
+      "CALL": 2
     },
     "placeReliefPercent": 20,
     "placeCooldownSeconds": 600,
+    "coffeeDurationSeconds": 7200,
+    "coffeeFatigueFactor": 0.5,
+    "coffeeBladderFactor": 1.5,
+    "restVisitSeconds": 600,
+    "bladderAccidentFatigue": 15,
     "reviewStatus": "PENDING_CLINICAL_REVIEW",
-    "note": "平衡佔位值：完全唔自我照顧，On call 34 小時內會暈倒；食飯加短睡可撐到尾"
+    "note": "疲倦每遊戲小時 +10%，飢餓≥70% 時小時同動作 +2% 皆 1.5 倍、100% 時 2 倍。頂欄地標只前往房間。恢復靠房內動作：飲水／用膳降飢餓並開始咖啡（2 小時疲倦 0.5 倍、內急 1.5 倍）；小睡 10 分鐘降疲倦，完成後可再睡；如廁降內急。內急 100% 失禁跳 1 小時換衫並 +15% 疲倦，唔結束當值。"
   }
 ]

@@ -107,13 +107,13 @@ export const shiftSchema = z
     mealsTaken: z.array(z.number().int().min(0)),
     energy: z
       .object({
-        /** 餘量：100 − 三項需要的最高值。歸零即暈倒。 */
+        /** 餘量：100 − max(疲倦, 飢餓)。歸零即暈倒。內急唔計入。 */
         percent: z.number().min(0).max(100),
         /** 愈高愈差。休息室降低。 */
         fatigue: z.number().min(0).max(100),
-        /** 愈高愈差。茶水間降低。 */
+        /** 愈高愈差。茶水間降低。開場 30%。 */
         hunger: z.number().min(0).max(100),
-        /** 愈高愈差。洗手間降低。 */
+        /** 愈高愈差。洗手間降低。開場 20%。到 100% 失禁跳 1 小時，唔暈倒。 */
         bladder: z.number().min(0).max(100),
         lastNudgeAt: time.nullable(),
         place: z.enum(['STATION', 'PANTRY', 'REST', 'WC']).nullable(),

@@ -70,7 +70,7 @@ export const shiftUi = {
   selfCare: {
     heading: '自我照顧',
     tooltip:
-      '疲倦、飢餓、內急會隨時間上升。去休息室、茶水間、洗手間可以降低。任一項到 100% 會暈倒。',
+      '疲倦、飢餓、內急會隨時間上升。請進入茶水間、休息室或洗手間，再按房內動作恢復。飲水有短暫咖啡效果；小睡每次約 10 分鐘。疲倦或飢餓到 100% 會暈倒；內急到 100% 會失禁並跳過 1 小時更衣。',
     hint: '動作會扣用遊戲時間，病人狀況照常變化；巡房、搶救期間不可使用。',
     action: {
       MEAL: '食飯',
@@ -81,15 +81,14 @@ export const shiftUi = {
       MUSIC: '聽音樂短休',
     } as Record<string, string>,
     detail: {
-      MEAL: '休息室，只可在用餐時段使用',
-      NAP: '只有短睡，病人狀況照常變化',
-      TOILET: '洗手間',
-      WATER: '茶水間',
-      PHONE_CHAT: '任何地點',
-      MUSIC: '只是遊戲內動作，沒有聲音',
+      MEAL: '茶水間，只可在用餐時段使用；完成後開始咖啡效果',
+      NAP: '休息室小睡，每次約 10 分鐘，完成後可再睡',
+      TOILET: '洗手間，完成後可再如廁',
+      WATER: '茶水間；可重複。咖啡約 2 小時內減慢疲倦，但內急上升較快',
+      PHONE_CHAT: '休息室',
+      MUSIC: '休息室；只是遊戲內動作，沒有聲音',
     } as Record<string, string>,
-    cost: (minutes: number, gain: number) =>
-      `約 ${String(minutes)} 分鐘 · 三項各降低 ${String(gain)}%`,
+    cost: (minutes: number, gain: number) => `約 ${String(minutes)} 分鐘 · 降低 ${String(gain)}%`,
     start: '開始',
     unavailableMeal: '現時不是用餐時段',
     cooldown: (minutes: number) => `冷卻中，約 ${String(minutes)} 分鐘後可再用`,
@@ -121,7 +120,7 @@ export const shiftUi = {
     tagDetail: {
       OVERTIME: '超時後被強制交更。獨立結局標籤，與六個分項評級並存。',
       FAINT:
-        '疲倦、飢餓或內急到 100% 即時暈倒，強制交更並結束。暈倒的一局只有「暈倒」，不另有「超時」。',
+        '疲倦或飢餓到 100% 即時暈倒，強制交更並結束。內急到 100% 不會暈倒。暈倒的一局只有「暈倒」，不另有「超時」。',
       NONE: '在正常時間內完成交更。',
     } as Record<string, string>,
     noTotal: '結局不設總分，分項各自列出',
@@ -323,6 +322,7 @@ export const shiftUi = {
         ORDER_AWAITING_GATE: 'Order 等候確認',
         EVENT: '事件',
         ORDER_PLACED: '已落醫囑',
+        BLADDER_ACCIDENT: '當值途中失禁，暫停 1 小時更衣',
       } as Record<string, string>,
       eventPrefix: {
         DEATH_STEP_: '死亡流程步驟',
@@ -457,6 +457,8 @@ export const shiftUi = {
     SELF_CARE_BUSY: '你正在休息，請先完成或提早結束。',
     SELF_CARE_UNAVAILABLE: '這個自我照顧動作目前不能使用。',
     REST_NUDGE: '護士提醒你稍作休息。',
+    REST_STAY: '你在休息室停留了約 10 分鐘。',
+    BLADDER_ACCIDENT: '內急已滿：當值時失禁，遊戲時間跳過 1 小時更衣。',
     HANDOVER_NOT_AVAILABLE: '目前無法交更。',
     FAINTED: '你已暈倒，已強制交更。',
     OVERTIME_STARTED: '已超時：病房事務凍結。',

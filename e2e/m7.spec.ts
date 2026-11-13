@@ -61,6 +61,33 @@ async function fastForward(page: Page) {
   await page.getByRole('button', { name: ui.game.speedOption(4) }).click();
 }
 
+async function keepNeedsDownUntil(page: Page, testId: string, timeout: number) {
+  const deadline = Date.now() + timeout;
+  while (Date.now() < deadline) {
+    if ((await page.getByTestId(testId).count()) > 0) return;
+    if ((await page.getByTestId('selfcare-active').count()) === 0) {
+      const water = page.getByTestId('selfcare-WATER');
+      const toilet = page.getByTestId('selfcare-TOILET');
+      if ((await water.count()) > 0 && (await water.isEnabled())) {
+        await water.click();
+      } else if ((await toilet.count()) > 0 && (await toilet.isEnabled())) {
+        await toilet.click();
+      } else {
+        const hunger = Number(
+          (await page.getByTestId('need-hunger').getAttribute('aria-valuenow')) ?? '0',
+        );
+        const bladder = Number(
+          (await page.getByTestId('need-bladder').getAttribute('aria-valuenow')) ?? '0',
+        );
+        const chip = page.getByTestId(hunger >= bladder ? 'landmark-pantry' : 'landmark-wc');
+        if ((await chip.count()) > 0) await chip.click();
+      }
+    }
+    await page.waitForTimeout(200);
+  }
+  await expect(page.getByTestId(testId)).toBeVisible({ timeout: 1_000 });
+}
+
 test.describe('M7 result screen and review page', () => {
   test('overtime result: six graded sub-scores, no total, review page reconstructs the shift', async ({
     page,
@@ -68,7 +95,8 @@ test.describe('M7 result screen and review page', () => {
     test.setTimeout(150_000);
     await openGame(page, 'seed=e2e-m7-ot&mode=DAY&difficulty=MEDIUM&rank=MO&realsec=0.03');
     await fastForward(page);
-    await expect(page.getByTestId('result-page')).toBeVisible({ timeout: 90_000 });
+    await keepNeedsDownUntil(page, 'result-page', 90_000);
+    await expect(page.getByTestId('result-page')).toBeVisible();
     await expect(page.getByTestId('result-tag')).toHaveText(ui.shift.result.tag.OVERTIME ?? '');
 
     for (const id of SUBSCORES) {

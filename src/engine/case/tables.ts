@@ -611,15 +611,25 @@ export interface RoundTopicRow {
 export interface EnergyModelRow {
   id: 'MODEL';
   startPercent: number;
-  decayPerGameHour: number;
+  startFatigue: number;
+  startHunger: number;
+  startBladder: number;
+  fatiguePerGameHour: number;
+  hungerPerGameHour: number;
+  bladderPerGameHour: number;
   tickSeconds: number;
   lowPercent: number;
   veryLowPercent: number;
   nudgeBelowPercent: number;
   nudgeCooldownSeconds: number;
-  actionCosts: { MOVE: number; CALL: number; DELEGATE: number };
+  actionCosts: { ORDER: number; BED: number; CALL: number };
   placeReliefPercent: number;
   placeCooldownSeconds: number;
+  coffeeDurationSeconds: number;
+  coffeeFatigueFactor: number;
+  coffeeBladderFactor: number;
+  restVisitSeconds: number;
+  bladderAccidentFatigue: number;
 }
 
 export const SELF_CARE_IDS = ['MEAL', 'NAP', 'TOILET', 'WATER', 'PHONE_CHAT', 'MUSIC'] as const;

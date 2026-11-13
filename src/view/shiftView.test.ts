@@ -58,7 +58,10 @@ describe('更次 ViewModel', () => {
     expect(shift.shiftMode).toBe('DAY');
     expect(shift.phase).toBe('REGULAR');
     expect(shift.segment).toBe('DAY');
-    expect(shift.energy).toEqual({ percent: 100, level: 'NORMAL' });
+    expect(shift.energy).toEqual({ percent: 70, level: 'NORMAL' });
+    expect(shift.needs.fatigue.percent).toBe(0);
+    expect(shift.needs.hunger.percent).toBe(30);
+    expect(shift.needs.bladder.percent).toBe(20);
     expect(shift.rounds.total).toBe(2);
     expect(shift.rounds.nextAtLabel).toBe('09:00');
     expect(shift.selfCare.actions.map((a) => a.id)).toEqual([
@@ -174,21 +177,31 @@ describe('更次 ViewModel', () => {
   });
 
   it('超時：橫額倒數；交更名單唔會標示邊個病人需要提及', () => {
-    let state = advanceTo(engine.init(params('DAY')), 36000 + 120);
+    const otEngine = createEngine(config, { tables: { ...tables, 'energy-config': [] } });
+    let state = otEngine.init(params('DAY'));
+    const requests: ReturnType<typeof aiRequests> = [];
+    while (state.clock.t < 36000 + 120 && state.clock.phase !== 'ENDED') {
+      const step = otEngine.reduce(
+        { ...state, pendingAi: state.pendingAi.filter((p) => p.kind.startsWith('rounds.')) },
+        tick(30),
+      );
+      state = step.state;
+      requests.push(...aiRequests(step.effects).filter((r) => r.kind.startsWith('rounds.')));
+    }
     const view = selectGameView(state, env);
     expect(view.shift.phase).toBe('OVERTIME');
     expect(view.shift.overtime?.remainingSec).toBeGreaterThan(0);
     expect(view.shift.overtime?.deadlineLabel).toBe('20:00');
 
-    state = engine.reduce(state, intent('BEGIN_HANDOVER')).state;
+    state = otEngine.reduce(state, intent('BEGIN_HANDOVER')).state;
     const handover = selectGameView(state, env).shift.handover;
     expect(handover?.candidates.length).toBeGreaterThan(0);
     expect(JSON.stringify(handover).toLowerCase()).not.toContain('needed');
     const first = handover?.candidates[0];
-    state = engine.reduce(state, intent('HANDOVER_TOGGLE', { patientId: first?.patientId })).state;
+    state = otEngine.reduce(state, intent('HANDOVER_TOGGLE', { patientId: first?.patientId })).state;
     expect(selectGameView(state, env).shift.handover?.candidates[0]?.selected).toBe(true);
 
-    state = engine.reduce(state, intent('HANDOVER_CONFIRM')).state;
+    state = otEngine.reduce(state, intent('HANDOVER_CONFIRM')).state;
     const { shift } = selectGameView(state, env);
     expect(shift.result?.reason).toBe('NORMAL');
     expect(shift.result?.tags).toEqual([]);

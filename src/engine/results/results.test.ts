@@ -16,7 +16,7 @@ import {
   zeroNoiseTables,
 } from '../test/realEngine';
 
-const tables = zeroNoiseTables();
+const tables = { ...zeroNoiseTables(), 'energy-config': [] };
 /** X 光：拍攝時間 ＋ 報告延遲。由表讀，改報告時間唔會令測試壞。 */
 const cxrDelay =
   (tables['order-catalog'].find((row) => row.id === 'img.cxr')?.fixedDurationSec ?? 0) +
