@@ -1,6 +1,7 @@
 /**
- * 自我照顧（T21）：扣遊戲時間、回精力。進行期間玩家離開病床（唔可以做其他事），
- * 可隨時提早停止（按比例回復）。短睡有冷卻；食飯只可喺用餐窗口、每個窗口一次。
+ * 自我照顧（T21）：扣遊戲時間、降低對應需要。進行期間玩家離開病床（唔可以做其他事），
+ * 可隨時提早停止（按比例回復）。食飯只可喺用餐窗口、每個窗口一次。
+ * 茶水間飲水／用膳、休息室小睡、洗手間如廁完成後可再撳，疊加恢復。
  */
 import type { SelfCareId, SelfCareRow } from '../case/tables';
 import { enqueue } from '../core/eventQueue';
@@ -12,8 +13,18 @@ import { leaveVisit } from '../ward/movement';
 import { patientAtBed } from '../ward/movement';
 import { applyRule } from '../score/scoring';
 import { none, reject, round2, withShift } from './common';
-import { changeEnergy } from './energy';
+import { relieveNeed, type NeedKey } from './energy';
 import { activeMeal, type TimelineConfig } from './timeline';
+
+/** 房內動作掣對應嘅需要。頂欄地標只負責前往，唔喺呢度恢復。 */
+export const SELF_CARE_NEED: Record<SelfCareId, NeedKey> = {
+  MEAL: 'hunger',
+  WATER: 'hunger',
+  NAP: 'fatigue',
+  PHONE_CHAT: 'fatigue',
+  MUSIC: 'fatigue',
+  TOILET: 'bladder',
+};
 
 export const SELF_CARE_END_EVENT = 'SELF_CARE_END';
 export const SELF_CARE_PRIORITY = 2;
@@ -64,12 +75,21 @@ export function startSelfCare(state: GameState, id: SelfCareId, ctx: EngineConte
   }
   const meal = row.requires === 'MEAL_WINDOW' ? mealWindowFor(next, ctx) : null;
   const endsAt = next.clock.t + row.durationSeconds;
+  const coffeeFromPantry = id === 'WATER' || id === 'MEAL';
   next = withShift(next, {
     selfCare: {
       ...next.shift.selfCare,
       active: { actionId: row.id, startedAt: next.clock.t, endsAt },
     },
     ...(meal ? { mealsTaken: [...next.shift.mealsTaken, meal.index] } : {}),
+    ...(coffeeFromPantry
+      ? {
+          energy: {
+            ...next.shift.energy,
+            placeAt: { ...next.shift.energy.placeAt, PANTRY: next.clock.t },
+          },
+        }
+      : {}),
   });
   next = {
     ...next,
@@ -94,7 +114,7 @@ function finishSelfCare(state: GameState, ctx: EngineContext, fraction: number):
     },
   });
   if (!row) return next;
-  next = changeEnergy(next, round2(row.gainPercent * fraction));
+  next = relieveNeed(next, SELF_CARE_NEED[row.id], round2(row.gainPercent * fraction));
   if (fraction >= 1) next = applyRule(next, row.rule, ctx);
   return next;
 }

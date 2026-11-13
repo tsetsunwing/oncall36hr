@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { BedDouble, ClipboardList, History, MessageSquare, Phone, Users, X } from 'lucide-react';
-import { ui } from '@/i18n';
+import { noticeCopy, ui } from '@/i18n';
 import { IconButton } from '../IconButton';
 import type { BodyDiagramView, GameActions, GameView, ShiftView, WardView } from '@/view';
 import { ChatPanel } from '../game/ChatPanel';
@@ -343,7 +343,7 @@ export function WardGame({ view, ward, actions }: WardGameProps) {
         )}
         {!view.chat && view.notice && view.notice.kind !== 'PLAYER_MOVING' ? (
           <p className="ward-notice" role="status" data-testid="ward-notice">
-            {g.notice[view.notice.kind] ?? g.notice.fallback}
+            {noticeCopy(view.notice.kind)}
           </p>
         ) : null}
       </div>

@@ -17,12 +17,16 @@ import { moveTo } from '../ward/movement';
 import { CALL_ARRIVAL_EVENT } from '../ward/generate';
 import { applyRule } from '../score/scoring';
 import { none, noticeEffect, reject, SHIFT_MODULE, withShift } from './common';
+import { logEvent } from '../log/log';
 import {
-  actionCostOf,
+  actionFatigueOf,
   applyDecay,
-  changeEnergy,
+  BLADDER_ACCIDENT_SKIP_SECONDS,
+  BLADDER_RESET_PERCENT,
   energyModel,
-  relieveNeed,
+  raiseNeed,
+  reserveOf,
+  setNeed,
   shouldNudge,
 } from './energy';
 import { confirmHandover, faint, forceOvertimeEnd, workInFlight } from './handover';
@@ -78,6 +82,28 @@ function checkFaint(result: Reduction, ctx: EngineContext): Reduction {
   if (!energyModel(ctx)) return result;
   const fainted = faint(state, ctx);
   return { state: fainted.state, effects: [...result.effects, ...fainted.effects] };
+}
+
+function skipGameSeconds(state: GameState, seconds: number): GameState {
+  return {
+    ...state,
+    clock: { ...state.clock, t: state.clock.t + seconds, frac: 0 },
+  };
+}
+
+/** 內急 100%：當值失禁，跳 1 個遊戲小時換衫，內急歸零並加疲倦；唔結束當值。 */
+function handleBladderAccident(state: GameState, ctx: EngineContext): Reduction {
+  if (state.shift.energy.bladder < 100 || state.clock.phase === 'ENDED') {
+    return { state, effects: [] };
+  }
+  const model = energyModel(ctx);
+  let next = skipGameSeconds(state, BLADDER_ACCIDENT_SKIP_SECONDS);
+  next = setNeed(next, 'bladder', BLADDER_RESET_PERCENT);
+  if (model && model.bladderAccidentFatigue > 0) {
+    next = raiseNeed(next, 'fatigue', model.bladderAccidentFatigue);
+  }
+  next = logEvent(next, { patientId: null, reasonCode: 'BLADDER_ACCIDENT' });
+  return { state: next, effects: [noticeEffect('BLADDER_ACCIDENT', 'warn')] };
 }
 
 function handleExtension(
@@ -232,29 +258,12 @@ function handleShiftEnd(state: GameState, ctx: EngineContext): Reduction {
   return { state: next, effects: [noticeEffect('OVERTIME_STARTED', 'warn')] };
 }
 
-const PLACE_NEED = { PANTRY: 'hunger', REST: 'fatigue', WC: 'bladder' } as const;
-
 function enterPlace(
   state: GameState,
   place: 'STATION' | 'PANTRY' | 'REST' | 'WC',
   ctx: EngineContext,
 ): Reduction {
-  let next = state;
-  if (place !== 'STATION') {
-    const model = energyModel(ctx);
-    const last = next.shift.energy.placeAt[place];
-    const cooled = !model || last === null || next.clock.t - last >= model.placeCooldownSeconds;
-    if (model && cooled) {
-      next = relieveNeed(next, PLACE_NEED[place], model.placeReliefPercent);
-      next = withShift(next, {
-        energy: {
-          ...next.shift.energy,
-          placeAt: { ...next.shift.energy.placeAt, [place]: next.clock.t },
-        },
-      });
-    }
-  }
-  next = withShift(next, { energy: { ...next.shift.energy, place } });
+  const next = withShift(state, { energy: { ...state.shift.energy, place } });
   if (next.ward.location.bed === null && next.ward.location.movingTo === null) {
     return none(next);
   }
@@ -272,6 +281,11 @@ function handleEnergyTick(state: GameState, ctx: EngineContext): Reduction {
     ENERGY_PRIORITY,
   );
   const effects: Effect[] = [];
+  if (next.shift.energy.bladder >= 100) {
+    const accident = handleBladderAccident(next, ctx);
+    next = accident.state;
+    effects.push(...accident.effects);
+  }
   if (shouldNudge(next, ctx)) {
     next = withShift(next, { energy: { ...next.shift.energy, lastNudgeAt: next.clock.t } });
     effects.push(noticeEffect('REST_NUDGE', 'info'));
@@ -286,13 +300,15 @@ export const shiftModule: EngineModule = {
     let next = state;
     const model = energyModel(ctx);
     if (model) {
-      const need = Math.round((100 - model.startPercent) * 100) / 100;
+      const needs = {
+        fatigue: model.startFatigue,
+        hunger: model.startHunger,
+        bladder: model.startBladder,
+      };
       next = withShift(next, {
         energy: {
-          percent: model.startPercent,
-          fatigue: need,
-          hunger: need,
-          bladder: need,
+          percent: reserveOf(needs),
+          ...needs,
           lastNudgeAt: null,
           place: null,
           placeAt: { PANTRY: null, REST: null, WC: null },
@@ -356,9 +372,9 @@ export const shiftModule: EngineModule = {
 
   afterIntent(before, after, intent, ctx) {
     if (after.state.clock.phase === 'ENDED') return undefined;
-    const cost = actionCostOf(before, after.state, intent, ctx);
+    const cost = actionFatigueOf(before, after.state, intent, ctx);
     if (cost <= 0) return undefined;
-    const charged = changeEnergy(after.state, -cost);
+    const charged = raiseNeed(after.state, 'fatigue', cost);
     return checkFaint({ state: charged, effects: after.effects }, ctx);
   },
 };

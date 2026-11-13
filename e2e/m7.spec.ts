@@ -1,6 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 import { ui } from '../src/i18n';
+import { keepNeedsDownUntil } from './keepNeeds';
 
 const MOCK_ORIGIN = `http://127.0.0.1:${process.env.MOCK_AI_PORT ?? '8787'}`;
 const MOCK_BASE_URL = `${MOCK_ORIGIN}/v1`;
@@ -66,9 +67,10 @@ test.describe('M7 result screen and review page', () => {
     page,
   }) => {
     test.setTimeout(150_000);
-    await openGame(page, 'seed=e2e-m7-ot&mode=DAY&difficulty=MEDIUM&rank=MO&realsec=0.03');
+    await openGame(page, 'seed=e2e-m7-ot&mode=DAY&difficulty=MEDIUM&rank=MO&realsec=0.15');
     await fastForward(page);
-    await expect(page.getByTestId('result-page')).toBeVisible({ timeout: 90_000 });
+    await keepNeedsDownUntil(page, 'result-page', 90_000);
+    await expect(page.getByTestId('result-page')).toBeVisible();
     await expect(page.getByTestId('result-tag')).toHaveText(ui.shift.result.tag.OVERTIME ?? '');
 
     for (const id of SUBSCORES) {

@@ -7,37 +7,37 @@
     "cooldownSeconds": 0,
     "rule": "SELF_CARE_MEAL",
     "reviewStatus": "PENDING_CLINICAL_REVIEW",
-    "note": "平衡佔位值"
+    "note": "用餐窗口內降低飢餓；每個窗口一次。茶水間用膳同時開始咖啡效果。"
   },
   {
     "id": "NAP",
-    "durationSeconds": 1200,
-    "gainPercent": 10,
+    "durationSeconds": 600,
+    "gainPercent": 20,
     "requires": "NONE",
-    "cooldownSeconds": 14400,
+    "cooldownSeconds": 0,
     "rule": "SELF_CARE_NAP",
     "reviewStatus": "PENDING_CLINICAL_REVIEW",
-    "note": "平衡佔位值"
+    "note": "休息室小睡：每次扣 10 分鐘遊戲時間再降疲倦；完成後可再睡以疊加。"
   },
   {
     "id": "TOILET",
     "durationSeconds": 300,
-    "gainPercent": 0.5,
+    "gainPercent": 20,
     "requires": "NONE",
-    "cooldownSeconds": 3600,
+    "cooldownSeconds": 0,
     "rule": "SELF_CARE_BREAK",
     "reviewStatus": "PENDING_CLINICAL_REVIEW",
-    "note": "平衡佔位值"
+    "note": "洗手間如廁降低內急；完成後可再撳。"
   },
   {
     "id": "WATER",
     "durationSeconds": 120,
-    "gainPercent": 0.5,
+    "gainPercent": 20,
     "requires": "NONE",
-    "cooldownSeconds": 1800,
+    "cooldownSeconds": 0,
     "rule": "SELF_CARE_BREAK",
     "reviewStatus": "PENDING_CLINICAL_REVIEW",
-    "note": "平衡佔位值"
+    "note": "茶水間飲水降低飢餓，並開始咖啡：2 小時內疲倦 0.5 倍、內急 1.5 倍。"
   },
   {
     "id": "PHONE_CHAT",

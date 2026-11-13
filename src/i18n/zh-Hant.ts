@@ -310,6 +310,7 @@ export const ui = {
         DEATH_STEP_PHONE_FAMILY: '已致電家屬',
         DEATH_STEP_RECORD: '已完成簡短記錄',
         DEATH_PROCESS_COMPLETE: '死亡流程完成，床位已釋放',
+        BLADDER_ACCIDENT: '當值途中失禁，暫停 1 小時更衣',
       } as Record<string, string>,
       reasons: {
         CANCELLED_BY_PLAYER: '玩家取消',

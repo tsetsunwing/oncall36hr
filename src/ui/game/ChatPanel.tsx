@@ -10,7 +10,7 @@ import {
 } from 'react';
 import { createPortal } from 'react-dom';
 import { Send } from 'lucide-react';
-import { ui } from '@/i18n';
+import { noticeCopy, ui } from '@/i18n';
 import {
   EMPTY_PLACED_PARAMS,
   RESUS_MENU,
@@ -808,7 +808,7 @@ export function ChatPanel({
       <GatePanel gates={gates} actions={actions} />
 
       <p className="chat-notice" role="status" data-testid="chat-notice">
-        {notice ? (ui.game.notice[notice.kind] ?? ui.game.notice.fallback) : ''}
+        {notice ? noticeCopy(notice.kind) : ''}
       </p>
 
       {addressee ? (

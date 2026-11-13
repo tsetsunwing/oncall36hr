@@ -27,6 +27,7 @@ import { addPatientFlag, moveTo, patientAtBed } from './movement';
 import { nurseForBed } from './nurses';
 import { RngCursor } from './rngCursor';
 import { applyRule } from '../score/scoring';
+import { chargeCallFatigue } from '../shift/energy';
 import { buildChat } from './generateChat';
 import { type Call, type CallLine, type CallResponse, type Rank } from './wardTypes';
 
@@ -255,6 +256,7 @@ export function handleCallArrival(state: GameState, ctx: EngineContext): Reducti
   };
   next = putCall(next, call);
   next = logIncomingCall(next, call);
+  next = chargeCallFatigue(next, ctx);
   next = schedule(next, expiresAt, CALL_EXPIRE_EVENT, { callId: id });
   next = interrupt(next, row.priority, ctx);
   return { state: next, effects: [notice('CALL_RINGING', 'info')] };

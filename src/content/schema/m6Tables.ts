@@ -10,7 +10,7 @@ const percent = z.number().min(0).max(100);
 
 export const ROUND_CATEGORIES = ['HISTORY', 'PATHOLOGY', 'PHARMACOLOGY'] as const;
 export const SELF_CARE_IDS = ['MEAL', 'NAP', 'TOILET', 'WATER', 'PHONE_CHAT', 'MUSIC'] as const;
-export const ENERGY_COST_KEYS = ['MOVE', 'CALL', 'DELEGATE'] as const;
+export const ENERGY_COST_KEYS = ['ORDER', 'BED', 'CALL'] as const;
 export const ENDING_REASONS = ['OVERTIME', 'FAINT'] as const;
 
 /** T25：巡房題範疇只限病史、病理、藥理（spec §8）；答案要點全部由表提供，AI 唔可以引入表外事實 */
@@ -45,8 +45,14 @@ export const roundTopicSchema = z
 export const energyModelSchema = z
   .object({
     id: z.literal('MODEL'),
+    /** 餘量起始：100 − max(startFatigue, startHunger)。內急唔計入暈倒。 */
     startPercent: percent,
-    decayPerGameHour: z.number().positive(),
+    startFatigue: percent,
+    startHunger: percent,
+    startBladder: percent,
+    fatiguePerGameHour: z.number().positive(),
+    hungerPerGameHour: z.number().positive(),
+    bladderPerGameHour: z.number().positive(),
     tickSeconds: z.number().int().positive(),
     lowPercent: percent,
     veryLowPercent: percent,
@@ -54,21 +60,32 @@ export const energyModelSchema = z
     nudgeCooldownSeconds: z.number().int().min(0),
     actionCosts: z
       .object({
-        MOVE: z.number().min(0),
+        ORDER: z.number().min(0),
+        BED: z.number().min(0),
         CALL: z.number().min(0),
-        DELEGATE: z.number().min(0),
       })
       .strict(),
-    /** 進入茶水間、休息室、洗手間一次降低對應需要 */
+    /** 地標掣不再套用恢復；房內動作嘅降低量見 self-care-actions。 */
     placeReliefPercent: percent,
     placeCooldownSeconds: z.number().int().min(0),
+    /** 茶水間飲水／用膳開始咖啡：期間減慢疲倦、加快內急 */
+    coffeeDurationSeconds: z.number().int().min(0),
+    coffeeFatigueFactor: z.number().positive(),
+    coffeeBladderFactor: z.number().positive(),
+    /** 休息室小睡對應嘅遊戲秒數（同 NAP durationSeconds） */
+    restVisitSeconds: z.number().int().min(0),
+    /** 內急 100% 失禁時額外加上嘅疲倦 */
+    bladderAccidentFatigue: z.number().min(0),
     reviewStatus,
     note: z.string(),
   })
   .strict()
+  .refine((row) => row.veryLowPercent <= row.lowPercent, 'veryLowPercent 必須細過或等於 lowPercent')
   .refine(
-    (row) => row.veryLowPercent <= row.lowPercent,
-    'veryLowPercent 必須細過或等於 lowPercent',
+    (row) =>
+      row.startPercent ===
+      Math.round((100 - Math.max(row.startFatigue, row.startHunger)) * 100) / 100,
+    'startPercent 必須等於 100 − max(startFatigue, startHunger)',
   );
 
 /** T21：自我照顧動作（扣時間、回精力；只有短睡） */

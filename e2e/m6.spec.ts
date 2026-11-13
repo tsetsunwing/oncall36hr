@@ -1,6 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 import { ui } from '../src/i18n';
+import { keepNeedsDownUntil } from './keepNeeds';
 
 const MOCK_ORIGIN = `http://127.0.0.1:${process.env.MOCK_AI_PORT ?? '8787'}`;
 const MOCK_BASE_URL = `${MOCK_ORIGIN}/v1`;
@@ -77,11 +78,12 @@ test.describe('M6 setup, rounds, energy, overtime and endings', () => {
     test.setTimeout(120_000);
     await openGame(
       page,
-      'seed=e2e-m6-round&mode=DAY&difficulty=MEDIUM&rank=MO&realsec=0.5&callrate=120',
+      'seed=e2e-m6-round&mode=DAY&difficulty=MEDIUM&rank=MO&realsec=0.5&callrate=24',
     );
     await expect(page.getByTestId('mode-badge')).toHaveText(ui.shift.mode.DAY ?? '');
     await fastForward(page);
-    await expect(page.getByTestId('begin-round')).toBeVisible({ timeout: 60_000 });
+    await keepNeedsDownUntil(page, 'begin-round', 60_000);
+    await expect(page.getByTestId('begin-round')).toBeVisible();
     await page.getByTestId('begin-round').click();
     await expect(page.getByTestId('round-dialog')).toBeVisible({ timeout: 60_000 });
     await expect(page.getByTestId('round-panel')).toBeVisible({ timeout: 60_000 });
@@ -165,11 +167,13 @@ test.describe('M6 setup, rounds, energy, overtime and endings', () => {
     page,
   }) => {
     test.setTimeout(150_000);
-    await openGame(page, 'seed=e2e-m6-ot&mode=DAY&difficulty=MEDIUM&rank=MO&realsec=0.03');
+    await openGame(page, 'seed=e2e-m7-ot&mode=DAY&difficulty=MEDIUM&rank=MO&realsec=0.15');
     await fastForward(page);
-    await expect(page.getByTestId('overtime-banner')).toBeVisible({ timeout: 60_000 });
+    await keepNeedsDownUntil(page, 'overtime-banner', 90_000);
+    await expect(page.getByTestId('overtime-banner')).toBeVisible();
     await expect(page.getByTestId('phase-badge')).toBeVisible();
-    await expect(page.getByTestId('result-page')).toBeVisible({ timeout: 60_000 });
+    await keepNeedsDownUntil(page, 'result-page', 90_000);
+    await expect(page.getByTestId('result-page')).toBeVisible();
     await expect(page.getByTestId('result-page')).toHaveAttribute('data-reason', 'OVERTIME');
     await expect(page.getByTestId('result-tag')).toHaveText(ui.shift.result.tag.OVERTIME ?? '');
     await expect(page.getByTestId('subscore-CLINICAL_OUTCOME')).toBeVisible();
@@ -183,9 +187,10 @@ test.describe('M6 setup, rounds, energy, overtime and endings', () => {
     page,
   }) => {
     test.setTimeout(150_000);
-    await openGame(page, 'seed=e2e-m6-ot2&mode=DAY&difficulty=EASY&rank=MO&realsec=0.03');
+    await openGame(page, 'seed=e2e-m7-ot&mode=DAY&difficulty=EASY&rank=MO&realsec=0.15');
     await fastForward(page);
-    await expect(page.getByTestId('begin-handover')).toBeVisible({ timeout: 60_000 });
+    await keepNeedsDownUntil(page, 'begin-handover', 90_000);
+    await expect(page.getByTestId('begin-handover')).toBeVisible();
     await page.getByTestId('begin-handover').click();
     await expect(page.getByTestId('handover-panel')).toBeVisible();
     await page.locator('[data-testid^="handover-"][type="checkbox"]').first().check();
