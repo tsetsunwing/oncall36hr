@@ -1,10 +1,10 @@
 import { expect, type Page } from '@playwright/test';
 
-type NeedTarget = {
+interface NeedTarget {
   chip: 'landmark-pantry' | 'landmark-rest' | 'landmark-wc';
   room: 'room-PANTRY' | 'room-REST' | 'room-WC';
   action: 'selfcare-WATER' | 'selfcare-NAP' | 'selfcare-TOILET';
-};
+}
 
 function targetFor(fatigue: number, hunger: number, bladder: number): NeedTarget {
   if (fatigue >= hunger && fatigue >= bladder) {
