@@ -1,10 +1,10 @@
 import { useMemo, useState } from 'react';
 import {
   Activity,
+  ArrowLeft,
   ArrowRight,
   Bath,
   BedDouble,
-  Bell,
   ChevronRight,
   ClipboardList,
   Coffee,
@@ -20,6 +20,7 @@ import {
   Settings,
   Siren,
   Stethoscope,
+  TriangleAlert,
   X,
 } from 'lucide-react';
 import {
@@ -93,6 +94,7 @@ export function LayoutCDemo() {
             <PlaceChip
               active={screen === 'floor' || screen === 'bedside'}
               icon={Hospital}
+              en="ward"
               label="病房"
               testId="lc-place-ward"
               onClick={() => {
@@ -103,6 +105,7 @@ export function LayoutCDemo() {
             <PlaceChip
               active={screen === 'PANTRY'}
               icon={Coffee}
+              en="pantry"
               label="茶水間"
               testId="lc-place-pantry"
               onClick={() => {
@@ -113,6 +116,7 @@ export function LayoutCDemo() {
             <PlaceChip
               active={screen === 'REST'}
               icon={BedDouble}
+              en="rest"
               label="休息室"
               testId="lc-place-rest"
               onClick={() => {
@@ -123,6 +127,7 @@ export function LayoutCDemo() {
             <PlaceChip
               active={screen === 'WC'}
               icon={Bath}
+              en="restroom"
               label="洗手間"
               testId="lc-place-wc"
               onClick={() => {
@@ -227,12 +232,14 @@ export function LayoutCDemo() {
 function PlaceChip({
   active,
   icon: Icon,
+  en,
   label,
   testId,
   onClick,
 }: {
   active: boolean;
   icon: typeof Hospital;
+  en: string;
   label: string;
   testId: string;
   onClick: () => void;
@@ -245,8 +252,11 @@ function PlaceChip({
       data-testid={testId}
       onClick={onClick}
     >
-      <Icon size={15} strokeWidth={2} aria-hidden="true" />
-      <span>{label}</span>
+      <Icon size={16} strokeWidth={2} aria-hidden="true" />
+      <span className="lc-place-text">
+        <small>{en}</small>
+        <span>{label}</span>
+      </span>
     </button>
   );
 }
@@ -394,13 +404,17 @@ function FloorScreen({ onBed, onAnswer }: { onBed: () => void; onAnswer: () => v
           病房平面圖
           <span className="lc-plan-dots" aria-hidden="true" />
         </h2>
-        <div className="lc-plan" role="group" aria-label="病床">
+        <div className="lc-plan-map" role="group" aria-label="病床">
           <div className="lc-plan-row">
             {upper.map((bed) => (
               <BedTile key={bed.bed} bed={bed} onBed={onBed} />
             ))}
           </div>
-          <div className="lc-plan-corridor" aria-hidden="true" />
+          <div className="lc-plan-hall" aria-hidden="true">
+            <ArrowLeft size={16} strokeWidth={2.5} />
+            <span className="lc-plan-hall-line" />
+            <ArrowRight size={16} strokeWidth={2.5} />
+          </div>
           <div className="lc-plan-row">
             {lower.map((bed) => (
               <BedTile key={bed.bed} bed={bed} onBed={onBed} />
@@ -424,7 +438,7 @@ function FloorScreen({ onBed, onAnswer }: { onBed: () => void; onAnswer: () => v
       </div>
       <div className="lc-call-banner" data-testid="lc-call-banner">
         <div className="lc-call-icon" aria-hidden="true">
-          <Phone size={22} strokeWidth={2} />
+          <Phone size={24} strokeWidth={2} />
         </div>
         <div className="lc-call-copy">
           <p className="lc-call-title">來電：{DEMO_CALL.from}</p>
@@ -437,7 +451,8 @@ function FloorScreen({ onBed, onAnswer }: { onBed: () => void; onAnswer: () => v
             <Phone size={14} strokeWidth={2} aria-hidden="true" />
             接聽
           </button>
-          <button type="button" className="lc-btn">
+          <button type="button" className="lc-btn lc-btn-outline">
+            <Phone size={14} strokeWidth={2} aria-hidden="true" />
             稍後回電
           </button>
         </div>
@@ -450,23 +465,23 @@ function BedTile({ bed, onBed }: { bed: (typeof DEMO_BEDS)[number]; onBed: () =>
   return (
     <button
       type="button"
-      className="lc-bed"
+      className="lc-room"
       data-level={bed.level}
       data-testid={`lc-bed-${String(bed.bed)}`}
       onClick={() => {
         if (bed.name) onBed();
       }}
     >
-      <span className="lc-bed-top">
-        <BedDouble size={15} strokeWidth={2} aria-hidden="true" />
-        <span className="lc-bed-no">{bed.bed}</span>
-        {bed.level === 'ALARM' ? (
-          <Bell size={14} className="lc-bed-alert" aria-hidden="true" />
-        ) : null}
-        <span className="lc-bed-dot" data-level={bed.level} />
+      {bed.level === 'ALARM' ? (
+        <TriangleAlert className="lc-room-warn" size={22} strokeWidth={2.25} aria-hidden="true" />
+      ) : null}
+      <span className="lc-room-icon" aria-hidden="true">
+        <BedDouble size={22} strokeWidth={1.75} />
       </span>
-      <span className="lc-bed-mews">MEWS {bed.mews}</span>
-      <span className="lc-bed-name">{bed.name ?? '空床'}</span>
+      <span className="lc-room-no">{bed.bed}</span>
+      <span className="lc-room-mews">MEWS {bed.mews}</span>
+      <span className="lc-room-dot" data-level={bed.level} />
+      <span className="visually-hidden">{bed.name ?? '空床'}</span>
     </button>
   );
 }

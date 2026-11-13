@@ -55,7 +55,7 @@ export const DEMO_CHAT = [
 export const DEMO_CALL = {
   from: '護理站',
   ext: '205',
-  text: '詢問 3 號床狀況',
+  text: '詢問病房 5 號房狀況',
 };
 
 export const DEMO_CALLS = [

@@ -101,16 +101,16 @@
 
 .lc-place {
   display: inline-flex;
-  gap: 0.35rem;
+  gap: 0.4rem;
   align-items: center;
-  min-height: 36px;
-  padding: 0.3rem 0.7rem;
+  min-height: 40px;
+  padding: 0.25rem 0.85rem;
   color: var(--lc-text);
   background: transparent;
   border: 0;
   border-right: 1px solid var(--lc-border);
   border-radius: 0;
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   cursor: pointer;
 }
 
@@ -388,180 +388,201 @@
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.85rem;
   min-height: 0;
-  padding: 0.85rem 1.1rem 1rem;
+  padding: 0.75rem 1.15rem 0.95rem;
+  background: #e8eef1;
 }
 
 .lc-plan-card {
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: 0.55rem;
+  gap: 0.65rem;
   min-height: 0;
-  padding: 0.85rem 1rem 0.75rem;
+  padding: 0.85rem 1.1rem 0.8rem;
   background: var(--lc-surface);
-  border: 1px solid var(--lc-border);
-  border-radius: 16px;
-  box-shadow: 0 8px 24px rgba(29, 41, 51, 0.04);
+  border: 2px solid #9ec9bf;
+  border-radius: 22px;
+  box-shadow: 0 10px 28px rgba(29, 41, 51, 0.05);
 }
 
 .lc-plan-card h2 {
   display: flex;
-  gap: 0.75rem;
+  gap: 0.85rem;
   align-items: center;
   justify-content: center;
   margin: 0;
+  color: #4d5d66;
   font-size: 1.05rem;
+  font-weight: 700;
 }
 
 .lc-plan-dots {
-  width: 48px;
-  height: 6px;
-  background: radial-gradient(circle, var(--lc-accent) 1.4px, transparent 1.6px) 0 0 / 10px 6px;
-  opacity: 0.55;
+  width: 56px;
+  height: 8px;
+  background: radial-gradient(circle, #5fa894 1.6px, transparent 1.8px) 0 50% / 11px 8px;
+  opacity: 0.7;
 }
 
-.lc-plan {
+.lc-plan-map {
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: 0.45rem;
   min-height: 0;
-  padding: 0.35rem;
-  background: #f4f8f9;
-  border-radius: 12px;
+  overflow: hidden;
+  background: #f7fafb;
+  border: 1.5px solid #b7c8cd;
+  border-radius: 14px;
 }
 
 .lc-plan-row {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.5rem;
   flex: 1;
-}
-
-.lc-plan-corridor {
-  min-height: 26px;
-  background: repeating-linear-gradient(90deg, #e4ecee, #e4ecee 10px, #f0f5f6 10px, #f0f5f6 20px);
-  border-radius: 6px;
-}
-
-.lc-bed {
-  display: grid;
-  gap: 0.18rem;
-  align-content: start;
   min-height: 0;
-  padding: 0.55rem 0.6rem;
-  text-align: left;
+}
+
+.lc-plan-hall {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 34px;
+  padding: 0 1rem;
+  color: #107c67;
+  background: #edf3f5;
+  border-top: 1.5px solid #b7c8cd;
+  border-bottom: 1.5px solid #b7c8cd;
+}
+
+.lc-plan-hall-line {
+  flex: 1;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #9ec9bf 12%, #9ec9bf 88%, transparent);
+}
+
+.lc-room {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  justify-items: center;
+  gap: 0.2rem;
+  min-height: 0;
+  padding: 0.7rem 0.45rem 0.55rem;
+  text-align: center;
   color: var(--lc-text);
-  background: var(--lc-surface);
-  border: 1px solid var(--lc-border);
-  border-radius: 10px;
+  background: #fff;
+  border: 0;
+  border-right: 1.5px solid #b7c8cd;
+  border-radius: 0;
   cursor: pointer;
 }
 
-.lc-bed[data-level='CAUTION'] {
-  border-color: #e0c36a;
-  background: #fffbeb;
+.lc-plan-row .lc-room:last-child {
+  border-right: 0;
 }
 
-.lc-bed[data-level='ALARM'] {
-  border-color: #e8a06a;
-  background: #fff4ec;
+.lc-room[data-level='CAUTION'] {
+  background: #fff8e8;
 }
 
-.lc-bed-top {
-  display: flex;
-  gap: 0.3rem;
-  align-items: center;
+.lc-room[data-level='ALARM'] {
+  background: #ffe8d8;
 }
 
-.lc-bed-no {
+.lc-room-warn {
+  position: absolute;
+  top: 0.45rem;
+  right: 0.45rem;
+  color: #d97706;
+}
+
+.lc-room-icon {
+  color: #5b6b76;
+}
+
+.lc-room-no {
   font-weight: 800;
-  font-size: 1.05rem;
+  font-size: 1.35rem;
+  line-height: 1;
 }
 
-.lc-bed-alert {
-  color: var(--lc-alarm);
+.lc-room-mews {
+  align-self: center;
+  color: #5b6b76;
+  font-size: 0.78rem;
+  font-weight: 600;
 }
 
-.lc-bed-dot {
-  width: 8px;
-  height: 8px;
-  margin-left: auto;
+.lc-room-dot {
+  width: 10px;
+  height: 10px;
+  margin-top: auto;
   border-radius: 50%;
-  background: #2f7a4c;
+  background: #22a06b;
 }
 
-.lc-bed-dot[data-level='CAUTION'] {
-  background: var(--lc-warn);
+.lc-room-dot[data-level='CAUTION'] {
+  background: #d4a017;
 }
 
-.lc-bed-dot[data-level='ALARM'] {
-  background: var(--lc-alarm);
-}
-
-.lc-bed-mews {
-  font-size: 0.72rem;
-  color: var(--lc-muted);
-}
-
-.lc-bed-name {
-  font-size: 0.82rem;
+.lc-room-dot[data-level='ALARM'] {
+  background: #e24b4a;
 }
 
 .lc-mews-legend {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.9rem;
+  gap: 1.1rem;
   justify-content: center;
   margin: 0;
-  padding: 0.15rem 0 0;
+  padding: 0.1rem 0 0;
   list-style: none;
-  color: var(--lc-muted);
-  font-size: 0.72rem;
+  color: #5b6b76;
+  font-size: 0.78rem;
 }
 
 .lc-mews-legend span {
   display: inline-block;
-  width: 8px;
-  height: 8px;
-  margin-right: 0.3rem;
+  width: 9px;
+  height: 9px;
+  margin-right: 0.35rem;
   border-radius: 50%;
   vertical-align: middle;
 }
 
 .lc-mews-legend span[data-dot='ok'] {
-  background: #2f7a4c;
+  background: #22a06b;
 }
 
 .lc-mews-legend span[data-dot='warn'] {
-  background: var(--lc-warn);
+  background: #d4a017;
 }
 
 .lc-mews-legend span[data-dot='alarm'] {
-  background: var(--lc-alarm);
+  background: #e24b4a;
 }
 
 .lc-call-banner {
   display: flex;
-  gap: 0.85rem;
+  gap: 0.95rem;
   align-items: center;
-  padding: 0.75rem 0.95rem;
-  background: var(--lc-surface);
+  padding: 0.85rem 1rem;
+  background: #fff;
   border: 1px solid var(--lc-border);
-  border-radius: 16px;
-  box-shadow: 0 6px 18px rgba(29, 41, 51, 0.05);
+  border-radius: 18px;
+  box-shadow: 0 8px 22px rgba(29, 41, 51, 0.06);
 }
 
 .lc-call-icon {
   display: grid;
   place-items: center;
   flex: none;
-  width: 48px;
-  height: 48px;
+  width: 56px;
+  height: 56px;
   color: #fff;
-  background: var(--lc-accent);
+  background: #107c67;
   border-radius: 50%;
 }
 
@@ -572,16 +593,43 @@
 
 .lc-call-copy p {
   margin: 0;
-  font-size: 0.84rem;
+  font-size: 0.88rem;
 }
 
 .lc-call-title {
-  font-weight: 700;
+  margin-bottom: 0.15rem !important;
+  font-size: 1rem !important;
+  font-weight: 750;
 }
 
 .lc-call-actions {
   display: flex;
-  gap: 0.45rem;
+  gap: 0.55rem;
+}
+
+.lc-btn-outline {
+  color: #107c67;
+  background: #fff;
+  border-color: #107c67;
+}
+
+.lc-place-text {
+  display: grid;
+  gap: 0.05rem;
+  text-align: left;
+  line-height: 1.05;
+}
+
+.lc-place-text small {
+  color: #7a8a94;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: lowercase;
+}
+
+.lc-place[data-here='true'] .lc-place-text small {
+  color: #107c67;
 }
 
 .lc-bedside {
