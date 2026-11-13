@@ -1,6 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 import { ui } from '../src/i18n';
+import { keepNeedsDownUntil } from './keepNeeds';
 
 const MOCK_ORIGIN = `http://127.0.0.1:${process.env.MOCK_AI_PORT ?? '8787'}`;
 const MOCK_BASE_URL = `${MOCK_ORIGIN}/v1`;
@@ -48,34 +49,6 @@ async function expectAxeClean(page: Page) {
 
 async function fastForward(page: Page) {
   await page.getByRole('button', { name: ui.game.speedOption(4) }).click();
-}
-
-/** 新速率下日班會因飢餓暈倒；超時測試要喺房內重複飲水／如廁先撐到交更。 */
-async function keepNeedsDownUntil(page: Page, testId: string, timeout: number) {
-  const deadline = Date.now() + timeout;
-  while (Date.now() < deadline) {
-    if ((await page.getByTestId(testId).count()) > 0) return;
-    if ((await page.getByTestId('selfcare-active').count()) === 0) {
-      const water = page.getByTestId('selfcare-WATER');
-      const toilet = page.getByTestId('selfcare-TOILET');
-      if ((await water.count()) > 0 && (await water.isEnabled())) {
-        await water.click();
-      } else if ((await toilet.count()) > 0 && (await toilet.isEnabled())) {
-        await toilet.click();
-      } else {
-        const hunger = Number(
-          (await page.getByTestId('need-hunger').getAttribute('aria-valuenow')) ?? '0',
-        );
-        const bladder = Number(
-          (await page.getByTestId('need-bladder').getAttribute('aria-valuenow')) ?? '0',
-        );
-        const chip = page.getByTestId(hunger >= bladder ? 'landmark-pantry' : 'landmark-wc');
-        if ((await chip.count()) > 0) await chip.click();
-      }
-    }
-    await page.waitForTimeout(200);
-  }
-  await expect(page.getByTestId(testId)).toBeVisible({ timeout: 1_000 });
 }
 
 test.describe('M6 setup, rounds, energy, overtime and endings', () => {
