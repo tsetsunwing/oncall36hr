@@ -150,6 +150,12 @@ function writeJson(path: string, value: unknown): void {
   writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`, 'utf8');
 }
 
+/** UTF-8 連 BOM，Excel 直接開中文唔會變亂碼。parseTable 會去掉 BOM。 */
+function writeCsvFile(path: string, text: string): void {
+  const body = text.startsWith('\uFEFF') ? text : `\uFEFF${text}`;
+  writeFileSync(path, body, 'utf8');
+}
+
 function quote(value: string): string {
   return /[",\n]/u.test(value) ? `"${value.replace(/"/gu, '""')}"` : value;
 }
@@ -213,7 +219,7 @@ function drugsExport(): void {
     };
   });
   ensureDir();
-  writeFileSync(DRUG_CSV, toCsv(DRUG_COLUMNS, rows), 'utf8');
+  writeCsvFile(DRUG_CSV, toCsv(DRUG_COLUMNS, rows));
   const unmatched = rows.filter((row) => row.class === '').length;
   console.log(`✅ ${DRUG_CSV}：${String(rows.length)} 隻藥（${String(unmatched)} 隻對不到分類）`);
 }
@@ -323,7 +329,7 @@ function casesExport(): void {
     };
   });
   ensureDir();
-  writeFileSync(CASE_CSV, toCsv(CASE_COLUMNS, rows), 'utf8');
+  writeCsvFile(CASE_CSV, toCsv(CASE_COLUMNS, rows));
   console.log(`✅ ${CASE_CSV}：${String(rows.length)} 個現有病例（可照格式加行）`);
 }
 
@@ -488,7 +494,7 @@ function roundsExport(): void {
     };
   });
   ensureDir();
-  writeFileSync(ROUNDS_CSV, toCsv(ROUNDS_COLUMNS, rows), 'utf8');
+  writeCsvFile(ROUNDS_CSV, toCsv(ROUNDS_COLUMNS, rows));
   console.log(
     `✅ ${ROUNDS_CSV}：${String(rows.length)} 題（填 question／hints／keywords 就唔使 AI）`,
   );

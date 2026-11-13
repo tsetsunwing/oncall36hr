@@ -1,4 +1,4 @@
-id,diagnosis_id,category,focus,question,hints,fact1_text,fact1_keywords,fact2_text,fact2_keywords,fact3_text,fact3_keywords,review_status,note
+﻿id,diagnosis_id,category,focus,question,hints,fact1_text,fact1_keywords,fact2_text,fact2_keywords,fact3_text,fact3_keywords,review_status,note
 pneumonia-history,pneumonia,HISTORY,肺炎病人的病史重點：症狀、風險因素和過往病史,呢位肺炎病人，你會問啲咩病史？點解？,發燒咳嗽有痰|長者可能只見神志混亂|吸煙同慢性肺病史,典型症狀包括發燒、咳嗽、有痰和氣促，部分病人有胸膜炎性胸痛,發燒|咳嗽|有痰|氣促|胸痛,長者可能只表現為神志混亂或食慾下降，不一定發燒,神志混亂|混亂|食慾|長者,要問吸煙史、慢性肺病、免疫力低下，以及近期入院或使用抗生素,吸煙|慢性肺病|免疫力|抗生素|入院,PENDING_CLINICAL_REVIEW,示意內容，教學用途；待臨床審核
 pneumonia-pathology,pneumonia,PATHOLOGY,肺炎的病理機制,,,病原體進入肺泡後引起炎症反應，肺泡內充滿滲出液,,肺泡積液令氣體交換受損，導致缺氧,,細菌性社區肺炎最常見的致病菌是肺炎鏈球菌,,PENDING_CLINICAL_REVIEW,示意內容，教學用途；待臨床審核
 pneumonia-pharmacology,pneumonia,PHARMACOLOGY,肺炎抗生素的選擇原則,,,經驗性抗生素按社區或醫院獲得性、嚴重程度和當地耐藥情況選擇,,用藥前要先確認病人有沒有青黴素過敏,,盡早給予首劑抗生素，並按培養結果和臨床反應調整,,PENDING_CLINICAL_REVIEW,示意內容，教學用途；待臨床審核
