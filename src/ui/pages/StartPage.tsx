@@ -166,6 +166,9 @@ export function StartPage({
           <p className="setup-summary" data-testid="setup-summary">
             {summary}
           </p>
+          <a className="btn btn-small" href="#/demo/layout-c" data-testid="open-layout-c-demo">
+            Layout C DEMO
+          </a>
           <button
             type="button"
             className="primary"
