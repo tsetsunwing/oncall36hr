@@ -142,7 +142,7 @@ describe('suggestTreatmentDrugs', () => {
     expect(suggestTreatmentDrugs('zzz', medications)).toEqual([]);
   });
 
-  it('類別篩選只收窄已夠三個英文字的治療建議', () => {
+  it('已揀類別時以類別篩選，不必先打三個字母', () => {
     const rows: MedicationOption[] = [
       {
         id: 'hyoscine',
@@ -166,7 +166,12 @@ describe('suggestTreatmentDrugs', () => {
         classes: [],
       },
     ];
-    expect(suggestTreatmentDrugs('hy', rows, 'GENERAL ANAESTHESIA')).toEqual([]);
+    expect(suggestTreatmentDrugs('', rows, 'GENERAL ANAESTHESIA').map((item) => item.id)).toEqual([
+      'hyoscine',
+    ]);
+    expect(suggestTreatmentDrugs('hy', rows, 'GENERAL ANAESTHESIA').map((item) => item.id)).toEqual(
+      ['hyoscine'],
+    );
     expect(suggestTreatmentDrugs('hyo', rows).map((item) => item.id)).toEqual(['hyoscine']);
     expect(
       suggestTreatmentDrugs('hyo', rows, 'GENERAL ANAESTHESIA').map((item) => item.id),

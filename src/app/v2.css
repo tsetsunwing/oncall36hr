@@ -2681,8 +2681,6 @@ button.place-room-action:disabled:not([data-active='true']) {
 }
 
 .drug-order-options label,
-.drug-order-dose label,
-.drug-order-drug,
 .drug-order-notes label {
   display: flex;
   align-items: center;
@@ -2692,17 +2690,40 @@ button.place-room-action:disabled:not([data-active='true']) {
   white-space: nowrap;
 }
 
+.drug-order-class-filter {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.drug-order-class-filter .drug-order-select {
+  flex: 0 1 14rem;
+  width: 14rem;
+  max-width: 100%;
+}
+
 .drug-order-drug {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.15rem;
   width: 100%;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--muted);
+  white-space: nowrap;
 }
 
 .drug-order-drug input {
-  flex: 1 1 0;
-  width: 0;
+  width: 100%;
   min-width: 0;
 }
 
-/* 途徑、頻次和輸液欄位並排，不再各自佔滿一行。 */
+/* 劑量、單位、途徑同一行；頻次／輸液欄位跟在後面。 */
 .drug-order-pack {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -2723,8 +2744,8 @@ button.place-room-action:disabled:not([data-active='true']) {
 
 .drug-order-pack input[type='text'],
 .drug-order-pack select {
-  height: 28px;
-  min-height: 28px;
+  height: 32px;
+  min-height: 32px;
   padding: 0 0.45rem;
 }
 
@@ -2747,6 +2768,7 @@ button.place-room-action:disabled:not([data-active='true']) {
 .drug-order .drug-order-select select {
   width: 100%;
   color: transparent;
+  appearance: none;
 }
 
 .drug-order .drug-order-select option {
@@ -2767,12 +2789,28 @@ button.place-room-action:disabled:not([data-active='true']) {
   text-overflow: ellipsis;
 }
 
+.drug-order-select::after {
+  content: '';
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  right: 0.55rem;
+  width: 0.4rem;
+  height: 0.4rem;
+  border-right: 1.5px solid var(--muted);
+  border-bottom: 1.5px solid var(--muted);
+  pointer-events: none;
+  transform: translateY(-70%) rotate(45deg);
+}
+
 .drug-order-field {
   display: flex;
   flex-direction: column;
   align-items: stretch;
   gap: 0.15rem;
   font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--muted);
 }
 
 .drug-order-field select {
@@ -2784,21 +2822,8 @@ button.place-room-action:disabled:not([data-active='true']) {
   min-width: 0;
   min-height: 28px;
   font: inherit;
-}
-
-.drug-order-dose {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 0.35rem 0.55rem;
-  align-items: center;
-}
-
-.drug-order-dose input[type='text'] {
-  width: 4.25rem;
-}
-
-.drug-order-dose .drug-order-select {
-  width: 6.75rem;
+  font-weight: 400;
+  color: var(--text);
 }
 
 .drug-order-notes input[type='text'] {
@@ -2818,6 +2843,7 @@ button.place-room-action:disabled:not([data-active='true']) {
   list-style: none;
   background: var(--surface);
   border: 1px solid var(--border);
+  border-radius: 8px;
 }
 
 .drug-order-matches li + li {
