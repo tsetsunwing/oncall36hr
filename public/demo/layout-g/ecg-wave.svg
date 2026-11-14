@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 48" width="320" height="48" fill="none" aria-hidden="true">
+  <!-- Layout G monitor ECG strip — NSR-style schematic, teal on transparent -->
+  <path
+    stroke="#3DFF9A"
+    stroke-width="1.75"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    d="M0 24 H28
+       L34 24 L38 10 L42 38 L46 24
+       H72
+       L78 24 L82 10 L86 38 L90 24
+       H116
+       L122 24 L126 10 L130 38 L134 24
+       H160
+       L166 24 L170 10 L174 38 L178 24
+       H204
+       L210 24 L214 10 L218 38 L222 24
+       H248
+       L254 24 L258 10 L262 38 L266 24
+       H292
+       L298 24 L302 10 L306 38 L310 24
+       H320"
+  />
+  <path
+    stroke="#3DFF9A"
+    stroke-opacity="0.35"
+    stroke-width="1"
+    stroke-linecap="round"
+    d="M0 24 H320"
+  />
+</svg>

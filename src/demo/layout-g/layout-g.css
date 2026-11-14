@@ -1,0 +1,348 @@
+/**
+ * Layout G design tokens — Figma KvxouGZszS77hHkQgU329e
+ * Source of truth: internal/figma-ui-principles.md
+ * Stage 1: tokens only (components land in Stage 2).
+ */
+
+.layout-g-demo-host {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding: 0.5rem;
+  overflow: auto;
+  background: #c5d0d6;
+}
+
+.lg-demo {
+  /* ——— Surfaces ——— */
+  --g-bg: #e8eef1;
+  --g-surface: #f7f9fa;
+  --g-surface-solid: #ffffff;
+  --g-surface-card: rgba(255, 255, 255, 0.97);
+  --g-surface-hud: rgba(255, 255, 255, 0.95);
+  --g-monitor: #0b0f12;
+  --g-monitor-panel: #12181c;
+
+  /* ——— Text ——— */
+  --g-text: #1d2933;
+  --g-text-strong: #122029;
+  --g-muted: #5b6b76;
+  --g-faint: #8a9aa3;
+
+  /* ——— Lines / borders ——— */
+  --g-line: #dce4e6;
+  --g-line-strong: #c5d0d6;
+
+  /* ——— Accent (selected / interactive) ——— */
+  /* Figma teal {0.05, 0.45, 0.5} */
+  --g-teal: #0d7380;
+  --g-teal-soft: rgba(13, 115, 128, 0.14);
+  --g-teal-tint: #d7eef1;
+  --g-teal-border: #0d7380;
+
+  /* ——— Status ——— */
+  --g-ok: #1f8a5b;
+  --g-ok-soft: rgba(31, 138, 91, 0.14);
+  --g-warn: #c48a12;
+  --g-warn-soft: rgba(196, 138, 18, 0.16);
+  --g-alarm: #c45c26;
+  --g-alarm-soft: rgba(196, 92, 38, 0.16);
+  --g-danger: #b82929;
+  --g-danger-soft: rgba(184, 41, 41, 0.14);
+
+  /* ——— Lab grades ——— */
+  /* H {0.72, 0.16, 0.16} · L {0.12, 0.35, 0.7} */
+  --g-grade-h: #b82929;
+  --g-grade-l: #1f59b3;
+  --g-grade-n: #5b6b76;
+
+  /* ——— MEWS badge ——— */
+  --g-mews-green: #1f8a5b;
+  --g-mews-amber: #c48a12;
+  --g-mews-red: #b82929;
+
+  /* ——— Route chips (MAR) ——— */
+  --g-route-po: #0d7380;
+  --g-route-iv: #6b4ea2;
+  --g-route-ivf: #2a6fbf;
+  --g-route-im: #c45c26;
+  --g-route-sc: #9a7340;
+  --g-route-neb: #2a8eb8;
+  --g-route-sl: #c45a7a;
+
+  /* ——— Chip defaults ——— */
+  --g-chip-bg: #eef2f4;
+  --g-chip-border: #d0dade;
+  --g-chip-text: #3a4a54;
+  --g-chip-selected-bg: var(--g-teal-soft);
+  --g-chip-selected-border: var(--g-teal);
+  --g-chip-selected-text: var(--g-teal);
+  --g-chip-history-bg: #e4eaed;
+  --g-chip-current-border-width: 2px;
+
+  /* ——— Layout constants ——— */
+  --g-radius-card: 14px;
+  --g-radius-chip: 8px;
+  --g-radius-hud: 16px;
+  --g-radius-hud-lg: 20px;
+  --g-radius-btn: 12px;
+  --g-pad-card: 12px;
+  --g-gap-row: 8px;
+  --g-edge-right: 18px;
+  --g-viewport-w: 1280px;
+  --g-viewport-h: 720px;
+
+  /* ——— Type scale ——— */
+  --g-font: 'DM Sans', 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+  --g-font-mono: 'IBM Plex Mono', 'SF Mono', ui-monospace, monospace;
+  --g-fs-chip: 8px;
+  --g-fs-caption: 10px;
+  --g-fs-label: 11px;
+  --g-fs-body: 13px;
+  --g-fs-title: 15px;
+  --g-fs-display: 22px;
+  --g-fs-monitor: 28px;
+  --g-fw-regular: 400;
+  --g-fw-medium: 500;
+  --g-fw-semibold: 600;
+  --g-fw-bold: 700;
+
+  /* ——— Shadows ——— */
+  --g-shadow-hud: 0 4px 18px rgba(18, 40, 48, 0.12);
+  --g-shadow-card: 0 2px 10px rgba(18, 40, 48, 0.08);
+  --g-shadow-float: 0 8px 28px rgba(18, 40, 48, 0.16);
+
+  /* ——— Monitor waveform ——— */
+  --g-ecg: #3dff9a;
+  --g-pleth: #4ecbff;
+  --g-abp: #ff6b6b;
+  --g-etco2: #f0c14a;
+
+  /* ——— Asset URLs (public/demo/layout-g) ——— */
+  --g-asset-isometric: url('/demo/layout-g/isometric-hospital.png');
+  --g-asset-zone-a: url('/demo/layout-g/zone-a-night.jpg');
+  --g-asset-zone-b: url('/demo/layout-g/zone-b-night.jpg');
+  --g-asset-pantry: url('/demo/layout-g/landmark-pantry.jpg');
+  --g-asset-rest: url('/demo/layout-g/landmark-rest.jpg');
+  --g-asset-wc: url('/demo/layout-g/landmark-wc.jpg');
+  --g-asset-ecg: url('/demo/layout-g/ecg-wave.svg');
+  --g-asset-body: url('/demo/layout-g/body-silhouette.svg');
+
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  width: min(100%, var(--g-viewport-w));
+  height: min(100%, var(--g-viewport-h));
+  max-width: var(--g-viewport-w);
+  max-height: var(--g-viewport-h);
+  margin: auto;
+  overflow: hidden;
+  color: var(--g-text);
+  background: var(--g-bg);
+  border: 1px solid var(--g-line);
+  border-radius: var(--g-radius-card);
+  font-family: var(--g-font);
+  font-size: var(--g-fs-body);
+  line-height: 1.35;
+}
+
+.lg-demo *,
+.lg-demo *::before,
+.lg-demo *::after {
+  box-sizing: border-box;
+}
+
+.lg-demo .visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  border: 0;
+}
+
+/* ——— Primitive: chip ——— */
+.lg-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  min-height: 22px;
+  padding: 0.15rem 0.45rem;
+  color: var(--g-chip-text);
+  background: var(--g-chip-bg);
+  border: 1px solid var(--g-chip-border);
+  border-radius: var(--g-radius-chip);
+  font-size: var(--g-fs-chip);
+  font-weight: var(--g-fw-medium);
+  line-height: 1.2;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.lg-chip[data-selected='true'],
+.lg-chip.is-selected {
+  color: var(--g-chip-selected-text);
+  background: var(--g-chip-selected-bg);
+  border-color: var(--g-chip-selected-border);
+  font-weight: var(--g-fw-bold);
+}
+
+.lg-chip[data-kind='unit'] {
+  color: var(--g-muted);
+  background: var(--g-surface-solid);
+  cursor: default;
+}
+
+.lg-chip[data-kind='value'] {
+  color: var(--g-text);
+  background: var(--g-surface-solid);
+  font-variant-numeric: tabular-nums;
+}
+
+.lg-chip[data-kind='history'] {
+  background: var(--g-chip-history-bg);
+  border-color: transparent;
+}
+
+.lg-chip[data-kind='current'] {
+  background: var(--g-surface-solid);
+  border-width: var(--g-chip-current-border-width);
+  border-color: var(--g-text);
+  font-weight: var(--g-fw-bold);
+}
+
+/* ——— Primitive: badge ——— */
+.lg-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.15rem 0.4rem;
+  color: var(--g-teal);
+  background: var(--g-teal-soft);
+  border-radius: 6px;
+  font-size: var(--g-fs-caption);
+  font-weight: var(--g-fw-semibold);
+}
+
+/* ——— Primitive: card ——— */
+.lg-card {
+  padding: var(--g-pad-card);
+  color: var(--g-text);
+  background: var(--g-surface-card);
+  border: 1px solid var(--g-line);
+  border-radius: var(--g-radius-card);
+  box-shadow: var(--g-shadow-card);
+}
+
+.lg-hud-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 40px;
+  padding: 0.35rem 0.75rem;
+  color: var(--g-text);
+  background: var(--g-surface-hud);
+  border: 1px solid var(--g-line);
+  border-radius: var(--g-radius-hud);
+  box-shadow: var(--g-shadow-hud);
+}
+
+/* ——— Primitive: confirm CTA ——— */
+.lg-confirm {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 40px;
+  padding: 0.55rem 0.85rem;
+  color: #fff;
+  background: var(--g-teal);
+  border: 0;
+  border-radius: var(--g-radius-btn);
+  font-size: var(--g-fs-body);
+  font-weight: var(--g-fw-bold);
+  cursor: pointer;
+}
+
+.lg-confirm:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ——— Grade text ——— */
+.lg-grade[data-grade='H'] {
+  color: var(--g-grade-h);
+  font-weight: var(--g-fw-bold);
+}
+
+.lg-grade[data-grade='L'] {
+  color: var(--g-grade-l);
+  font-weight: var(--g-fw-bold);
+}
+
+.lg-grade[data-grade='N'] {
+  color: var(--g-grade-n);
+}
+
+/* ——— Route tint helpers ——— */
+.lg-route[data-route='PO'] {
+  color: var(--g-route-po);
+  border-color: var(--g-route-po);
+  background: color-mix(in srgb, var(--g-route-po) 12%, white);
+}
+
+.lg-route[data-route='IV'] {
+  color: var(--g-route-iv);
+  border-color: var(--g-route-iv);
+  background: color-mix(in srgb, var(--g-route-iv) 12%, white);
+}
+
+.lg-route[data-route='IVF'] {
+  color: var(--g-route-ivf);
+  border-color: var(--g-route-ivf);
+  background: color-mix(in srgb, var(--g-route-ivf) 12%, white);
+}
+
+.lg-route[data-route='IM'] {
+  color: var(--g-route-im);
+  border-color: var(--g-route-im);
+  background: color-mix(in srgb, var(--g-route-im) 12%, white);
+}
+
+.lg-route[data-route='SC'] {
+  color: var(--g-route-sc);
+  border-color: var(--g-route-sc);
+  background: color-mix(in srgb, var(--g-route-sc) 12%, white);
+}
+
+.lg-route[data-route='NEB'] {
+  color: var(--g-route-neb);
+  border-color: var(--g-route-neb);
+  background: color-mix(in srgb, var(--g-route-neb) 12%, white);
+}
+
+.lg-route[data-route='SL'] {
+  color: var(--g-route-sl);
+  border-color: var(--g-route-sl);
+  background: color-mix(in srgb, var(--g-route-sl) 12%, white);
+}
+
+/* ——— Asset preview helpers (Stage 1 smoke) ——— */
+.lg-asset-isometric {
+  background-image: var(--g-asset-isometric);
+  background-size: cover;
+  background-position: center;
+}
+
+.lg-asset-ecg {
+  background-image: var(--g-asset-ecg);
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: left center;
+}
