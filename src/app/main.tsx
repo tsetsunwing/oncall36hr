@@ -7,6 +7,7 @@ import { App } from './App';
 import './tokens.css';
 import './styles.css';
 import './v2.css';
+import '@/demo/layout-g/layout-g.css';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) throw new Error('找不到 #root');

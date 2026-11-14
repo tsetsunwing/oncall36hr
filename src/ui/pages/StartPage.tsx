@@ -177,7 +177,7 @@ export function StartPage({
             {ui.start.startButton}
           </button>
           <a
-            className="btn btn-small"
+            className="lg-entrance-link"
             href="#/demo/layout-g"
             data-testid="open-layout-g-demo"
             title="開啟 Layout G 外殼示範（唔會取代正式值班畫面）"
