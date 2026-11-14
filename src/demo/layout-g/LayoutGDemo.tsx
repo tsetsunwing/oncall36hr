@@ -859,7 +859,7 @@ function BedZoomScreen({
                   <strong>
                     {r.time} · {r.label}
                   </strong>
-                  {'detail' in r && r.detail ? <p>{r.detail}</p> : null}
+                  {'detail' in r ? <p>{r.detail}</p> : null}
                   {'chips' in r ? (
                     <div className="lg-result-chips">
                       {r.chips.map((c) => (

@@ -176,6 +176,14 @@ export function StartPage({
           >
             {ui.start.startButton}
           </button>
+          <a
+            className="btn btn-small"
+            href="#/demo/layout-g"
+            data-testid="open-layout-g-demo"
+            title="開啟 Layout G 外殼示範（唔會取代正式值班畫面）"
+          >
+            Layout G 示範 DEMO
+          </a>
         </div>
       </header>
       <div className="setup-grid">
