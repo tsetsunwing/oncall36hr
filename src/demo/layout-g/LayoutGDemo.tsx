@@ -860,7 +860,7 @@ function BedZoomScreen({
                     {r.time} · {r.label}
                   </strong>
                   {'detail' in r && r.detail ? <p>{r.detail}</p> : null}
-                  {'chips' in r && r.chips ? (
+                  {'chips' in r ? (
                     <div className="lg-result-chips">
                       {r.chips.map((c) => (
                         <span key={c.k} className="lg-chip" data-kind="current">
