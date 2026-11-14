@@ -38,13 +38,25 @@ export const ZONE_B_BEDS: Hotspot[] = [
   { id: 'B5', xPct: 62.1, yPct: 48.3, mews: 3 },
 ];
 
-export const ZONE_A_LANDMARKS: { id: LandmarkId; labelChi: string; labelEng: string; xPct: number; yPct: number }[] = [
+export const ZONE_A_LANDMARKS: {
+  id: LandmarkId;
+  labelChi: string;
+  labelEng: string;
+  xPct: number;
+  yPct: number;
+}[] = [
   { id: 'pantry', labelChi: '茶水間', labelEng: 'Pantry', xPct: 79.8, yPct: 21.7 },
   { id: 'rest', labelChi: '休息室', labelEng: 'Rest', xPct: 82.9, yPct: 42.9 },
   { id: 'wc', labelChi: '洗手間', labelEng: 'WC', xPct: 85.0, yPct: 64.8 },
 ];
 
-export const ZONE_B_LANDMARKS: { id: LandmarkId; labelChi: string; labelEng: string; xPct: number; yPct: number }[] = [
+export const ZONE_B_LANDMARKS: {
+  id: LandmarkId;
+  labelChi: string;
+  labelEng: string;
+  xPct: number;
+  yPct: number;
+}[] = [
   { id: 'pantry', labelChi: '茶水間', labelEng: 'Pantry', xPct: 75.1, yPct: 30.0 },
   { id: 'rest', labelChi: '休息室', labelEng: 'Rest', xPct: 79.2, yPct: 50.5 },
   { id: 'wc', labelChi: '洗手間', labelEng: 'WC', xPct: 73.2, yPct: 68.7 },
@@ -142,7 +154,11 @@ export const DEMO_PHONE = {
 
 export const LANDMARK_ACTIONS: Record<
   LandmarkId,
-  { titleChi: string; titleEng: string; actions: { id: string; labelChi: string; labelEng: string; note: string }[] }
+  {
+    titleChi: string;
+    titleEng: string;
+    actions: { id: string; labelChi: string; labelEng: string; note: string }[];
+  }
 > = {
   pantry: {
     titleChi: '茶水間',

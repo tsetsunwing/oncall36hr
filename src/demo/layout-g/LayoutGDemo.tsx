@@ -153,10 +153,7 @@ export function LayoutGDemo() {
 
   function noteOrder(text: string) {
     setToast(text);
-    setChat((prev) => [
-      ...prev,
-      { id: `c-${String(prev.length + 1)}`, who: '系統 System', text },
-    ]);
+    setChat((prev) => [...prev, { id: `c-${String(prev.length + 1)}`, who: '系統 System', text }]);
     setDock(null);
     setTreatL1(null);
     setTestBucket(null);
@@ -227,12 +224,7 @@ export function LayoutGDemo() {
         ) : null}
 
         {screen === 'floor' ? (
-          <FloorScreen
-            zone={zone}
-            bg={floorBg}
-            onBed={openBed}
-            onLandmark={openLandmark}
-          />
+          <FloorScreen zone={zone} bg={floorBg} onBed={openBed} onLandmark={openLandmark} />
         ) : null}
 
         {screen === 'landmark' ? (
@@ -328,12 +320,7 @@ export function LayoutGDemo() {
           />
         ) : null}
 
-        {screen === 'roundFeedback' ? (
-          <RoundFeedback
-            pick={roundPick}
-            onNext={goFloor}
-          />
-        ) : null}
+        {screen === 'roundFeedback' ? <RoundFeedback pick={roundPick} onNext={goFloor} /> : null}
 
         {screen === 'end' ? (
           <EndScreen
@@ -458,7 +445,9 @@ function Hud({
 function Need({ label, value }: { label: string; value: number }) {
   return (
     <div className="lg-need" title={label}>
-      <span>{label.split(' ')[0]} {value}%</span>
+      <span>
+        {label.split(' ')[0]} {value}%
+      </span>
       <div className="lg-need-bar" aria-hidden>
         <i style={{ width: `${String(value)}%` }} />
       </div>
@@ -490,7 +479,12 @@ function StartScreen({
           <button type="button" className="lg-confirm" data-testid="lg-start-new" onClick={onNew}>
             新遊戲 New game
           </button>
-          <button type="button" className="lg-hud-btn" data-testid="lg-start-go" onClick={onContinue}>
+          <button
+            type="button"
+            className="lg-hud-btn"
+            data-testid="lg-start-go"
+            onClick={onContinue}
+          >
             繼續 Continue → Floor
           </button>
           <button type="button" className="lg-hud-btn" data-testid="lg-start-end" onClick={onEnd}>
@@ -581,7 +575,12 @@ function FloorScreen({
   const pins = landmarksFor(zone);
   return (
     <section className="lg-floor" data-testid="lg-floor" data-zone={zone}>
-      <div className="lg-bleed" style={{ backgroundImage: `url(${bg})` }} role="img" aria-label={`Zone ${zone} floor`} />
+      <div
+        className="lg-bleed"
+        style={{ backgroundImage: `url(${bg})` }}
+        role="img"
+        aria-label={`Zone ${zone} floor`}
+      />
       <div className="lg-hotspots">
         {beds.map((bed) => (
           <button
@@ -661,7 +660,12 @@ function LandmarkScreen({
           ))}
         </div>
         {toast ? <p className="lg-toast">{toast}</p> : null}
-        <button type="button" className="lg-confirm" data-testid="lg-landmark-back" onClick={onBack}>
+        <button
+          type="button"
+          className="lg-confirm"
+          data-testid="lg-landmark-back"
+          onClick={onBack}
+        >
           返回病房 Back to ward
         </button>
       </div>
@@ -727,13 +731,15 @@ function BedZoomScreen({
   const art = asset(`demo/layout-g/${DEMO_PATIENT.artKey}`);
   const sections = testBucket ? TEST_MENU_SECTIONS[testBucket] : [];
   const actions: readonly string[] =
-    testSection && testSection in TEST_ACTION_ORDER
-      ? (TEST_ACTION_ORDER[testSection] ?? [])
-      : [];
+    testSection && testSection in TEST_ACTION_ORDER ? (TEST_ACTION_ORDER[testSection] ?? []) : [];
 
   return (
     <section className="lg-bedzoom" data-testid="lg-bedzoom">
-      <div className="lg-bleed lg-bedzoom-bg" style={{ backgroundImage: `url(${art})` }} aria-hidden />
+      <div
+        className="lg-bleed lg-bedzoom-bg"
+        style={{ backgroundImage: `url(${art})` }}
+        aria-hidden
+      />
 
       <div className="lg-bedzoom-grid">
         <div className="lg-panel-monitor" data-collapsed={collapsed.monitor === true}>
@@ -745,13 +751,22 @@ function BedZoomScreen({
             <h2>
               身形圖 Body · {bedId} · {DEMO_PATIENT.name}
             </h2>
-            <button type="button" className="lg-collapse" onClick={() => onCollapse('body')} aria-label="collapse">
+            <button
+              type="button"
+              className="lg-collapse"
+              onClick={() => onCollapse('body')}
+              aria-label="collapse"
+            >
               ⌃
             </button>
           </header>
           {!collapsed.body ? (
             <div className="lg-body-wrap">
-              <img src={asset('demo/layout-g/body-silhouette.svg')} alt="" className="lg-body-sil" />
+              <img
+                src={asset('demo/layout-g/body-silhouette.svg')}
+                alt=""
+                className="lg-body-sil"
+              />
               <ul className="lg-line-list">
                 <li>Nasal cannula 2 L/min</li>
                 <li>Peripheral IV</li>
@@ -764,7 +779,12 @@ function BedZoomScreen({
         <article className="lg-card lg-panel-mar" data-collapsed={collapsed.mar === true}>
           <header className="lg-panel-head">
             <h2>處方 MAR</h2>
-            <button type="button" className="lg-collapse" onClick={() => onCollapse('mar')} aria-label="collapse">
+            <button
+              type="button"
+              className="lg-collapse"
+              onClick={() => onCollapse('mar')}
+              aria-label="collapse"
+            >
               ⌃
             </button>
           </header>
@@ -792,7 +812,12 @@ function BedZoomScreen({
         <article className="lg-card lg-panel-record" data-collapsed={collapsed.record === true}>
           <header className="lg-panel-head">
             <h2>病歷 Record</h2>
-            <button type="button" className="lg-collapse" onClick={() => onCollapse('record')} aria-label="collapse">
+            <button
+              type="button"
+              className="lg-collapse"
+              onClick={() => onCollapse('record')}
+              aria-label="collapse"
+            >
               ⌃
             </button>
           </header>
@@ -817,7 +842,12 @@ function BedZoomScreen({
         <article className="lg-card lg-panel-results" data-collapsed={collapsed.results === true}>
           <header className="lg-panel-head">
             <h2>報告 Results</h2>
-            <button type="button" className="lg-collapse" onClick={() => onCollapse('results')} aria-label="collapse">
+            <button
+              type="button"
+              className="lg-collapse"
+              onClick={() => onCollapse('results')}
+              aria-label="collapse"
+            >
               ⌃
             </button>
           </header>
@@ -829,8 +859,8 @@ function BedZoomScreen({
                   <strong>
                     {r.time} · {r.label}
                   </strong>
-                  {'detail' in r && r.detail ? <p>{r.detail}</p> : null}
-                  {'chips' in r && r.chips ? (
+                  {'detail' in r ? <p>{r.detail}</p> : null}
+                  {'chips' in r ? (
                     <div className="lg-result-chips">
                       {r.chips.map((c) => (
                         <span key={c.k} className="lg-chip" data-kind="current">
@@ -851,7 +881,12 @@ function BedZoomScreen({
         <article className="lg-card lg-panel-log" data-collapsed={collapsed.log === true}>
           <header className="lg-panel-head">
             <h2>行動記錄 Action Log</h2>
-            <button type="button" className="lg-collapse" onClick={() => onCollapse('log')} aria-label="collapse">
+            <button
+              type="button"
+              className="lg-collapse"
+              onClick={() => onCollapse('log')}
+              aria-label="collapse"
+            >
               ⌃
             </button>
           </header>
@@ -879,13 +914,28 @@ function BedZoomScreen({
 
           {dock === 'treat' && treatL1 === null ? (
             <div className="lg-menu-l1">
-              <button type="button" className="lg-menu-row" data-testid="lg-treat-oxygen" onClick={() => onTreatL1('oxygen')}>
+              <button
+                type="button"
+                className="lg-menu-row"
+                data-testid="lg-treat-oxygen"
+                onClick={() => onTreatL1('oxygen')}
+              >
                 Oxygen
               </button>
-              <button type="button" className="lg-menu-row" data-testid="lg-treat-catheters" onClick={() => onTreatL1('catheters')}>
+              <button
+                type="button"
+                className="lg-menu-row"
+                data-testid="lg-treat-catheters"
+                onClick={() => onTreatL1('catheters')}
+              >
                 Catheters
               </button>
-              <button type="button" className="lg-menu-row" data-testid="lg-treat-drugs" onClick={() => onTreatL1('drugs')}>
+              <button
+                type="button"
+                className="lg-menu-row"
+                data-testid="lg-treat-drugs"
+                onClick={() => onTreatL1('drugs')}
+              >
                 Drugs
               </button>
             </div>
@@ -1084,7 +1134,13 @@ function PhoneScreen({
       <div className="lg-phone-sheet lg-card">
         <header className="lg-panel-head">
           <h2>電話 Phone</h2>
-          <button type="button" className="lg-collapse" data-testid="lg-phone-close" onClick={onClose} aria-label="close">
+          <button
+            type="button"
+            className="lg-collapse"
+            data-testid="lg-phone-close"
+            onClick={onClose}
+            aria-label="close"
+          >
             <X size={16} />
           </button>
         </header>
@@ -1177,7 +1233,13 @@ function RoundScreen({
           ))}
         </div>
         <textarea className="lg-round-free" placeholder="自由文字 Free text" rows={3} />
-        <button type="button" className="lg-confirm" data-testid="lg-round-submit" disabled={!pick} onClick={onSubmit}>
+        <button
+          type="button"
+          className="lg-confirm"
+          data-testid="lg-round-submit"
+          disabled={!pick}
+          onClick={onSubmit}
+        >
           提交 Submit
         </button>
       </div>
@@ -1208,9 +1270,7 @@ function EndScreen({ onAgain }: { onAgain: () => void }) {
   return (
     <section className="lg-end" data-testid="lg-end">
       <div className="lg-end-sheet lg-card">
-        <h1>
-          成績表 Grade Report · {END_REPORT.grade}
-        </h1>
+        <h1>成績表 Grade Report · {END_REPORT.grade}</h1>
         <p className="lg-end-score">{END_REPORT.score}</p>
         <ul>
           {END_REPORT.lines.map((line) => (
