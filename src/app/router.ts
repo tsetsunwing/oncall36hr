@@ -1,11 +1,12 @@
 import { useSyncExternalStore } from 'react';
 
-export type Route = 'start' | 'settings' | 'game';
+export type Route = 'start' | 'settings' | 'game' | 'demo-layout-g';
 
 export function parseRoute(hash: string): Route {
   const path = hash.replace(/^#/, '').split('?')[0] ?? '';
   if (path === '/settings') return 'settings';
   if (path === '/game') return 'game';
+  if (path === '/demo/layout-g') return 'demo-layout-g';
   return 'start';
 }
 
@@ -30,6 +31,10 @@ export function navigateToGame(choice: {
 }
 
 export function navigate(route: Route): void {
+  if (route === 'demo-layout-g') {
+    window.location.hash = '#/demo/layout-g';
+    return;
+  }
   window.location.hash = route === 'start' ? '#/' : `#/${route}`;
 }
 
