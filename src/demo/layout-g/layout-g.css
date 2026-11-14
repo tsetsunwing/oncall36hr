@@ -14,19 +14,19 @@
   min-height: 0;
   padding: 0.5rem;
   overflow: auto;
-  background: #c5d0d6;
+  background: var(--g-host-bg, var(--g-line-strong, #adb2bd));
 }
 
-/* Start-page entrance link (outside .lg-demo) */
+/* Start-page entrance link (outside .lg-demo) — paints from tokens.json via applyTokens */
 a.lg-entrance-link {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-height: 36px;
   padding: 0.35rem 0.85rem;
-  color: #0d7380;
-  background: rgba(13, 115, 128, 0.08);
-  border: 1.5px solid #0d7380;
+  color: var(--g-teal);
+  background: var(--g-teal-soft-preview);
+  border: 1.5px solid var(--g-teal);
   border-radius: 10px;
   font-weight: 700;
   text-decoration: none;
@@ -34,8 +34,8 @@ a.lg-entrance-link {
 
 a.lg-entrance-link:hover,
 a.lg-entrance-link:focus-visible {
-  color: #fff;
-  background: #0d7380;
+  color: var(--g-white, #fff);
+  background: var(--g-teal);
 }
 
 .lg-demo {
@@ -102,18 +102,43 @@ a.lg-entrance-link:focus-visible {
 
   /* ——— Route chips (MAR v2) ——— */
   --g-route-po: #0d7380;
+  --g-route-po-bg: rgba(13, 115, 128, 0.14);
   --g-route-iv: #7333a6;
+  --g-route-iv-bg: rgba(115, 51, 166, 0.14);
   --g-route-ivf: #004dbf;
+  --g-route-ivf-bg: rgba(0, 77, 191, 0.14);
   --g-route-im: #c45c26;
+  --g-route-im-bg: rgba(196, 92, 38, 0.14);
   --g-route-sc: #9a7340;
+  --g-route-sc-bg: rgba(154, 115, 64, 0.14);
   --g-route-neb: #2a8eb8;
+  --g-route-neb-bg: rgba(42, 142, 184, 0.14);
   --g-route-sl: #c45a7a;
+  --g-route-sl-bg: rgba(196, 90, 122, 0.14);
 
   /* ——— Category badges (Results) ——— */
   --g-badge-haem: #b82929;
+  --g-badge-haem-bg: rgba(184, 41, 41, 0.13);
   --g-badge-biochem: #0d7380;
+  --g-badge-biochem-bg: rgba(13, 115, 128, 0.13);
   --g-badge-xray: #b86b0d;
+  --g-badge-xray-bg: rgba(184, 107, 13, 0.13);
   --g-badge-poct: #7333a6;
+  --g-badge-poct-bg: rgba(115, 51, 166, 0.13);
+
+  --g-teal-soft-preview: rgba(13, 115, 128, 0.08);
+  --g-teal-border-start: rgba(13, 115, 128, 0.35);
+  --g-white: #ffffff;
+  --g-white-08: rgba(255, 255, 255, 0.08);
+  --g-white-45: rgba(255, 255, 255, 0.45);
+  --g-white-85: rgba(255, 255, 255, 0.85);
+  --g-bed-label-bg: rgba(18, 32, 41, 0.72);
+  --g-host-bg: #adb2bd;
+  --g-text-need: #1f2938;
+  --g-shadow-setup: 0 6px 10px rgba(0, 0, 0, 0.15);
+  --g-shadow-start-panel: 0 8px 12px rgba(0, 0, 0, 0.5);
+  --g-shadow-menu: 0 2px 4px rgba(0, 0, 0, 0.12);
+  --g-radius-setup: 20px;
 
   /* ——— Dock action colours (Bottom Dock 35:324) ——— */
   --g-dock-observe: #40b87a;
@@ -351,22 +376,22 @@ a.lg-entrance-link:focus-visible {
 
 .lg-badge[data-kind='haem'] {
   color: var(--g-badge-haem);
-  background: var(--g-grade-h-soft);
+  background: var(--g-badge-haem-bg);
 }
 
 .lg-badge[data-kind='biochem'] {
   color: var(--g-badge-biochem);
-  background: var(--g-teal-soft-menu);
+  background: var(--g-badge-biochem-bg);
 }
 
 .lg-badge[data-kind='xray'] {
   color: var(--g-badge-xray);
-  background: var(--g-warn-soft);
+  background: var(--g-badge-xray-bg);
 }
 
 .lg-badge[data-kind='poct'] {
   color: var(--g-badge-poct);
-  background: rgba(115, 51, 166, 0.13);
+  background: var(--g-badge-poct-bg);
 }
 
 /* ——— Primitive: card ——— */
@@ -406,7 +431,7 @@ a.lg-entrance-link:focus-visible {
   width: 100%;
   min-height: 36px;
   padding: 9px 14px;
-  color: #fff;
+  color: var(--g-white, #fff);
   background: var(--g-teal);
   border: 0;
   border-radius: var(--g-radius-confirm);
@@ -452,37 +477,37 @@ a.lg-entrance-link:focus-visible {
 
 .lg-route[data-route='PO'] {
   color: var(--g-route-po);
-  background: rgba(13, 115, 128, 0.14);
+  background: var(--g-route-po-bg);
 }
 
 .lg-route[data-route='IV'] {
   color: var(--g-route-iv);
-  background: rgba(115, 51, 166, 0.14);
+  background: var(--g-route-iv-bg);
 }
 
 .lg-route[data-route='IVF'] {
   color: var(--g-route-ivf);
-  background: rgba(0, 77, 191, 0.14);
+  background: var(--g-route-ivf-bg);
 }
 
 .lg-route[data-route='IM'] {
   color: var(--g-route-im);
-  background: rgba(196, 92, 38, 0.14);
-}
-
-.lg-route[data-route='SC'] {
-  color: var(--g-route-sc);
-  background: rgba(154, 115, 64, 0.14);
+  background: var(--g-route-im-bg);
 }
 
 .lg-route[data-route='NEB'] {
   color: var(--g-route-neb);
-  background: rgba(42, 142, 184, 0.14);
+  background: var(--g-route-neb-bg);
+}
+
+.lg-route[data-route='SC'] {
+  color: var(--g-route-sc);
+  background: var(--g-route-sc-bg);
 }
 
 .lg-route[data-route='SL'] {
   color: var(--g-route-sl);
-  background: rgba(196, 90, 122, 0.14);
+  background: var(--g-route-sl-bg);
 }
 
 /* ——— Asset preview helpers (Stage 1 smoke) ——— */
@@ -563,7 +588,7 @@ a.lg-entrance-link:focus-visible {
 }
 
 .lg-hud-btn[data-selected='true'] {
-  color: #fff;
+  color: var(--g-white, #fff);
   background: var(--g-zone-selected);
   box-shadow: var(--g-shadow-hud);
 }
@@ -593,7 +618,7 @@ a.lg-entrance-link:focus-visible {
   width: 160px;
   min-width: 120px;
   padding: 8px 12px;
-  color: var(--g-text-need, #1f2938);
+  color: var(--g-text-need);
   background: var(--g-surface-need);
   border: 0;
   border-radius: var(--g-radius-need);
@@ -640,11 +665,11 @@ a.lg-entrance-link:focus-visible {
   place-items: center;
   width: 36px;
   height: 36px;
-  color: #fff;
-  background: rgba(18, 32, 41, 0.72);
-  border: 1px solid rgba(255, 255, 255, 0.45);
-  border-radius: 8px;
-  font-size: 10px;
+  color: var(--g-white);
+  background: var(--g-bed-label-bg);
+  border: 1px solid var(--g-white-45);
+  border-radius: var(--g-radius-filter);
+  font-size: var(--g-fs-label);
   font-weight: 700;
 }
 
@@ -654,9 +679,9 @@ a.lg-entrance-link:focus-visible {
   right: -22px;
   min-width: 18px;
   padding: 0.05rem 0.25rem;
-  color: #fff;
+  color: var(--g-white);
   border-radius: 6px;
-  font-size: 10px;
+  font-size: var(--g-fs-label);
   font-weight: 700;
 }
 
@@ -721,7 +746,7 @@ a.lg-entrance-link:focus-visible {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse 70% 45% at 50% -10%, rgba(13, 115, 128, 0.35), transparent 70%),
+    radial-gradient(ellipse 70% 45% at 50% -10%, var(--g-teal-border-start), transparent 70%),
     var(--g-bg-start);
   background-position: center;
   background-size: cover;
@@ -740,7 +765,7 @@ a.lg-entrance-link:focus-visible {
   margin: 4% 4% 4% 0;
   background-position: center;
   background-size: cover;
-  border-radius: 20px;
+  border-radius: var(--g-radius-setup);
   filter: saturate(0.95);
 }
 
@@ -750,12 +775,11 @@ a.lg-entrance-link:focus-visible {
   width: min(520px, 92%);
   margin: 10% auto 0;
   padding: 30px 36px;
-  color: #fff;
+  color: var(--g-white);
   background: var(--g-surface-start-panel);
-  border: 1px solid var(--g-teal-border, rgba(13, 115, 128, 0.35));
-  border-color: rgba(13, 115, 128, 0.35);
-  border-radius: 20px;
-  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--g-teal-border-start);
+  border-radius: var(--g-radius-setup);
+  box-shadow: var(--g-shadow-start-panel);
 }
 
 .lg-setup-form {
@@ -766,8 +790,8 @@ a.lg-entrance-link:focus-visible {
   padding: 30px 36px;
   background: var(--g-surface-solid);
   border: 1px solid var(--g-line);
-  border-radius: 20px;
-  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+  border-radius: var(--g-radius-setup);
+  box-shadow: var(--g-shadow-setup);
 }
 
 .lg-setup-row {
@@ -784,7 +808,7 @@ a.lg-entrance-link:focus-visible {
   min-width: 160px;
   padding: 10px 18px;
   color: var(--g-text-strong);
-  background: #fff;
+  background: var(--g-surface-solid);
   border: 1.5px solid var(--g-teal);
   border-radius: 10px;
   font-weight: var(--g-fw-bold);
@@ -800,7 +824,7 @@ a.lg-entrance-link:focus-visible {
 
 .lg-start h1 {
   margin: 0;
-  color: #fff;
+  color: var(--g-white);
   font-size: clamp(36px, 7vw, 64px);
   font-weight: 700;
   text-align: center;
@@ -830,8 +854,8 @@ a.lg-entrance-link:focus-visible {
 }
 
 .lg-start-actions .lg-hud-btn {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.08);
+  color: var(--g-white);
+  background: var(--g-white-08);
   box-shadow: none;
 }
 
@@ -1077,7 +1101,7 @@ a.lg-entrance-link:focus-visible {
   min-width: 100px;
   min-height: var(--g-dock-h);
   padding: 0.35rem;
-  color: #fff;
+  color: var(--g-white);
   background: var(--g-dock-observe);
   border: 0;
   border-radius: var(--g-radius-dock-chip);
@@ -1104,13 +1128,13 @@ a.lg-entrance-link:focus-visible {
 }
 
 .lg-dock-chip small {
-  color: rgba(255, 255, 255, 0.85);
-  font-size: 10px;
+  color: var(--g-white-85);
+  font-size: var(--g-fs-label);
   font-weight: 500;
 }
 
 .lg-dock-chip[data-selected='true'] {
-  outline: 2px solid #fff;
+  outline: 2px solid var(--g-white);
   outline-offset: 2px;
   filter: brightness(1.05);
 }
@@ -1139,7 +1163,7 @@ a.lg-entrance-link:focus-visible {
   padding: 10px;
   background: var(--g-surface-solid);
   border-radius: var(--g-radius-card);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--g-shadow-menu);
 }
 
 .lg-menu-row {
@@ -1252,7 +1276,7 @@ a.lg-entrance-link:focus-visible {
 .lg-dock-popover .confirm-order,
 .lg-dock-popover .lg-confirm {
   width: 100%;
-  color: #fff;
+  color: var(--g-white);
   background: var(--g-teal);
   border: 0;
   border-radius: var(--g-radius-confirm);
@@ -1260,8 +1284,9 @@ a.lg-entrance-link:focus-visible {
   font-weight: var(--g-fw-bold);
 }
 
-.lg-dock-popover .monitor-panel,
-.lg-bedzoom .monitor-panel {
+/* Production MonitorPanel remapped via --mon-* from tokens.json */
+.lg-bedzoom .monitor,
+.lg-dock-popover .monitor {
   background: var(--g-monitor);
   border-radius: var(--g-radius-card);
   box-shadow: var(--g-shadow-monitor);

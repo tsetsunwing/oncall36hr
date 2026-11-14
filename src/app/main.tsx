@@ -4,10 +4,13 @@ import { installAiDevHandle } from '@/ai';
 import { ContentValidationError, getContent } from '@/content';
 import { ui } from '@/i18n';
 import { App } from './App';
+import { ensureLayoutGTokensInjected } from '@/demo/layout-g/applyTokens';
 import './tokens.css';
 import './styles.css';
 import './v2.css';
 import '@/demo/layout-g/layout-g.css';
+
+ensureLayoutGTokensInjected();
 
 const rootElement = document.getElementById('root');
 if (!rootElement) throw new Error('找不到 #root');

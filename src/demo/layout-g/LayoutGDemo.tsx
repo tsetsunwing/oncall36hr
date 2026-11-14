@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   ArrowLeft,
   ClipboardList,
@@ -25,6 +25,7 @@ import {
   TEST_MENU_SECTIONS,
   type ReportBucket,
 } from '@/view';
+import { badgeKindFromGroup, ensureLayoutGTokensInjected, layoutGTokenStyle } from './applyTokens';
 import {
   DEMO_ACTION_LOG,
   DEMO_CHAT,
@@ -166,8 +167,19 @@ export function LayoutGDemo() {
     setCollapsed((prev) => ({ ...prev, [key]: !prev[key] }));
   }
 
+  useEffect(() => {
+    ensureLayoutGTokensInjected();
+  }, []);
+
   return (
-    <div className="lg-demo" data-testid="layout-g-demo" data-screen={screen} data-day={dayPart}>
+    <div
+      className="lg-demo"
+      data-testid="layout-g-demo"
+      data-screen={screen}
+      data-day={dayPart}
+      data-tokens="figma-mcp"
+      style={layoutGTokenStyle()}
+    >
       {screen !== 'start' && screen !== 'setup' && screen !== 'end' ? (
         <Hud
           clock={clock}
@@ -869,7 +881,9 @@ function BedZoomScreen({
             <ul className="lg-results">
               {DEMO_RESULTS.map((r) => (
                 <li key={r.id}>
-                  <span className="lg-badge">{r.group}</span>
+                  <span className="lg-badge" data-kind={badgeKindFromGroup(r.group)}>
+                    {r.group}
+                  </span>
                   <strong>
                     {r.time} · {r.label}
                   </strong>
@@ -877,11 +891,14 @@ function BedZoomScreen({
                   {'chips' in r ? (
                     <div className="lg-result-chips">
                       {r.chips.map((c) => (
-                        <span key={c.k} className="lg-chip" data-kind="current">
-                          {c.k} {c.v}{' '}
-                          <span className="lg-grade" data-grade={c.grade}>
-                            {c.grade === 'N' ? '' : c.grade}
-                          </span>
+                        <span
+                          key={c.k}
+                          className="lg-chip"
+                          data-kind="current"
+                          data-grade={c.grade}
+                        >
+                          {c.k} {c.v}
+                          {c.grade !== 'N' ? ` ${c.grade}` : ''}
                         </span>
                       ))}
                     </div>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   AlarmClock,
   BedDouble,
@@ -13,6 +13,7 @@ import {
   Users,
   type LucideIcon,
 } from 'lucide-react';
+import { ensureLayoutGTokensInjected } from '@/demo/layout-g/applyTokens';
 import { OPEN_WARDS, wardLabel } from '@/content/wards';
 import { ui } from '@/i18n';
 import { normalizeSettings, validateSettings, type SaveSlotView, type Settings } from '@/storage';
@@ -132,6 +133,10 @@ export function StartPage({
   const [test, setTest] = useState<
     { phase: 'idle' } | { phase: 'running' } | { phase: 'done'; message: string; ok: boolean }
   >({ phase: 'idle' });
+
+  useEffect(() => {
+    ensureLayoutGTokensInjected();
+  }, []);
 
   const handleTest = async () => {
     if (!draft || !onTestConnection) return;
