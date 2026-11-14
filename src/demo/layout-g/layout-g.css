@@ -17,15 +17,15 @@
   background: var(--g-host-bg, var(--g-line-strong, #adb2bd));
 }
 
-/* Start-page entrance link (outside .lg-demo) — paints from tokens.json via applyTokens */
+/* Start-page entrance — solid teal + white (WCAG AA; soft tint failed 4.46:1 on #dce9eb) */
 a.lg-entrance-link {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-height: 36px;
   padding: 0.35rem 0.85rem;
-  color: var(--g-teal);
-  background: var(--g-teal-soft-preview);
+  color: var(--g-white, #fff);
+  background: var(--g-teal);
   border: 1.5px solid var(--g-teal);
   border-radius: 10px;
   font-weight: 700;
@@ -34,8 +34,7 @@ a.lg-entrance-link {
 
 a.lg-entrance-link:hover,
 a.lg-entrance-link:focus-visible {
-  color: var(--g-white, #fff);
-  background: var(--g-teal);
+  filter: brightness(1.08);
 }
 
 .lg-demo {
