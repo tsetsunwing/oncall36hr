@@ -1,0 +1,44 @@
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { describe, expect, it } from 'vitest';
+import { LayoutGDemo } from './LayoutGDemo';
+
+describe('LayoutGDemo', () => {
+  it('walks start → floor → bed zoom and keeps dock chips', async () => {
+    const user = userEvent.setup();
+    render(<LayoutGDemo />);
+    expect(screen.getByTestId('lg-start')).toBeInTheDocument();
+    await user.click(screen.getByTestId('lg-start-go'));
+    expect(screen.getByTestId('lg-floor')).toBeInTheDocument();
+    await user.click(screen.getByTestId('lg-bed-A5'));
+    expect(screen.getByTestId('lg-bedzoom')).toBeInTheDocument();
+    expect(screen.getByTestId('lg-chip-observe')).toBeInTheDocument();
+    expect(screen.getByTestId('lg-chip-treat')).toBeInTheDocument();
+    expect(screen.getByTestId('lg-chip-tests')).toBeInTheDocument();
+    expect(screen.getByTestId('lg-chip-resus')).toBeInTheDocument();
+    expect(screen.getByTestId('lg-chat-input')).toBeInTheDocument();
+    expect(screen.getByTestId('monitor')).toBeInTheDocument();
+  });
+
+  it('opens landmarks without a bottom dock, and phone overlay', async () => {
+    const user = userEvent.setup();
+    render(<LayoutGDemo />);
+    await user.click(screen.getByTestId('lg-start-go'));
+    await user.click(screen.getByTestId('lg-landmark-pantry'));
+    expect(screen.getByTestId('lg-landmark-screen-pantry')).toBeInTheDocument();
+    expect(screen.queryByTestId('lg-dock')).not.toBeInTheDocument();
+    await user.click(screen.getByTestId('lg-landmark-back'));
+    expect(screen.getByTestId('lg-floor')).toBeInTheDocument();
+    await user.click(screen.getByTestId('lg-phone'));
+    expect(screen.getByTestId('lg-phone-screen')).toBeInTheDocument();
+  });
+
+  it('opens observe panel from dock using production ObservePanel', async () => {
+    const user = userEvent.setup();
+    render(<LayoutGDemo />);
+    await user.click(screen.getByTestId('lg-start-go'));
+    await user.click(screen.getByTestId('lg-bed-A5'));
+    await user.click(screen.getByTestId('lg-chip-observe'));
+    expect(screen.getByTestId('observe-panel')).toBeInTheDocument();
+  });
+});
