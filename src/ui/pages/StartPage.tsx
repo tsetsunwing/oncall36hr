@@ -298,11 +298,6 @@ export function StartPage({
           onImport={onImport}
         />
       ) : null}
-      <p className="hint" style={{ marginTop: '0.75rem' }}>
-        <a href="#/demo/layout-g" data-testid="open-layout-g-demo">
-          Layout G DEMO
-        </a>
-      </p>
     </section>
   );
 }
