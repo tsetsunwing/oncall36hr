@@ -72,7 +72,7 @@ export function App() {
   if (route === 'demo-layout-g') {
     return (
       <PlayFrame>
-        <div className="layout-g-demo-host">
+        <div className="layout-g-demo-host" data-tokens="figma-mcp">
           <LayoutGDemo />
         </div>
       </PlayFrame>

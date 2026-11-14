@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   ArrowLeft,
   ClipboardList,
@@ -25,6 +25,7 @@ import {
   TEST_MENU_SECTIONS,
   type ReportBucket,
 } from '@/view';
+import { badgeKindFromGroup, ensureLayoutGTokensInjected, layoutGTokenStyle } from './applyTokens';
 import {
   DEMO_ACTION_LOG,
   DEMO_CHAT,
@@ -166,8 +167,19 @@ export function LayoutGDemo() {
     setCollapsed((prev) => ({ ...prev, [key]: !prev[key] }));
   }
 
+  useEffect(() => {
+    ensureLayoutGTokensInjected();
+  }, []);
+
   return (
-    <div className="lg-demo" data-testid="layout-g-demo" data-screen={screen} data-day={dayPart}>
+    <div
+      className="lg-demo"
+      data-testid="layout-g-demo"
+      data-screen={screen}
+      data-day={dayPart}
+      data-tokens="figma-mcp"
+      style={layoutGTokenStyle()}
+    >
       {screen !== 'start' && screen !== 'setup' && screen !== 'end' ? (
         <Hud
           clock={clock}
@@ -415,6 +427,7 @@ function Hud({
             key={s}
             type="button"
             className="lg-hud-btn lg-hud-btn-sm"
+            data-kind="speed"
             data-selected={speed === s}
             onClick={() => {
               onSpeed(s);
@@ -429,9 +442,15 @@ function Hud({
         <button type="button" className="lg-hud-btn" data-testid="lg-round" onClick={onRound}>
           巡房 Round
         </button>
-        <button type="button" className="lg-hud-btn" data-testid="lg-phone" onClick={onPhone}>
-          <Phone size={14} aria-hidden />
-          電話 Phone
+        <button
+          type="button"
+          className="lg-hud-btn"
+          data-kind="phone"
+          data-testid="lg-phone"
+          onClick={onPhone}
+          aria-label="電話 Phone"
+        >
+          <Phone size={18} aria-hidden />
         </button>
         <button type="button" className="lg-hud-btn" data-testid="lg-back" onClick={onBack}>
           <ArrowLeft size={14} aria-hidden />
@@ -471,13 +490,19 @@ function StartScreen({
         style={{ backgroundImage: `url(${asset('demo/layout-g/isometric-hospital.png')})` }}
         aria-hidden
       />
-      <div className="lg-start-panel lg-card">
-        <p className="lg-kicker">Layout G DEMO</p>
+      <div className="lg-start-panel">
         <h1 id="lg-start-title">單獨值夜</h1>
-        <p className="lg-tagline">On-call 36hr · isometric ward shell（假數據）</p>
+        <p className="lg-kicker">On-Call Alone · Layout G DEMO</p>
+        <p className="lg-tagline">等角病房外殼 · 假數據 isometric shell</p>
         <div className="lg-start-actions">
-          <button type="button" className="lg-confirm" data-testid="lg-start-new" onClick={onNew}>
-            新遊戲 New game
+          <button
+            type="button"
+            className="lg-confirm"
+            data-kind="cta"
+            data-testid="lg-start-new"
+            onClick={onNew}
+          >
+            開始值班 Start Shift
           </button>
           <button
             type="button"
@@ -549,8 +574,8 @@ function SetupScreen({
             </select>
           </label>
         ))}
-        <button type="submit" className="lg-confirm" data-testid="lg-setup-start">
-          開始值夜 Start duty
+        <button type="submit" className="lg-confirm" data-kind="cta" data-testid="lg-setup-start">
+          開始值班 Start Shift
         </button>
         <button type="button" className="lg-hud-btn" onClick={onBack}>
           返回 Back
@@ -796,9 +821,10 @@ function BedZoomScreen({
                     {row.route}
                   </span>
                   <div>
-                    <strong>
-                      {row.drug} · {row.dose} {row.freq}
-                    </strong>
+                    <strong>{row.drug}</strong>
+                    <span className="lg-dose">
+                      {row.dose} {row.freq}
+                    </span>
                     <span>
                       {row.status} · {row.due}
                     </span>
@@ -855,7 +881,9 @@ function BedZoomScreen({
             <ul className="lg-results">
               {DEMO_RESULTS.map((r) => (
                 <li key={r.id}>
-                  <span className="lg-badge">{r.group}</span>
+                  <span className="lg-badge" data-kind={badgeKindFromGroup(r.group)}>
+                    {r.group}
+                  </span>
                   <strong>
                     {r.time} · {r.label}
                   </strong>
@@ -863,11 +891,14 @@ function BedZoomScreen({
                   {'chips' in r ? (
                     <div className="lg-result-chips">
                       {r.chips.map((c) => (
-                        <span key={c.k} className="lg-chip" data-kind="current">
-                          {c.k} {c.v}{' '}
-                          <span className="lg-grade" data-grade={c.grade}>
-                            {c.grade === 'N' ? '' : c.grade}
-                          </span>
+                        <span
+                          key={c.k}
+                          className="lg-chip"
+                          data-kind="current"
+                          data-grade={c.grade}
+                        >
+                          {c.k} {c.v}
+                          {c.grade !== 'N' ? ` ${c.grade}` : ''}
                         </span>
                       ))}
                     </div>
@@ -1098,6 +1129,7 @@ function BedZoomScreen({
                 key={chip.id}
                 type="button"
                 className="lg-dock-chip"
+                data-dock={chip.id}
                 data-selected={dock === chip.id}
                 data-testid={`lg-chip-${chip.id}`}
                 onClick={() => {

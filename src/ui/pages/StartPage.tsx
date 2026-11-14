@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   AlarmClock,
   BedDouble,
@@ -13,6 +13,7 @@ import {
   Users,
   type LucideIcon,
 } from 'lucide-react';
+import { ensureLayoutGTokensInjected } from '@/demo/layout-g/applyTokens';
 import { OPEN_WARDS, wardLabel } from '@/content/wards';
 import { ui } from '@/i18n';
 import { normalizeSettings, validateSettings, type SaveSlotView, type Settings } from '@/storage';
@@ -133,6 +134,10 @@ export function StartPage({
     { phase: 'idle' } | { phase: 'running' } | { phase: 'done'; message: string; ok: boolean }
   >({ phase: 'idle' });
 
+  useEffect(() => {
+    ensureLayoutGTokensInjected();
+  }, []);
+
   const handleTest = async () => {
     if (!draft || !onTestConnection) return;
     const problems = validateSettings(draft);
@@ -177,7 +182,7 @@ export function StartPage({
             {ui.start.startButton}
           </button>
           <a
-            className="btn btn-small"
+            className="lg-entrance-link"
             href="#/demo/layout-g"
             data-testid="open-layout-g-demo"
             title="開啟 Layout G 外殼示範（唔會取代正式值班畫面）"

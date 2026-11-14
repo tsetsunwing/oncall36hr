@@ -4,6 +4,15 @@ import { describe, expect, it } from 'vitest';
 import { LayoutGDemo } from './LayoutGDemo';
 
 describe('LayoutGDemo', () => {
+  it('hosts Figma MCP token vars on the demo root', () => {
+    render(<LayoutGDemo />);
+    const root = screen.getByTestId('layout-g-demo');
+    expect(root).toHaveAttribute('data-tokens', 'figma-mcp');
+    expect(root.style.getPropertyValue('--g-teal')).toBe('#0d7380');
+    expect(root.style.getPropertyValue('--g-dock-resus')).toBe('#eb4747');
+    expect(root.style.getPropertyValue('--mon-green')).toBe('#33d973');
+  });
+
   it('walks start → floor → bed zoom and keeps dock chips', async () => {
     const user = userEvent.setup();
     render(<LayoutGDemo />);
