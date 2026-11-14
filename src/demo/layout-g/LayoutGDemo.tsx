@@ -1,16 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import {
-  ArrowLeft,
-  ClipboardList,
-  Eye,
-  HandHeart,
-  Moon,
-  Phone,
-  Save,
-  Siren,
-  Sun,
-  X,
-} from 'lucide-react';
+import { X } from 'lucide-react';
 import { ui } from '@/i18n';
 import { CatheterOrders } from '@/ui/game/CatheterOrders';
 import { DrugOrderForm } from '@/ui/game/DrugOrderForm';
@@ -25,17 +14,15 @@ import {
   TEST_MENU_SECTIONS,
   type ReportBucket,
 } from '@/view';
-import { badgeKindFromGroup, ensureLayoutGTokensInjected, layoutGTokenStyle } from './applyTokens';
+import { ensureLayoutGTokensInjected, layoutGTokenStyle } from './applyTokens';
+import { BodyDiagramCard, MarCard, MedicalRecordCard, ResultsAndLog } from './BedZoomPanels';
+import { BedHud, BottomDock, FloorHud } from './FigmaChrome';
 import {
-  DEMO_ACTION_LOG,
   DEMO_CHAT,
   DEMO_CLOCK,
-  DEMO_MAR,
   DEMO_MEDICATIONS,
-  DEMO_NEEDS,
   DEMO_PATIENT,
   DEMO_PHONE,
-  DEMO_RESULTS,
   END_REPORT,
   LANDMARK_ACTIONS,
   ROUND_QUESTION,
@@ -44,9 +31,13 @@ import {
   mewsTone,
   type DayPart,
   type LandmarkId,
+  type MarFilter,
+  type ResultFilter,
   type ZoneId,
 } from './fakeData';
+import { BEDZOOM_SLOTS, MEWS_OFFSET } from './figmaLayout';
 import './layout-g.css';
+import './figma-al.css';
 
 type Screen =
   | 'start'
@@ -61,13 +52,6 @@ type Screen =
 
 type DockChip = 'observe' | 'treat' | 'tests' | 'resus';
 type TreatL1 = 'oxygen' | 'catheters' | 'drugs' | null;
-
-const DOCK: { id: DockChip; label: string; eng: string; icon: typeof Eye }[] = [
-  { id: 'observe', label: ui.game.chat.chipGroup.observe ?? '觀察', eng: 'Observe', icon: Eye },
-  { id: 'treat', label: ui.game.chat.chipGroup.treat ?? '治療', eng: 'Treat', icon: HandHeart },
-  { id: 'tests', label: ui.game.chat.chipGroup.tests ?? '檢查', eng: 'Test', icon: ClipboardList },
-  { id: 'resus', label: ui.game.chat.chipGroup.resus ?? '搶救', eng: 'Resus', icon: Siren },
-];
 
 function asset(path: string): string {
   return `${import.meta.env.BASE_URL}${path.replace(/^\//, '')}`;
@@ -99,6 +83,8 @@ export function LayoutGDemo() {
   });
   const [speed, setSpeed] = useState('1x');
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
+  const [marFilter, setMarFilter] = useState<MarFilter>('all');
+  const [resultFilter, setResultFilter] = useState<ResultFilter>('all');
 
   const clock = DEMO_CLOCK[dayPart];
   const demoPatient = useMemo(
@@ -171,6 +157,10 @@ export function LayoutGDemo() {
     ensureLayoutGTokensInjected();
   }, []);
 
+  const showFloorHud = screen === 'floor' || screen === 'landmark';
+  const showBedHud =
+    screen === 'bedzoom' || screen === 'phone' || screen === 'round' || screen === 'roundFeedback';
+
   return (
     <div
       className="lg-demo"
@@ -178,297 +168,183 @@ export function LayoutGDemo() {
       data-screen={screen}
       data-day={dayPart}
       data-tokens="figma-mcp"
+      data-figma-al="1"
       style={layoutGTokenStyle()}
     >
-      {screen !== 'start' && screen !== 'setup' && screen !== 'end' ? (
-        <Hud
-          clock={clock}
-          dayPart={dayPart}
-          zone={zone}
-          speed={speed}
-          showZone={screen === 'floor' || screen === 'landmark'}
-          onZone={setZone}
-          onDayPart={setDayPart}
-          onSpeed={setSpeed}
-          onPhone={() => {
-            setScreen('phone');
-          }}
-          onBack={() => {
-            if (screen === 'bedzoom' || screen === 'landmark' || screen === 'phone') goFloor();
-            else if (screen === 'round' || screen === 'roundFeedback') goFloor();
-            else setScreen('start');
-          }}
-          onRound={() => {
-            setRoundPick(null);
-            setScreen('round');
-          }}
-        />
-      ) : null}
-
-      <div className="lg-stage">
-        {screen === 'start' ? (
-          <StartScreen
-            onNew={() => {
-              setScreen('setup');
+      <div className="lg-figma-canvas" data-name="Figma 1920x1080 canvas">
+        {showFloorHud ? (
+          <FloorHud
+            clock={clock}
+            dayPart={dayPart}
+            zone={zone}
+            onZone={setZone}
+            onDayPart={setDayPart}
+            onPhone={() => {
+              setScreen('phone');
             }}
-            onContinue={() => {
-              setDayPart('night');
-              goFloor();
-            }}
-            onEnd={() => {
-              setScreen('end');
+            onRound={() => {
+              setRoundPick(null);
+              setScreen('round');
             }}
           />
         ) : null}
-
-        {screen === 'setup' ? (
-          <SetupScreen
-            setup={setup}
-            onSetup={setSetup}
-            onStart={() => {
-              setDayPart(setup.shift === 'NIGHT' ? 'night' : 'day');
-              goFloor();
+        {showBedHud ? (
+          <BedHud
+            clock={clock}
+            dayPart={dayPart}
+            bedId={bedId}
+            speed={speed}
+            onSpeed={setSpeed}
+            onPhone={() => {
+              setScreen('phone');
             }}
             onBack={() => {
-              setScreen('start');
-            }}
-          />
-        ) : null}
-
-        {screen === 'floor' ? (
-          <FloorScreen zone={zone} bg={floorBg} onBed={openBed} onLandmark={openLandmark} />
-        ) : null}
-
-        {screen === 'landmark' ? (
-          <LandmarkScreen
-            id={landmark}
-            bg={landmarkSrc}
-            toast={toast}
-            onAction={(label) => {
-              setToast(`已執行 ${label}`);
-            }}
-            onBack={goFloor}
-          />
-        ) : null}
-
-        {screen === 'bedzoom' ? (
-          <BedZoomScreen
-            bedId={bedId}
-            patient={demoPatient}
-            monitor={demoMonitor}
-            dock={dock}
-            treatL1={treatL1}
-            testBucket={testBucket}
-            testSection={testSection}
-            testBasket={testBasket}
-            resusCol={resusCol}
-            draft={draft}
-            chat={chat}
-            collapsed={collapsed}
-            toast={toast}
-            onDock={(id) => {
-              setDock((cur) => (cur === id ? null : id));
-              setTreatL1(null);
-              setTestBucket(null);
-              setTestSection(null);
-              setResusCol(null);
-            }}
-            onTreatL1={setTreatL1}
-            onTestBucket={(b) => {
-              setTestBucket(b);
-              setTestSection(null);
-            }}
-            onTestSection={setTestSection}
-            onToggleTest={(id) => {
-              setTestBasket((prev) =>
-                prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
-              );
-            }}
-            onConfirmTests={() => {
-              if (testBasket.length === 0) return;
-              noteOrder(`檢查 Test · ${testBasket.join(', ')}`);
-            }}
-            onResusCol={setResusCol}
-            onResusItem={(label) => {
-              noteOrder(`搶救 Resus · ${label}`);
-            }}
-            onDraft={setDraft}
-            onSend={() => {
-              if (!draft.trim()) return;
-              setChat((prev) => [
-                ...prev,
-                { id: `u-${String(prev.length + 1)}`, who: '你 You', text: draft.trim() },
-              ]);
-              setDraft('');
-            }}
-            onCollapse={toggleCollapse}
-            onOrderNote={noteOrder}
-            onCloseForms={() => {
-              setTreatL1(null);
-            }}
-          />
-        ) : null}
-
-        {screen === 'phone' ? (
-          <PhoneScreen
-            tab={phoneTab}
-            onTab={setPhoneTab}
-            onClose={goFloor}
-            onCall={(who) => {
-              setToast(`已呼叫 ${who}`);
               goFloor();
             }}
           />
         ) : null}
 
-        {screen === 'round' ? (
-          <RoundScreen
-            pick={roundPick}
-            onPick={setRoundPick}
-            onSubmit={() => {
-              if (roundPick) setScreen('roundFeedback');
-            }}
-            onLeave={goFloor}
-          />
-        ) : null}
+        <div className="lg-stage">
+          {screen === 'start' ? (
+            <StartScreen
+              onNew={() => {
+                setScreen('setup');
+              }}
+              onContinue={() => {
+                setDayPart('night');
+                goFloor();
+              }}
+              onEnd={() => {
+                setScreen('end');
+              }}
+            />
+          ) : null}
 
-        {screen === 'roundFeedback' ? <RoundFeedback pick={roundPick} onNext={goFloor} /> : null}
+          {screen === 'setup' ? (
+            <SetupScreen
+              setup={setup}
+              onSetup={setSetup}
+              onStart={() => {
+                setDayPart(setup.shift === 'NIGHT' ? 'night' : 'day');
+                goFloor();
+              }}
+              onBack={() => {
+                setScreen('start');
+              }}
+            />
+          ) : null}
 
-        {screen === 'end' ? (
-          <EndScreen
-            onAgain={() => {
-              setScreen('start');
-            }}
-          />
-        ) : null}
-      </div>
-    </div>
-  );
-}
+          {screen === 'floor' ? (
+            <FloorScreen zone={zone} bg={floorBg} onBed={openBed} onLandmark={openLandmark} />
+          ) : null}
 
-function Hud({
-  clock,
-  dayPart,
-  zone,
-  speed,
-  showZone,
-  onZone,
-  onDayPart,
-  onSpeed,
-  onPhone,
-  onBack,
-  onRound,
-}: {
-  clock: string;
-  dayPart: DayPart;
-  zone: ZoneId;
-  speed: string;
-  showZone: boolean;
-  onZone: (z: ZoneId) => void;
-  onDayPart: (d: DayPart) => void;
-  onSpeed: (s: string) => void;
-  onPhone: () => void;
-  onBack: () => void;
-  onRound: () => void;
-}) {
-  return (
-    <header className="lg-hud" aria-label="Layout G HUD">
-      <div className="lg-hud-left">
-        <div className="lg-hud-chip" data-testid="lg-clock">
-          {dayPart === 'night' ? <Moon size={14} aria-hidden /> : <Sun size={14} aria-hidden />}
-          <strong>{clock}</strong>
+          {screen === 'landmark' ? (
+            <LandmarkScreen
+              id={landmark}
+              bg={landmarkSrc}
+              toast={toast}
+              onAction={(label) => {
+                setToast(`已執行 ${label}`);
+              }}
+              onBack={goFloor}
+            />
+          ) : null}
+
+          {screen === 'bedzoom' ? (
+            <BedZoomScreen
+              bedId={bedId}
+              patient={demoPatient}
+              monitor={demoMonitor}
+              dock={dock}
+              treatL1={treatL1}
+              testBucket={testBucket}
+              testSection={testSection}
+              testBasket={testBasket}
+              resusCol={resusCol}
+              draft={draft}
+              chat={chat}
+              collapsed={collapsed}
+              marFilter={marFilter}
+              resultFilter={resultFilter}
+              toast={toast}
+              onMarFilter={setMarFilter}
+              onResultFilter={setResultFilter}
+              onDock={(id) => {
+                setDock((cur) => (cur === id ? null : id));
+                setTreatL1(null);
+                setTestBucket(null);
+                setTestSection(null);
+                setResusCol(null);
+              }}
+              onTreatL1={setTreatL1}
+              onTestBucket={(b) => {
+                setTestBucket(b);
+                setTestSection(null);
+              }}
+              onTestSection={setTestSection}
+              onToggleTest={(id) => {
+                setTestBasket((prev) =>
+                  prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+                );
+              }}
+              onConfirmTests={() => {
+                if (testBasket.length === 0) return;
+                noteOrder(`檢查 Test · ${testBasket.join(', ')}`);
+              }}
+              onResusCol={setResusCol}
+              onResusItem={(label) => {
+                noteOrder(`搶救 Resus · ${label}`);
+              }}
+              onDraft={setDraft}
+              onSend={() => {
+                if (!draft.trim()) return;
+                setChat((prev) => [
+                  ...prev,
+                  { id: `u-${String(prev.length + 1)}`, who: '你 You', text: draft.trim() },
+                ]);
+                setDraft('');
+              }}
+              onCollapse={toggleCollapse}
+              onOrderNote={noteOrder}
+              onCloseForms={() => {
+                setTreatL1(null);
+              }}
+            />
+          ) : null}
+
+          {screen === 'phone' ? (
+            <PhoneScreen
+              tab={phoneTab}
+              onTab={setPhoneTab}
+              onClose={goFloor}
+              onCall={(who) => {
+                setToast(`已呼叫 ${who}`);
+                goFloor();
+              }}
+            />
+          ) : null}
+
+          {screen === 'round' ? (
+            <RoundScreen
+              pick={roundPick}
+              onPick={setRoundPick}
+              onSubmit={() => {
+                if (roundPick) setScreen('roundFeedback');
+              }}
+              onLeave={goFloor}
+            />
+          ) : null}
+
+          {screen === 'roundFeedback' ? <RoundFeedback pick={roundPick} onNext={goFloor} /> : null}
+
+          {screen === 'end' ? (
+            <EndScreen
+              onAgain={() => {
+                setScreen('start');
+              }}
+            />
+          ) : null}
         </div>
-        <div className="lg-needs" aria-label="Need meters">
-          <Need label="疲倦 Fatigue" value={DEMO_NEEDS.fatigue} />
-          <Need label="飢餓 Hunger" value={DEMO_NEEDS.hunger} />
-          <Need label="內急 Bladder" value={DEMO_NEEDS.bladder} />
-        </div>
-      </div>
-      <div className="lg-hud-spacer" />
-      <div className="lg-hud-right">
-        {showZone ? (
-          <>
-            <button
-              type="button"
-              className="lg-hud-btn"
-              data-selected={zone === 'A'}
-              data-testid="lg-zone-a"
-              onClick={() => {
-                onZone('A');
-              }}
-            >
-              Zone A
-            </button>
-            <button
-              type="button"
-              className="lg-hud-btn"
-              data-selected={zone === 'B'}
-              data-testid="lg-zone-b"
-              onClick={() => {
-                onZone('B');
-              }}
-            >
-              Zone B
-            </button>
-            <button
-              type="button"
-              className="lg-hud-btn"
-              data-testid="lg-daynight"
-              onClick={() => {
-                onDayPart(dayPart === 'night' ? 'day' : 'night');
-              }}
-            >
-              {dayPart === 'night' ? '夜間 Night' : '日間 Day'}
-            </button>
-          </>
-        ) : null}
-        {(['00', '1x', '2x', '4x'] as const).map((s) => (
-          <button
-            key={s}
-            type="button"
-            className="lg-hud-btn lg-hud-btn-sm"
-            data-kind="speed"
-            data-selected={speed === s}
-            onClick={() => {
-              onSpeed(s);
-            }}
-          >
-            {s}
-          </button>
-        ))}
-        <button type="button" className="lg-hud-btn lg-hud-btn-sm" aria-label="儲存 Save">
-          <Save size={14} aria-hidden />
-        </button>
-        <button type="button" className="lg-hud-btn" data-testid="lg-round" onClick={onRound}>
-          巡房 Round
-        </button>
-        <button
-          type="button"
-          className="lg-hud-btn"
-          data-kind="phone"
-          data-testid="lg-phone"
-          onClick={onPhone}
-          aria-label="電話 Phone"
-        >
-          <Phone size={18} aria-hidden />
-        </button>
-        <button type="button" className="lg-hud-btn" data-testid="lg-back" onClick={onBack}>
-          <ArrowLeft size={14} aria-hidden />
-          返回 Back
-        </button>
-      </div>
-    </header>
-  );
-}
-
-function Need({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="lg-need" title={label}>
-      <span>
-        {label.split(' ')[0]} {value}%
-      </span>
-      <div className="lg-need-bar" aria-hidden>
-        <i style={{ width: `${String(value)}%` }} />
       </div>
     </div>
   );
@@ -608,36 +484,54 @@ function FloorScreen({
       />
       <div className="lg-hotspots">
         {beds.map((bed) => (
-          <button
+          <div
             key={bed.id}
-            type="button"
-            className="lg-bed-pin"
-            style={{ left: `${String(bed.xPct)}%`, top: `${String(bed.yPct)}%` }}
-            data-testid={`lg-bed-${bed.id}`}
-            data-mews={mewsTone(bed.mews)}
-            onClick={() => {
-              onBed(bed.id);
-            }}
+            className="fal-bed-wrap"
+            style={{ left: bed.x, top: bed.y }}
+            data-name={`Bed ${bed.id}`}
           >
-            <span className="lg-bed-id">{bed.id}</span>
-            <span className="lg-mews" data-tone={mewsTone(bed.mews)}>
-              {bed.mews}
+            <button
+              type="button"
+              className="fal-bed-pin"
+              data-testid={`lg-bed-${bed.id}`}
+              data-mews={mewsTone(bed.mews)}
+              onClick={() => {
+                onBed(bed.id);
+              }}
+            >
+              <p className="fal-t-bed">{bed.id}</p>
+              {bed.alert ? <span className="fal-alert-dot" aria-label="alert" /> : null}
+            </button>
+            <span
+              className="fal-mews"
+              data-tone={mewsTone(bed.mews)}
+              style={{ left: MEWS_OFFSET.dx, top: MEWS_OFFSET.dy }}
+            >
+              <p className="fal-t-mews">{bed.mews}</p>
             </span>
-            {bed.alert ? <span className="lg-alert-dot" aria-label="alert" /> : null}
-          </button>
+          </div>
         ))}
         {pins.map((pin) => (
           <button
             key={pin.id}
             type="button"
-            className="lg-landmark-pin"
-            style={{ left: `${String(pin.xPct)}%`, top: `${String(pin.yPct)}%` }}
+            className="fal-landmark"
+            style={{ left: pin.x, top: pin.y }}
             data-testid={`lg-landmark-${pin.id}`}
             onClick={() => {
               onLandmark(pin.id);
             }}
           >
-            {pin.labelChi} {pin.labelEng}
+            <img
+              src={asset('demo/layout-g/landmark-dot.svg')}
+              alt=""
+              width={8}
+              height={8}
+              className="lg-landmark-dot"
+            />
+            <p className="fal-t-landmark">
+              {pin.labelChi} {pin.labelEng}
+            </p>
           </button>
         ))}
       </div>
@@ -711,7 +605,11 @@ function BedZoomScreen({
   draft,
   chat,
   collapsed,
+  marFilter,
+  resultFilter,
   toast,
+  onMarFilter,
+  onResultFilter,
   onDock,
   onTreatL1,
   onTestBucket,
@@ -738,7 +636,11 @@ function BedZoomScreen({
   draft: string;
   chat: typeof DEMO_CHAT;
   collapsed: Record<string, boolean>;
+  marFilter: MarFilter;
+  resultFilter: ResultFilter;
   toast: string | null;
+  onMarFilter: (f: MarFilter) => void;
+  onResultFilter: (f: ResultFilter) => void;
   onDock: (id: DockChip) => void;
   onTreatL1: (id: TreatL1) => void;
   onTestBucket: (b: ReportBucket) => void;
@@ -757,184 +659,143 @@ function BedZoomScreen({
   const sections = testBucket ? TEST_MENU_SECTIONS[testBucket] : [];
   const actions: readonly string[] =
     testSection && testSection in TEST_ACTION_ORDER ? (TEST_ACTION_ORDER[testSection] ?? []) : [];
+  const s = BEDZOOM_SLOTS;
 
   return (
-    <section className="lg-bedzoom" data-testid="lg-bedzoom">
+    <section className="lg-bedzoom" data-testid="lg-bedzoom" data-layout="figma-03e">
       <div
         className="lg-bleed lg-bedzoom-bg"
         style={{ backgroundImage: `url(${art})` }}
         aria-hidden
       />
 
-      <div className="lg-bedzoom-grid">
-        <div className="lg-panel-monitor" data-collapsed={collapsed.monitor === true}>
-          <MonitorPanel patient={patient} monitor={monitor} onMeasureNibp={() => undefined} />
-        </div>
+      <div
+        className="fal-abs-slot fal-monitor-slot"
+        style={{ left: s.monitor.x, top: s.monitor.y, width: s.monitor.w, height: s.monitor.h }}
+        data-node-id="81:927"
+        data-name="Cardiac Monitor"
+      >
+        <MonitorPanel patient={patient} monitor={monitor} onMeasureNibp={() => undefined} />
+      </div>
 
-        <article className="lg-card lg-panel-body" data-collapsed={collapsed.body === true}>
-          <header className="lg-panel-head">
-            <h2>
-              身形圖 Body · {bedId} · {DEMO_PATIENT.name}
-            </h2>
-            <button
-              type="button"
-              className="lg-collapse"
-              onClick={() => onCollapse('body')}
-              aria-label="collapse"
+      <div
+        className="fal-abs-slot"
+        style={{ left: s.body.x, top: s.body.y, width: s.body.w, height: s.body.h }}
+      >
+        <BodyDiagramCard
+          collapsed={collapsed.body === true}
+          onCollapse={() => {
+            onCollapse('body');
+          }}
+        />
+      </div>
+
+      <div
+        className="fal-abs-slot"
+        style={{ left: s.mar.x, top: s.mar.y, width: s.mar.w, height: s.mar.h }}
+      >
+        <MarCard
+          collapsed={collapsed.mar === true}
+          filter={marFilter}
+          onFilter={onMarFilter}
+          onCollapse={() => {
+            onCollapse('mar');
+          }}
+        />
+      </div>
+
+      <div
+        className="fal-abs-slot"
+        style={{ left: s.record.x, top: s.record.y, width: s.record.w, height: s.record.h }}
+      >
+        <MedicalRecordCard
+          collapsed={collapsed.record === true}
+          onCollapse={() => {
+            onCollapse('record');
+          }}
+        />
+      </div>
+
+      <div
+        className="fal-abs-slot"
+        style={{
+          left: s.rightLower.x,
+          top: s.rightLower.y,
+          width: s.rightLower.w,
+          height: s.rightLower.h,
+        }}
+      >
+        <ResultsAndLog
+          resultsCollapsed={collapsed.results === true}
+          logCollapsed={collapsed.log === true}
+          filter={resultFilter}
+          onFilter={onResultFilter}
+          onCollapseResults={() => {
+            onCollapse('results');
+          }}
+          onCollapseLog={() => {
+            onCollapse('log');
+          }}
+        />
+      </div>
+
+      <div
+        className="fal-abs-slot"
+        style={{
+          left: s.chatHistory.x,
+          top: s.chatHistory.y,
+          width: s.chatHistory.w,
+          height: s.chatHistory.h,
+          zIndex: 20,
+        }}
+        data-node-id="72:1164"
+        data-name="Chat History"
+      >
+        <div
+          className="fal-col"
+          style={{
+            gap: 6,
+            width: '100%',
+            height: '100%',
+            padding: 10,
+            overflow: 'auto',
+            background: 'rgba(255,255,255,0.92)',
+            borderRadius: 14,
+            boxShadow: '0 4px 6px rgba(0,0,0,0.18)',
+            boxSizing: 'border-box',
+          }}
+        >
+          {chat.slice(-6).map((line) => (
+            <div
+              key={line.id}
+              style={{
+                padding: '8px 12px',
+                background: 'rgba(255,255,255,0.97)',
+                borderRadius: 10,
+                boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+              }}
             >
-              ⌃
-            </button>
-          </header>
-          {!collapsed.body ? (
-            <div className="lg-body-wrap">
-              <img
-                src={asset('demo/layout-g/body-silhouette.svg')}
-                alt=""
-                className="lg-body-sil"
-              />
-              <ul className="lg-line-list">
-                <li>Nasal cannula 2 L/min</li>
-                <li>Peripheral IV</li>
-                <li>Foley</li>
-              </ul>
+              <p className="fal-t-11m" style={{ color: '#242e3d', fontWeight: 700 }}>
+                {line.who}
+              </p>
+              <p
+                className="fal-t-11m"
+                style={{ color: '#242e3d', fontWeight: 400, whiteSpace: 'normal' }}
+              >
+                {line.text}
+              </p>
             </div>
-          ) : null}
-        </article>
-
-        <article className="lg-card lg-panel-mar" data-collapsed={collapsed.mar === true}>
-          <header className="lg-panel-head">
-            <h2>處方 MAR</h2>
-            <button
-              type="button"
-              className="lg-collapse"
-              onClick={() => onCollapse('mar')}
-              aria-label="collapse"
-            >
-              ⌃
-            </button>
-          </header>
-          {!collapsed.mar ? (
-            <ul className="lg-mar-list">
-              {DEMO_MAR.map((row) => (
-                <li key={row.id}>
-                  <span className="lg-chip lg-route" data-route={row.route}>
-                    {row.route}
-                  </span>
-                  <div>
-                    <strong>{row.drug}</strong>
-                    <span className="lg-dose">
-                      {row.dose} {row.freq}
-                    </span>
-                    <span>
-                      {row.status} · {row.due}
-                    </span>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          ) : null}
-        </article>
-
-        <article className="lg-card lg-panel-record" data-collapsed={collapsed.record === true}>
-          <header className="lg-panel-head">
-            <h2>病歷 Record</h2>
-            <button
-              type="button"
-              className="lg-collapse"
-              onClick={() => onCollapse('record')}
-              aria-label="collapse"
-            >
-              ⌃
-            </button>
-          </header>
-          {!collapsed.record ? (
-            <dl className="lg-record">
-              <div>
-                <dt>背景 Background</dt>
-                <dd>COPD · HTN</dd>
-              </div>
-              <div>
-                <dt>入院原因 Admission</dt>
-                <dd>{DEMO_PATIENT.complaint}</dd>
-              </div>
-              <div>
-                <dt>過敏 Allergy</dt>
-                <dd>NKDA</dd>
-              </div>
-            </dl>
-          ) : null}
-        </article>
-
-        <article className="lg-card lg-panel-results" data-collapsed={collapsed.results === true}>
-          <header className="lg-panel-head">
-            <h2>報告 Results</h2>
-            <button
-              type="button"
-              className="lg-collapse"
-              onClick={() => onCollapse('results')}
-              aria-label="collapse"
-            >
-              ⌃
-            </button>
-          </header>
-          {!collapsed.results ? (
-            <ul className="lg-results">
-              {DEMO_RESULTS.map((r) => (
-                <li key={r.id}>
-                  <span className="lg-badge" data-kind={badgeKindFromGroup(r.group)}>
-                    {r.group}
-                  </span>
-                  <strong>
-                    {r.time} · {r.label}
-                  </strong>
-                  {'detail' in r ? <p>{r.detail}</p> : null}
-                  {'chips' in r ? (
-                    <div className="lg-result-chips">
-                      {r.chips.map((c) => (
-                        <span
-                          key={c.k}
-                          className="lg-chip"
-                          data-kind="current"
-                          data-grade={c.grade}
-                        >
-                          {c.k} {c.v}
-                          {c.grade !== 'N' ? ` ${c.grade}` : ''}
-                        </span>
-                      ))}
-                    </div>
-                  ) : null}
-                </li>
-              ))}
-            </ul>
-          ) : null}
-        </article>
-
-        <article className="lg-card lg-panel-log" data-collapsed={collapsed.log === true}>
-          <header className="lg-panel-head">
-            <h2>行動記錄 Action Log</h2>
-            <button
-              type="button"
-              className="lg-collapse"
-              onClick={() => onCollapse('log')}
-              aria-label="collapse"
-            >
-              ⌃
-            </button>
-          </header>
-          {!collapsed.log ? (
-            <ul className="lg-log">
-              {DEMO_ACTION_LOG.map((row) => (
-                <li key={row.id}>
-                  <time>{row.time}</time> {row.text}
-                </li>
-              ))}
-            </ul>
-          ) : null}
-        </article>
+          ))}
+        </div>
       </div>
 
       {dock ? (
-        <div className="lg-dock-popover lg-card" data-testid="lg-dock-popover" data-dock={dock}>
+        <div
+          className="lg-dock-popover lg-card"
+          data-testid="lg-dock-popover"
+          data-dock={dock}
+          style={{ position: 'absolute', right: 24, bottom: 100, zIndex: 50 }}
+        >
           {dock === 'observe' ? (
             <ObservePanel
               onSubmit={(order) => {
@@ -942,7 +803,6 @@ function BedZoomScreen({
               }}
             />
           ) : null}
-
           {dock === 'treat' && treatL1 === null ? (
             <div className="lg-menu-l1">
               <button
@@ -998,7 +858,6 @@ function BedZoomScreen({
               onClose={onCloseForms}
             />
           ) : null}
-
           {dock === 'tests' ? (
             <div className="lg-tests-menu" data-testid="lg-tests-menu">
               <div className="lg-menu-l1">
@@ -1018,17 +877,17 @@ function BedZoomScreen({
               </div>
               {testBucket ? (
                 <div className="lg-menu-l2">
-                  {sections.map((s) => (
+                  {sections.map((sec) => (
                     <button
-                      key={s}
+                      key={sec}
                       type="button"
                       className="lg-menu-row"
-                      data-selected={testSection === s}
+                      data-selected={testSection === sec}
                       onClick={() => {
-                        onTestSection(s);
+                        onTestSection(sec);
                       }}
                     >
-                      {ui.game.reports.menuSection[s] ?? s}
+                      {ui.game.reports.menuSection[sec] ?? sec}
                     </button>
                   ))}
                 </div>
@@ -1055,7 +914,6 @@ function BedZoomScreen({
               ) : null}
             </div>
           ) : null}
-
           {dock === 'resus' ? (
             <div className="lg-resus-menu" data-testid="lg-resus-menu">
               <div className="lg-menu-l1">
@@ -1094,57 +952,13 @@ function BedZoomScreen({
         </div>
       ) : null}
 
-      <footer className="lg-dock" data-testid="lg-dock">
-        <div className="lg-dock-chat">
-          <div className="lg-chat-history" aria-live="polite">
-            {chat.slice(-6).map((line) => (
-              <div key={line.id} className="lg-chat-line">
-                <strong>{line.who}</strong>
-                <span>{line.text}</span>
-              </div>
-            ))}
-          </div>
-          <div className="lg-chat-compose">
-            <input
-              value={draft}
-              data-testid="lg-chat-input"
-              placeholder="對話 Message"
-              onChange={(e) => {
-                onDraft(e.target.value);
-              }}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') onSend();
-              }}
-            />
-            <button type="button" className="lg-hud-btn" onClick={onSend}>
-              傳送 Send
-            </button>
-          </div>
-        </div>
-        <div className="lg-dock-chips" role="toolbar" aria-label="Bed dock">
-          {DOCK.map((chip) => {
-            const Icon = chip.icon;
-            return (
-              <button
-                key={chip.id}
-                type="button"
-                className="lg-dock-chip"
-                data-dock={chip.id}
-                data-selected={dock === chip.id}
-                data-testid={`lg-chip-${chip.id}`}
-                onClick={() => {
-                  onDock(chip.id);
-                }}
-              >
-                <Icon size={16} aria-hidden />
-                {chip.label}
-                <small>{chip.eng}</small>
-              </button>
-            );
-          })}
-        </div>
-        {toast ? <p className="lg-toast lg-toast-dock">{toast}</p> : null}
-      </footer>
+      <BottomDock draft={draft} dock={dock} onDraft={onDraft} onSend={onSend} onDock={onDock} />
+      {toast ? (
+        <p className="lg-toast" style={{ position: 'absolute', left: 24, bottom: 80, zIndex: 60 }}>
+          {toast}
+        </p>
+      ) : null}
+      <span className="visually-hidden">{bedId}</span>
     </section>
   );
 }
@@ -1301,9 +1115,10 @@ function RoundFeedback({ pick, onNext }: { pick: string | null; onNext: () => vo
 function EndScreen({ onAgain }: { onAgain: () => void }) {
   return (
     <section className="lg-end" data-testid="lg-end">
-      <div className="lg-end-sheet lg-card">
-        <h1>成績表 Grade Report · {END_REPORT.grade}</h1>
-        <p className="lg-end-score">{END_REPORT.score}</p>
+      <div className="lg-end-card lg-card">
+        <h1>
+          成績表 Grade · {END_REPORT.grade} ({END_REPORT.score})
+        </h1>
         <ul>
           {END_REPORT.lines.map((line) => (
             <li key={line.labelEng}>
@@ -1315,11 +1130,8 @@ function EndScreen({ onAgain }: { onAgain: () => void }) {
           ))}
         </ul>
         <button type="button" className="lg-confirm" onClick={onAgain}>
-          再來一次 Play again
+          再來一局 Play again
         </button>
-        <a className="lg-link" href="#/">
-          返回主畫面 Main
-        </a>
       </div>
     </section>
   );
