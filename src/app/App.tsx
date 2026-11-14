@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { testConnection, type DevProxy } from '@/ai';
+import { LayoutGDemo } from '@/demo/layout-g';
 import { ui } from '@/i18n';
 import { loadSettings, saveSettings, type SaveSlotView, type Settings } from '@/storage';
 import { Layout, SettingsPage, StartPage } from '@/ui';
+import { PlayFrame } from '@/ui/frame/PlayFrame';
 import { selectStartGate } from '@/view';
 import { GameScreen } from './GameScreen';
 import { createLazySaveService } from './lazySaves';
@@ -66,6 +68,16 @@ export function App() {
     (candidate: Settings) => testConnection(candidate, devProxy ? { proxy: devProxy } : {}),
     [],
   );
+
+  if (route === 'demo-layout-g') {
+    return (
+      <PlayFrame>
+        <div className="layout-g-demo-host">
+          <LayoutGDemo />
+        </div>
+      </PlayFrame>
+    );
+  }
 
   if (route === 'settings') {
     return (
