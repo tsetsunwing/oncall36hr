@@ -41,4 +41,13 @@ describe('StartPage', () => {
     await userEvent.click(screen.getByRole('button', { name: ui.start.startButton }));
     expect(onStart).toHaveBeenCalledOnce();
   });
+
+  it('offers a secondary Layout G DEMO entrance beside the primary start button', () => {
+    render(<StartPage gate={{ canStart: true }} onStart={vi.fn()} />);
+    const demo = screen.getByTestId('open-layout-g-demo');
+    expect(demo).toHaveAttribute('href', '#/demo/layout-g');
+    expect(demo).toHaveTextContent(/Layout G/);
+    expect(demo).toHaveTextContent(/DEMO/);
+    expect(screen.getByRole('button', { name: ui.start.startButton })).toBeInTheDocument();
+  });
 });

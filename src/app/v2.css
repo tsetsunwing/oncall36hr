@@ -2299,6 +2299,13 @@ tr[data-flag='H'] .value-flagged {
   align-items: center;
 }
 
+.setup-bar-actions a.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
 .setup-bar .hint {
   margin: 0;
 }
