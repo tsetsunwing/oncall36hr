@@ -96,12 +96,7 @@ export function StartScreen({
         </h1>
         <p className="fal-t-start-sub">等角病房外殼 · 假數據 isometric shell</p>
         <div className="fal-start-actions">
-          <button
-            type="button"
-            className="fal-cta"
-            data-testid="lg-start-new"
-            onClick={onNew}
-          >
+          <button type="button" className="fal-cta" data-testid="lg-start-new" onClick={onNew}>
             <p className="fal-t-cta">開始值班 Start Shift</p>
           </button>
           <button
@@ -112,7 +107,12 @@ export function StartScreen({
           >
             <p className="fal-t-ghost">繼續 Continue → Floor</p>
           </button>
-          <button type="button" className="fal-ghost-btn" data-testid="lg-start-end" onClick={onEnd}>
+          <button
+            type="button"
+            className="fal-ghost-btn"
+            data-testid="lg-start-end"
+            onClick={onEnd}
+          >
             <p className="fal-t-ghost">成績表 End</p>
           </button>
           <a className="fal-t-link" href="#/">
@@ -251,7 +251,9 @@ export function PhoneScreen({
         data-testid="lg-phone-screen"
         data-node-id={chatWith.kind === 'specialty' ? '74:1146' : '74:1114'}
         data-name={
-          chatWith.kind === 'specialty' ? '08b Phone · Call Specialty' : '08 Phone · Call Senior/Junior'
+          chatWith.kind === 'specialty'
+            ? '08b Phone · Call Specialty'
+            : '08 Phone · Call Senior/Junior'
         }
       >
         <p className="fal-t-phone-demo">
@@ -335,8 +337,16 @@ export function PhoneScreen({
       <p className="fal-t-phone-demo" data-node-id="52:420">
         手機通話 Phone overlay
       </p>
-      <div className="fal-phone-device fal-phone-device-bezel" data-node-id="52:421" data-name="Phone Device">
-        <div className="fal-phone-screen fal-phone-screen-light" data-node-id="52:422" data-name="Screen">
+      <div
+        className="fal-phone-device fal-phone-device-bezel"
+        data-node-id="52:421"
+        data-name="Phone Device"
+      >
+        <div
+          className="fal-phone-screen fal-phone-screen-light"
+          data-node-id="52:422"
+          data-name="Screen"
+        >
           <div className="fal-phone-status">
             <p className="fal-t-phone-status">18:05</p>
             <div className="fal-phone-status-right">
@@ -590,11 +600,7 @@ export function RoundFeedback({ pick, onNext }: { pick: string | null; onNext: (
           <p className="fal-t-round-q">{q.promptChi}</p>
           <p className="fal-t-round-loading">AC 正在翻閱病歷…… Loading case notes</p>
         </div>
-        <div
-          className="fal-round-verdict"
-          data-node-id="161:569"
-          data-ok={ok}
-        >
+        <div className="fal-round-verdict" data-node-id="161:569" data-ok={ok}>
           <p className="fal-t-verdict" data-ok={ok}>
             {ok ? '答對 CORRECT ✓' : '再想想 Review'}
           </p>
@@ -673,12 +679,7 @@ export function EndScreen({ onAgain }: { onAgain: () => void }) {
             <span className="fal-fill-spacer fal-end-dash" />
             <div className="fal-end-bars">
               {[0, 1, 2, 3].map((i) => (
-                <i
-                  key={i}
-                  className="fal-end-bar"
-                  data-on={i < row.filled}
-                  data-tone={row.tone}
-                />
+                <i key={i} className="fal-end-bar" data-on={i < row.filled} data-tone={row.tone} />
               ))}
             </div>
             <div className="fal-end-chip" data-tone={row.tone}>

@@ -91,7 +91,11 @@ export function TreatP2Shell({
           </div>
         ) : null}
         {l1 ? (
-          <div className="fal-treat-col fal-treat-l3" data-node-id="132:572" data-name="L3 · 劑量／細節">
+          <div
+            className="fal-treat-col fal-treat-l3"
+            data-node-id="132:572"
+            data-name="L3 · 劑量／細節"
+          >
             <p className="fal-t-treat-col-h" data-node-id="132:573">
               {l1 === 'oxygen'
                 ? 'L3 · 氧氣細節 O2 details'
