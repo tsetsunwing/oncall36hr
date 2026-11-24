@@ -40,6 +40,8 @@ describe('LayoutGDemo', () => {
     expect(screen.getByTestId('lg-floor')).toBeInTheDocument();
     await user.click(screen.getByTestId('lg-phone'));
     expect(screen.getByTestId('lg-phone-screen')).toBeInTheDocument();
+    await user.click(screen.getByTestId('lg-phone-contact-chan'));
+    expect(screen.getByText(/SpO₂ 92%/)).toBeInTheDocument();
   });
 
   it('opens observe panel from dock using production ObservePanel', async () => {
@@ -49,5 +51,33 @@ describe('LayoutGDemo', () => {
     await user.click(screen.getByTestId('lg-bed-A5'));
     await user.click(screen.getByTestId('lg-chip-observe'));
     expect(screen.getByTestId('observe-panel')).toBeInTheDocument();
+  });
+
+  it('rebuilds setup / treat P2 / round from Figma AL nodes', async () => {
+    const user = userEvent.setup();
+    render(<LayoutGDemo />);
+    await user.click(screen.getByTestId('lg-start-new'));
+    expect(screen.getByTestId('lg-setup')).toHaveAttribute('data-node-id', '159:517');
+    await user.click(screen.getByTestId('lg-setup-start'));
+    expect(screen.getByTestId('lg-floor')).toBeInTheDocument();
+    await user.click(screen.getByTestId('lg-bed-A5'));
+    await user.click(screen.getByTestId('lg-chip-treat'));
+    expect(screen.getByTestId('lg-treat-p2')).toHaveAttribute('data-node-id', '132:545');
+    await user.click(screen.getByTestId('lg-treat-oxygen'));
+    expect(screen.getByTestId('oxygen-order')).toBeInTheDocument();
+    await user.click(screen.getByTestId('lg-back'));
+    await user.click(screen.getByTestId('lg-round'));
+    expect(screen.getByTestId('lg-round-screen')).toHaveAttribute('data-node-id', '161:517');
+    await user.click(screen.getByRole('button', { name: /床邊 ECG/ }));
+    await user.click(screen.getByTestId('lg-round-submit'));
+    expect(screen.getByTestId('lg-round-feedback')).toHaveAttribute('data-node-id', '161:566');
+  });
+
+  it('opens Figma end grade report', async () => {
+    const user = userEvent.setup();
+    render(<LayoutGDemo />);
+    await user.click(screen.getByTestId('lg-start-end'));
+    expect(screen.getByTestId('lg-end')).toHaveAttribute('data-node-id', '136:583');
+    expect(screen.getByText('交更成績表 Shift Report')).toBeInTheDocument();
   });
 });
