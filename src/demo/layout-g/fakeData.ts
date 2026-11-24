@@ -317,19 +317,157 @@ export const DEMO_NEURO = [
   { id: 'pupils', label: '瞳孔 Pupils', value: '左 L 3mm 靈敏 Brisk · 右 R 3mm 靈敏 Brisk' },
 ];
 
-export const DEMO_PHONE = {
+export type PhoneTab = 'seniors' | 'juniors' | 'specialties';
+export type PhoneChatKey = 'senior' | 'specialty';
+
+export interface PhoneContact {
+  id: string;
+  name: string;
+  subtitle: string;
+  initial: string;
+  color: string;
+  kind: 'senior' | 'junior' | 'specialty';
+  chatKey: PhoneChatKey;
+}
+
+/** Figma 07 Phone contacts (35:815). */
+export const DEMO_PHONE_CONTACTS: Record<PhoneTab, PhoneContact[]> = {
+  specialties: [
+    {
+      id: 'med',
+      name: '內科 Medicine',
+      subtitle: '專科當值 Specialty on-call',
+      initial: '內',
+      color: '#4073bf',
+      kind: 'specialty',
+      chatKey: 'specialty',
+    },
+    {
+      id: 'surg',
+      name: '外科 Surgery',
+      subtitle: '專科當值 Specialty on-call',
+      initial: '外',
+      color: '#598cb2',
+      kind: 'specialty',
+      chatKey: 'specialty',
+    },
+    {
+      id: 'icu',
+      name: 'ICU',
+      subtitle: '危重護理 Critical care',
+      initial: 'I',
+      color: '#b24d59',
+      kind: 'specialty',
+      chatKey: 'specialty',
+    },
+    {
+      id: 'cardio',
+      name: '心臟科 Cardiology',
+      subtitle: '專科當值 Specialty on-call',
+      initial: '心',
+      color: '#bf5973',
+      kind: 'specialty',
+      chatKey: 'specialty',
+    },
+  ],
   seniors: [
-    { id: 's1', title: '顧問醫生 Consultant', name: '李顧問', status: '可聯絡' },
-    { id: 's2', title: '副顧問 Associate Consultant', name: '陳副顧', status: '稍後' },
+    {
+      id: 'chan',
+      name: 'Dr Chan',
+      subtitle: 'SMO · Senior',
+      initial: 'D',
+      color: '#4d8073',
+      kind: 'senior',
+      chatKey: 'senior',
+    },
+    {
+      id: 'lam',
+      name: 'Dr Lam',
+      subtitle: '副顧問 Assoc Cons',
+      initial: 'D',
+      color: '#4d738c',
+      kind: 'senior',
+      chatKey: 'senior',
+    },
   ],
   juniors: [
-    { id: 'j1', title: '駐院醫生 Resident', name: '黃醫生', status: '可聯絡' },
-    { id: 'j2', title: '實習醫生 Intern', name: '何醫生', status: '響鈴中' },
+    {
+      id: 'wong',
+      name: 'HO Wong',
+      subtitle: '住院醫生 House officer',
+      initial: 'H',
+      color: '#8c8059',
+      kind: 'junior',
+      chatKey: 'senior',
+    },
+    {
+      id: 'lee',
+      name: 'Intern Lee',
+      subtitle: '實習醫生 Intern',
+      initial: 'I',
+      color: '#80738c',
+      kind: 'junior',
+      chatKey: 'senior',
+    },
   ],
-  specialties: [
-    { id: 'sp1', title: '心臟科 Cardiology', name: '瑪麗醫院', status: '可聯絡' },
-    { id: 'sp2', title: '深切治療 ICU', name: '瑪麗醫院', status: '可聯絡' },
-    { id: 'sp3', title: '呼吸系統科 Respiratory', name: '瑪麗醫院', status: '稍後' },
+};
+
+/** Legacy tab shape kept for any older callers. */
+export const DEMO_PHONE = {
+  seniors: DEMO_PHONE_CONTACTS.seniors.map((c) => ({
+    id: c.id,
+    title: c.subtitle,
+    name: c.name,
+    status: '可聯絡',
+  })),
+  juniors: DEMO_PHONE_CONTACTS.juniors.map((c) => ({
+    id: c.id,
+    title: c.subtitle,
+    name: c.name,
+    status: '可聯絡',
+  })),
+  specialties: DEMO_PHONE_CONTACTS.specialties.map((c) => ({
+    id: c.id,
+    title: c.name,
+    name: c.subtitle,
+    status: '可聯絡',
+  })),
+};
+
+/** Figma 08 / 08b WhatsApp-style threads. */
+export const DEMO_PHONE_CHATS: Record<
+  PhoneChatKey,
+  { id: string; dir: 'in' | 'out'; text: string; time: string }[]
+> = {
+  senior: [
+    {
+      id: 's1',
+      dir: 'out',
+      text: '陳醫生，Bed A5 氣促，SpO₂ 92%，想請示要唔要升 NIV？',
+      time: '01:50',
+    },
+    {
+      id: 's2',
+      dir: 'in',
+      text: '先 NRBM 15L，重做 ABG，半小時後再報我。',
+      time: '01:51',
+    },
+    { id: 's3', dir: 'out', text: '收到，而家落 ABG + 升氧。', time: '01:51' },
+  ],
+  specialty: [
+    {
+      id: 'p1',
+      dir: 'out',
+      text: '心臟科當值嗎？Bed A5 喘咳，想問要唔要床邊 Echo？',
+      time: '01:52',
+    },
+    {
+      id: 'p2',
+      dir: 'in',
+      text: '可以，我 10 分鐘到。先做 ECG + 心電監護。',
+      time: '01:53',
+    },
+    { id: 'p3', dir: 'out', text: '收到，謝謝。', time: '01:53' },
   ],
 };
 
@@ -402,31 +540,146 @@ export const DEMO_MEDICATIONS = [
   },
 ];
 
+/** Figma 05 Doctor Round copy (161:517 / 161:566). */
 export const ROUND_QUESTION = {
   bed: 'A5',
-  patient: '鄧嘉豪',
-  promptChi: '以下邊項最能解釋而家嘅氣促同低血氧？',
-  promptEng: 'Which best explains the dyspnoea and hypoxaemia now?',
+  bedLabel: '3 號床',
+  patient: '王淑芬',
+  mews: 3,
+  promptChi: '這位病人出現氣促惡化，你會先檢查什麼？又會如何分辨心源性與肺源性原因？',
+  promptEng: 'Dyspnoea worsening — first checks and cardiac vs pulmonary?',
   choices: [
-    { id: 'A', text: 'A. 心衰竭肺水腫 Pulmonary oedema from heart failure' },
-    { id: 'B', text: 'B. 社區獲得性肺炎 Community-acquired pneumonia' },
-    { id: 'C', text: 'C. 肺栓塞 Pulmonary embolism' },
-    { id: 'D', text: 'D. 焦慮過度換氣 Anxiety hyperventilation' },
+    { id: 'A', text: '床邊 ECG＋BNP，再看下肢水腫與靜脈壓' },
+    { id: 'B', text: '即刻照 Chest X-ray 就夠' },
+    { id: 'C', text: '抽血驗 CBC，等報告再決定' },
+    { id: 'D', text: '先試利尿劑，有效就是心源性' },
   ],
-  correct: 'B',
-  teachingChi: '右下肺實變同發燒傾向肺炎；先繼續氧氣、抗生素同監察。',
-  teachingEng: 'Right-lower-zone consolidation with fever favours pneumonia.',
+  correct: 'A',
+  hit: '分辨心源／肺源要靠體征＋BNP＋CXR 三線證據',
+  miss: '記得評估容量狀態與利尿反應',
+  scoring: '計分：答對計入「臨床結果」；不作答或答錯會扣少許分。',
+  teachingChi: '分辨心源／肺源要靠體征＋BNP＋CXR 三線證據',
+  teachingEng: 'Cardiac vs pulmonary needs signs + BNP + CXR.',
 };
 
+export type EndTone = 'teal' | 'warn' | 'ok' | 'bad';
+
+/** Figma 99 End grade rows (136:583). */
+export const END_GRADE_ROWS: {
+  id: string;
+  title: string;
+  detail: string;
+  grade: string;
+  filled: number;
+  tone: EndTone;
+}[] = [
+  {
+    id: 'clinical',
+    title: '臨床結果 Clinical outcome',
+    detail: '及時升氧並重做 ABG；早期敗血症處理 ×2',
+    grade: '良好 GOOD',
+    filled: 3,
+    tone: 'teal',
+  },
+  {
+    id: 'time',
+    title: '時效 Timeliness',
+    detail: '3 號床降鉀比理想遲 40 分鐘；即時處理來電 ×3',
+    grade: '尚可 FAIR',
+    filled: 2,
+    tone: 'warn',
+  },
+  {
+    id: 'safety',
+    title: '安全 Safety',
+    detail: '藥物安全把關全過 ×5；PRN 間隔全部守足',
+    grade: '優秀 EXCELLENT',
+    filled: 4,
+    tone: 'ok',
+  },
+  {
+    id: 'comms',
+    title: '溝通 Communication',
+    detail: '向 SMO 請示清晰 ×2；5 號床未向家屬交代',
+    grade: '良好 GOOD',
+    filled: 3,
+    tone: 'teal',
+  },
+  {
+    id: 'prio',
+    title: '優先次序 Prioritisation',
+    detail: '警報病人全部即時到床邊',
+    grade: '良好 GOOD',
+    filled: 3,
+    tone: 'teal',
+  },
+  {
+    id: 'self',
+    title: '自我照顧 Self-care',
+    detail: '交更時疲倦偏高；未進食晚餐',
+    grade: '需改善 NEEDS IMPROVEMENT',
+    filled: 1,
+    tone: 'bad',
+  },
+];
+
+export const END_OUTCOMES: {
+  id: string;
+  name: string;
+  status: string;
+  tag: string;
+  tone: EndTone;
+  tagTone: EndTone;
+}[] = [
+  {
+    id: 'p3',
+    name: '3 號床 王淑芬',
+    status: '穩定 STABLE',
+    tag: '已交班',
+    tone: 'ok',
+    tagTone: 'teal',
+  },
+  {
+    id: 'p5',
+    name: '5 號床 黃偉傑',
+    status: '死亡 DECEASED',
+    tag: '已盡力',
+    tone: 'bad',
+    tagTone: 'warn',
+  },
+  {
+    id: 'p7',
+    name: '7 號床 林雅婷',
+    status: '需留意 CAUTION',
+    tag: '已交班',
+    tone: 'warn',
+    tagTone: 'teal',
+  },
+  {
+    id: 'p8',
+    name: '8 號床 吳家輝',
+    status: '穩定 STABLE',
+    tag: '未提及',
+    tone: 'ok',
+    tagTone: 'bad',
+  },
+];
+
+export const END_STATS = [
+  '巡房：答對 6 題，作答 7 / 8 題',
+  '超時 0 分鐘 · 於正常時間內交更',
+  '藥物安全（AI 評語）：良好',
+];
+
+/** Compact legacy shape for any older callers. */
 export const END_REPORT = {
-  grade: 'B+',
-  score: 78,
-  lines: [
-    { labelChi: '反應速度 Response', labelEng: 'Response', value: '良好 Good' },
-    { labelChi: '醫囑完整性 Orders', labelEng: 'Orders', value: '尚可 Fair' },
-    { labelChi: '溝通 Communication', labelEng: 'Communication', value: '良好 Good' },
-    { labelChi: '自我照顧 Self-care', labelEng: 'Self-care', value: '需改善 Needs work' },
-  ],
+  grade: '良好 GOOD',
+  score: '—',
+  lines: END_GRADE_ROWS.map((r) => ({
+    labelChi: r.title.split(' ')[0] ?? r.title,
+    labelEng: r.title,
+    value: r.grade,
+  })),
 };
 
 export function mewsTone(mews: number): 'green' | 'amber' | 'red' {
